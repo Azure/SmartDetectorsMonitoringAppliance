@@ -1,0 +1,16 @@
+.navbar {
+    background: #ECF0F1;
+}
+
+.backgroundColor {
+    background: black;
+}
+
+// This is a workaround until react-md will solve the bug of missing 'nav
+.md-paper.md-paper--1.md-drawer.md-drawer--left.md-drawer--fixed.md-drawer--active.md-drawer--mini.md-background--card {
+    background: #26313C;
+}
+
+.md-list.md-toolbar-relative {
+    background: #26313C;
+}

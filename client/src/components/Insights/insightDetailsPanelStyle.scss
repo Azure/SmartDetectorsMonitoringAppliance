@@ -1,0 +1,14 @@
+.insightDetailsPanelContainer {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    .noInsightToShow {
+        font-family: "Segoe UI";
+        font-size: large;
+        color: gray;
+        margin-bottom: 100px;
+        font-weight: 400;
+    }
+}

@@ -1,0 +1,25 @@
+.insightsContainer {
+    width: 100%;
+    height: 100%;
+    position: fixed;
+
+    .filterRow {
+        background: #262626;
+        height: 40px;
+    }
+
+    .insightsPanel {
+        background: #ECF0F1;
+        height: 100%;
+
+        .insightsPanelContent {
+            height: 100%;
+
+            .insightsCardsPanel {
+                height: 100%;
+                border-right-style: groove;
+                padding-top: 30px;
+            }
+        }
+    }
+}
