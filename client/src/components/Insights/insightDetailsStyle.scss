@@ -1,26 +1,39 @@
 .insightDetailsContainer {
-    margin-top: 17px;
-    margin-left: 80px;
     width: 100%;
     align-self: flex-start;
-    font-family: "Segoe UI";
 
-    .insightTitle {
-        font-size: 40px;
-    }
+    .insightDetailsGrid {
+        margin-top: 17px;
+        margin-left: 80px;
+        font-family: "Segoe UI";
 
-    .insightSummaryTitle {
-        margin-top: 20px;
-        margin-bottom: 5px;
-        font-size: 20px;
-        font-weight: 600;
-    }
+        .insightTitle {
+            font-size: 40px;
+        }
 
-    .insightSummaryDetails {
-        font-size: 18px;
-
-        .propertyRow {
+        .insightSummaryTitle {
+            margin-top: 20px;
             margin-bottom: 5px;
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .insightSummaryDetails {
+            font-size: 18px;
+
+            .propertyRow {
+                margin-bottom: 5px;
+            }
+        }
+    }
+
+    .insightAnalysisChart {
+        margin-top: 20px;
+        margin-left: 90px;
+
+        .analysisChart {
+            border-style: groove;
+            width: 100%;
         }
     }
 }

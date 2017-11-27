@@ -2,6 +2,16 @@
 # yarn lockfile v1
 
 
+"@types/d3-path@*":
+  version "1.0.6"
+  resolved "https://registry.yarnpkg.com/@types/d3-path/-/d3-path-1.0.6.tgz#c1a7d2dc07b295fdd1c84dabe4404df991b48693"
+
+"@types/d3-shape@*":
+  version "1.2.1"
+  resolved "https://registry.yarnpkg.com/@types/d3-shape/-/d3-shape-1.2.1.tgz#cac2d9f0122f173220c32c8c152dc42ee9349df2"
+  dependencies:
+    "@types/d3-path" "*"
+
 "@types/history@*":
   version "4.6.2"
   resolved "https://registry.yarnpkg.com/@types/history/-/history-4.6.2.tgz#12cfaba693ba20f114ed5765467ff25fdf67ddb0"
@@ -39,6 +49,13 @@
 "@types/react@*", "@types/react@^16.0.23":
   version "16.0.23"
   resolved "https://registry.yarnpkg.com/@types/react/-/react-16.0.23.tgz#f0f713b07912c6fd8e10c9ccc539443ceb06dbca"
+
+"@types/recharts@^1.0.6":
+  version "1.0.6"
+  resolved "https://registry.yarnpkg.com/@types/recharts/-/recharts-1.0.6.tgz#943a83670617a206f3434ff3578c65a139698f63"
+  dependencies:
+    "@types/d3-shape" "*"
+    "@types/react" "*"
 
 abab@^1.0.3:
   version "1.0.4"
