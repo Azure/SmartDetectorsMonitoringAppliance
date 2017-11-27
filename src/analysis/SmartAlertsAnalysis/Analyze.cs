@@ -7,6 +7,8 @@ namespace Microsoft.Azure.Monitoring.SmartAlerts.Analysis
     using Microsoft.Azure.WebJobs.Extensions.Http;
     using Microsoft.Azure.WebJobs.Host;
     using Shared;
+    using Unity;
+    using Microsoft.Azure.Monitoring.SmartAlerts.Shared.Trace;
 
     public static class Analyze
     {
@@ -17,6 +19,9 @@ namespace Microsoft.Azure.Monitoring.SmartAlerts.Analysis
             TraceWriter log,
             ExecutionContext context)
         {
+            IUnityContainer container = new UnityContainer();
+            container.RegisterInstance(TracerFactory.Create());
+
             SmartSignalRequest smartAlertRequest = await request.Content.ReadAsAsync<SmartSignalRequest>();
             smartAlertRequest.SignalId = signalId;
 

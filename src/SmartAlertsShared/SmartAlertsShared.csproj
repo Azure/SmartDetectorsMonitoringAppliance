@@ -33,8 +33,14 @@
     <Reference Include="config.encrypt, Version=1.0.0.0, Culture=neutral, PublicKeyToken=d1293f23069b37e3, processorArchitecture=MSIL">
       <HintPath>..\..\packages\config.encrypt.1.0.0.6\lib\net40\config.encrypt.dll</HintPath>
     </Reference>
+    <Reference Include="Microsoft.AI.ServerTelemetryChannel, Version=2.4.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.2.4.0\lib\net45\Microsoft.AI.ServerTelemetryChannel.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.ApplicationInsights, Version=2.4.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\..\packages\Microsoft.ApplicationInsights.2.4.0\lib\net46\Microsoft.ApplicationInsights.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Azure.WebJobs.Host">
+      <HintPath>..\..\..\..\Users\lital\.nuget\packages\microsoft.azure.webjobs\2.1.0-beta1\lib\net45\Microsoft.Azure.WebJobs.Host.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.ManagementServices.Config, Version=2.0.1.0, Culture=neutral, PublicKeyToken=d1293f23069b37e3, processorArchitecture=MSIL">
       <HintPath>..\..\packages\ConfigurationLibrary.2.0.2\lib\portable-net4+sl5+wp8+win8\Microsoft.ManagementServices.Config.dll</HintPath>
@@ -73,14 +79,21 @@
     <Compile Include="SmartSignalConfiguration.cs" />
     <Compile Include="SmartSignalMetadata.cs" />
     <Compile Include="SmartSignalRequest.cs" />
+    <Compile Include="Trace\AggregatedTraceActivity.cs" />
+    <Compile Include="Trace\AggregatedTracer.cs" />
+    <Compile Include="Trace\AggregateOperationHandler.cs" />
     <Compile Include="Trace\AppinsightsRequestOperationHandler.cs" />
     <Compile Include="Trace\ApplicationInsightsTracer.cs" />
+    <Compile Include="Trace\ConsoleTracer.cs" />
     <Compile Include="Trace\ITelemetryOperationHandler.cs" />
     <Compile Include="Trace\ITraceActivity.cs" />
     <Compile Include="Trace\ITracer.cs" />
+    <Compile Include="Trace\TracerFactory.cs" />
+    <Compile Include="Trace\WebJobTracer.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
+    <None Include="ApplicationInsights.config" />
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
