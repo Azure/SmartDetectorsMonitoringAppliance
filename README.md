@@ -1,1 +1,1 @@
-TODO: Create a file called LICENSE (not LICENSE.TXT, LICENSE.md, etc.)…
+Azure Smart Alerts - have the ability to create a custom alert over the Azure Log Analytics data
