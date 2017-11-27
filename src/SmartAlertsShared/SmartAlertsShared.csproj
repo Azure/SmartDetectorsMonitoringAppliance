@@ -82,7 +82,7 @@
     <Compile Include="Trace\AggregatedTraceActivity.cs" />
     <Compile Include="Trace\AggregatedTracer.cs" />
     <Compile Include="Trace\AggregateOperationHandler.cs" />
-    <Compile Include="Trace\AppinsightsRequestOperationHandler.cs" />
+    <Compile Include="Trace\ApplicationInsightsRequestOperationHandler.cs" />
     <Compile Include="Trace\ApplicationInsightsTracer.cs" />
     <Compile Include="Trace\ConsoleTracer.cs" />
     <Compile Include="Trace\ITelemetryOperationHandler.cs" />

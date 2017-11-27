@@ -6,7 +6,7 @@
     /// <summary>
     /// Part of the <see cref="AggregatedTracer "/> class
     /// </summary>
-    public partial class AggregatedTracer : ITracer
+    public partial class AggregatedTracer
     {
         /// <summary>
         /// Inner class representing an aggregated trace activity.

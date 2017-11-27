@@ -5,6 +5,9 @@
 // -----------------------------------------------------------------------
 namespace Microsoft.Azure.Monitoring.SmartAlerts.Shared
 {
+    /// <summary>
+    /// A static class holding Azure function environment variables
+    /// </summary>
     public static class AzureFunctionEnvironment
     {
         private const string WebsiteNameKey = "WEBSITE_SITE_NAME";

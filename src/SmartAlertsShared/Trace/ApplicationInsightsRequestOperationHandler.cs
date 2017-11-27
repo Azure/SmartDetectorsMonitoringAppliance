@@ -10,9 +10,9 @@
     /// <summary>
     /// Implementation of the <see cref="ITelemetryOperationHandler"/> interface that handles appinsights operations.
     /// </summary>
-    public sealed class AppinsightsRequestOperationHandler : ITelemetryOperationHandler
+    public sealed class ApplicationInsightsRequestOperationHandler : ITelemetryOperationHandler
     {
-        /// <summary>
+        /// <summary>B
         /// DeepInsights telemetry client
         /// </summary>
         private TelemetryClient _telemetryClient;
@@ -60,11 +60,11 @@
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="AppinsightsRequestOperationHandler"/> class.
+        /// Initializes a new instance of the <see cref="ApplicationInsightsRequestOperationHandler"/> class.
         /// </summary>
         /// <param name="telemetryClient">Appinsights tracer used during the operation</param>
         /// <param name="customProperties">List of custom properties to be reported as part of the request</param>
-        public AppinsightsRequestOperationHandler(TelemetryClient telemetryClient, IDictionary<string, string> customProperties)
+        public ApplicationInsightsRequestOperationHandler(TelemetryClient telemetryClient, IDictionary<string, string> customProperties)
         {
             _telemetryClient = telemetryClient;
             _customProperties = customProperties;

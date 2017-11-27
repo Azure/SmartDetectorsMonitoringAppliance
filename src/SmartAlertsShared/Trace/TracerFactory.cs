@@ -49,22 +49,22 @@
         /// <summary>
         /// Create an instance of the tracer
         /// </summary>
-        /// <param name="writer">Optional web jobs tracer</param>
+        /// <param name="logger">Optional web jobs tracer</param>
         /// <param name="traceToConsole">Flag denoting if we should trace to console</param>
         /// <returns>An instance of <see cref="ITracer"/></returns>
-        public static ITracer Create(TraceWriter writer = null, bool traceToConsole = false)
+        public static ITracer Create(TraceWriter logger = null, bool traceToConsole = false)
         {
             // Creates the aggregated tracer
-            return new AggregatedTracer(GetTracersList(writer, traceToConsole));
+            return new AggregatedTracer(GetTracersList(logger, traceToConsole));
         }
 
         /// <summary>
         /// Get a list of <see cref="ITracer "/> objects for creating an aggregated tracer
         /// </summary>
-        /// <param name="writer">Optional web jobs tracer</param>
+        /// <param name="logger">Optional web jobs tracer</param>
         /// <param name="traceToConsole">Flag denoting if we should trace to console</param>
         /// <returns>A list of <see cref="ITracer "/></returns>
-        private static List<ITracer> GetTracersList(TraceWriter writer = null, bool traceToConsole = false)
+        private static List<ITracer> GetTracersList(TraceWriter logger = null, bool traceToConsole = false)
         {
             string sessionId = Guid.NewGuid().ToString();
             List<ITracer> tracers = new List<ITracer>();
@@ -81,9 +81,9 @@
                 tracers.Add(new ConsoleTracer(sessionId));
             }
 
-            if (writer != null)
+            if (logger != null)
             {
-                tracers.Add(new WebJobTracer(sessionId, writer));
+                tracers.Add(new WebJobTracer(sessionId, logger));
             }
 
             return tracers;

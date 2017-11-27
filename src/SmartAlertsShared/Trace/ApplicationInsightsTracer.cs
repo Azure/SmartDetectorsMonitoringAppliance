@@ -45,7 +45,7 @@
             };
 
             this.SessionId = sessionId;
-            this.OperationHandler = new AppinsightsRequestOperationHandler(_telemetryClient, _customProperties);
+            this.OperationHandler = new ApplicationInsightsRequestOperationHandler(_telemetryClient, _customProperties);
         }
 
         /// <summary>
@@ -251,7 +251,7 @@
         /// Creates the telemetry client with the correct endpoint and sets the session id.
         /// </summary>
         /// <param name="sessionId">Session id used for tracing</param>
-        /// <param name="telemetryConfiguration">Telemetry configuration to be used by telemtry client</param>
+        /// <param name="telemetryConfiguration">Telemetry configuration to be used by telemetry client</param>
         private TelemetryClient CreateTelemetryClient(string sessionId, TelemetryConfiguration telemetryConfiguration)
         {
             var telemetryClient = new TelemetryClient(telemetryConfiguration);
@@ -294,13 +294,13 @@
         }
 
         /// <summary>
-        /// Populates the context in <paramref name="telemetry"/> based on the current operation <see cref="AppinsightsRequestOperationHandler"/>,
+        /// Populates the context in <paramref name="telemetry"/> based on the current operation <see cref="ApplicationInsightsRequestOperationHandler"/>,
         /// and common framework properties
         /// </summary>
         /// <param name="telemetry">The telemetry to set properties in</param>
         private void SetTelemetryContext(ITelemetry telemetry)
         {
-            var operationHandler = (AppinsightsRequestOperationHandler)this.OperationHandler;
+            var operationHandler = (ApplicationInsightsRequestOperationHandler)this.OperationHandler;
 
             operationHandler?.SetTelemetryOperationContext(telemetry);
         }
@@ -341,7 +341,7 @@
         private sealed class TraceActivity : ITraceActivity
         {
             private const string TraceActivityCallContextName = "ApplicationInsights.DeepInsights.Shared.ApplicationInsightsTracer.TraceActivity";
-            private const string RootACtivityId = "root activity";
+            private const string RootActivityId = "root activity";
 
             /// <summary>
             /// Gets the activity ID
@@ -457,10 +457,10 @@
             /// Retrieves the Id of <paramref name="activity"/> in a null-safe way
             /// </summary>
             /// <param name="activity">The activity</param>
-            /// <returns>The activity ID, or <see cref="RootACtivityId"/></returns>
+            /// <returns>The activity ID, or <see cref="RootActivityId"/></returns>
             private static string SafeGetActivityId(TraceActivity activity)
             {
-                return activity?._activityId.ToString() ?? RootACtivityId;
+                return activity?._activityId.ToString() ?? RootActivityId;
             }
         }
     }

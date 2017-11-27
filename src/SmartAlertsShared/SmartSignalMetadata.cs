@@ -2,6 +2,9 @@
 {
     using Newtonsoft.Json;
 
+    /// <summary>
+    /// Represents metadata of a smart signal, stored in the smart signals repository
+    /// </summary>
     public class SmartSignalMetadata
     {
         /// <summary>
@@ -100,12 +103,12 @@
         [JsonConstructor]
         internal SmartSignalMetadata(string id, string name, string description, string version, string assemblyName, string className)
         {
-            this.Id = Diagnostics.EnsureStringNotNullOrWhiteSpace(() => name);
+            this.Id = Diagnostics.EnsureStringNotNullOrWhiteSpace(() => id);
             this.Name = Diagnostics.EnsureStringNotNullOrWhiteSpace(() => name);
             this.Description = Diagnostics.EnsureStringNotNullOrWhiteSpace(() => description);
             this.Version = Diagnostics.EnsureStringNotNullOrWhiteSpace(() => version);
             this.AssemblyName = Diagnostics.EnsureStringNotNullOrWhiteSpace(() => assemblyName);
-            this.AssemblyName = Diagnostics.EnsureStringNotNullOrWhiteSpace(() => className);
+            this.ClassName = Diagnostics.EnsureStringNotNullOrWhiteSpace(() => className);
         }
     }
 }

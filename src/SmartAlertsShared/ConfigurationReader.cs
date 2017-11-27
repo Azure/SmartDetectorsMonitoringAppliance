@@ -85,9 +85,9 @@ namespace Microsoft.Azure.Monitoring.SmartAlerts.Shared
         public static IEnumerable<string> ReadConfigList(string settingName, char delimiter = ';')
         {
             var value = ReadConfig(settingName, required: true);
-            var seperators = new[] { delimiter };
+            var separators = new[] { delimiter };
 
-            return value.Split(seperators, StringSplitOptions.RemoveEmptyEntries);
+            return value.Split(separators, StringSplitOptions.RemoveEmptyEntries);
         }
 
         /// <summary>
