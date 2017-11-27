@@ -1,9 +1,9 @@
-﻿namespace Microsoft.SmartAlerts.Shared
+﻿namespace Microsoft.Azure.Monitoring.SmartAlerts.Shared
 {
     using System;
     using System.Collections.Generic;
 
-    public class SmartAlertRequest
+    public class SmartSignalRequest
     {
         public List<string> ResourceIds { get; set; }
 
@@ -13,6 +13,6 @@
 
         public int AnalysisWindowSize { get; set; }
 
-        public SignalConfiguration Configuration { get; set; }
+        public SmartSignalConfiguration Configuration { get; set; }
     }
 }

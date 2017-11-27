@@ -31,7 +31,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "scheduler", "scheduler", "{
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SDK", "SDK", "{33F08307-4325-4557-9D0B-DE57DD7DE249}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmartAlertsAnalysis", "src\analysis\SmartAlertsAnalysis\SmartAlertsAnalysis.csproj", "{16BEFF04-01CC-4C6A-B835-42DC78550B68}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SmartAlertsAnalysis", "src\analysis\SmartAlertsAnalysis\SmartAlertsAnalysis.csproj", "{16BEFF04-01CC-4C6A-B835-42DC78550B68}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmartAlertsShared", "src\SmartAlertsShared\SmartAlertsShared.csproj", "{03628C28-B52D-4785-8F70-A5191F0AAA04}"
 EndProject

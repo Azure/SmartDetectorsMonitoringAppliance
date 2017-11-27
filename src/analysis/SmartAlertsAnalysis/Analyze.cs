@@ -1,4 +1,4 @@
-namespace Microsoft.SmartAlerts.Analysis
+namespace Microsoft.Azure.Monitoring.SmartAlerts.Analysis
 {
     using System.Net;
     using System.Net.Http;
@@ -14,12 +14,13 @@ namespace Microsoft.SmartAlerts.Analysis
         public static async Task<HttpResponseMessage> Run(
             [HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = "signals/{signalId}")]HttpRequestMessage request,
             string signalId,
-            TraceWriter log)
+            TraceWriter log,
+            ExecutionContext context)
         {
-            SmartAlertRequest smartAlertRequest = await request.Content.ReadAsAsync<SmartAlertRequest>();
+            SmartSignalRequest smartAlertRequest = await request.Content.ReadAsAsync<SmartSignalRequest>();
             smartAlertRequest.SignalId = signalId;
 
-            return request.CreateResponse(HttpStatusCode.OK, $"Recieved request for signal {smartAlertRequest.SignalId}");
+            return request.CreateResponse(HttpStatusCode.OK, $"Received request for signal {smartAlertRequest.SignalId}");
         }
     }
 }
