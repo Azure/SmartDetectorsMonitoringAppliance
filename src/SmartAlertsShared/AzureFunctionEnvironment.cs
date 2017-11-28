@@ -28,5 +28,10 @@ namespace Microsoft.Azure.Monitoring.SmartAlerts.Shared
         /// The website instance Id that runs this job. This is a generated GUID as opposed to the Hostname that can be any string.
         /// </summary>
         public static string WebsiteInstanceId => System.Environment.GetEnvironmentVariable(WebsiteInstanceIdKey);
+
+        /// <summary>
+        /// Whether we are running locally
+        /// </summary>
+        public static bool IsLocalEnvironment => string.IsNullOrEmpty(WebsiteInstanceId);
     }
 }

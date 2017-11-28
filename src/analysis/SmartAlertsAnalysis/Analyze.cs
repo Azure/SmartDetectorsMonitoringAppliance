@@ -27,9 +27,9 @@ namespace Microsoft.Azure.Monitoring.SmartAlerts.Analysis
             WebJobs.ExecutionContext context,
             CancellationToken cancellationToken)
         {
-            using (IUnityContainer container = _container.CreateChildContainer())
+            using (IUnityContainer childContainer = _container.CreateChildContainer())
             {
-                container.RegisterInstance(TracerFactory.Create(log));
+                childContainer.RegisterInstance(TracerFactory.Create(log, true));
                 SmartSignalRequest smartAlertRequest = await request.Content.ReadAsAsync<SmartSignalRequest>(cancellationToken);
 
                 return request.CreateResponse(HttpStatusCode.OK, $"Received request for signal {smartAlertRequest.SignalId}");

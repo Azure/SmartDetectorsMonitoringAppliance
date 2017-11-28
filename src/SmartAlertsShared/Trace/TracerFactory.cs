@@ -11,19 +11,31 @@
     /// </summary>
     public static class TracerFactory
     {
-        private static readonly TelemetryConfiguration _secondaryTelemetryConfiguration;
+        private static bool _telemetryConigurationWasSet = false;
+        private static TelemetryConfiguration _secondaryTelemetryConfiguration;
 
         /// <summary>
         /// Initializes static members of the <see cref="TracerFactory"/> class.
         /// </summary>
-        static TracerFactory()
+        private static void SetupTelemetryConfiguration()
         {
-            // Get the main Ikey
-            TelemetryConfiguration.Active.InstrumentationKey = ConfigurationReader.ReadConfig("TelemetryInstrumentationKey", true);
-            TelemetryConfiguration.Active.TelemetryChannel.EndpointAddress = ConfigurationReader.ReadConfig("TelemetryEndpoint", false);
+            if (!_telemetryConigurationWasSet)
+            {
+                lock (typeof(TracerFactory))
+                {
+                    if (!_telemetryConigurationWasSet)
+                    {
+                        // Get the main Ikey
+                        TelemetryConfiguration.Active.InstrumentationKey = ConfigurationReader.ReadConfig("TelemetryInstrumentationKey", true);
+                        TelemetryConfiguration.Active.TelemetryChannel.EndpointAddress = ConfigurationReader.ReadConfig("TelemetryEndpoint", false);
 
-            // Create secondary telemetry configurations if exists
-            _secondaryTelemetryConfiguration = CreateAdditionalTelemetryConfiguration("SecondaryTelemetryInstrumentationKey", "SecondaryTelemetryEndpoint");
+                        // Create secondary telemetry configurations if exists
+                        _secondaryTelemetryConfiguration = CreateAdditionalTelemetryConfiguration("SecondaryTelemetryInstrumentationKey", "SecondaryTelemetryEndpoint");
+
+                        _telemetryConigurationWasSet = true;
+                    }
+                }
+            }
         }
 
         /// <summary>
@@ -69,11 +81,15 @@
             string sessionId = Guid.NewGuid().ToString();
             List<ITracer> tracers = new List<ITracer>();
 
-            tracers.Add(new ApplicationInsightsTracer(sessionId, TelemetryConfiguration.Active));
-
-            if (_secondaryTelemetryConfiguration != null)
+            if (!AzureFunctionEnvironment.IsLocalEnvironment)
             {
-                tracers.Add(new ApplicationInsightsTracer(sessionId, _secondaryTelemetryConfiguration));
+                SetupTelemetryConfiguration();
+                tracers.Add(new ApplicationInsightsTracer(sessionId, TelemetryConfiguration.Active));
+
+                if (_secondaryTelemetryConfiguration != null)
+                {
+                    tracers.Add(new ApplicationInsightsTracer(sessionId, _secondaryTelemetryConfiguration));
+                }
             }
 
             if (traceToConsole)
