@@ -1,4 +1,4 @@
-﻿namespace Microsoft.SmartAlerts.Shared
+﻿namespace Microsoft.Azure.Monitoring.SmartAlerts.Shared
 {
     using System;
     using System.Collections.Generic;

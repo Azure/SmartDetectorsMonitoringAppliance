@@ -1,8 +1,11 @@
-﻿namespace Microsoft.SmartAlerts.Shared
+﻿namespace Microsoft.Azure.Monitoring.SmartAlerts.Shared
 {
     using Newtonsoft.Json;
 
-    public class SignalMetadata
+    /// <summary>
+    /// Represents metadata of a smart signal, stored in the smart signals repository
+    /// </summary>
+    public class SmartSignalMetadata
     {
         /// <summary>
         /// Gets the signal's id.
@@ -44,7 +47,7 @@
         public override bool Equals(object obj)
         {
             // If parameter cannot be cast to SignalMetadata return false.
-            var other = obj as SignalMetadata;
+            var other = obj as SmartSignalMetadata;
             if (other == null)
             {
                 return false;
@@ -89,7 +92,7 @@
         #endregion
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="SignalMetadata"/> class.
+        /// Initializes a new instance of the <see cref="SmartSignalMetadata"/> class.
         /// </summary>
         /// <param name="id">The signal's id.</param>
         /// <param name="name">The signal's name.</param>
@@ -98,14 +101,14 @@
         /// <param name="assemblyName">The name of the signal's assembly file.</param>
         /// <param name="className">The (fully qualified) name for the signal's class.</param>
         [JsonConstructor]
-        internal SignalMetadata(string id, string name, string description, string version, string assemblyName, string className)
+        internal SmartSignalMetadata(string id, string name, string description, string version, string assemblyName, string className)
         {
-            this.Id = Diagnostics.EnsureStringNotNullOrWhiteSpace(() => name);
+            this.Id = Diagnostics.EnsureStringNotNullOrWhiteSpace(() => id);
             this.Name = Diagnostics.EnsureStringNotNullOrWhiteSpace(() => name);
             this.Description = Diagnostics.EnsureStringNotNullOrWhiteSpace(() => description);
             this.Version = Diagnostics.EnsureStringNotNullOrWhiteSpace(() => version);
             this.AssemblyName = Diagnostics.EnsureStringNotNullOrWhiteSpace(() => assemblyName);
-            this.AssemblyName = Diagnostics.EnsureStringNotNullOrWhiteSpace(() => className);
+            this.ClassName = Diagnostics.EnsureStringNotNullOrWhiteSpace(() => className);
         }
     }
 }
