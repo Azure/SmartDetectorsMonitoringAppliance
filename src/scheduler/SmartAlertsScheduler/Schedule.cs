@@ -7,7 +7,7 @@ namespace Microsoft.SmartSignals.Scheduler
     public static class Schedule
     {
         [FunctionName("Schedule")]
-        public static async Task Run([TimerTrigger("0 */5 * * * *")]TimerInfo myTimer, TraceWriter log)
+        public static void Run([TimerTrigger("0 */5 * * * *")]TimerInfo myTimer, TraceWriter log)
         {
             
         }
