@@ -29,9 +29,9 @@
         public int AnalysisWindowSize { get; }
 
         /// <summary>
-        /// Gets the analysis configuration
+        /// Gets the analysis settings
         /// </summary>
-        public SmartSignalConfiguration Configuration { get; }
+        public SmartSignalSettings Settings { get; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SmartSignalRequest"/> class
@@ -41,13 +41,13 @@
         /// <param name="analysisTimestamp">The end of the time range for analysis</param>
         /// <param name="analysisWindowSize">The analysis windows size (in minutes)</param>
         /// <param name="configuration">The analysis configuration</param>
-        public SmartSignalRequest(List<string> resourceIds, string signalId, DateTime analysisTimestamp, int analysisWindowSize, SmartSignalConfiguration configuration)
+        public SmartSignalRequest(List<string> resourceIds, string signalId, DateTime analysisTimestamp, int analysisWindowSize, SmartSignalSettings settings)
         {
             ResourceIds = resourceIds;
             SignalId = signalId;
             AnalysisTimestamp = analysisTimestamp;
             AnalysisWindowSize = analysisWindowSize;
-            Configuration = configuration;
+            Settings = settings;
         }
     }
 }
