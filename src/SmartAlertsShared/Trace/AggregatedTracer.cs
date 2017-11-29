@@ -4,11 +4,12 @@
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Linq;
+    using Microsoft.Azure.Monitoring.SmartSignals;
 
     /// <summary>
     /// Implementation of the <see cref="ITracer"/> interface that traces to other <see cref="ITracer"/> objects.
     /// </summary>
-    public partial class AggregatedTracer : ITracer
+    public class AggregatedTracer : ITracer
     {
         private readonly ConcurrentDictionary<ITracer, Type> _tracers;
 
@@ -24,15 +25,9 @@
             Diagnostics.EnsureArgument(_tracers.Count > 0, () => tracers, "Must get at least one non-null tracer");
             Diagnostics.EnsureArgument(_tracers.Keys.Select(t => t.SessionId).Distinct().Count() == 1, () => tracers, "All tracers must have the same session ID");
             this.SessionId = _tracers.First().Key.SessionId;
-            this.OperationHandler = new AggregateOperationHandler(_tracers.Keys.Select(t => t.OperationHandler));
         }
 
         #region Implementation of ITracer
-
-        /// <summary>
-        /// Gets the tracer's operation handler
-        /// </summary>
-        public ITelemetryOperationHandler OperationHandler { get; }
 
         /// <summary>
         /// Gets the tracer's session ID
@@ -135,15 +130,6 @@
         public void TrackEvent(string eventName, IDictionary<string, string> properties = null, IDictionary<string, double> metrics = null)
         {
             this.SafeCallTracers(t => t.TrackEvent(eventName, properties, metrics));
-        }
-
-        /// <summary>
-        /// Creates a new activity scope, and returns an <see cref="IDisposable"/> activity.
-        /// </summary>
-        /// <returns>A disposable activity object to control the end of the activity scope</returns>
-        public ITraceActivity CreateNewActivityScope()
-        {
-            return new AggregatedTraceActivity(_tracers.Keys.Select(t => t.CreateNewActivityScope()));
         }
 
         /// <summary>

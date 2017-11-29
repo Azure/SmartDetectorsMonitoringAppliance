@@ -40,9 +40,16 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DetectionPresentationAttribute.cs" />
+    <Compile Include="DetectionPresentationType.cs" />
+    <Compile Include="ISmartSignal.cs" />
+    <Compile Include="ISmartSignalAnalysisServices.cs" />
+    <Compile Include="ITracer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ResourceIdentifier.cs" />
     <Compile Include="ResourceType.cs" />
+    <Compile Include="SmartSignalDetection.cs" />
+    <Compile Include="TimeRange.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

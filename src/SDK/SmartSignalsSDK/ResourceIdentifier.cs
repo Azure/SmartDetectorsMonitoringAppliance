@@ -41,10 +41,14 @@
         /// </param>
         /// <param name="resourceName">The name of the resource.</param>
         /// <exception cref="ArgumentNullException">
-        /// Either <paramref name="subscriptionId"/> or <paramref name="resourceName"/> are empty, or if
+        /// Either <paramref name="subscriptionId"/> or <paramref name="resourceName"/> are empty, or 
         /// <paramref name="resourceGroupName"/> is empty and the resource is not a subscription or resource group
         /// resource.
         /// </exception>
+        /// <exception cref="ArgumentOutOfRangeException">
+        /// <paramref name="resourceGroupName"/> is not empty and the resource is a subscription or resource group
+        /// resource.
+        /// </exception> 
         public ResourceIdentifier(ResourceType resourceType, string subscriptionId, string resourceGroupName, string resourceName)
         {
             if (string.IsNullOrWhiteSpace(subscriptionId))
@@ -57,13 +61,25 @@
                 throw new ArgumentNullException(nameof(resourceName), "A resource's name cannot be empty");
             }
 
-            if (resourceType != ResourceType.Subscription &&
-                resourceType != ResourceType.ResourceGroup &&
-                string.IsNullOrWhiteSpace(resourceGroupName))
+            resourceGroupName = string.IsNullOrWhiteSpace(resourceGroupName) ? null : resourceGroupName;
+            switch (resourceType)
             {
-                throw new ArgumentNullException(
-                    nameof(resourceGroupName), 
-                    $"A resource's resource group name cannot be empty for resources of type {resourceType}");
+                case ResourceType.Subscription:
+                case ResourceType.ResourceGroup:
+                    if (resourceGroupName != null)
+                    {
+                        throw new ArgumentOutOfRangeException(nameof(resourceGroupName), $"A resource's resource group name must be empty for resources of type {resourceType}");
+                    }
+
+                    break;
+
+                default:
+                    if (resourceGroupName == null)
+                    {
+                        throw new ArgumentNullException(nameof(resourceGroupName), $"A resource's resource group name cannot be empty for resources of type {resourceType}");
+                    }
+
+                    break;
             }
 
             this.ResourceType = resourceType;

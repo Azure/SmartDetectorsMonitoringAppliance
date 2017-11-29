@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using ApplicationInsights.Extensibility;
     using ApplicationInsights.WindowsServer.TelemetryChannel;
+    using Microsoft.Azure.Monitoring.SmartSignals;
     using WebJobs.Host;
 
     /// <summary>
