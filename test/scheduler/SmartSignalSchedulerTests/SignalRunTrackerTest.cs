@@ -7,6 +7,7 @@
     using System.Threading.Tasks;
     using Microsoft.Azure.Monitoring.SmartAlerts.Shared;
     using Microsoft.Azure.Monitoring.SmartAlerts.Shared.Trace;
+    using Microsoft.Azure.Monitoring.SmartSignals;
     using Microsoft.SmartSignals.Scheduler;
     using Microsoft.SmartSignals.Scheduler.AzureStorage;
     using Microsoft.SmartSignals.Scheduler.SignalRunTracker;
@@ -40,7 +41,6 @@
             _tableMock.Verify(m => m.ExecuteAsync(It.Is<TableOperation>(operation =>
                 operation.OperationType == TableOperationType.InsertOrReplace &&
                 operation.Entity.RowKey.Equals(signalTestId))));
-
         }
 
         [TestMethod]
