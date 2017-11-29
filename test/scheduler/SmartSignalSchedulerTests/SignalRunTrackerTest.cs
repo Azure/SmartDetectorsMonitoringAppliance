@@ -9,6 +9,7 @@
     using Microsoft.Azure.Monitoring.SmartAlerts.Shared.Trace;
     using Microsoft.SmartSignals.Scheduler;
     using Microsoft.SmartSignals.Scheduler.AzureStorage;
+    using Microsoft.SmartSignals.Scheduler.SignalRunTracker;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Microsoft.WindowsAzure.Storage.Table;
     using Moq;

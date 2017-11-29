@@ -5,5 +5,6 @@
     /// </summary>
     public enum ResourceType
     {
+        ApplicationInsights = 0
     }
 }

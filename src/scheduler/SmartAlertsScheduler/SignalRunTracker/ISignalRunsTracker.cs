@@ -1,4 +1,4 @@
-﻿namespace Microsoft.SmartSignals.Scheduler
+﻿namespace Microsoft.SmartSignals.Scheduler.SignalRunTracker
 {
     using System.Collections.Generic;
     using System.Threading.Tasks;
@@ -11,7 +11,7 @@
     public interface ISignalRunsTracker
     {
         /// <summary>
-        /// Gets the IDs of the signal that needs to be executated based on configuration and their last executation times
+        /// Gets the IDs of the signal that needs to be executed based on configuration and their last executation times
         /// </summary>
         /// <param name="signalConfigurations">list of signal configurations</param>
         /// <returns>The signal IDs</returns>
