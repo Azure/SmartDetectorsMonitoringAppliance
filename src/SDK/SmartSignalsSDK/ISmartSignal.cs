@@ -5,14 +5,19 @@
     using System.Threading.Tasks;
 
     /// <summary>
-    /// The main interface to be implemented by Smart Signals.
+    /// The interface to be implemented by Smart Signals.
     /// </summary>
     public interface ISmartSignal
     {
         /// <summary>
         /// Initiates an asynchronous operation for analyzing the smart signal on the specified resources.
         /// </summary>
-        /// <param name="targetResources">A list of resource identifiers to analyze.</param>
+        /// <param name="targetResources">
+        /// A list of resource identifiers to analyze.
+        /// <para>The scope of analysis depends on the resource's type, so that resources with types that represent 
+        /// a container resource (such as <see cref="ResourceType.Subscription"/> or <see cref="ResourceType.ResourceGroup"/>),
+        /// the signal is expected to analyze all relevant resources contained in that container.</para>
+        /// </param>
         /// <param name="analysisWindow">
         /// A time range to perform the smart signal analysis on. Although a specific smart signal implementation may query telemetry from
         /// a wider time range in order to perform the analysis, the resulting detections must be manifested in this time window.

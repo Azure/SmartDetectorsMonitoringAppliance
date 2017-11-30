@@ -16,7 +16,7 @@
         ResourceGroup,
 
         /// <summary>
-        /// The Virtual Machine resouce type.
+        /// The Virtual Machine resource type.
         /// </summary>
         VirtualMachine,
     }
