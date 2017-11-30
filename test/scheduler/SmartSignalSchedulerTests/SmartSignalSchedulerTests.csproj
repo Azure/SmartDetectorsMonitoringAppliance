@@ -88,15 +88,11 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\src\scheduler\SmartAlertsScheduler\SmartSignalScheduler.csproj">
-      <Project>{152104C0-0778-484A-A4C4-C61CCA653000}</Project>
+    <ProjectReference Include="..\..\..\src\scheduler\SmartSignalsScheduler\SmartSignalScheduler.csproj">
+      <Project>{28AEC5A1-2050-4166-A025-694F4445C804}</Project>
       <Name>SmartSignalScheduler</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\src\SDK\SmartSignalsSDK\SmartSignalsSDK.csproj">
-      <Project>{8C942F8E-1741-4D63-87CB-D79C0F0EC02C}</Project>
-      <Name>SmartSignalsSDK</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\src\SmartAlertsShared\SmartAlertsShared.csproj">
+    <ProjectReference Include="..\..\..\src\SmartSignalsShared\SmartSignalsShared.csproj">
       <Project>{03628C28-B52D-4785-8F70-A5191F0AAA04}</Project>
       <Name>SmartAlertsShared</Name>
     </ProjectReference>
