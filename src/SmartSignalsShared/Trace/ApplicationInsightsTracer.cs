@@ -9,6 +9,7 @@
     using ApplicationInsights.DataContracts;
     using ApplicationInsights.Extensibility;
     using Exceptions;
+    using Microsoft.Azure.Monitoring.SmartSignals;
     using Shared;
 
     /// <summary>
@@ -45,13 +46,7 @@
             };
 
             this.SessionId = sessionId;
-            this.OperationHandler = new ApplicationInsightsRequestOperationHandler(_telemetryClient, _customProperties);
         }
-
-        /// <summary>
-        /// Gets the tracer's operation handler
-        /// </summary>
-        public ITelemetryOperationHandler OperationHandler { get; protected set; }
 
         /// <summary>
         /// Gets the tracer's session ID
@@ -127,7 +122,6 @@
             }
 
             this.SetTelemetryProperties(metricTelemetry, properties);
-            this.SetTelemetryContext(metricTelemetry);
             _telemetryClient.TrackMetric(metricTelemetry);
         }
 
@@ -144,7 +138,6 @@
             // Track exception
             ExceptionTelemetry exceptionTelemetry = new ExceptionTelemetry(this.HandleTooLongException(exception));
             this.SetTelemetryProperties(exceptionTelemetry);
-            this.SetTelemetryContext(exceptionTelemetry);
 
             _telemetryClient.TrackException(exceptionTelemetry);
         }
@@ -182,7 +175,6 @@
         {
             var dependencyTelemetry = new DependencyTelemetry("Other", dependencyName, dependencyName, commandName, startTime, duration, success ? "Success" : "Failure", success);
             this.SetTelemetryProperties(dependencyTelemetry, properties);
-            this.SetTelemetryContext(dependencyTelemetry);
 
             if (metrics != null)
             {
@@ -205,7 +197,6 @@
         {
             var eventTelemetry = new EventTelemetry(eventName);
             this.SetTelemetryProperties(eventTelemetry, properties);
-            this.SetTelemetryContext(eventTelemetry);
 
             if (metrics != null)
             {
@@ -216,25 +207,6 @@
             }
 
             _telemetryClient.TrackEvent(eventTelemetry);
-        }
-
-        /// <summary>
-        /// Creates a new activity scope, and returns an <see cref="IDisposable"/> activity.
-        /// </summary>
-        /// <returns>A disposable activity object to control the end of the activity scope</returns>
-        public ITraceActivity CreateNewActivityScope()
-        {
-            // Create a new activity ID
-            Guid newActivityId = Guid.NewGuid();
-
-            // Get the current activity ID
-            string oldActivityId = TraceActivity.GetCurrentActivityId();
-
-            // Create the new activity
-            var newActivity = new TraceActivity(newActivityId, this);
-            this.Trace($"Activity was transferred from {oldActivityId} to {newActivityId}", SeverityLevel.Information, null);
-
-            return newActivity;
         }
 
         /// <summary>
@@ -284,25 +256,12 @@
 
             // Set telemetry properties and context
             this.SetTelemetryProperties(traceTelemetry, properties);
-            this.SetTelemetryContext(traceTelemetry);
 
             // Add trace order - running number, to enable sorting trace messages that have the same timestamp
             long traceOrder = Interlocked.Increment(ref _traceOrder);
             traceTelemetry.Properties[TraceOrderKey] = traceOrder.ToString();
 
             _telemetryClient.TrackTrace(traceTelemetry);
-        }
-
-        /// <summary>
-        /// Populates the context in <paramref name="telemetry"/> based on the current operation <see cref="ApplicationInsightsRequestOperationHandler"/>,
-        /// and common framework properties
-        /// </summary>
-        /// <param name="telemetry">The telemetry to set properties in</param>
-        private void SetTelemetryContext(ITelemetry telemetry)
-        {
-            var operationHandler = (ApplicationInsightsRequestOperationHandler)this.OperationHandler;
-
-            operationHandler?.SetTelemetryOperationContext(telemetry);
         }
 
         /// <summary>
@@ -319,10 +278,6 @@
                 telemetry.Properties[customProperty.Key] = customProperty.Value;
             }
 
-            // Add the activity ID and properties
-            telemetry.Properties["ActivityId"] = TraceActivity.GetCurrentActivityId();
-            TraceActivity.AddCurrentActivityProperties(telemetry.Properties);
-
             // And finally, add the user-supplied properties
             if (properties != null)
             {
@@ -334,134 +289,5 @@
         }
 
         #endregion
-
-        /// <summary>
-        /// Inner class representing a trace activity that can be pushed on and popped from <see cref="CallContext"/>.
-        /// </summary>
-        private sealed class TraceActivity : ITraceActivity
-        {
-            private const string TraceActivityCallContextName = "ApplicationInsights.DeepInsights.Shared.ApplicationInsightsTracer.TraceActivity";
-            private const string RootActivityId = "root activity";
-
-            /// <summary>
-            /// Gets the activity ID
-            /// </summary>
-            private Guid _activityId;
-
-            /// <summary>
-            /// The previous activity on the stack
-            /// </summary>
-            private readonly TraceActivity _previous;
-
-            /// <summary>
-            /// The tracer to use when disposing
-            /// </summary>
-            private readonly ITracer _tracer;
-
-            /// <summary>
-            /// Optional custom properties to add the traces in this activity.
-            /// </summary>
-            private readonly Dictionary<string, string> _properties;
-
-            /// <summary>
-            /// Initializes a new instance of the <see cref="TraceActivity"/> class.
-            /// Pushes the new activity on the call context stack
-            /// </summary>
-            /// <param name="activityId">The activity ID</param>
-            /// <param name="tracer">The tracer to use</param>
-            public TraceActivity(Guid activityId, ITracer tracer)
-            {
-                // Setup everything
-                _activityId = activityId;
-                _tracer = Diagnostics.EnsureArgumentNotNull(() => tracer);
-                _previous = CallContext.LogicalGetData(TraceActivityCallContextName) as TraceActivity;
-                _properties = new Dictionary<string, string>();
-
-                // And push to the call stack
-                CallContext.LogicalSetData(TraceActivityCallContextName, this);
-            }
-
-            /// <summary>
-            /// Retrieves the current trace activity ID. 
-            /// Can be <code>null</code> if it was never set (e.g. no call to <see cref="CreateNewActivityScope"/> was made)
-            /// </summary>
-            /// <returns>The current activity ID or <code>null</code> if none</returns>
-            public static string GetCurrentActivityId()
-            {
-                TraceActivity currentActivity = CallContext.LogicalGetData(TraceActivityCallContextName) as TraceActivity;
-                return SafeGetActivityId(currentActivity);
-            }
-
-            /// <summary>
-            /// Adds the current trace activity properties to <paramref name="properties"/>. 
-            /// </summary>
-            /// <param name="properties">The dictionary of properties to add the activity properties to.</param>
-            public static void AddCurrentActivityProperties(IDictionary<string, string> properties)
-            {
-                TraceActivity currentActivity = CallContext.LogicalGetData(TraceActivityCallContextName) as TraceActivity;
-                Dictionary<string, string> activityProperties = currentActivity?._properties;
-                if (activityProperties != null)
-                {
-                    foreach (KeyValuePair<string, string> property in activityProperties)
-                    {
-                        properties[property.Key] = property.Value;
-                    }
-                }
-            }
-
-            #region Implementation of ITraceActivity
-
-            /// <summary>
-            /// Sets a custom property to be added to all telemetry sent in the scope of the activity.
-            /// </summary>
-            /// <param name="name">The custom property name.</param>
-            /// <param name="value">The custom property value.</param>
-            public void SetCustomProperty(string name, string value)
-            {
-                _properties[name] = value;
-            }
-
-            /// <summary>
-            /// Sets custom properties to be added to all telemetry sent in the scope of the activity.
-            /// </summary>
-            /// <param name="properties">The custom properties.</param>
-            public void SetCustomProperties(IDictionary<string, string> properties)
-            {
-                foreach (KeyValuePair<string, string> property in properties)
-                {
-                    _properties[property.Key] = property.Value;
-                }
-            }
-
-            #endregion
-
-            #region Implementation of IDisposable
-
-            /// <summary>
-            /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-            /// Pops the current activity from the call context stack
-            /// </summary>
-            public void Dispose()
-            {
-                // Get the old activity ID
-                string oldActivityId = SafeGetActivityId(_previous);
-
-                // Pop the activity from the stack
-                CallContext.LogicalSetData(TraceActivityCallContextName, _previous);
-                _tracer.TraceInformation($"Activity was transferred back from {_activityId} to {oldActivityId}");
-            }
-
-            #endregion
-
-            /// <summary>
-            /// Retrieves the Id of <paramref name="activity"/> in a null-safe way
-            /// </summary>
-            /// <param name="activity">The activity</param>
-            /// <returns>The activity ID, or <see cref="RootActivityId"/></returns>
-            private static string SafeGetActivityId(TraceActivity activity)
-            {
-                return activity?._activityId.ToString() ?? RootActivityId;
-            }
-        }
     }
 }

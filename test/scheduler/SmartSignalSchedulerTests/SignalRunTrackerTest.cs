@@ -5,6 +5,7 @@
     using System.Linq;
     using System.Reflection;
     using System.Threading.Tasks;
+    using Microsoft.Azure.Monitoring.SmartSignals;
     using Microsoft.Azure.Monitoring.SmartSignals.Shared;
     using Microsoft.Azure.Monitoring.SmartSignals.Shared.Trace;
     using Microsoft.SmartSignals.Scheduler;
@@ -40,7 +41,6 @@
             _tableMock.Verify(m => m.ExecuteAsync(It.Is<TableOperation>(operation =>
                 operation.OperationType == TableOperationType.InsertOrReplace &&
                 operation.Entity.RowKey.Equals(signalTestId))));
-
         }
 
         [TestMethod]

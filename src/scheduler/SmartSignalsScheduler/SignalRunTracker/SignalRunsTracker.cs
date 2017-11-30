@@ -8,6 +8,7 @@
     using Microsoft.Azure.Monitoring.SmartSignals.Shared.Trace;
     using WindowsAzure.Storage.RetryPolicies;
     using WindowsAzure.Storage.Table;
+    using Microsoft.Azure.Monitoring.SmartSignals;
 
     /// <summary>
     /// Tracking the signal job runs - Responsible to determine whether the signal job should run.

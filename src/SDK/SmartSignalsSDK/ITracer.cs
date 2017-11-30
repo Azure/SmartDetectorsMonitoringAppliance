@@ -1,18 +1,14 @@
-﻿namespace Microsoft.Azure.Monitoring.SmartSignals.Shared.Trace
+﻿namespace Microsoft.Azure.Monitoring.SmartSignals
 {
     using System;
     using System.Collections.Generic;
 
     /// <summary>
-    /// Interface providing tracing capabilities
+    /// Interface providing tracing capabilities. Smart Signals can use this to emit telemetry for troubleshooting and monitoring
+    /// of the signal's executions.
     /// </summary>
     public interface ITracer
     {
-        /// <summary>
-        /// Get's the tracer's operation handler
-        /// </summary>
-        ITelemetryOperationHandler OperationHandler { get; }
-
         /// <summary>
         /// Gets the tracer's session ID
         /// </summary>
@@ -66,12 +62,12 @@
         void ReportException(Exception exception);
 
         /// <summary>
-        /// Send information about a dependency handled by the application.
+        /// Send information about a dependency call.
         /// </summary>
         /// <param name="dependencyName">The dependency name.</param>
         /// <param name="commandName">The command name</param>
         /// <param name="startTime">The dependency call start time</param>
-        /// <param name="duration">The time taken by the application to handle the dependency.</param>
+        /// <param name="duration">The time taken to handle the dependency.</param>
         /// <param name="success">Was the dependency call successful</param>
         /// <param name="metrics">Named double values that define additional dependency metrics</param>
         /// <param name="properties">Named string values you can use to classify and filter dependencies</param>
@@ -82,14 +78,8 @@
         /// </summary>
         /// <param name="eventName">The event name.</param>
         /// <param name="properties">Named string values you can use to classify and filter dependencies</param>
-        /// <param name="metrics">Dictionary of application-defined metrics</param>
+        /// <param name="metrics">Named double values that define additional event metrics</param>
         void TrackEvent(string eventName, IDictionary<string, string> properties = null, IDictionary<string, double> metrics = null);
-
-        /// <summary>
-        /// Creates a new activity scope, and returns an <see cref="IDisposable"/> activity.
-        /// </summary>
-        /// <returns>A disposable activity object to control the end of the activity scope</returns>
-        ITraceActivity CreateNewActivityScope();
 
         /// <summary>
         /// Flushes the telemetry channel

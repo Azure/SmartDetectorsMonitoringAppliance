@@ -8,6 +8,7 @@
     <PackageReference Include="Unity" Version="5.3.1" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\SDK\SmartSignalsSDK\SmartSignalsSDK.csproj" />
     <ProjectReference Include="..\..\SmartSignalsShared\SmartSignalsShared.csproj" />
   </ItemGroup>
   <ItemGroup>

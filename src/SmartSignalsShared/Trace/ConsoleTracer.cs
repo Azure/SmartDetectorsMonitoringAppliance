@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using Microsoft.Azure.Monitoring.SmartSignals;
 
     /// <summary>
     /// Implementation of the <see cref="ITracer"/> interface that traces to the console.
@@ -18,11 +19,6 @@
         {
             this.SessionId = sessionId;
         }
-
-        /// <summary>
-        /// This tracer does not support telemetry operations.
-        /// </summary>
-        public ITelemetryOperationHandler OperationHandler => null;
 
         /// <summary>
         /// Gets the tracer's session ID
@@ -118,16 +114,6 @@
         public void TrackEvent(string eventName, IDictionary<string, string> properties = null, IDictionary<string, double> metrics = null)
         {
             this.TraceToConsole($"EVENT: name={eventName}", ConsoleColor.Gray);
-        }
-
-        /// <summary>
-        /// Creates a new activity scope, and returns an <see cref="IDisposable"/> activity.
-        /// </summary>
-        /// <returns>A disposable activity object to control the end of the activity scope</returns>
-        public ITraceActivity CreateNewActivityScope()
-        {
-            // Returning null is safe - using() block checks for null before calling Dispose on the object
-            return null;
         }
 
         /// <summary>
