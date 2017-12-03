@@ -81,8 +81,7 @@
                 }
             };
 
-            // using reflecation since constructor is internal
-            // TODO: consider using a wrapper for the query segment as well
+            // using reflection since constructor is internal
             Type[] constructorParametersTypes = { typeof(List<TrackSignalRunEntity>) };
             object[] constructorParameters = { tableResult };
             var tableQuerySegment = (TableQuerySegment<TrackSignalRunEntity>)typeof(TableQuerySegment<TrackSignalRunEntity>).GetConstructor(BindingFlags.NonPublic | BindingFlags.Instance, null, constructorParametersTypes, null)?.Invoke(constructorParameters);

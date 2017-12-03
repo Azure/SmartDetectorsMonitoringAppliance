@@ -9,7 +9,15 @@ namespace Microsoft.SmartSignals.Scheduler
         [FunctionName("Schedule")]
         public static void Run([TimerTrigger("0 */5 * * * *")]TimerInfo myTimer, TraceWriter log)
         {
-            
+            // read config
+
+            // pass config to signal tracker
+
+            // get resources
+
+            // for each signal send to analysis
+
+            // save detections in AI
         }
     }
 }

@@ -11,7 +11,7 @@
         /// <summary>
         /// Gets the resource IDs on which to run the signal
         /// </summary>
-        public List<string> ResourceIds { get; }
+        public IList<string> ResourceIds { get; }
 
         /// <summary>
         /// Gets the signal ID
@@ -19,14 +19,14 @@
         public string SignalId { get; }
 
         /// <summary>
-        /// Gets the end of the time range for analysis
+        /// Gets the start of the time range for analysis
         /// </summary>
-        public DateTime AnalysisTimestamp { get; }
+        public DateTime AnalysisStartTime { get; }
 
         /// <summary>
-        /// Gets the analysis windows size (in minutes)
+        /// Gets the end time of the analysis
         /// </summary>
-        public int AnalysisWindowSize { get; }
+        public DateTime AnalysisEndTime { get; }
 
         /// <summary>
         /// Gets the analysis settings
@@ -38,15 +38,15 @@
         /// </summary>
         /// <param name="resourceIds">The resource IDs on which to run the signal</param>
         /// <param name="signalId">The signal ID</param>
-        /// <param name="analysisTimestamp">The end of the time range for analysis</param>
-        /// <param name="analysisWindowSize">The analysis windows size (in minutes)</param>
-        /// <param name="configuration">The analysis configuration</param>
-        public SmartSignalRequest(List<string> resourceIds, string signalId, DateTime analysisTimestamp, int analysisWindowSize, SmartSignalSettings settings)
+        /// <param name="analysisStartTime">The start of the time range for analysis</param>
+        /// <param name="analysisEndTime">The end of the time range for analysis</param>
+        /// <param name="settings">The analysis settings</param>
+        public SmartSignalRequest(IList<string> resourceIds, string signalId, DateTime analysisStartTime, DateTime analysisEndTime, SmartSignalSettings settings)
         {
             ResourceIds = resourceIds;
             SignalId = signalId;
-            AnalysisTimestamp = analysisTimestamp;
-            AnalysisWindowSize = analysisWindowSize;
+            AnalysisStartTime = analysisStartTime;
+            AnalysisEndTime = analysisEndTime;
             Settings = settings;
         }
     }

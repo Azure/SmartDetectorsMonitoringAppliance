@@ -3,12 +3,11 @@
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
-    using AzureStorage;
-    using Microsoft.Azure.Monitoring.SmartSignals.Shared;
-    using Microsoft.Azure.Monitoring.SmartSignals.Shared.Trace;
-    using WindowsAzure.Storage.RetryPolicies;
-    using WindowsAzure.Storage.Table;
     using Microsoft.Azure.Monitoring.SmartSignals;
+    using Microsoft.Azure.Monitoring.SmartSignals.Shared;
+    using Microsoft.SmartSignals.Scheduler.AzureStorage;
+    using Microsoft.WindowsAzure.Storage.RetryPolicies;
+    using Microsoft.WindowsAzure.Storage.Table;
 
     /// <summary>
     /// Tracking the signal job runs - Responsible to determine whether the signal job should run.

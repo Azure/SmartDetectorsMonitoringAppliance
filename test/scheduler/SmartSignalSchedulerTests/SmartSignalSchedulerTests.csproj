@@ -98,7 +98,7 @@
     </ProjectReference>
     <ProjectReference Include="..\..\..\src\SmartSignalsShared\SmartSignalsShared.csproj">
       <Project>{03628C28-B52D-4785-8F70-A5191F0AAA04}</Project>
-      <Name>SmartAlertsShared</Name>
+      <Name>SmartSignalsShared</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
