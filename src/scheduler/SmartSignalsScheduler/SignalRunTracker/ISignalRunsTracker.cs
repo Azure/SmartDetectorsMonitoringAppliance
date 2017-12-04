@@ -21,6 +21,7 @@
         /// Updates a successful run in the tracking table.
         /// </summary>
         /// <param name="signalId">The signal ID of the signal to update</param>
+        /// <returns>A <see cref="System.Threading.Tasks.Task"/> object that represents the asynchronous operation.</returns>
         Task UpdateSignalRunAsync(string signalId);
     }
 }

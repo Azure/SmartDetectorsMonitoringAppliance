@@ -7,9 +7,8 @@
     using System.Threading.Tasks;
     using Microsoft.Azure.Monitoring.SmartSignals;
     using Microsoft.Azure.Monitoring.SmartSignals.Shared;
-    using Microsoft.Azure.Monitoring.SmartSignals.Shared.Trace;
+    using Microsoft.Azure.Monitoring.SmartSignals.Shared.AzureStorage;
     using Microsoft.SmartSignals.Scheduler;
-    using Microsoft.SmartSignals.Scheduler.AzureStorage;
     using Microsoft.SmartSignals.Scheduler.SignalRunTracker;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Microsoft.WindowsAzure.Storage.Table;
@@ -80,14 +79,8 @@
                     LastRunTime = now.AddHours(-2)
                 }
             };
-
-            // using reflection since constructor is internal
-            Type[] constructorParametersTypes = { typeof(List<TrackSignalRunEntity>) };
-            object[] constructorParameters = { tableResult };
-            var tableQuerySegment = (TableQuerySegment<TrackSignalRunEntity>)typeof(TableQuerySegment<TrackSignalRunEntity>).GetConstructor(BindingFlags.NonPublic | BindingFlags.Instance, null, constructorParametersTypes, null)?.Invoke(constructorParameters);
-
-            _tableMock.Setup(m => m.ExecuteQuerySegmentedAsync(It.IsAny<TableQuery<TrackSignalRunEntity>>(),
-                It.IsAny<TableContinuationToken>())).ReturnsAsync(tableQuerySegment);
+            
+            _tableMock.Setup(m => m.ReadPartitionAsync<TrackSignalRunEntity>("tracking")).ReturnsAsync(tableResult);
 
             var signalIdsToRun = await _signalRunsTracker.GetSignalsToRunAsync(configurations);
             Assert.AreEqual(2, signalIdsToRun.Count);

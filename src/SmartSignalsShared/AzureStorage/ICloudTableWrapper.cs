@@ -1,5 +1,6 @@
-﻿namespace Microsoft.SmartSignals.Scheduler.AzureStorage
+﻿namespace Microsoft.Azure.Monitoring.SmartSignals.Shared.AzureStorage
 {
+    using System.Collections.Generic;
     using System.Threading.Tasks;
     using WindowsAzure.Storage.Table;
 
@@ -22,10 +23,10 @@
         Task<TableResult> ExecuteAsync(TableOperation operation);
 
         /// <summary>
-        /// Initiates an asynchronous operation to perform a segmented query on a table.
+        /// Retrieves all entities with the given partition key
         /// </summary>
-        /// <param name="query">A <see cref="TableQuery"/> representing the query to execute.</param>
-        /// <param name="token">A <see cref="TableContinuationToken"/> object representing a continuation token from the server when the operation returns a partial result.</param>
-        Task<TableQuerySegment<T>> ExecuteQuerySegmentedAsync<T>(TableQuery<T> query, TableContinuationToken token) where T : ITableEntity, new();
+        /// <param name="partitionKey">A string containing the partition key</param>
+        /// <returns>A <see cref="IList{T}"/> containing all entities of the given partition key</returns>
+        Task<IList<T>> ReadPartitionAsync<T>(string partitionKey) where T : ITableEntity, new();
     }
 }

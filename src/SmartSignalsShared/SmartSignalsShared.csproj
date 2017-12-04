@@ -94,12 +94,19 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AzureFunctionEnvironment.cs" />
+    <Compile Include="AzureStorage\CloudTableClientWrapper.cs" />
+    <Compile Include="AzureStorage\CloudTableWrapper.cs" />
+    <Compile Include="AzureStorage\ICloudTableClientWrapper.cs" />
+    <Compile Include="AzureStorage\ICloudTableWrapper.cs" />
     <Compile Include="ConfigurationReader.cs" />
     <Compile Include="Diagnostics.cs" />
     <Compile Include="Exceptions\ExceptionTooLongException.cs" />
+    <Compile Include="SignalConfiguration\ISmartSignalConfigurationStore.cs" />
     <Compile Include="ISmartSignalsRepository.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SmartSignalConfiguration.cs" />
+    <Compile Include="SignalConfiguration\SmartConfigurationEntity.cs" />
+    <Compile Include="SignalConfiguration\SmartSignalConfiguration.cs" />
+    <Compile Include="SignalConfiguration\SmartSignalConfigurationStore.cs" />
     <Compile Include="SmartSignalMetadata.cs" />
     <Compile Include="SmartSignalRequest.cs" />
     <Compile Include="SmartSignalSettings.cs" />
