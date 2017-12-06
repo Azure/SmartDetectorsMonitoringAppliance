@@ -6,17 +6,18 @@
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <PackageId>Microsoft.Azure.Monitoring.SmartSignals</PackageId>
-    <Authors>Microsoft Corporation</Authors>
+    <Authors>Microsoft</Authors>
     <Company>Microsoft Corporation</Company>
     <Product>Azure Smart Signals</Product>
-    <Copyright></Copyright>
-    <PackageLicenseUrl>https://opensource.org/licenses/MIT</PackageLicenseUrl>
+    <Copyright>© Microsoft Corporation. All rights reserved.</Copyright>
+    <PackageLicenseUrl>https://www.microsoft.com/web/webpi/eula/net_library_eula_enu.htm</PackageLicenseUrl>
     <Description>This client library provides an SDK for authoring Azure Smart Signals hosted on the Azure Smart Signals Runtime Application.
 For information one the runtime application, and release notes see here: https://github.com/Azure/Smart-Alerts</Description>
     <RepositoryUrl>https://github.com/Azure/Smart-Alerts</RepositoryUrl>
     <RepositoryType>GitHub</RepositoryType>
     <Version>1.0.0-beta</Version>
     <PackageProjectUrl>https://github.com/Azure/Smart-Alerts</PackageProjectUrl>
+    <PackageTags>Microsoft</PackageTags>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
