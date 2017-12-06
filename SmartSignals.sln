@@ -43,6 +43,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmartSignalsSDKTests", "tes
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SmartSignalScheduler", "src\scheduler\SmartSignalsScheduler\SmartSignalScheduler.csproj", "{28AEC5A1-2050-4166-A025-694F4445C804}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmartSignalSharedTests", "SmartSignalSharedTests\SmartSignalSharedTests.csproj", "{01EA0E0C-2EC2-4CAC-A1F9-5F53778F7D00}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -73,6 +75,10 @@ Global
 		{28AEC5A1-2050-4166-A025-694F4445C804}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{28AEC5A1-2050-4166-A025-694F4445C804}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{28AEC5A1-2050-4166-A025-694F4445C804}.Release|Any CPU.Build.0 = Release|Any CPU
+		{01EA0E0C-2EC2-4CAC-A1F9-5F53778F7D00}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{01EA0E0C-2EC2-4CAC-A1F9-5F53778F7D00}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{01EA0E0C-2EC2-4CAC-A1F9-5F53778F7D00}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{01EA0E0C-2EC2-4CAC-A1F9-5F53778F7D00}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -96,6 +102,7 @@ Global
 		{8C942F8E-1741-4D63-87CB-D79C0F0EC02C} = {8EB82F44-C8BC-49D7-8E86-285C7C846211}
 		{4D70BC39-6898-433D-9FEA-E267014C3FEC} = {33F08307-4325-4557-9D0B-DE57DD7DE249}
 		{28AEC5A1-2050-4166-A025-694F4445C804} = {B5D1D047-050E-4AA4-8C36-0CCF89085277}
+		{01EA0E0C-2EC2-4CAC-A1F9-5F53778F7D00} = {9E37DBE4-994A-47EC-892E-92743D64769E}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {07D047F4-DA5D-48AA-82EA-55DA2452F3C3}

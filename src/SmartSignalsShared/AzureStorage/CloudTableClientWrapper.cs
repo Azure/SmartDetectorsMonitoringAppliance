@@ -1,6 +1,6 @@
-﻿namespace Microsoft.SmartSignals.Scheduler.AzureStorage
+﻿namespace Microsoft.Azure.Monitoring.SmartSignals.Shared.AzureStorage
 {
-    using WindowsAzure.Storage.Table;
+    using Microsoft.WindowsAzure.Storage.Table;
 
     /// <summary>
     /// A wrapper of the azure cloud table client

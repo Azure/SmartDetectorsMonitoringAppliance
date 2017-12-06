@@ -1,7 +1,7 @@
 ﻿namespace Microsoft.SmartSignals.Scheduler
 {
     using System;
-    using WindowsAzure.Storage.Table;
+    using Microsoft.WindowsAzure.Storage.Table;
 
     /// <summary>
     /// A row holds the last successful run of a singal job.

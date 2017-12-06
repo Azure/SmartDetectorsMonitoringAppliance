@@ -2,13 +2,13 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Threading.Tasks;
-    using AzureStorage;
-    using Microsoft.Azure.Monitoring.SmartSignals.Shared;
-    using Microsoft.Azure.Monitoring.SmartSignals.Shared.Trace;
-    using WindowsAzure.Storage.RetryPolicies;
-    using WindowsAzure.Storage.Table;
     using Microsoft.Azure.Monitoring.SmartSignals;
+    using Microsoft.Azure.Monitoring.SmartSignals.Shared;
+    using Microsoft.Azure.Monitoring.SmartSignals.Shared.AzureStorage;
+    using Microsoft.WindowsAzure.Storage.RetryPolicies;
+    using Microsoft.WindowsAzure.Storage.Table;
 
     /// <summary>
     /// Tracking the signal job runs - Responsible to determine whether the signal job should run.
@@ -16,8 +16,8 @@
     /// </summary>
     public class SignalRunsTracker : ISignalRunsTracker
     {
-        private const string TableName = "signaltrackingtable";
-        private const string PartitionKey = "signals";
+        private const string TableName = "signaltracking";
+        private const string PartitionKey = "tracking";
 
         private readonly ICloudTableWrapper _trackingTable;
         private readonly ITracer _tracer;
@@ -53,21 +53,10 @@
             _tracer.TraceVerbose("getting signals to run");
 
             // get all last signal runs from table storage
-            var signalIdToLastRun = new Dictionary<string ,TrackSignalRunEntity>();
-            var allSignalRunsQuery = new TableQuery<TrackSignalRunEntity>().Where(TableQuery.GenerateFilterCondition("PartitionKey", QueryComparisons.Equal, PartitionKey));
-            TableContinuationToken token = null;
-            do
-            {
-                TableQuerySegment<TrackSignalRunEntity> resultSegment = await _trackingTable.ExecuteQuerySegmentedAsync(allSignalRunsQuery, token);
-                token = resultSegment.ContinuationToken;
+            var signalsLastRuns = await _trackingTable.ReadPartitionAsync<TrackSignalRunEntity>(PartitionKey);
 
-                foreach (var signalRunEntity in resultSegment.Results)
-                {
-                    // Add to dictionary for faster lookup later on
-                    signalIdToLastRun.Add(signalRunEntity.RowKey, signalRunEntity);
-                }
-                
-            } while (token != null);
+            // create a dictionary from signal ID to signal execution for faster lookup
+            var signalIdToLastRun = signalsLastRuns.ToDictionary(x => x.RowKey, x => x);
 
             // for each signal check if needs to be run based on its schedule and its last execution time
             var signalIdsToRun = new List<string>();
