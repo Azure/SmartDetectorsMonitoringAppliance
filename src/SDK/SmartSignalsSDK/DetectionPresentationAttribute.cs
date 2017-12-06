@@ -25,12 +25,21 @@
 
             this.Section = section;
             this.Title = title;
+            this.IsSummary = false;
         }
 
         /// <summary>
         /// Gets the section in which the property will be presented.
         /// </summary>
         public DetectionPresentationSection Section { get; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the property is a summary property.
+        /// For any Smart Signal detection, there must be exactly one summary property belonging to the
+        /// <see cref="DetectionPresentationSection.Property"/> section, and at most one summary property
+        /// belonging to the <see cref="DetectionPresentationSection.Chart"/> section.
+        /// </summary>
+        public bool IsSummary { get; set; }
 
         /// <summary>
         /// Gets the title to use when presenting the property's value.

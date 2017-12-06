@@ -6,12 +6,6 @@
     public enum DetectionPresentationSection
     {
         /// <summary>
-        /// Indicates a property belonging to the summary section. 
-        /// For any detection, there must be exactly one property for this section.
-        /// </summary>
-        Summary,
-
-        /// <summary>
         /// Indicates a property belonging to the properties section.
         /// </summary>
         Property,
