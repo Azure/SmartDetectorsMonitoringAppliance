@@ -1,4 +1,4 @@
-﻿namespace Microsoft.SmartSignals.Scheduler.AnalysisExecuter
+﻿namespace Microsoft.SmartSignals.Scheduler
 {
     using System;
     using System.Collections.Generic;
@@ -12,12 +12,11 @@
     public interface IAnalysisExecuter
     {
         /// <summary>
-        /// Execute the signal via the analysis flow
+        /// Executes the signal via the analysis flow
         /// </summary>
-        /// <param name="signalConfiguration">The signal configuration</param>
+        /// <param name="signalExecutionInfo">The signal execution information</param>
         /// <param name="resourceIds">The resources IDs used by the signal</param>
-        /// <param name="lastAnalysisEndTime">the last analysis time of the signal</param>
         /// <returns>The signal detections</returns>
-        Task<SmartSignalDetection> ExecuteSignalAsync(SmartSignalConfiguration signalConfiguration, IList<string> resourceIds, DateTime? lastAnalysisEndTime = null);
+        Task<IList<SmartSignalDetection>> ExecuteSignalAsync(SignalExecutionInfo signalExecutionInfo, IList<string> resourceIds);
     }
 }

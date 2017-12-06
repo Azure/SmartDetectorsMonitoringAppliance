@@ -3,7 +3,6 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using System.Reflection;
     using System.Threading.Tasks;
     using Microsoft.Azure.Monitoring.SmartSignals;
     using Microsoft.Azure.Monitoring.SmartSignals.Shared;
@@ -35,11 +34,18 @@
         [TestMethod]
         public async Task WhenUpdatingSignalRunThenUpdateIsCalledCorrectly()
         {
-            const string signalTestId = "some_signal";
-            await _signalRunsTracker.UpdateSignalRunAsync(signalTestId);
+            var signalExecution = new SignalExecutionInfo
+            {
+                SignalId = "some_signal",
+                AnalysisEndTime = DateTime.UtcNow,
+                AnalysisStartTime = DateTime.UtcNow.AddHours(-1)
+            };
+            await _signalRunsTracker.UpdateSignalRunAsync(signalExecution);
             _tableMock.Verify(m => m.ExecuteAsync(It.Is<TableOperation>(operation =>
                 operation.OperationType == TableOperationType.InsertOrReplace &&
-                operation.Entity.RowKey.Equals(signalTestId))));
+                operation.Entity.RowKey.Equals(signalExecution.SignalId) && 
+                ((TrackSignalRunEntity)operation.Entity).LastSuccessfulRunStartTime.Equals(signalExecution.AnalysisStartTime) &&
+                ((TrackSignalRunEntity)operation.Entity).LastSuccessfulRunEndTime.Equals(signalExecution.AnalysisEndTime))));
         }
 
         [TestMethod]
@@ -71,21 +77,21 @@
                 new TrackSignalRunEntity
                 {
                     RowKey = "should_not_run",
-                    LastRunTime = new DateTime(now.Year, now.Month, now.Day, 0, 5, 0)
+                    LastSuccessfulRunEndTime = new DateTime(now.Year, now.Month, now.Day, 0, 5, 0)
                 },
                 new TrackSignalRunEntity
                 {
                     RowKey = "should_run",
-                    LastRunTime = now.AddHours(-2)
+                    LastSuccessfulRunEndTime = now.AddHours(-2)
                 }
             };
             
             _tableMock.Setup(m => m.ReadPartitionAsync<TrackSignalRunEntity>("tracking")).ReturnsAsync(tableResult);
 
-            var signalIdsToRun = await _signalRunsTracker.GetSignalsToRunAsync(configurations);
-            Assert.AreEqual(2, signalIdsToRun.Count);
-            Assert.AreEqual("should_run", signalIdsToRun.First());
-            Assert.AreEqual("should_run2", signalIdsToRun.Last());
+            var signalsToRun = await _signalRunsTracker.GetSignalsToRunAsync(configurations);
+            Assert.AreEqual(2, signalsToRun.Count);
+            Assert.AreEqual("should_run", signalsToRun.First().SignalId);
+            Assert.AreEqual("should_run2", signalsToRun.Last().SignalId);
 
         }
     }

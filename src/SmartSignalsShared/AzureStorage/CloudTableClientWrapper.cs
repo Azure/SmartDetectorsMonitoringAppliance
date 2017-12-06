@@ -1,5 +1,7 @@
 ﻿namespace Microsoft.Azure.Monitoring.SmartSignals.Shared.AzureStorage
 {
+    using System;
+    using Microsoft.WindowsAzure.Storage.RetryPolicies;
     using Microsoft.WindowsAzure.Storage.Table;
 
     /// <summary>
@@ -16,12 +18,14 @@
         public CloudTableClientWrapper(CloudTableClient cloudTableClient)
         {
             _cloudTableClient = cloudTableClient;
+            
+            // set retry policy
+            _cloudTableClient.DefaultRequestOptions = new TableRequestOptions
+            {
+                RetryPolicy = new ExponentialRetry(TimeSpan.FromSeconds(2), 5),
+                MaximumExecutionTime = TimeSpan.FromSeconds(60)
+            };
         }
-
-        /// <summary>
-        /// Gets or sets the default request options for requests made via the Table service client.
-        /// </summary>
-        public TableRequestOptions DefaultRequestOptions { get; set; }
 
         /// <summary>
         /// Gets a reference to the specified table.

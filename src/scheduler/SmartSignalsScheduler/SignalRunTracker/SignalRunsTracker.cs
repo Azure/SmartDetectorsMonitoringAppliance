@@ -7,7 +7,6 @@
     using Microsoft.Azure.Monitoring.SmartSignals;
     using Microsoft.Azure.Monitoring.SmartSignals.Shared;
     using Microsoft.Azure.Monitoring.SmartSignals.Shared.AzureStorage;
-    using Microsoft.WindowsAzure.Storage.RetryPolicies;
     using Microsoft.WindowsAzure.Storage.Table;
 
     /// <summary>
@@ -23,7 +22,7 @@
         private readonly ITracer _tracer;
 
         /// <summary>
-        /// Constructor - creates the signal run tracker instance
+        /// Initializes a new instance of the<see cref="SignalRunsTracker"/> class.
         /// </summary>
         /// <param name="tableClient">The azure storage table client</param>
         /// <param name="tracer">Log wrapper</param>
@@ -31,24 +30,17 @@
         {
             _tracer = tracer;
 
-            // set retry policy
-            tableClient.DefaultRequestOptions = new TableRequestOptions
-            {
-                RetryPolicy = new ExponentialRetry(TimeSpan.FromSeconds(2), 5),
-                MaximumExecutionTime = TimeSpan.FromSeconds(60)
-            };
-
             // create the cloud table instance
             _trackingTable = tableClient.GetTableReference(TableName);
             _trackingTable.CreateIfNotExists();
         }
 
         /// <summary>
-        /// Gets the IDs of the signal that needs to be executed based on configuration and their last execution times
+        /// Gets the configurations of the signal that needs to be executed based on configuration and their last execution times
         /// </summary>
         /// <param name="signalConfigurations">list of signal configurations</param>
-        /// <returns>The signal IDs</returns>
-        public async Task<IList<string>> GetSignalsToRunAsync(IEnumerable<SmartSignalConfiguration> signalConfigurations)
+        /// <returns>A list of signal execution times of the signals to execute</returns>
+        public async Task<IList<SignalExecutionInfo>> GetSignalsToRunAsync(IEnumerable<SmartSignalConfiguration> signalConfigurations)
         {
             _tracer.TraceVerbose("getting signals to run");
 
@@ -59,37 +51,74 @@
             var signalIdToLastRun = signalsLastRuns.ToDictionary(x => x.RowKey, x => x);
 
             // for each signal check if needs to be run based on its schedule and its last execution time
-            var signalIdsToRun = new List<string>();
+            var signalsToRun = new List<SignalExecutionInfo>();
             foreach (var signalConfiguration in signalConfigurations)
             {
                 bool signalWasExecutedBefore = signalIdToLastRun.TryGetValue(signalConfiguration.SignalId, out var signalLastRun);
-                var nextBaseTime = signalWasExecutedBefore ? signalLastRun.LastRunTime : DateTime.MinValue;
+                var nextBaseTime = signalWasExecutedBefore ? signalLastRun.LastSuccessfulRunEndTime : DateTime.MinValue;
                 DateTime signalNextRun = signalConfiguration.Schedule.GetNextOccurrence(nextBaseTime);
                 if (signalNextRun <= DateTime.UtcNow)
                 {
                     _tracer.TraceInformation($"signal {signalConfiguration.SignalId} last ran at {signalLastRun} and is marked to run");
-                    signalIdsToRun.Add(signalConfiguration.SignalId);
+                    signalsToRun.Add(this.GenerateSignalExecutionFromConfiguration(signalConfiguration, signalLastRun?.LastSuccessfulRunEndTime));
                 }
             }
 
-            return signalIdsToRun;
+            return signalsToRun;
         }
 
         /// <summary>
         /// Updates a successful run in the tracking table.
         /// </summary>
-        /// <param name="signalId">The signal ID of the signal to update</param>
-        public async Task UpdateSignalRunAsync(string signalId)
+        /// <param name="signalExecutionInfo">The current signal execution information</param>
+        public async Task UpdateSignalRunAsync(SignalExecutionInfo signalExecutionInfo)
         {
             // Execute the update operation
-            _tracer.TraceVerbose($"updating run for signal: {signalId}");
+            _tracer.TraceVerbose($"updating run for signal: {signalExecutionInfo.SignalId}");
             var operation = TableOperation.InsertOrReplace(new TrackSignalRunEntity
             {
                 PartitionKey = PartitionKey,
-                RowKey = signalId,
-                LastRunTime = DateTime.UtcNow
+                RowKey = signalExecutionInfo.SignalId,
+                LastSuccessfulRunStartTime = signalExecutionInfo.AnalysisStartTime,
+                LastSuccessfulRunEndTime = signalExecutionInfo.AnalysisEndTime
             });
             await _trackingTable.ExecuteAsync(operation);
+        }
+
+        /// <summary>
+        /// Generates signal execution details from configuration and the last analysis execution run time
+        /// </summary>
+        /// <param name="signalConfiguration">The smart signal configuration</param>
+        /// <param name="lastAnalysisEndTime">The end time of the last analysis execution</param>
+        /// <returns></returns>
+        private SignalExecutionInfo GenerateSignalExecutionFromConfiguration(SmartSignalConfiguration signalConfiguration, DateTime? lastAnalysisEndTime = null)
+        {
+            // Get the window size and analysis timestamp based on the predefined CRON schedule and the last analysis time
+            DateTime currentRunOccurrence;
+            DateTime previousRunOccurrence;
+            if (lastAnalysisEndTime == null)
+            {
+                // First time run - We want to get the latest possible run time based on the CRON schedule; e.g. for CRON that runs every round hour, if UtcNow is 03:07 then next run should be 03:00.
+                // Since we don't have a the last successful run we take a time from distant past and from all possible execution we take the last one.
+                var distantPast = DateTime.UtcNow.AddMonths(-1);
+                currentRunOccurrence = signalConfiguration.Schedule.GetNextOccurrences(distantPast, DateTime.UtcNow).Last();
+                previousRunOccurrence = signalConfiguration.Schedule.GetNextOccurrences(distantPast, currentRunOccurrence).Last();
+            }
+            else
+            {
+                // We want to get the latest possible run time based on the CRON schedule; e.g. for CRON that runs every round hour, if UtcNow is 03:07 then next run should be 03:00.
+                // We take the last successful run and from that time we get all possible execution and choose the last possible one.
+                currentRunOccurrence = signalConfiguration.Schedule.GetNextOccurrences((DateTime)lastAnalysisEndTime, DateTime.UtcNow).Last();
+                var possiblePreviousOccurrences = signalConfiguration.Schedule.GetNextOccurrences((DateTime)lastAnalysisEndTime, currentRunOccurrence).ToList();
+                previousRunOccurrence = possiblePreviousOccurrences.Any() ? possiblePreviousOccurrences.Last() : (DateTime)lastAnalysisEndTime;
+            }
+
+            return new SignalExecutionInfo
+            {
+                SignalId = signalConfiguration.SignalId,
+                AnalysisStartTime = previousRunOccurrence,
+                AnalysisEndTime = currentRunOccurrence
+            };
         }
     }
 }

@@ -10,8 +10,13 @@
     public class TrackSignalRunEntity : TableEntity
     {
         /// <summary>
-        /// The position of the last successful run
+        /// The start time of the last successful run
         /// </summary>
-        public DateTime LastRunTime { get; set; }
+        public DateTime LastSuccessfulRunStartTime { get; set; }
+
+        /// <summary>
+        /// The end time of the last successful run
+        /// </summary>
+        public DateTime LastSuccessfulRunEndTime { get; set; }
     }
 }

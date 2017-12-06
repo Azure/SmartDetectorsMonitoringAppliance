@@ -11,17 +11,16 @@
     public interface ISignalRunsTracker
     {
         /// <summary>
-        /// Gets the IDs of the signal that needs to be executed based on configuration and their last execution times
+        /// Gets the configurations of the signal that needs to be executed based on configuration and their last execution times
         /// </summary>
         /// <param name="signalConfigurations">list of signal configurations</param>
-        /// <returns>The signal IDs</returns>
-        Task<IList<string>> GetSignalsToRunAsync(IEnumerable<SmartSignalConfiguration> signalConfigurations);
+        /// <returns>A list of signal execution times of the signals to execute</returns>
+        Task<IList<SignalExecutionInfo>> GetSignalsToRunAsync(IEnumerable<SmartSignalConfiguration> signalConfigurations);
 
         /// <summary>
         /// Updates a successful run in the tracking table.
         /// </summary>
-        /// <param name="signalId">The signal ID of the signal to update</param>
-        /// <returns>A <see cref="System.Threading.Tasks.Task"/> object that represents the asynchronous operation.</returns>
-        Task UpdateSignalRunAsync(string signalId);
+        /// <param name="signalExecutionInfo">The current signal execution information</param>
+        Task UpdateSignalRunAsync(SignalExecutionInfo signalExecutionInfo);
     }
 }

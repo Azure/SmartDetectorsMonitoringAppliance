@@ -5,7 +5,6 @@
     using System.Linq;
     using System.Threading.Tasks;
     using Microsoft.Azure.Monitoring.SmartSignals.Shared.AzureStorage;
-    using Microsoft.WindowsAzure.Storage.RetryPolicies;
     using Microsoft.WindowsAzure.Storage.Table;
     using NCrontab;
 
@@ -21,20 +20,13 @@
         private readonly ITracer _tracer;
 
         /// <summary>
-        /// Constructor - creates the smart signal configuration store
+        /// Initializes a new instance of the<see cref="SmartSignalConfigurationStore"/> class.
         /// </summary>
         /// <param name="tableClient">The azure storage table client</param>
         /// <param name="tracer">Log wrapper</param>
         public SmartSignalConfigurationStore(ICloudTableClientWrapper tableClient, ITracer tracer)
         {
             _tracer = tracer;
-
-            // set retry policy
-            tableClient.DefaultRequestOptions = new TableRequestOptions
-            {
-                RetryPolicy = new ExponentialRetry(TimeSpan.FromSeconds(2), 5),
-                MaximumExecutionTime = TimeSpan.FromSeconds(60)
-            };
 
             // create the cloud table instance
             _configurationTable = tableClient.GetTableReference(TableName);
