@@ -1,8 +1,8 @@
 ﻿namespace SmartSignalsSDKTests
 {
     using System;
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Microsoft.Azure.Monitoring.SmartSignals;
+    using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     [TestClass]
     public class TimeRangeTests

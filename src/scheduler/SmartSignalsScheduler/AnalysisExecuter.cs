@@ -15,8 +15,8 @@
     /// </summary>
     public class AnalysisExecuter : IAnalysisExecuter
     {
-        //TODO: real analysis URL from configuration
-        private string _analysisUrl = "";
+        // TODO: real analysis URL from configuration
+        private readonly string analysisUrl = string.Empty;
 
         /// <summary>
         /// Executes the signal via the analysis flow
@@ -37,10 +37,10 @@
         /// <returns>A list of signal detections</returns>
         private async Task<IList<SmartSignalDetection>> SendToAnalysisAsync(SmartSignalRequest analysisRequest)
         {
-            var requestMessage = new HttpRequestMessage(HttpMethod.Post, _analysisUrl);
+            var requestMessage = new HttpRequestMessage(HttpMethod.Post, this.analysisUrl);
 
-            // TODO: should add headers?
-            // requestMessage.Headers.Add("key", "value");
+            //// TODO: should add headers?
+            //// requestMessage.Headers.Add("key", "value");
 
             var requestBody = JsonConvert.SerializeObject(analysisRequest);
             requestMessage.Content = new StringContent(requestBody, Encoding.UTF8, "application/json");

@@ -11,15 +11,29 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Analysis
     using Shared;
     using Unity;
 
+    /// <summary>
+    /// A class implementing the analysis endpoint
+    /// </summary>
     public static class Analyze
     {
-        private static IUnityContainer _container;
+        private static readonly IUnityContainer Container;
 
+        /// <summary>
+        /// Initializes static members of the <see cref="Analyze"/> class.
+        /// </summary>
         static Analyze()
         {
-            _container = new UnityContainer();
+            Container = new UnityContainer();
         }
 
+        /// <summary>
+        /// Runs the analysis flow for the requested signal.
+        /// </summary>
+        /// <param name="request">The request which initiated the analysis.</param>
+        /// <param name="log">The Azure Function log writer.</param>
+        /// <param name="context">The function's execution context.</param>
+        /// <param name="cancellationToken">A cancellation token to control the function's execution.</param>
+        /// <returns>The analysis response.</returns>
         [FunctionName("Analyze")]
         public static async Task<HttpResponseMessage> Run(
             [HttpTrigger(AuthorizationLevel.Function, "post", Route = "signals")]HttpRequestMessage request,
@@ -27,7 +41,7 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Analysis
             WebJobs.ExecutionContext context,
             CancellationToken cancellationToken)
         {
-            using (IUnityContainer childContainer = _container.CreateChildContainer())
+            using (IUnityContainer childContainer = Container.CreateChildContainer())
             {
                 childContainer.RegisterInstance(TracerFactory.Create(log, true));
                 SmartSignalRequest smartSignalRequest = await request.Content.ReadAsAsync<SmartSignalRequest>(cancellationToken);

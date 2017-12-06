@@ -4,6 +4,9 @@
     using System.Collections.Generic;
     using System.Linq.Expressions;
 
+    /// <summary>
+    /// A static class containing helper methods for arguments validations.
+    /// </summary>
     public static class Diagnostics
     {
         /// <summary>
@@ -15,6 +18,7 @@
         /// EnsureArgumentNotNull(() => filePath)
         /// EnsureArgumentNotNull(() => Policy.Id)
         /// </param>
+        /// <returns>The result of evaluating <paramref name="variableExpression"/>.</returns>
         public static T EnsureArgumentNotNull<T>(Expression<Func<T>> variableExpression) where T : class
         {
             T value = variableExpression.Compile()();
@@ -37,6 +41,7 @@
         /// EnsureStringNotNullOrWhiteSpace(() => filePath)
         /// EnsureStringNotNullOrWhiteSpace(() => job.Name)
         /// </param>
+        /// <returns>The result of evaluating <paramref name="variableExpression"/>.</returns>
         public static string EnsureStringNotNullOrWhiteSpace(Expression<Func<string>> variableExpression)
         {
             string value = variableExpression.Compile()();
@@ -61,6 +66,7 @@
         /// </param>
         /// <param name="minValue">The range minimal value</param>
         /// <param name="maxValue">The range maximal value</param>
+        /// <returns>The result of evaluating <paramref name="variableExpression"/>.</returns>
         public static T EnsureArgumentInRange<T>(Expression<Func<T>> variableExpression, T minValue, T maxValue) where T : IComparable
         {
             T value = variableExpression.Compile()();
@@ -79,9 +85,11 @@
         /// A throwing assert to determine that a value meets a condition (will throw an ArgumentException without 
         /// an inputted message)
         /// </summary>
+        /// <typeparam name="T">The type of the argument.</typeparam>
         /// <param name="condition">The condition to check</param>
         /// <param name="variableExpression">The Argument being validated</param>
         /// <param name="message">the exception message</param>
+        /// <returns>The result of evaluating <paramref name="variableExpression"/>.</returns>
         public static T EnsureArgument<T>(bool condition, Expression<Func<T>> variableExpression, string message = null)
         {
             if (!condition)
@@ -97,21 +105,22 @@
         /// <summary>
         /// This method should be invoked on expressions that return a local variable.
         /// If this method can't parse the return value, it will return "unknown".
-        /// 
+        /// <para>
         /// Examples:
         /// For the expression  () => id                    the returned value will be "id".
         /// For the expression  () => Policy.Id             the returned value will be "Policy.Id".
         /// For the expression  () => "test".ToString()     the returned value will be "unknown".
+        /// </para>
         /// </summary>
         /// <param name="argumentExpression">The expression returning the local variable.</param>
         /// <returns>The local variable name (or "unknown")</returns>
         private static string GetReturnValueAsString(LambdaExpression argumentExpression)
         {
-            const string unknownExpressionRepresentation = "unknown";
+            const string UnknownExpressionRepresentation = "unknown";
 
             if (argumentExpression == null)
             {
-                return unknownExpressionRepresentation;
+                return UnknownExpressionRepresentation;
             }
 
             try
@@ -147,7 +156,7 @@
             }
             catch (Exception)
             {
-                return unknownExpressionRepresentation;
+                return UnknownExpressionRepresentation;
             }
         }
     }

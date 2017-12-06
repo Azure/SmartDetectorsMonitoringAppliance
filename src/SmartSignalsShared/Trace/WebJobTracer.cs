@@ -10,16 +10,16 @@
     /// </summary>
     public class WebJobTracer : ITracer
     {
-        private readonly TraceWriter _logger;
+        private readonly TraceWriter logger;
 
         /// <summary>
-        /// Initialized a new instance of the <see cref="WebJobTracer"/> class.
+        /// Initializes a new instance of the <see cref="WebJobTracer"/> class.
         /// </summary>
         /// <param name="sessionId">Session id used for tracing</param>
         /// <param name="logger">The logger to send traces to</param>
         public WebJobTracer(string sessionId, TraceWriter logger)
         {
-            _logger = Diagnostics.EnsureArgumentNotNull(() => logger);
+            this.logger = Diagnostics.EnsureArgumentNotNull(() => logger);
             this.SessionId = sessionId;
         }
 
@@ -28,39 +28,84 @@
         /// </summary>
         public string SessionId { get; }
 
+        /// <summary>
+        /// Trace <paramref name="message"/> as Information message.
+        /// </summary>
+        /// <param name="message">The message to trace</param>
+        /// <param name="properties">Named string values you can use to classify and filter traces</param>
         public void TraceInformation(string message, IDictionary<string, string> properties = null)
         {
-            _logger.Info(message);
+            this.logger.Info(message);
         }
 
+        /// <summary>
+        /// Trace <paramref name="message"/> as Error message.
+        /// </summary>
+        /// <param name="message">The message to trace</param>
+        /// <param name="properties">Named string values you can use to classify and filter traces</param>
         public void TraceError(string message, IDictionary<string, string> properties = null)
         {
-            _logger.Error(message);
+            this.logger.Error(message);
         }
 
+        /// <summary>
+        /// Trace <paramref name="message"/> as Verbose message.
+        /// </summary>
+        /// <param name="message">The message to trace</param>
+        /// <param name="properties">Named string values you can use to classify and filter traces</param>
         public void TraceVerbose(string message, IDictionary<string, string> properties = null)
         {
-            _logger.Verbose(message);
+            this.logger.Verbose(message);
         }
 
+        /// <summary>
+        /// Trace <paramref name="message"/> as Warning message.
+        /// </summary>
+        /// <param name="message">The message to trace</param>
+        /// <param name="properties">Named string values you can use to classify and filter traces</param>
         public void TraceWarning(string message, IDictionary<string, string> properties = null)
         {
-            _logger.Warning(message);
+            this.logger.Warning(message);
         }
 
+        /// <summary>
+        /// Reports a metric.
+        /// </summary>
+        /// <param name="name">The metric name</param>
+        /// <param name="value">The metric value</param>
+        /// <param name="properties">Named string values you can use to classify and filter metrics</param>
+        /// <param name="count">The aggregated metric count</param>
+        /// <param name="max">The aggregated metric max value</param>
+        /// <param name="min">The aggregated metric min name</param>
+        /// <param name="timestamp">The timestamp of the aggregated metric</param>
         public void ReportMetric(string name, double value, IDictionary<string, string> properties = null, int? count = null, double? max = null, double? min = null, DateTime? timestamp = null)
         {
-            _logger.Info($"Metric: name-{name}, value-{value}");
+            this.logger.Info($"Metric: name-{name}, value-{value}");
         }
 
+        /// <summary>
+        /// Reports a runtime exception.
+        /// It uses exception and trace entities with same operation id.
+        /// </summary>
+        /// <param name="exception">The exception to report</param>
         public void ReportException(Exception exception)
         {
-            _logger.Info($"Exception: {exception}");
+            this.logger.Info($"Exception: {exception}");
         }
 
+        /// <summary>
+        /// Send information about a dependency call.
+        /// </summary>
+        /// <param name="dependencyName">The dependency name.</param>
+        /// <param name="commandName">The command name</param>
+        /// <param name="startTime">The dependency call start time</param>
+        /// <param name="duration">The time taken to handle the dependency.</param>
+        /// <param name="success">Was the dependency call successful</param>
+        /// <param name="metrics">Named double values that define additional dependency metrics</param>
+        /// <param name="properties">Named string values you can use to classify and filter dependencies</param>
         public void TrackDependency(string dependencyName, string commandName, DateTimeOffset startTime, TimeSpan duration, bool success, IDictionary<string, double> metrics = null, IDictionary<string, string> properties = null)
         {
-            _logger.Info($"Dependency: name={dependencyName}, command={commandName}, duration={duration}, success={success}");
+            this.logger.Info($"Dependency: name={dependencyName}, command={commandName}, duration={duration}, success={success}");
         }
 
         /// <summary>
@@ -71,7 +116,7 @@
         /// <param name="metrics">Dictionary of application-defined metrics</param>
         public void TrackEvent(string eventName, IDictionary<string, string> properties = null, IDictionary<string, double> metrics = null)
         {
-            _logger.Info($"Event: name={eventName}");
+            this.logger.Info($"Event: name={eventName}");
         }
 
         /// <summary>
@@ -79,7 +124,7 @@
         /// </summary>
         public void Flush()
         {
-            _logger.Flush();
+            this.logger.Flush();
         }
     }
 }

@@ -9,7 +9,7 @@
     /// </summary>
     public class CloudTableClientWrapper : ICloudTableClientWrapper
     {
-        private readonly CloudTableClient _cloudTableClient;
+        private readonly CloudTableClient cloudTableClient;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CloudTableClientWrapper"/> class.
@@ -17,10 +17,10 @@
         /// <param name="cloudTableClient">Cloud table client</param>
         public CloudTableClientWrapper(CloudTableClient cloudTableClient)
         {
-            _cloudTableClient = cloudTableClient;
+            this.cloudTableClient = cloudTableClient;
             
             // set retry policy
-            _cloudTableClient.DefaultRequestOptions = new TableRequestOptions
+            this.cloudTableClient.DefaultRequestOptions = new TableRequestOptions
             {
                 RetryPolicy = new ExponentialRetry(TimeSpan.FromSeconds(2), 5),
                 MaximumExecutionTime = TimeSpan.FromSeconds(60)
@@ -34,7 +34,7 @@
         /// <returns>A <see cref="CloudTable"/> object.</returns>
         public ICloudTableWrapper GetTableReference(string tableName)
         {
-            return new CloudTableWrapper(_cloudTableClient.GetTableReference(tableName));
+            return new CloudTableWrapper(this.cloudTableClient.GetTableReference(tableName));
         }
     }
 }

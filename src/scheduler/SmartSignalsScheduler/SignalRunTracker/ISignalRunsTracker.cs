@@ -21,6 +21,7 @@
         /// Updates a successful run in the tracking table.
         /// </summary>
         /// <param name="signalExecutionInfo">The current signal execution information</param>
+        /// <returns>A <see cref="Task"/> running the asynchronous operation</returns>
         Task UpdateSignalRunAsync(SignalExecutionInfo signalExecutionInfo);
     }
 }

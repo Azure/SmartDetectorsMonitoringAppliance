@@ -66,7 +66,6 @@
         public void WhenCreatingResourceIdentifierWithEmptyResourceGroupNameAndVmTypeThenExceptionIsThrown()
         {
             new ResourceIdentifier(ResourceType.VirtualMachine, TestSubscriptionId, string.Empty, TestResourceName);
-
         }
 
         [TestMethod]
@@ -189,6 +188,5 @@
         }
 
         #endregion
-
     }
 }

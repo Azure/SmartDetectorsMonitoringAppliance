@@ -3,12 +3,10 @@
     <TargetFramework>net461</TargetFramework>
     <RootNamespace>Microsoft.Azure.Monitoring.SmartSignals.Shared</RootNamespace>
     <AssemblyName>Microsoft.Azure.Monitoring.SmartSignals.Shared</AssemblyName>
+	<StyleCopTreatErrorsAsWarnings>False</StyleCopTreatErrorsAsWarnings>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
   <ItemGroup>
-	<PackageReference Include="config.encrypt" Version="1.0.0.6" />
-	<PackageReference Include="ConfigurationLibrary" Version="2.0.2" />
-	<PackageReference Include="ConfigurationLibrary.Crypto" Version="2.1.0" />
-	<PackageReference Include="ConfigurationLibrary.Providers" Version="2.1.0" />
 	<PackageReference Include="Microsoft.ApplicationInsights" Version="2.4.0" />
 	<PackageReference Include="Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel" Version="2.4.0" />
 	<PackageReference Include="Microsoft.Azure.KeyVault.Core" Version="2.0.4" />
@@ -19,6 +17,7 @@
 	<PackageReference Include="Microsoft.Data.Services.Client" Version="5.8.3" />
 	<PackageReference Include="ncrontab" Version="3.3.0" />
 	<PackageReference Include="Newtonsoft.Json" Version="9.0.1" />
+	<PackageReference Include="StyleCop.MSBuild" Version="5.0.0" />
 	<PackageReference Include="System.ComponentModel.EventBasedAsync" Version="4.3.0" />
 	<PackageReference Include="System.Diagnostics.DiagnosticSource" Version="4.4.1" />
 	<PackageReference Include="System.Dynamic.Runtime" Version="4.3.0" />

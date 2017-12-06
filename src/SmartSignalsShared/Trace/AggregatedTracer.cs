@@ -11,20 +11,20 @@
     /// </summary>
     public class AggregatedTracer : ITracer
     {
-        private readonly ConcurrentDictionary<ITracer, Type> _tracers;
+        private readonly ConcurrentDictionary<ITracer, Type> tracers;
 
         /// <summary>
-        /// Initialized a new instance of the <see cref="AggregatedTracer"/> class.
+        /// Initializes a new instance of the <see cref="AggregatedTracer"/> class.
         /// </summary>
         /// <param name="tracers">List of tracers to trace to</param>
         public AggregatedTracer(List<ITracer> tracers)
         {
             Diagnostics.EnsureArgumentNotNull(() => tracers);
-            _tracers = new ConcurrentDictionary<ITracer, Type>(tracers.Where(t => t != null).ToDictionary(t => t, t => t.GetType()));
+            this.tracers = new ConcurrentDictionary<ITracer, Type>(tracers.Where(t => t != null).ToDictionary(t => t, t => t.GetType()));
 
-            Diagnostics.EnsureArgument(_tracers.Count > 0, () => tracers, "Must get at least one non-null tracer");
-            Diagnostics.EnsureArgument(_tracers.Keys.Select(t => t.SessionId).Distinct().Count() == 1, () => tracers, "All tracers must have the same session ID");
-            this.SessionId = _tracers.First().Key.SessionId;
+            Diagnostics.EnsureArgument(this.tracers.Count > 0, () => tracers, "Must get at least one non-null tracer");
+            Diagnostics.EnsureArgument(this.tracers.Keys.Select(t => t.SessionId).Distinct().Count() == 1, () => tracers, "All tracers must have the same session ID");
+            this.SessionId = this.tracers.First().Key.SessionId;
         }
 
         #region Implementation of ITracer
@@ -148,7 +148,7 @@
         /// <param name="action">The action to run</param>
         private void SafeCallTracers(Action<ITracer> action)
         {
-            foreach (ITracer tracer in _tracers.Keys)
+            foreach (ITracer tracer in this.tracers.Keys)
             {
                 try
                 {
@@ -157,8 +157,8 @@
                 catch (Exception e)
                 {
                     Type tracerType;
-                    _tracers.TryRemove(tracer, out tracerType);
-                    if (_tracers.Count == 0)
+                    this.tracers.TryRemove(tracer, out tracerType);
+                    if (this.tracers.Count == 0)
                     {
                         throw;
                     }

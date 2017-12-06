@@ -16,8 +16,8 @@
         private const string TableName = "signalconfiguration";
         private const string PartitionKey = "configurations";
 
-        private readonly ICloudTableWrapper _configurationTable;
-        private readonly ITracer _tracer;
+        private readonly ICloudTableWrapper configurationTable;
+        private readonly ITracer tracer;
 
         /// <summary>
         /// Initializes a new instance of the<see cref="SmartSignalConfigurationStore"/> class.
@@ -26,11 +26,11 @@
         /// <param name="tracer">Log wrapper</param>
         public SmartSignalConfigurationStore(ICloudTableClientWrapper tableClient, ITracer tracer)
         {
-            _tracer = tracer;
+            this.tracer = tracer;
 
             // create the cloud table instance
-            _configurationTable = tableClient.GetTableReference(TableName);
-            _configurationTable.CreateIfNotExists();
+            this.configurationTable = tableClient.GetTableReference(TableName);
+            this.configurationTable.CreateIfNotExists();
         }
 
         /// <summary>
@@ -39,11 +39,11 @@
         /// <returns>A <see cref="IList{SmartSignalConfiguration}"/> containing all the signal configurations in the store.</returns>
         public async Task<IList<SmartSignalConfiguration>> GetAllSmartSignalConfigurationsAsync()
         {
-            _tracer.TraceInformation("Getting all smart signal configurations");
-            var signalConfigurationEntities = await _configurationTable.ReadPartitionAsync<SmartConfigurationEntity>(PartitionKey);
-            _tracer.TraceInformation($"Found {signalConfigurationEntities.Count} signal configurations");
+            this.tracer.TraceInformation("Getting all smart signal configurations");
+            var signalConfigurationEntities = await this.configurationTable.ReadPartitionAsync<SmartConfigurationEntity>(PartitionKey);
+            this.tracer.TraceInformation($"Found {signalConfigurationEntities.Count} signal configurations");
 
-            _tracer.TraceVerbose($"Found configurations for signals: {string.Join(", ", signalConfigurationEntities.Select(e => e.RowKey))}");
+            this.tracer.TraceVerbose($"Found configurations for signals: {string.Join(", ", signalConfigurationEntities.Select(e => e.RowKey))}");
 
             return signalConfigurationEntities.Select(entity => new SmartSignalConfiguration
             {
@@ -61,7 +61,7 @@
         public async Task AddOrReplaceSmartSignalConfigurationAsync(SmartSignalConfiguration signalConfiguration)
         {
             // Execute the update operation
-            _tracer.TraceInformation($"updating signal configuration for: {signalConfiguration.SignalId}");
+            this.tracer.TraceInformation($"updating signal configuration for: {signalConfiguration.SignalId}");
             var operation = TableOperation.InsertOrReplace(new SmartConfigurationEntity
             {
                 PartitionKey = PartitionKey,
@@ -70,9 +70,9 @@
                 CrontabSchedule = signalConfiguration.Schedule.ToString()
             });
 
-            await _configurationTable.ExecuteAsync(operation);
+            await this.configurationTable.ExecuteAsync(operation);
 
-            _tracer.TraceInformation($"updated signal configuration for: {signalConfiguration.SignalId}");
+            this.tracer.TraceInformation($"updated signal configuration for: {signalConfiguration.SignalId}");
         }
     }
 }

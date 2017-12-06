@@ -8,21 +8,6 @@
     public struct TimeRange
     {
         /// <summary>
-        /// Gets the start time for this range.
-        /// </summary>
-        public DateTime StartTime { get; }
-
-        /// <summary>
-        /// Gets the end time for this range.
-        /// </summary>
-        public DateTime EndTime { get; }
-
-        /// <summary>
-        /// Gets the duration of this range (basically <see cref="EndTime"/> - <see cref="StartTime"/>).
-        /// </summary>
-        public TimeSpan Duration { get; }
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="TimeRange"/> structure with the specified start and end times.
         /// </summary>
         /// <param name="startTime">The start time of the time range.</param>
@@ -62,8 +47,46 @@
             this.EndTime = startTime + duration;
         }
 
+        /// <summary>
+        /// Gets the start time for this range.
+        /// </summary>
+        public DateTime StartTime { get; }
+
+        /// <summary>
+        /// Gets the end time for this range.
+        /// </summary>
+        public DateTime EndTime { get; }
+
+        /// <summary>
+        /// Gets the duration of this range (basically <see cref="EndTime"/> - <see cref="StartTime"/>).
+        /// </summary>
+        public TimeSpan Duration { get; }
 
         #region Overrides of ValueType
+
+        /// <summary>
+        /// Determines whether two specified time ranges have the same value.
+        /// </summary>
+        /// <param name="a">The first time range to compare.</param>
+        /// <param name="b">The second time range to compare.</param>
+        /// <returns>true if <paramref name="a"/> and <paramref name="b"/> represent the same time range; otherwise, false.</returns>
+        public static bool operator ==(TimeRange a, TimeRange b)
+        {
+            return
+                a.StartTime == b.StartTime &&
+                a.EndTime == b.EndTime;
+        }
+
+        /// <summary>
+        /// Determines whether two specified time ranges have different values.
+        /// </summary>
+        /// <param name="a">The first time range to compare.</param>
+        /// <param name="b">The second time range to compare.</param>
+        /// <returns>true if <paramref name="a"/> and <paramref name="b"/> do not represent the same time range; otherwise, false.</returns>
+        public static bool operator !=(TimeRange a, TimeRange b)
+        {
+            return !(a == b);
+        }
 
         /// <summary>
         /// Returns a value indicating whether this instance is equal to a specified object.
@@ -91,30 +114,6 @@
                 hash = (31 * hash) + this.EndTime.GetHashCode();
                 return hash;
             }
-        }
-
-        /// <summary>
-        /// Determines whether two specified time ranges have the same value.
-        /// </summary>
-        /// <param name="a">The first time range to compare.</param>
-        /// <param name="b">The second time range to compare.</param>
-        /// <returns>true if <paramref name="a"/> and <paramref name="b"/> represent the same time range; otherwise, false.</returns>
-        public static bool operator ==(TimeRange a, TimeRange b)
-        {
-            return
-                a.StartTime == b.StartTime &&
-                a.EndTime == b.EndTime;
-        }
-
-        /// <summary>
-        /// Determines whether two specified time ranges have different values.
-        /// </summary>
-        /// <param name="a">The first time range to compare.</param>
-        /// <param name="b">The second time range to compare.</param>
-        /// <returns>true if <paramref name="a"/> and <paramref name="b"/> do not represent the same time range; otherwise, false.</returns>
-        public static bool operator !=(TimeRange a, TimeRange b)
-        {
-            return !(a == b);
         }
 
         #endregion

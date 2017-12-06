@@ -17,18 +17,18 @@
     [TestClass]
     public class SignalRunTrackerTest
     {
-        private SignalRunsTracker _signalRunsTracker;
-        private Mock<ICloudTableWrapper> _tableMock;
+        private SignalRunsTracker signalRunsTracker;
+        private Mock<ICloudTableWrapper> tableMock;
 
         [TestInitialize]
         public void Setup()
         {
-            _tableMock = new Mock<ICloudTableWrapper>();
+            this.tableMock = new Mock<ICloudTableWrapper>();
             var tableClientMock = new Mock<ICloudTableClientWrapper>();
-            tableClientMock.Setup(m => m.GetTableReference(It.IsAny<string>())).Returns(_tableMock.Object);
+            tableClientMock.Setup(m => m.GetTableReference(It.IsAny<string>())).Returns(this.tableMock.Object);
 
             var tracerMock = new Mock<ITracer>();
-            _signalRunsTracker = new SignalRunsTracker(tableClientMock.Object, tracerMock.Object);
+            this.signalRunsTracker = new SignalRunsTracker(tableClientMock.Object, tracerMock.Object);
         }
 
         [TestMethod]
@@ -40,8 +40,8 @@
                 AnalysisEndTime = DateTime.UtcNow,
                 AnalysisStartTime = DateTime.UtcNow.AddHours(-1)
             };
-            await _signalRunsTracker.UpdateSignalRunAsync(signalExecution);
-            _tableMock.Verify(m => m.ExecuteAsync(It.Is<TableOperation>(operation =>
+            await this.signalRunsTracker.UpdateSignalRunAsync(signalExecution);
+            this.tableMock.Verify(m => m.ExecuteAsync(It.Is<TableOperation>(operation =>
                 operation.OperationType == TableOperationType.InsertOrReplace &&
                 operation.Entity.RowKey.Equals(signalExecution.SignalId) && 
                 ((TrackSignalRunEntity)operation.Entity).LastSuccessfulRunStartTime.Equals(signalExecution.AnalysisStartTime) &&
@@ -86,13 +86,12 @@
                 }
             };
             
-            _tableMock.Setup(m => m.ReadPartitionAsync<TrackSignalRunEntity>("tracking")).ReturnsAsync(tableResult);
+            this.tableMock.Setup(m => m.ReadPartitionAsync<TrackSignalRunEntity>("tracking")).ReturnsAsync(tableResult);
 
-            var signalsToRun = await _signalRunsTracker.GetSignalsToRunAsync(configurations);
+            var signalsToRun = await this.signalRunsTracker.GetSignalsToRunAsync(configurations);
             Assert.AreEqual(2, signalsToRun.Count);
             Assert.AreEqual("should_run", signalsToRun.First().SignalId);
             Assert.AreEqual("should_run2", signalsToRun.Last().SignalId);
-
         }
     }
 }

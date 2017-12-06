@@ -15,38 +15,38 @@
     [TestClass]
     public class SmartSignalConfigurationStoreTest
     {
-        private SmartSignalConfigurationStore _configurationStore;
-        private Mock<ICloudTableWrapper> _tableMock;
+        private SmartSignalConfigurationStore configurationStore;
+        private Mock<ICloudTableWrapper> tableMock;
 
         [TestInitialize]
         public void Setup()
         {
-            _tableMock = new Mock<ICloudTableWrapper>();
+            this.tableMock = new Mock<ICloudTableWrapper>();
             var tableClientMock = new Mock<ICloudTableClientWrapper>();
-            tableClientMock.Setup(m => m.GetTableReference(It.IsAny<string>())).Returns(_tableMock.Object);
+            tableClientMock.Setup(m => m.GetTableReference(It.IsAny<string>())).Returns(this.tableMock.Object);
 
             var tracerMock = new Mock<ITracer>();
-            _configurationStore = new SmartSignalConfigurationStore(tableClientMock.Object, tracerMock.Object);
+            this.configurationStore = new SmartSignalConfigurationStore(tableClientMock.Object, tracerMock.Object);
         }
 
         [TestMethod]
         public async Task WhenUpdatingSignalConfigurationThenUpdateIsCalledCorrectly()
         {
-            const string cronSchedule = "0 1 * * *";
+            const string CronSchedule = "0 1 * * *";
 
             var configToUpdate = new SmartSignalConfiguration
             {
                 SignalId = "signalId",
-                Schedule = CrontabSchedule.Parse(cronSchedule),
+                Schedule = CrontabSchedule.Parse(CronSchedule),
                 ResourceType = ResourceType.VirtualMachine
             };
 
-            await _configurationStore.AddOrReplaceSmartSignalConfigurationAsync(configToUpdate);
+            await this.configurationStore.AddOrReplaceSmartSignalConfigurationAsync(configToUpdate);
 
-            _tableMock.Verify(m => m.ExecuteAsync(It.Is<TableOperation>(operation =>
+            this.tableMock.Verify(m => m.ExecuteAsync(It.Is<TableOperation>(operation =>
                 operation.OperationType == TableOperationType.InsertOrReplace &&
                 operation.Entity.RowKey.Equals(configToUpdate.SignalId) &&
-                ((SmartConfigurationEntity)operation.Entity).CrontabSchedule.Equals(cronSchedule) &&
+                ((SmartConfigurationEntity)operation.Entity).CrontabSchedule.Equals(CronSchedule) &&
                 ((SmartConfigurationEntity)operation.Entity).ResourceType.Equals(configToUpdate.ResourceType))));
         }
 
@@ -70,9 +70,9 @@
                 }
             };
 
-            _tableMock.Setup(m => m.ReadPartitionAsync<SmartConfigurationEntity>("configurations")).ReturnsAsync(configurationEntities);
+            this.tableMock.Setup(m => m.ReadPartitionAsync<SmartConfigurationEntity>("configurations")).ReturnsAsync(configurationEntities);
 
-            var returnedConfigurations = await _configurationStore.GetAllSmartSignalConfigurationsAsync();
+            var returnedConfigurations = await this.configurationStore.GetAllSmartSignalConfigurationsAsync();
             Assert.AreEqual(2, returnedConfigurations.Count);
 
             var firstConfiguration = returnedConfigurations.First();

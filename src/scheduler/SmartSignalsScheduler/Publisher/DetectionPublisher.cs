@@ -12,11 +12,15 @@
     {
         private const string DetectionEventName = "Detection";
 
-        private readonly ITracer _tracer;
+        private readonly ITracer tracer;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DetectionPublisher"/> class.
+        /// </summary>
+        /// <param name="tracer">The tracer to use.</param>
         public DetectionPublisher(ITracer tracer)
         {
-            _tracer = tracer;
+            this.tracer = tracer;
         }
 
         /// <summary>
@@ -28,7 +32,7 @@
         {
             if (!detections.Any())
             {
-                _tracer.TraceInformation("no detections to publish");
+                this.tracer.TraceInformation("no detections to publish");
                 return;
             }
 
@@ -36,14 +40,14 @@
             {
                 var detectionProperties = new Dictionary<string, string>
                 {
-                    {"SignalId", signalId},
-                    {"Detection", JsonConvert.SerializeObject(detection)}
+                    { "SignalId", signalId },
+                    { "Detection", JsonConvert.SerializeObject(detection) }
                 };
 
-                _tracer.TrackEvent(DetectionEventName, detectionProperties);
+                this.tracer.TrackEvent(DetectionEventName, detectionProperties);
             }
 
-            _tracer.TraceInformation($"{detections.Count} detections were published to the detection store");
+            this.tracer.TraceInformation($"{detections.Count} detections were published to the detection store");
         }
     }
 }

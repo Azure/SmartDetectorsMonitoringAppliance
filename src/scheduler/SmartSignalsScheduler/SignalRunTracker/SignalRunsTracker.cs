@@ -18,8 +18,8 @@
         private const string TableName = "signaltracking";
         private const string PartitionKey = "tracking";
 
-        private readonly ICloudTableWrapper _trackingTable;
-        private readonly ITracer _tracer;
+        private readonly ICloudTableWrapper trackingTable;
+        private readonly ITracer tracer;
 
         /// <summary>
         /// Initializes a new instance of the<see cref="SignalRunsTracker"/> class.
@@ -28,11 +28,11 @@
         /// <param name="tracer">Log wrapper</param>
         public SignalRunsTracker(ICloudTableClientWrapper tableClient, ITracer tracer)
         {
-            _tracer = tracer;
+            this.tracer = tracer;
 
             // create the cloud table instance
-            _trackingTable = tableClient.GetTableReference(TableName);
-            _trackingTable.CreateIfNotExists();
+            this.trackingTable = tableClient.GetTableReference(TableName);
+            this.trackingTable.CreateIfNotExists();
         }
 
         /// <summary>
@@ -42,10 +42,10 @@
         /// <returns>A list of signal execution times of the signals to execute</returns>
         public async Task<IList<SignalExecutionInfo>> GetSignalsToRunAsync(IEnumerable<SmartSignalConfiguration> signalConfigurations)
         {
-            _tracer.TraceVerbose("getting signals to run");
+            this.tracer.TraceVerbose("getting signals to run");
 
             // get all last signal runs from table storage
-            var signalsLastRuns = await _trackingTable.ReadPartitionAsync<TrackSignalRunEntity>(PartitionKey);
+            var signalsLastRuns = await this.trackingTable.ReadPartitionAsync<TrackSignalRunEntity>(PartitionKey);
 
             // create a dictionary from signal ID to signal execution for faster lookup
             var signalIdToLastRun = signalsLastRuns.ToDictionary(x => x.RowKey, x => x);
@@ -59,7 +59,7 @@
                 DateTime signalNextRun = signalConfiguration.Schedule.GetNextOccurrence(nextBaseTime);
                 if (signalNextRun <= DateTime.UtcNow)
                 {
-                    _tracer.TraceInformation($"signal {signalConfiguration.SignalId} last ran at {signalLastRun} and is marked to run");
+                    this.tracer.TraceInformation($"signal {signalConfiguration.SignalId} last ran at {signalLastRun} and is marked to run");
                     signalsToRun.Add(this.GenerateSignalExecutionFromConfiguration(signalConfiguration, signalLastRun?.LastSuccessfulRunEndTime));
                 }
             }
@@ -71,10 +71,11 @@
         /// Updates a successful run in the tracking table.
         /// </summary>
         /// <param name="signalExecutionInfo">The current signal execution information</param>
+        /// <returns>A <see cref="Task"/> running the asynchronous operation</returns>
         public async Task UpdateSignalRunAsync(SignalExecutionInfo signalExecutionInfo)
         {
             // Execute the update operation
-            _tracer.TraceVerbose($"updating run for signal: {signalExecutionInfo.SignalId}");
+            this.tracer.TraceVerbose($"updating run for signal: {signalExecutionInfo.SignalId}");
             var operation = TableOperation.InsertOrReplace(new TrackSignalRunEntity
             {
                 PartitionKey = PartitionKey,
@@ -82,7 +83,7 @@
                 LastSuccessfulRunStartTime = signalExecutionInfo.AnalysisStartTime,
                 LastSuccessfulRunEndTime = signalExecutionInfo.AnalysisEndTime
             });
-            await _trackingTable.ExecuteAsync(operation);
+            await this.trackingTable.ExecuteAsync(operation);
         }
 
         /// <summary>
@@ -90,7 +91,7 @@
         /// </summary>
         /// <param name="signalConfiguration">The smart signal configuration</param>
         /// <param name="lastAnalysisEndTime">The end time of the last analysis execution</param>
-        /// <returns></returns>
+        /// <returns>The signal execution details.</returns>
         private SignalExecutionInfo GenerateSignalExecutionFromConfiguration(SmartSignalConfiguration signalConfiguration, DateTime? lastAnalysisEndTime = null)
         {
             // Get the window size and analysis timestamp based on the predefined CRON schedule and the last analysis time

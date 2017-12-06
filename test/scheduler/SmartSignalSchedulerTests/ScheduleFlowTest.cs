@@ -17,23 +17,23 @@
     [TestClass]
     public class ScheduleFlowTest
     {
-        private Mock<ISmartSignalConfigurationStore> _configurationStoreMock;
-        private Mock<ISignalRunsTracker> _signalRunTrackerMock;
-        private Mock<IAnalysisExecuter> _analysisExecuterMock;
-        private Mock<IDetectionPublisher> _detectionPublisherMock;
+        private Mock<ISmartSignalConfigurationStore> configurationStoreMock;
+        private Mock<ISignalRunsTracker> signalRunTrackerMock;
+        private Mock<IAnalysisExecuter> analysisExecuterMock;
+        private Mock<IDetectionPublisher> detectionPublisherMock;
 
-        private ScheduleFlow _scheduleFlow;
+        private ScheduleFlow scheduleFlow;
 
         [TestInitialize]
         public void Setup()
         {
             var tracerMock = new Mock<ITracer>();
-            _configurationStoreMock = new Mock<ISmartSignalConfigurationStore>();
-            _signalRunTrackerMock = new Mock<ISignalRunsTracker>();
-            _analysisExecuterMock = new Mock<IAnalysisExecuter>();
-            _detectionPublisherMock = new Mock<IDetectionPublisher>();
+            this.configurationStoreMock = new Mock<ISmartSignalConfigurationStore>();
+            this.signalRunTrackerMock = new Mock<ISignalRunsTracker>();
+            this.analysisExecuterMock = new Mock<IAnalysisExecuter>();
+            this.detectionPublisherMock = new Mock<IDetectionPublisher>();
 
-            _scheduleFlow = new ScheduleFlow(tracerMock.Object, _configurationStoreMock.Object, _signalRunTrackerMock.Object, _analysisExecuterMock.Object, _detectionPublisherMock.Object);
+            this.scheduleFlow = new ScheduleFlow(tracerMock.Object, this.configurationStoreMock.Object, this.signalRunTrackerMock.Object, this.analysisExecuterMock.Object, this.detectionPublisherMock.Object);
         }
 
         [TestMethod]
@@ -54,22 +54,22 @@
             };
             var signalExecutions = new List<SignalExecutionInfo> { signalExecution1, signalExecution2 };
 
-            _signalRunTrackerMock.Setup(m => m.GetSignalsToRunAsync(It.IsAny<IList<SmartSignalConfiguration>>())).ReturnsAsync(signalExecutions);
+            this.signalRunTrackerMock.Setup(m => m.GetSignalsToRunAsync(It.IsAny<IList<SmartSignalConfiguration>>())).ReturnsAsync(signalExecutions);
 
             // first signal execution throws exception and the second one returns detections
-            const string detectionTitle = "someTitle";
-            _analysisExecuterMock.SetupSequence(m => m.ExecuteSignalAsync(It.IsAny<SignalExecutionInfo>(), It.IsAny<IList<string>>()))
+            const string DetectionTitle = "someTitle";
+            this.analysisExecuterMock.SetupSequence(m => m.ExecuteSignalAsync(It.IsAny<SignalExecutionInfo>(), It.IsAny<IList<string>>()))
                 .Throws(new Exception())
-                .ReturnsAsync(new List<SmartSignalDetection> { new TestDetection(detectionTitle) });
+                .ReturnsAsync(new List<SmartSignalDetection> { new TestDetection(DetectionTitle) });
 
-            await _scheduleFlow.RunAsync();
+            await this.scheduleFlow.RunAsync();
 
-            _configurationStoreMock.Verify(m => m.GetAllSmartSignalConfigurationsAsync(), Times.Once);
+            this.configurationStoreMock.Verify(m => m.GetAllSmartSignalConfigurationsAsync(), Times.Once);
             
             // Verify that these were called only once since the first signal execution throwed exception
-            _detectionPublisherMock.Verify(m => m.PublishDetections("2", It.Is<IList<SmartSignalDetection>>(lst => lst.Count == 1 && lst.First().Title == detectionTitle)), Times.Once);
-            _signalRunTrackerMock.Verify(m => m.UpdateSignalRunAsync(It.IsAny<SignalExecutionInfo>()), Times.Once());
-            _signalRunTrackerMock.Verify(m => m.UpdateSignalRunAsync(signalExecution2));
+            this.detectionPublisherMock.Verify(m => m.PublishDetections("2", It.Is<IList<SmartSignalDetection>>(lst => lst.Count == 1 && lst.First().Title == DetectionTitle)), Times.Once);
+            this.signalRunTrackerMock.Verify(m => m.UpdateSignalRunAsync(It.IsAny<SignalExecutionInfo>()), Times.Once());
+            this.signalRunTrackerMock.Verify(m => m.UpdateSignalRunAsync(signalExecution2));
         }
 
         [TestMethod]
@@ -90,28 +90,28 @@
             };
             var signalExecutions = new List<SignalExecutionInfo> { signalExecution1, signalExecution2 };
 
-            _signalRunTrackerMock.Setup(m => m.GetSignalsToRunAsync(It.IsAny<IList<SmartSignalConfiguration>>())).ReturnsAsync(signalExecutions);
+            this.signalRunTrackerMock.Setup(m => m.GetSignalsToRunAsync(It.IsAny<IList<SmartSignalConfiguration>>())).ReturnsAsync(signalExecutions);
 
             // each signal execution returns detections
-            _analysisExecuterMock.Setup(m => m.ExecuteSignalAsync(It.IsAny<SignalExecutionInfo>(), It.IsAny<IList<string>>()))
+            this.analysisExecuterMock.Setup(m => m.ExecuteSignalAsync(It.IsAny<SignalExecutionInfo>(), It.IsAny<IList<string>>()))
                 .ReturnsAsync(new List<SmartSignalDetection> { new TestDetection("title") });
 
-            await _scheduleFlow.RunAsync();
+            await this.scheduleFlow.RunAsync();
 
             // Verify detections were published and signal tracker was updated for each signal execution
-            _configurationStoreMock.Verify(m => m.GetAllSmartSignalConfigurationsAsync(), Times.Once);
-            _detectionPublisherMock.Verify(m => m.PublishDetections(It.IsAny<string>(), It.IsAny<IList<SmartSignalDetection>>()), Times.Exactly(2));
-            _signalRunTrackerMock.Verify(m => m.UpdateSignalRunAsync(It.IsAny<SignalExecutionInfo>()), Times.Exactly(2));
+            this.configurationStoreMock.Verify(m => m.GetAllSmartSignalConfigurationsAsync(), Times.Once);
+            this.detectionPublisherMock.Verify(m => m.PublishDetections(It.IsAny<string>(), It.IsAny<IList<SmartSignalDetection>>()), Times.Exactly(2));
+            this.signalRunTrackerMock.Verify(m => m.UpdateSignalRunAsync(It.IsAny<SignalExecutionInfo>()), Times.Exactly(2));
         }
-    }
 
-    public class TestDetection : SmartSignalDetection
-    {
-        public override string Title { get; }
-
-        public TestDetection(string title)
+        private class TestDetection : SmartSignalDetection
         {
-            Title = title;
+            public TestDetection(string title)
+            {
+                this.Title = title;
+            }
+            
+            public override string Title { get; }
         }
     }
 }

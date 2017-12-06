@@ -14,11 +14,11 @@
     /// </summary>
     public class ScheduleFlow
     {
-        private readonly ITracer _tracer;
-        private readonly ISmartSignalConfigurationStore _signalConfigurationStore;
-        private readonly ISignalRunsTracker _signalRunsTracker;
-        private readonly IAnalysisExecuter _analysisExecuter;
-        private readonly IDetectionPublisher _detectionPublisher;
+        private readonly ITracer tracer;
+        private readonly ISmartSignalConfigurationStore signalConfigurationStore;
+        private readonly ISignalRunsTracker signalRunsTracker;
+        private readonly IAnalysisExecuter analysisExecuter;
+        private readonly IDetectionPublisher detectionPublisher;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ScheduleFlow"/> class.
@@ -30,20 +30,21 @@
         /// <param name="detectionPublisher">The detection publisher instance</param>
         public ScheduleFlow(ITracer tracer, ISmartSignalConfigurationStore signalConfigurationStore, ISignalRunsTracker signalRunsTracker, IAnalysisExecuter analysisExecuter, IDetectionPublisher detectionPublisher)
         {
-            _tracer = Diagnostics.EnsureArgumentNotNull(() => tracer);
-            _signalConfigurationStore = Diagnostics.EnsureArgumentNotNull(() => signalConfigurationStore);
-            _signalRunsTracker = Diagnostics.EnsureArgumentNotNull(() => signalRunsTracker);
-            _analysisExecuter = Diagnostics.EnsureArgumentNotNull(() => analysisExecuter);
-            _detectionPublisher = Diagnostics.EnsureArgumentNotNull(() => detectionPublisher);
+            this.tracer = Diagnostics.EnsureArgumentNotNull(() => tracer);
+            this.signalConfigurationStore = Diagnostics.EnsureArgumentNotNull(() => signalConfigurationStore);
+            this.signalRunsTracker = Diagnostics.EnsureArgumentNotNull(() => signalRunsTracker);
+            this.analysisExecuter = Diagnostics.EnsureArgumentNotNull(() => analysisExecuter);
+            this.detectionPublisher = Diagnostics.EnsureArgumentNotNull(() => detectionPublisher);
         }
 
         /// <summary>
         /// Starting point of the schedule flow
         /// </summary>
+        /// <returns>A <see cref="Task"/> running the asynchronous operation.</returns>
         public async Task RunAsync()
         {
-            IList<SmartSignalConfiguration> signalConfigurations = await _signalConfigurationStore.GetAllSmartSignalConfigurationsAsync();
-            IList<SignalExecutionInfo> signalsToRun = await _signalRunsTracker.GetSignalsToRunAsync(signalConfigurations);
+            IList<SmartSignalConfiguration> signalConfigurations = await this.signalConfigurationStore.GetAllSmartSignalConfigurationsAsync();
+            IList<SignalExecutionInfo> signalsToRun = await this.signalRunsTracker.GetSignalsToRunAsync(signalConfigurations);
 
             // TODO: get resources
             var resourceIds = new List<string>();
@@ -52,14 +53,14 @@
             {
                 try
                 {
-                    IList<SmartSignalDetection> detections = await _analysisExecuter.ExecuteSignalAsync(signalExecution, resourceIds);
-                    _detectionPublisher.PublishDetections(signalExecution.SignalId, detections);
-                    await _signalRunsTracker.UpdateSignalRunAsync(signalExecution);
+                    IList<SmartSignalDetection> detections = await this.analysisExecuter.ExecuteSignalAsync(signalExecution, resourceIds);
+                    this.detectionPublisher.PublishDetections(signalExecution.SignalId, detections);
+                    await this.signalRunsTracker.UpdateSignalRunAsync(signalExecution);
                 }
                 catch (Exception exception)
                 {
-                    _tracer.TraceError($"Failed executing signal {signalExecution.SignalId} with exception: {exception}");
-                    _tracer.ReportException(exception);
+                    this.tracer.TraceError($"Failed executing signal {signalExecution.SignalId} with exception: {exception}");
+                    this.tracer.ReportException(exception);
                 }
             }
         }

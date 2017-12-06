@@ -4,18 +4,18 @@
     using Microsoft.WindowsAzure.Storage.Table;
 
     /// <summary>
-    /// A row holds the last successful run of a singal job.
+    /// A row holds the last successful run of a signal job.
     /// The signal ID is the row key.
     /// </summary>
     public class TrackSignalRunEntity : TableEntity
     {
         /// <summary>
-        /// The start time of the last successful run
+        /// Gets or sets the start time of the last successful run
         /// </summary>
         public DateTime LastSuccessfulRunStartTime { get; set; }
 
         /// <summary>
-        /// The end time of the last successful run
+        /// Gets or sets the end time of the last successful run
         /// </summary>
         public DateTime LastSuccessfulRunEndTime { get; set; }
     }

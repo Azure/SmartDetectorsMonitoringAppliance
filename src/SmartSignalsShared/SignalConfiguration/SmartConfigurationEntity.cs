@@ -8,8 +8,14 @@
     /// </summary>
     public class SmartConfigurationEntity : TableEntity
     {
+        /// <summary>
+        /// Gets or sets the type of the resource applicable for the signal.
+        /// </summary>
         public ResourceType ResourceType { get; set; }
 
+        /// <summary>
+        /// Gets or sets the signal's schedule
+        /// </summary>
         public string CrontabSchedule { get; set; }
     }
 }

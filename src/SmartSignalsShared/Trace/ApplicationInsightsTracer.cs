@@ -17,17 +17,17 @@
     /// </summary>
     public class ApplicationInsightsTracer : ITracer
     {
-        private const string TraceOrderKey = "TraceOrder";
-        private static long _traceOrder = 0;
-
         private const int MaxExceptionLength = 20000;
 
-        private readonly TelemetryClient _telemetryClient;
-        private readonly IDictionary<string, string> _customProperties;
-        private readonly bool _sendVerboseTracesToAi;
+        private const string TraceOrderKey = "TraceOrder";
+        private static long traceOrder = 0;
+
+        private readonly TelemetryClient telemetryClient;
+        private readonly IDictionary<string, string> customProperties;
+        private readonly bool sendVerboseTracesToAi;
 
         /// <summary>
-        /// Initialized a new instance of the <see cref="ApplicationInsightsTracer"/> class.
+        /// Initializes a new instance of the <see cref="ApplicationInsightsTracer"/> class.
         /// </summary>
         /// <param name="sessionId">Session id used for tracing</param>
         /// <param name="telemetryConfiguration">Telemetry configuration to be used by telemetry client</param>
@@ -35,9 +35,9 @@
         /// <param name="buildVersion">The build version to include in the trace properties (null to read this value from the config)</param>
         public ApplicationInsightsTracer(string sessionId, TelemetryConfiguration telemetryConfiguration, bool? sendVerboseTracesToAi = null, string buildVersion = null)
         {
-            _sendVerboseTracesToAi = sendVerboseTracesToAi ?? bool.Parse(ConfigurationReader.ReadConfig("SendVerboseTracesToAI", required: true));
-            _telemetryClient = this.CreateTelemetryClient(sessionId, telemetryConfiguration);
-            _customProperties = new Dictionary<string, string>
+            this.sendVerboseTracesToAi = sendVerboseTracesToAi ?? bool.Parse(ConfigurationReader.ReadConfig("SendVerboseTracesToAI", required: true));
+            this.telemetryClient = this.CreateTelemetryClient(sessionId, telemetryConfiguration);
+            this.customProperties = new Dictionary<string, string>
             {
                 ["WebAppSiteName"] = AzureFunctionEnvironment.WebAppSiteName ?? string.Empty,
                 ["BuildVersion"] = buildVersion ?? ConfigurationReader.ReadConfig("BuildVersion", required: true),
@@ -80,7 +80,7 @@
         /// <param name="properties">Named string values you can use to classify and filter traces</param>
         public virtual void TraceVerbose(string message, IDictionary<string, string> properties = null)
         {
-            if (_sendVerboseTracesToAi)
+            if (this.sendVerboseTracesToAi)
             {
                 this.Trace(message, SeverityLevel.Verbose, properties);
             }
@@ -122,7 +122,7 @@
             }
 
             this.SetTelemetryProperties(metricTelemetry, properties);
-            _telemetryClient.TrackMetric(metricTelemetry);
+            this.telemetryClient.TrackMetric(metricTelemetry);
         }
 
         /// <summary>
@@ -139,26 +139,7 @@
             ExceptionTelemetry exceptionTelemetry = new ExceptionTelemetry(this.HandleTooLongException(exception));
             this.SetTelemetryProperties(exceptionTelemetry);
 
-            _telemetryClient.TrackException(exceptionTelemetry);
-        }
-
-        /// <summary>
-        /// Checks if the exception is too long, and cannot be traced.
-        /// If it is too long, replaces it with an <see cref="ExceptionTooLongException"/>.
-        /// </summary>
-        /// <param name="exception">The exception</param>
-        /// <returns>Either the original exception, or an instance of <see cref="ExceptionTooLongException"/> if the original exception was too long.</returns>
-        private Exception HandleTooLongException(Exception exception)
-        {
-            if (exception.ToString().Length <= MaxExceptionLength)
-            {
-                return exception;
-            }
-
-            // This id can be used to track the exception in the trace
-            string referenceId = Guid.NewGuid().ToString();
-            this.TrackTrace($"Exception was too long - reporting an ExceptionTooLongException with referenceId = {referenceId}", SeverityLevel.Error, null);
-            return new ExceptionTooLongException(exception, referenceId);
+            this.telemetryClient.TrackException(exceptionTelemetry);
         }
 
         /// <summary>
@@ -184,7 +165,7 @@
                 }
             }
 
-            _telemetryClient.TrackDependency(dependencyTelemetry);
+            this.telemetryClient.TrackDependency(dependencyTelemetry);
         }
 
         /// <summary>
@@ -206,7 +187,7 @@
                 }
             }
 
-            _telemetryClient.TrackEvent(eventTelemetry);
+            this.telemetryClient.TrackEvent(eventTelemetry);
         }
 
         /// <summary>
@@ -214,7 +195,7 @@
         /// </summary>
         public void Flush()
         {
-            _telemetryClient.Flush();
+            this.telemetryClient.Flush();
         }
 
         #region Private helper methods
@@ -224,13 +205,14 @@
         /// </summary>
         /// <param name="sessionId">Session id used for tracing</param>
         /// <param name="telemetryConfiguration">Telemetry configuration to be used by telemetry client</param>
+        /// <returns>The newly created telemetry client.</returns>
         private TelemetryClient CreateTelemetryClient(string sessionId, TelemetryConfiguration telemetryConfiguration)
         {
-            var telemetryClient = new TelemetryClient(telemetryConfiguration);
+            var newTelemetryClient = new TelemetryClient(telemetryConfiguration);
 
-            telemetryClient.Context.Session.Id = sessionId;
+            newTelemetryClient.Context.Session.Id = sessionId;
 
-            return telemetryClient;
+            return newTelemetryClient;
         }
 
         /// <summary>
@@ -258,10 +240,10 @@
             this.SetTelemetryProperties(traceTelemetry, properties);
 
             // Add trace order - running number, to enable sorting trace messages that have the same timestamp
-            long traceOrder = Interlocked.Increment(ref _traceOrder);
+            long traceOrder = Interlocked.Increment(ref ApplicationInsightsTracer.traceOrder);
             traceTelemetry.Properties[TraceOrderKey] = traceOrder.ToString();
 
-            _telemetryClient.TrackTrace(traceTelemetry);
+            this.telemetryClient.TrackTrace(traceTelemetry);
         }
 
         /// <summary>
@@ -273,7 +255,7 @@
         private void SetTelemetryProperties(ISupportProperties telemetry, IDictionary<string, string> properties = null)
         {
             // Add the framework's custom properties
-            foreach (KeyValuePair<string, string> customProperty in _customProperties)
+            foreach (KeyValuePair<string, string> customProperty in this.customProperties)
             {
                 telemetry.Properties[customProperty.Key] = customProperty.Value;
             }
@@ -286,6 +268,25 @@
                     telemetry.Properties[customProperty.Key] = customProperty.Value;
                 }
             }
+        }
+
+        /// <summary>
+        /// Checks if the exception is too long, and cannot be traced.
+        /// If it is too long, replaces it with an <see cref="ExceptionTooLongException"/>.
+        /// </summary>
+        /// <param name="exception">The exception</param>
+        /// <returns>Either the original exception, or an instance of <see cref="ExceptionTooLongException"/> if the original exception was too long.</returns>
+        private Exception HandleTooLongException(Exception exception)
+        {
+            if (exception.ToString().Length <= MaxExceptionLength)
+            {
+                return exception;
+            }
+
+            // This id can be used to track the exception in the trace
+            string referenceId = Guid.NewGuid().ToString();
+            this.TrackTrace($"Exception was too long - reporting an ExceptionTooLongException with referenceId = {referenceId}", SeverityLevel.Error, null);
+            return new ExceptionTooLongException(exception, referenceId);
         }
 
         #endregion

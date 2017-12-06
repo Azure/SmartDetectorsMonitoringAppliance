@@ -19,7 +19,7 @@ namespace Microsoft.SmartSignals.Scheduler
     /// </summary>
     public static class Schedule
     {
-        private static readonly IUnityContainer _container;
+        private static readonly IUnityContainer Container;
 
         /// <summary>
         /// Initializes static members of the <see cref="Schedule"/> class.
@@ -31,10 +31,10 @@ namespace Microsoft.SmartSignals.Scheduler
             ThreadPool.SetMinThreads(100, 100);
 
             // TODO: get storage connection string from KV
-            var storageConnectionString = "";
+            var storageConnectionString = string.Empty;
             CloudTableClient cloudTableClient = CloudStorageAccount.Parse(storageConnectionString).CreateCloudTableClient();
 
-            _container = new UnityContainer()
+            Container = new UnityContainer()
                 .RegisterInstance(cloudTableClient)
                 .RegisterType<ICloudTableClientWrapper, CloudTableClientWrapper>()
                 .RegisterType<ISmartSignalConfigurationStore, SmartSignalConfigurationStore>()
@@ -48,10 +48,11 @@ namespace Microsoft.SmartSignals.Scheduler
         /// </summary>
         /// <param name="myTimer">The timer information of the timer trigger used by Azure to trigger the function</param>
         /// <param name="log">The function's logger</param>
+        /// <returns>A <see cref="Task"/> running the asynchronous operation.</returns>
         [FunctionName("Schedule")]
         public static async Task RunAsync([TimerTrigger("0 */5 * * * *")]TimerInfo myTimer, TraceWriter log)
         {
-            using (IUnityContainer childContainer = _container.CreateChildContainer())
+            using (IUnityContainer childContainer = Container.CreateChildContainer())
             {
                 // Since we add the web job log tracer for each function invocation then we need to register the instance here in a child container
                 var tracer = TracerFactory.Create(log, true);

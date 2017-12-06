@@ -18,7 +18,12 @@ For information one the runtime application, and release notes see here: https:/
     <Version>1.0.0-beta</Version>
     <PackageProjectUrl>https://github.com/Azure/Smart-Alerts</PackageProjectUrl>
     <PackageTags>Microsoft</PackageTags>
+	<StyleCopTreatErrorsAsWarnings>False</StyleCopTreatErrorsAsWarnings>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="StyleCop.MSBuild" Version="5.0.0" />
+  </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />

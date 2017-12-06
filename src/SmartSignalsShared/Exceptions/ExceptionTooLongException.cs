@@ -10,13 +10,18 @@
     [Serializable]
     public class ExceptionTooLongException : Exception
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ExceptionTooLongException"/> class from the original exception.
+        /// </summary>
+        /// <param name="e">The original exception that was thrown.</param>
+        /// <param name="referenceId">A reference ID used to correlate the exception details in the traces</param>
         public ExceptionTooLongException(Exception e, string referenceId)
             : base(CreateMessage(e, referenceId))
         {
         }
 
         /// <summary>
-        /// Creates a new instance of the <see cref="ExceptionTooLongException"/> class
+        /// Initializes a new instance of the <see cref="ExceptionTooLongException"/> class
         /// with serialized data.
         /// </summary>
         /// <param name="info">The <see cref="T:System.Runtime.Serialization.SeraizliationInfo"/> that holds the serialized

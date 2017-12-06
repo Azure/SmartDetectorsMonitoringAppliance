@@ -11,21 +11,6 @@
     public class DetectionPresentationAttribute : Attribute
     {
         /// <summary>
-        /// Gets the section in which the property will be presented.
-        /// </summary>
-        public DetectionPresentationSection Section { get; }
-
-        /// <summary>
-        /// Gets the title to use when presenting the property's value.
-        /// </summary>
-        public string Title { get; }
-
-        /// <summary>
-        /// Gets an (optional) info balloon to show when hovering over the property's presentation.
-        /// </summary>
-        public string InfoBalloon { get; set; }
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="DetectionPresentationAttribute"/> class.
         /// </summary>
         /// <param name="section">The section in which the property will be presented.</param>
@@ -41,5 +26,20 @@
             this.Section = section;
             this.Title = title;
         }
+
+        /// <summary>
+        /// Gets the section in which the property will be presented.
+        /// </summary>
+        public DetectionPresentationSection Section { get; }
+
+        /// <summary>
+        /// Gets the title to use when presenting the property's value.
+        /// </summary>
+        public string Title { get; }
+
+        /// <summary>
+        /// Gets or sets  an (optional) info balloon to show when hovering over the property's presentation.
+        /// </summary>
+        public string InfoBalloon { get; set; }
     }
 }

@@ -9,10 +9,10 @@
     /// </summary>
     public class ConsoleTracer : ITracer
     {
-        private readonly object _consoleLocker = new object();
+        private readonly object consoleLocker = new object();
 
         /// <summary>
-        /// Initialized a new instance of the <see cref="ConsoleTracer"/> class.
+        /// Initializes a new instance of the <see cref="ConsoleTracer"/> class.
         /// </summary>
         /// <param name="sessionId">Session id used for tracing</param>
         public ConsoleTracer(string sessionId)
@@ -132,14 +132,13 @@
         /// <param name="foregroundColor">The foreground color to use</param>
         private void TraceToConsole(string message, ConsoleColor foregroundColor)
         {
-            lock (_consoleLocker)
+            lock (this.consoleLocker)
             {
                 ConsoleColor originalForeground = Console.ForegroundColor;
                 Console.ForegroundColor = foregroundColor;
                 Console.WriteLine(message);
                 Console.ForegroundColor = originalForeground;
             }
-
         }
 
         #endregion

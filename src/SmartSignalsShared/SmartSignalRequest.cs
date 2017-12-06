@@ -9,6 +9,23 @@
     public class SmartSignalRequest
     {
         /// <summary>
+        /// Initializes a new instance of the <see cref="SmartSignalRequest"/> class
+        /// </summary>
+        /// <param name="resourceIds">The resource IDs on which to run the signal</param>
+        /// <param name="signalId">The signal ID</param>
+        /// <param name="analysisStartTime">The start of the time range for analysis</param>
+        /// <param name="analysisEndTime">The end of the time range for analysis</param>
+        /// <param name="settings">The analysis settings</param>
+        public SmartSignalRequest(IList<string> resourceIds, string signalId, DateTime analysisStartTime, DateTime analysisEndTime, SmartSignalSettings settings)
+        {
+            this.ResourceIds = resourceIds;
+            this.SignalId = signalId;
+            this.AnalysisStartTime = analysisStartTime;
+            this.AnalysisEndTime = analysisEndTime;
+            this.Settings = settings;
+        }
+
+        /// <summary>
         /// Gets the resource IDs on which to run the signal
         /// </summary>
         public IList<string> ResourceIds { get; }
@@ -32,22 +49,5 @@
         /// Gets the analysis settings
         /// </summary>
         public SmartSignalSettings Settings { get; }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="SmartSignalRequest"/> class
-        /// </summary>
-        /// <param name="resourceIds">The resource IDs on which to run the signal</param>
-        /// <param name="signalId">The signal ID</param>
-        /// <param name="analysisStartTime">The start of the time range for analysis</param>
-        /// <param name="analysisEndTime">The end of the time range for analysis</param>
-        /// <param name="settings">The analysis settings</param>
-        public SmartSignalRequest(IList<string> resourceIds, string signalId, DateTime analysisStartTime, DateTime analysisEndTime, SmartSignalSettings settings)
-        {
-            ResourceIds = resourceIds;
-            SignalId = signalId;
-            AnalysisStartTime = analysisStartTime;
-            AnalysisEndTime = analysisEndTime;
-            Settings = settings;
-        }
     }
 }

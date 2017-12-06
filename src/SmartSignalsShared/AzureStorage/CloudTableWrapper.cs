@@ -9,7 +9,7 @@
     /// </summary>
     public class CloudTableWrapper : ICloudTableWrapper
     {
-        private readonly CloudTable _cloudTable;
+        private readonly CloudTable cloudTable;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CloudTableWrapper"/> class.
@@ -17,7 +17,7 @@
         /// <param name="cloudTable">Cloud table</param>
         public CloudTableWrapper(CloudTable cloudTable)
         {
-            _cloudTable = cloudTable;
+            this.cloudTable = cloudTable;
         }
         
         /// <summary>
@@ -26,7 +26,7 @@
         /// <returns>true if table was created; otherwise, false.</returns>
         public bool CreateIfNotExists()
         {
-            return _cloudTable.CreateIfNotExists();
+            return this.cloudTable.CreateIfNotExists();
         }
 
         /// <summary>
@@ -36,12 +36,13 @@
         /// <returns>A <see cref="System.Threading.Tasks.Task"/> object of type <see cref="TableResult"/> that represents the asynchronous operation.</returns>
         public Task<TableResult> ExecuteAsync(TableOperation operation)
         {
-            return _cloudTable.ExecuteAsync(operation);
+            return this.cloudTable.ExecuteAsync(operation);
         }
 
         /// <summary>
         /// Retrieves all entities with the given partition key
         /// </summary>
+        /// <typeparam name="T">The type of the entity to return.</typeparam>
         /// <param name="partitionKey">A string containing the partition key</param>
         /// <returns>A <see cref="IList{T}"/> containing all entities of the given partition key</returns>
         public async Task<IList<T>> ReadPartitionAsync<T>(string partitionKey) where T : ITableEntity, new()
@@ -51,10 +52,11 @@
             TableContinuationToken token = null;
             do
             {
-                TableQuerySegment<T> resultSegment = await _cloudTable.ExecuteQuerySegmentedAsync(allFromPartitionQuery, token);
+                TableQuerySegment<T> resultSegment = await this.cloudTable.ExecuteQuerySegmentedAsync(allFromPartitionQuery, token);
                 token = resultSegment.ContinuationToken;
                 results.AddRange(resultSegment.Results);
-            } while (token != null);
+            }
+            while (token != null);
 
             return results;
         }

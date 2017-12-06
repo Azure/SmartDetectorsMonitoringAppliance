@@ -1,8 +1,7 @@
 ﻿namespace Microsoft.Azure.Monitoring.SmartSignals.Shared.AzureStorage
 {
-
     /// <summary>
-    /// An interface for a auzre table client wrapper
+    /// An interface for an Azure Storage table client wrapper
     /// </summary>
     public interface ICloudTableClientWrapper
     {
