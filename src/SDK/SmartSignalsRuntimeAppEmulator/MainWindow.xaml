@@ -1,0 +1,94 @@
+﻿<Window x:Class="Microsoft.Azure.Monitoring.SmartSignals.Emulator.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:controls="clr-namespace:Microsoft.Azure.Monitoring.SmartSignals.Emulator.Controls"
+        mc:Ignorable="d"
+        Title="" Height="730" Width="1100" MinHeight="730" MinWidth="1100">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <Grid Grid.Row="0" Grid.Column="0" Style="{StaticResource WindowHeader}">
+            <Image Source="Media/Azure.png" Stretch="None"/>
+        </Grid>
+
+        <Grid Grid.Row="0" Grid.Column="1" HorizontalAlignment="Stretch" Style="{StaticResource WindowHeader}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            
+            <TextBlock Grid.Column="0" VerticalAlignment="Center" Style="{StaticResource HeaderText}">
+                <Run Text="Azure Smart Signals - Emulator" />
+                <Separator Width="5" Visibility="Hidden"/>
+                <Run Text="PREVIEW" FontSize="9" />
+            </TextBlock>
+
+            <StackPanel Grid.Column="2" Orientation="Horizontal" Margin="0,0,10,0" >
+                <TextBlock Text="Hello, John" Style="{StaticResource HeaderText}" VerticalAlignment="Center"/>
+                <Separator Width="5" Visibility="Hidden"/>
+                <Image Source="Media/ic_power_settings_new_white_48dp_1x.png" Height="24"/>
+            </StackPanel>
+            
+        </Grid>
+
+        <!--This Canvas is needed as a filler for the TabControl's strip-->
+        <Canvas Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" VerticalAlignment="Stretch" Background="#FF222E3A" />
+        <TabControl Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" TabStripPlacement="Left" VerticalAlignment="Stretch" Padding="0">
+            <TabControl.Resources>
+                <Style TargetType="TabItem">
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="TabItem">
+                                <Grid Name="Panel" Margin="0,20,0,10">
+                                    <ContentPresenter x:Name="ContentSite"
+                                        VerticalAlignment="Center"
+                                        HorizontalAlignment="Center"
+                                        ContentSource="Header"
+                                        Margin="2,2"/>
+                                </Grid>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsSelected" Value="True">
+                                        <Setter TargetName="Panel" Property="Background" Value="#FF706A6A" />
+                                    </Trigger>
+                                    <Trigger Property="IsSelected" Value="False">
+                                        <Setter TargetName="Panel" Property="Background" Value="#FF222E3A" />
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </TabControl.Resources>
+
+            <TabItem IsEnabled="False">
+                <TabItem.Header>
+                    <Separator Visibility="Hidden" Height="20"/>
+                </TabItem.Header>
+            </TabItem>
+            <TabItem IsSelected="True">
+                <TabItem.Header>
+                    <Image Source="Media/ic_settings_white_48dp_1x.png" Height="40" />
+                </TabItem.Header>
+                <controls:SignalsControl/>
+            </TabItem>
+            <TabItem>
+                <TabItem.Header>
+                    <Image Source="Media/ic_lightbulb_outline_white_48dp_1x.png" Height="40"/>
+                </TabItem.Header>
+                <Label Content="The detections"/>
+            </TabItem>
+        </TabControl>
+
+
+    </Grid>
+</Window>
