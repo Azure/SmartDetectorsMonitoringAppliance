@@ -33,7 +33,7 @@
         /// the list is <code>null</code> or empty, then it is assumed that no issues were detected.
         /// </returns>
         Task<List<SmartSignalDetection>> AnalyzeResourcesAsync(
-            List<ResourceIdentifier> targetResources,
+            IList<ResourceIdentifier> targetResources,
             TimeRange analysisWindow,
             ISmartSignalAnalysisServices analysisServices,
             ITracer tracer,

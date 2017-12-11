@@ -1,7 +1,5 @@
 ﻿namespace Microsoft.Azure.Monitoring.SmartSignals.Shared
 {
-    using Newtonsoft.Json;
-
     /// <summary>
     /// Represents metadata of a smart signal, stored in the smart signals repository
     /// </summary>
@@ -16,8 +14,7 @@
         /// <param name="version">The signal's version</param>
         /// <param name="assemblyName">The name of the signal's assembly file.</param>
         /// <param name="className">The (fully qualified) name for the signal's class.</param>
-        [JsonConstructor]
-        internal SmartSignalMetadata(string id, string name, string description, string version, string assemblyName, string className)
+        public SmartSignalMetadata(string id, string name, string description, string version, string assemblyName, string className)
         {
             this.Id = Diagnostics.EnsureStringNotNullOrWhiteSpace(() => id);
             this.Name = Diagnostics.EnsureStringNotNullOrWhiteSpace(() => name);

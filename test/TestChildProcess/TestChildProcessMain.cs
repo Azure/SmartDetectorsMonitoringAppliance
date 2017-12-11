@@ -7,56 +7,13 @@
     using Microsoft.Azure.Monitoring.SmartSignals.Shared.ChildProcess;
     using Moq;
 
-    /// <summary>
-    /// This enum is used to specify the expected behavior of the
-    /// child process, to test various test scenarios.
-    /// </summary>
-    public enum RunMode
+    public static class TestChildProcessMain
     {
-        Happy,
-        Null,
-        Exception,
-        Cancellation,
-        Stuck,
-    }
-
-    /// <summary>
-    /// The child process input type
-    /// </summary>
-    public class TestChildProcessInput
-    {
-        public const int ExpectedIntValue = 2347;
-
-        public const string ExpectedStringValue = "Premature optimization";
-
-        public int IntValue { get; set; }
-
-        public string StringValue { get; set; }
-
-        public RunMode RunMode { get; set; }
-    }
-
-    /// <summary>
-    /// The child process output type
-    /// </summary>
-    public class TestChildProcessOutput
-    {
-        public const int ExpectedIntValue = 70;
-
-        public const string ExpectedStringValue = "is the root of all evil";
-
-        public int IntValue { get; set; }
-
-        public string StringValue { get; set; }
-    }
-
-    static class TestChildProcessMain
-    {
-        static void Main(string[] args)
+        public static void Main(string[] args)
         {
             var tracerMock = new Mock<ITracer>();
-            IChildProcessManager childProcessManager = new ChildProcessManager();
-            childProcessManager.RunAndListenToParentAsync<TestChildProcessInput, TestChildProcessOutput>(args, MainTask, tracerMock.Object).Wait();
+            IChildProcessManager childProcessManager = new ChildProcessManager(tracerMock.Object);
+            childProcessManager.RunAndListenToParentAsync<TestChildProcessInput, TestChildProcessOutput>(args, MainTask).Wait();
         }
 
         private static async Task<TestChildProcessOutput> MainTask(TestChildProcessInput input, CancellationToken cancellationToken)

@@ -116,6 +116,15 @@
             }
         }
 
+        /// <summary>
+        /// Returns a string representation of this instance
+        /// </summary>
+        /// <returns>The string representation</returns>
+        public override string ToString()
+        {
+            return $"[{this.StartTime:u} - {this.EndTime:u}]";
+        }
+
         #endregion
     }
 }

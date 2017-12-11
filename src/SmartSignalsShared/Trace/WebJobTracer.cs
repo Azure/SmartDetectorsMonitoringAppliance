@@ -3,7 +3,7 @@
     using System;
     using System.Collections.Generic;
     using Microsoft.Azure.Monitoring.SmartSignals;
-    using WebJobs.Host;
+    using Microsoft.Azure.WebJobs.Host;
 
     /// <summary>
     /// Implementation of the <see cref="ITracer"/> interface that traces to a (WebJob's) <see cref="TraceWriter"/> logger.

@@ -2,7 +2,7 @@
 {
     using System.Collections.Generic;
     using System.Threading.Tasks;
-    using WindowsAzure.Storage.Table;
+    using Microsoft.WindowsAzure.Storage.Table;
 
     /// <summary>
     /// A wrapper of the azure cloud table

@@ -35,12 +35,11 @@
         /// <typeparam name="TOutput">The child process output type</typeparam>
         /// <param name="exePath">The child process' executable file path</param>
         /// <param name="input">The child process input</param>
-        /// <param name="tracer">The tracer</param>
         /// <param name="cancellationToken">The cancellation token</param>
         /// <exception cref="InvalidOperationException">The child process could not be started</exception>
         /// <exception cref="ChildProcessException">The child process failed - see InnerException ro details</exception>
         /// <returns>A <see cref="Task{TResult}"/>, returning the child process output</returns>
-        Task<TOutput> RunChildProcessAsync<TOutput>(string exePath, object input, ITracer tracer, CancellationToken cancellationToken);
+        Task<TOutput> RunChildProcessAsync<TOutput>(string exePath, object input, CancellationToken cancellationToken);
 
         /// <summary>
         /// Runs the child process task. This method reads and validates the command line
@@ -52,9 +51,8 @@
         /// <typeparam name="TOutput">The child process output type</typeparam>
         /// <param name="args">The command line arguments</param>
         /// <param name="function">The function to run</param>
-        /// <param name="tracer">The tracer</param>
         /// <exception cref="ArgumentException">The wrong number of arguments was provided</exception>
         /// <returns>A <see cref="Task"/>, running the specified function and listening to the parent</returns>
-        Task RunAndListenToParentAsync<TInput, TOutput>(string[] args, Func<TInput, CancellationToken, Task<TOutput>> function, ITracer tracer) where TOutput : class;
+        Task RunAndListenToParentAsync<TInput, TOutput>(string[] args, Func<TInput, CancellationToken, Task<TOutput>> function) where TOutput : class;
     }
 }

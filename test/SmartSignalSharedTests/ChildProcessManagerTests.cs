@@ -23,14 +23,14 @@
         public void TestInitialize()
         {
             this.tracerMock = new Mock<ITracer>();
-            this.childProcessManager = new ChildProcessManager();
+            this.childProcessManager = new ChildProcessManager(this.tracerMock.Object);
         }
 
         [TestMethod]
         public async Task WhenRunningChildProcessThenTheParentGetsTheResult()
         {
             // Run the child process and make sure we get the expected output
-            TestChildProcessOutput result = await this.childProcessManager.RunChildProcessAsync<TestChildProcessOutput>(ChildProcessName, this.GetInput(RunMode.Happy), this.tracerMock.Object, default(CancellationToken));
+            TestChildProcessOutput result = await this.childProcessManager.RunChildProcessAsync<TestChildProcessOutput>(ChildProcessName, this.GetInput(RunMode.Happy), default(CancellationToken));
             Assert.AreEqual(TestChildProcessOutput.ExpectedIntValue, result.IntValue, "Unexpected number received from child process");
             Assert.AreEqual(TestChildProcessOutput.ExpectedStringValue, result.StringValue, "Unexpected message received from child process");
             this.EnsureProcessStopped();
@@ -40,7 +40,7 @@
         public async Task WhenRunningChildProcessAndTheResultIsNullThenTheParentGetsTheResult()
         {
             // Run the child process and make sure we get a null output
-            TestChildProcessOutput result = await this.childProcessManager.RunChildProcessAsync<TestChildProcessOutput>(ChildProcessName, this.GetInput(RunMode.Null), this.tracerMock.Object, default(CancellationToken));
+            TestChildProcessOutput result = await this.childProcessManager.RunChildProcessAsync<TestChildProcessOutput>(ChildProcessName, this.GetInput(RunMode.Null), default(CancellationToken));
             Assert.IsNull(result, "Expected NULL result from child process");
             this.EnsureProcessStopped();
         }
@@ -50,7 +50,7 @@
         {
             // Run the child process
             CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
-            Task<TestChildProcessOutput> t = this.childProcessManager.RunChildProcessAsync<TestChildProcessOutput>(ChildProcessName, this.GetInput(RunMode.Cancellation), this.tracerMock.Object, cancellationTokenSource.Token);
+            Task<TestChildProcessOutput> t = this.childProcessManager.RunChildProcessAsync<TestChildProcessOutput>(ChildProcessName, this.GetInput(RunMode.Cancellation), cancellationTokenSource.Token);
 
             // Wait till the child process started to run
             SpinWait.SpinUntil(() => t.Status > TaskStatus.Running || this.childProcessManager.CurrentStatus != RunChildProcessStatus.Initializing);
@@ -77,7 +77,7 @@
             // Run the child process
             this.childProcessManager.CancellationGraceTimeInSeconds = 1; // allow only 1 second grace time - we don't want to wait for too long
             CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
-            Task<TestChildProcessOutput> t = this.childProcessManager.RunChildProcessAsync<TestChildProcessOutput>(ChildProcessName, this.GetInput(RunMode.Stuck), this.tracerMock.Object, cancellationTokenSource.Token);
+            Task<TestChildProcessOutput> t = this.childProcessManager.RunChildProcessAsync<TestChildProcessOutput>(ChildProcessName, this.GetInput(RunMode.Stuck), cancellationTokenSource.Token);
 
             // Wait till the child process started to run
             SpinWait.SpinUntil(() => t.Status > TaskStatus.Running || this.childProcessManager.CurrentStatus != RunChildProcessStatus.Initializing);
@@ -105,7 +105,7 @@
             // Run the child process and make sure the correct exception is thrown
             try
             {
-                await this.childProcessManager.RunChildProcessAsync<TestChildProcessOutput>(ChildProcessName, this.GetInput(RunMode.Exception), this.tracerMock.Object, default(CancellationToken));
+                await this.childProcessManager.RunChildProcessAsync<TestChildProcessOutput>(ChildProcessName, this.GetInput(RunMode.Exception), default(CancellationToken));
                 Assert.Fail("Child process did not throw an exception");
             }
             catch (ChildProcessException e) when (e.InnerException is DivideByZeroException)

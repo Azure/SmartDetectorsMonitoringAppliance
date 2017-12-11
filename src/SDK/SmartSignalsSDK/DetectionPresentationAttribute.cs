@@ -25,7 +25,7 @@
 
             this.Section = section;
             this.Title = title;
-            this.IsSummary = false;
+            this.Component = DetectionPresentationComponent.Details;
         }
 
         /// <summary>
@@ -34,12 +34,12 @@
         public DetectionPresentationSection Section { get; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether the property is a summary property.
-        /// For any Smart Signal detection, there must be exactly one summary property belonging to the
-        /// <see cref="DetectionPresentationSection.Property"/> section, and at most one summary property
-        /// belonging to the <see cref="DetectionPresentationSection.Chart"/> section.
+        /// Gets or sets a value indicating the component that this property appears in.
+        /// For any Smart Signal detection, the <see cref="DetectionPresentationComponent.Summary"/> component must
+        /// have exactly one property belonging to the <see cref="DetectionPresentationSection.Property"/> section,
+        /// and at most one property belonging to the <see cref="DetectionPresentationSection.Chart"/> section.
         /// </summary>
-        public bool IsSummary { get; set; }
+        public DetectionPresentationComponent Component { get; set; }
 
         /// <summary>
         /// Gets the title to use when presenting the property's value.

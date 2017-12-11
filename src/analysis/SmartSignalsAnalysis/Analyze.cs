@@ -1,14 +1,16 @@
 namespace Microsoft.Azure.Monitoring.SmartSignals.Analysis
 {
+    using System;
+    using System.Collections.Generic;
     using System.Net;
     using System.Net.Http;
     using System.Threading;
     using System.Threading.Tasks;
-    using Microsoft.Azure.Monitoring.SmartSignals.Shared.Trace;
+    using Microsoft.Azure.Monitoring.SmartSignals.Analysis.DetectionPresentation;
+    using Microsoft.Azure.Monitoring.SmartSignals.Shared;
     using Microsoft.Azure.WebJobs;
     using Microsoft.Azure.WebJobs.Extensions.Http;
     using Microsoft.Azure.WebJobs.Host;
-    using Shared;
     using Unity;
 
     /// <summary>
@@ -23,7 +25,8 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Analysis
         /// </summary>
         static Analyze()
         {
-            Container = new UnityContainer();
+            Container = AnalysisDependenciesInjector.GetContainer()
+                .WithSmartSignalRunner<SmartSignalRunnerInChildProcess>();
         }
 
         /// <summary>
@@ -35,18 +38,38 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Analysis
         /// <param name="cancellationToken">A cancellation token to control the function's execution.</param>
         /// <returns>The analysis response.</returns>
         [FunctionName("Analyze")]
-        public static async Task<HttpResponseMessage> Run(
+        public static async Task<HttpResponseMessage> RunAsync(
             [HttpTrigger(AuthorizationLevel.Function, "post", Route = "signals")]HttpRequestMessage request,
             TraceWriter log,
             WebJobs.ExecutionContext context,
             CancellationToken cancellationToken)
         {
-            using (IUnityContainer childContainer = Container.CreateChildContainer())
+            using (IUnityContainer childContainer = Container.CreateChildContainer().WithTracer(log, true))
             {
-                childContainer.RegisterInstance(TracerFactory.Create(log, true));
-                SmartSignalRequest smartSignalRequest = await request.Content.ReadAsAsync<SmartSignalRequest>(cancellationToken);
+                // Create a tracer for this run (that will also log to the specified TraceWriter)
+                ITracer tracer = childContainer.Resolve<ITracer>();
+                tracer.TraceInformation($"Analyze function request received with invocation Id {context.InvocationId}");
 
-                return request.CreateResponse(HttpStatusCode.OK, $"Received request for signal {smartSignalRequest.SignalId}");
+                try
+                {
+                    // Read the request
+                    SmartSignalRequest smartSignalRequest = await request.Content.ReadAsAsync<SmartSignalRequest>(cancellationToken);
+
+                    // Process the request
+                    ISmartSignalRunner runner = childContainer.Resolve<ISmartSignalRunner>();
+                    List<SmartSignalDetectionPresentation> detections = await runner.RunAsync(smartSignalRequest, cancellationToken);
+
+                    // Return the generated detections
+                    return request.CreateResponse(HttpStatusCode.OK, detections);
+                }
+                catch (Exception e)
+                {
+                    // Handle the exception
+                    TopLevelExceptionHandler.TraceUnhandledException(e, tracer, log);
+
+                    // Return error status
+                    return request.CreateResponse(HttpStatusCode.InternalServerError, e.Message);
+                }
             }
         }
     }

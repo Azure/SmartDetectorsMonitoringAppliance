@@ -2,15 +2,13 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Runtime.Remoting.Messaging;
     using System.Threading;
-    using ApplicationInsights;
-    using ApplicationInsights.Channel;
-    using ApplicationInsights.DataContracts;
-    using ApplicationInsights.Extensibility;
-    using Exceptions;
+    using Microsoft.ApplicationInsights;
+    using Microsoft.ApplicationInsights.DataContracts;
+    using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.Azure.Monitoring.SmartSignals;
-    using Shared;
+    using Microsoft.Azure.Monitoring.SmartSignals.Shared;
+    using Microsoft.Azure.Monitoring.SmartSignals.Shared.Exceptions;
 
     /// <summary>
     /// Implementation of the <see cref="ITracer"/> interface that traces to AppInsights.
@@ -240,8 +238,8 @@
             this.SetTelemetryProperties(traceTelemetry, properties);
 
             // Add trace order - running number, to enable sorting trace messages that have the same timestamp
-            long traceOrder = Interlocked.Increment(ref ApplicationInsightsTracer.traceOrder);
-            traceTelemetry.Properties[TraceOrderKey] = traceOrder.ToString();
+            long currentTraceOrder = Interlocked.Increment(ref traceOrder);
+            traceTelemetry.Properties[TraceOrderKey] = currentTraceOrder.ToString();
 
             this.telemetryClient.TrackTrace(traceTelemetry);
         }

@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
     using System.Net.Http;
     using System.Text;
     using System.Threading.Tasks;
@@ -22,7 +21,7 @@
         /// Executes the signal via the analysis flow
         /// </summary>
         /// <param name="signalExecutionInfo">The signal execution information</param>
-        /// <param name="resourceIds">The resources IDs used by the signal</param>
+        /// <param name="resourceIds">The resources used by the signal</param>
         /// <returns>The signal detections</returns>
         public async Task<IList<SmartSignalDetection>> ExecuteSignalAsync(SignalExecutionInfo signalExecutionInfo, IList<string> resourceIds)
         {

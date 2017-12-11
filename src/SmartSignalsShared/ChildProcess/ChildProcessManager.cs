@@ -21,11 +21,22 @@
     /// </summary>
     public class ChildProcessManager : IChildProcessManager
     {
-        #region Fields and Properties
+        #region Fields, Constructors, and Properties
 
         private const string CancellationString = "CANCEL";
 
         private static readonly JsonSerializerSettings Settings = new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.All };
+
+        private readonly ITracer tracer;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ChildProcessManager"/> class
+        /// </summary>
+        /// <param name="tracer">The tracer</param>
+        public ChildProcessManager(ITracer tracer)
+        {
+            this.tracer = Diagnostics.EnsureArgumentNotNull(() => tracer);
+        }
 
         /// <summary>
         /// Gets or sets the amount of time to wait on the child process till it gracefully cancels
@@ -87,15 +98,14 @@
         /// <typeparam name="TOutput">The child process output type</typeparam>
         /// <param name="exePath">The child process' executable file path</param>
         /// <param name="input">The child process input</param>
-        /// <param name="tracer">The tracer</param>
         /// <param name="cancellationToken">The cancellation token</param>
         /// <exception cref="InvalidOperationException">The child process could not be started</exception>
         /// <exception cref="ChildProcessException">The child process failed - see InnerException ro details</exception>
         /// <returns>A <see cref="Task{TResult}"/>, returning the child process output</returns>
-        public async Task<TOutput> RunChildProcessAsync<TOutput>(string exePath, object input, ITracer tracer, CancellationToken cancellationToken)
+        public async Task<TOutput> RunChildProcessAsync<TOutput>(string exePath, object input, CancellationToken cancellationToken)
         {
             this.CurrentStatus = RunChildProcessStatus.Initializing;
-            tracer.TraceInformation($"Starting to run child process {exePath}");
+            this.tracer.TraceInformation($"Starting to run child process {exePath}");
 
             try
             {
@@ -126,7 +136,7 @@
                         // Start the child process
                         Stopwatch sw = Stopwatch.StartNew();
                         childProcess.Start();
-                        tracer.TraceInformation($"Started to run child process '{Path.GetFileName(exePath)}', process ID {childProcess.Id}");
+                        this.tracer.TraceInformation($"Started to run child process '{Path.GetFileName(exePath)}', process ID {childProcess.Id}");
                         this.CurrentStatus = RunChildProcessStatus.WaitingForProcessToExit;
                         this.ChildProcessIds.Add(childProcess.Id);
 
@@ -136,14 +146,14 @@
 
                         // Wait for the child process to finish
                         bool wasChildTerminatedByParent = false;
-                        using (cancellationToken.Register(() => { this.CancelChildProcess(childProcess, pipeParentToChild, tracer, ref wasChildTerminatedByParent); }))
+                        using (cancellationToken.Register(() => { this.CancelChildProcess(childProcess, pipeParentToChild, ref wasChildTerminatedByParent); }))
                         {
                             childProcess.WaitForExit();
                         }
 
                         this.CurrentStatus = RunChildProcessStatus.Finalizing;
                         sw.Stop();
-                        tracer.TraceInformation($"Process {exePath} completed, duration {sw.ElapsedMilliseconds / 1000}s");
+                        this.tracer.TraceInformation($"Process {exePath} completed, duration {sw.ElapsedMilliseconds / 1000}s");
 
                         // If the child process was terminated by the parent, throw appropriate exception
                         if (wasChildTerminatedByParent)
@@ -187,10 +197,9 @@
         /// <typeparam name="TOutput">The child process output type</typeparam>
         /// <param name="args">The command line arguments</param>
         /// <param name="function">The function to run</param>
-        /// <param name="tracer">The tracer</param>
         /// <exception cref="ArgumentException">The wrong number of arguments was provided</exception>
         /// <returns>A <see cref="Task"/>, running the specified function and listening to the parent</returns>
-        public async Task RunAndListenToParentAsync<TInput, TOutput>(string[] args, Func<TInput, CancellationToken, Task<TOutput>> function, ITracer tracer) where TOutput : class
+        public async Task RunAndListenToParentAsync<TInput, TOutput>(string[] args, Func<TInput, CancellationToken, Task<TOutput>> function) where TOutput : class
         {
             // Verify arguments
             if (args == null || args.Length != 2)
@@ -217,8 +226,8 @@
                     // * The cancellation listener is blocking, and cannot be canceled (anonymous pipes do not support cancellation).
                     //   Waiting on it will block the current thread.
 #pragma warning disable 4014
-                    ParentLiveListenerAsync(pipe, cancellationTokenSource, tracer);
-                    ParentCancellationListenerAsync(pipe, cancellationTokenSource, tracer);
+                    this.ParentLiveListenerAsync(pipe, cancellationTokenSource);
+                    this.ParentCancellationListenerAsync(pipe, cancellationTokenSource);
 #pragma warning restore 4014
 
                     // Run the main function
@@ -244,13 +253,13 @@
                 }
 
                 // Trace and write the result
-                tracer.TraceError($"Exception in child process: {e?.Message}");
-                tracer.TraceVerbose($"Child process exception details: {e}");
+                this.tracer.TraceError($"Exception in child process: {e?.Message}");
+                this.tracer.TraceVerbose($"Child process exception details: {e}");
                 await WriteChildProcessResult(pipeChildToParentHandle, (TOutput)null, e);
             }
             finally
             {
-                tracer.Flush();
+                this.tracer.Flush();
             }
         }
 
@@ -336,9 +345,8 @@
         /// </summary>
         /// <param name="pipe">The pipe</param>
         /// <param name="cancellationTokenSource">The cancellation token Source</param>
-        /// <param name="tracer">The tracer</param>
         /// <returns>A <see cref="Task"/> object, running the current operation</returns>
-        private static async Task ParentLiveListenerAsync(PipeStream pipe, CancellationTokenSource cancellationTokenSource, ITracer tracer)
+        private async Task ParentLiveListenerAsync(PipeStream pipe, CancellationTokenSource cancellationTokenSource)
         {
             try
             {
@@ -349,7 +357,7 @@
                     {
                         // Parent process terminated - terminate the child
                         string message = "Terminating the child process because the parent process was terminated";
-                        tracer.TraceError(message);
+                        this.tracer.TraceError(message);
                         Environment.FailFast(message);
                     }
 
@@ -362,14 +370,14 @@
             }
             catch (Exception e)
             {
-                tracer.TraceError($"Parent live listener threw an exception: {e}");
+                this.tracer.TraceError($"Parent live listener threw an exception: {e}");
 
                 // Something bad happened - kill the process
                 Environment.FailFast("Terminating the child process because the parent live listener threw an exception: {e}");
             }
             finally
             {
-                tracer.TraceInformation("Parent live listener completed");
+                this.tracer.TraceInformation("Parent live listener completed");
             }
         }
 
@@ -378,9 +386,8 @@
         /// </summary>
         /// <param name="pipe">The pipe</param>
         /// <param name="cancellationTokenSource">The cancellation token source</param>
-        /// <param name="tracer">The tracer</param>
         /// <returns>A <see cref="Task"/> object, running the current operation</returns>
-        private static async Task ParentCancellationListenerAsync(PipeStream pipe, CancellationTokenSource cancellationTokenSource, ITracer tracer)
+        private async Task ParentCancellationListenerAsync(PipeStream pipe, CancellationTokenSource cancellationTokenSource)
         {
             try
             {
@@ -392,7 +399,7 @@
                     // Check if we got a cancellation instruction
                     if (s == CancellationString)
                     {
-                        tracer.TraceInformation("Cancellation instruction received from parent - canceling");
+                        this.tracer.TraceInformation("Cancellation instruction received from parent - canceling");
                         cancellationTokenSource.Cancel();
                         break;
                     }
@@ -410,14 +417,14 @@
             }
             catch (Exception e)
             {
-                tracer.TraceError($"Parent cancellation listener threw an exception: {e}");
+                this.tracer.TraceError($"Parent cancellation listener threw an exception: {e}");
 
                 // Something bad happened - kill the process
                 Environment.FailFast("Terminating the child process because the parent live listener threw an exception: {e}");
             }
             finally
             {
-                tracer.TraceInformation("Parent cancellation listener completed");
+                this.tracer.TraceInformation("Parent cancellation listener completed");
             }
         }
 
@@ -426,23 +433,22 @@
         /// </summary>
         /// <param name="childProcess">The child process</param>
         /// <param name="pipe">The pipe</param>
-        /// <param name="tracer">The tracer</param>
         /// <param name="wasChildTerminatedByParent">A flag indicating whether the child process did not gracefully exit in the designated period of time, and was terminated</param>
-        private void CancelChildProcess(Process childProcess, PipeStream pipe, ITracer tracer, ref bool wasChildTerminatedByParent)
+        private void CancelChildProcess(Process childProcess, PipeStream pipe, ref bool wasChildTerminatedByParent)
         {
             // Send a cancellation instruction down the pipe
             WriteToStream(CancellationString, pipe, default(CancellationToken)).Wait();
-            tracer.TraceInformation($"Cancellation instruction sent to child process, process ID {childProcess.Id}");
+            this.tracer.TraceInformation($"Cancellation instruction sent to child process, process ID {childProcess.Id}");
 
             // Give the process some time to gracefully exit (by default 4 minutes) - if it doesn't exit, kill it
             bool processExited = childProcess.WaitForExit((int)TimeSpan.FromSeconds(this.CancellationGraceTimeInSeconds).TotalMilliseconds);
             if (processExited)
             {
-                tracer.TraceInformation($"The child process exited, process ID {childProcess.Id}");
+                this.tracer.TraceInformation($"The child process exited, process ID {childProcess.Id}");
             }
             else
             {
-                tracer.TraceInformation($"The child process did not terminate in time - killing the process, process ID {childProcess.Id}");
+                this.tracer.TraceInformation($"The child process did not terminate in time - killing the process, process ID {childProcess.Id}");
                 childProcess.Kill();
                 wasChildTerminatedByParent = true;
             }

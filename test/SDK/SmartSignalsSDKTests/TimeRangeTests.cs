@@ -21,7 +21,6 @@
         [ExpectedException(typeof(ArgumentOutOfRangeException))]
         public void WhenCreatingTimeRangeNegativeDurationThenExceptionIsThrown()
         {
-            DateTime startTime = DateTime.Now;
             new TimeRange(DateTime.Now, TimeSpan.FromTicks(-1));
         }
 

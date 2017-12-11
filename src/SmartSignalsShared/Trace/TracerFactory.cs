@@ -2,10 +2,10 @@
 {
     using System;
     using System.Collections.Generic;
-    using ApplicationInsights.Extensibility;
-    using ApplicationInsights.WindowsServer.TelemetryChannel;
+    using Microsoft.ApplicationInsights.Extensibility;
+    using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel;
     using Microsoft.Azure.Monitoring.SmartSignals;
-    using WebJobs.Host;
+    using Microsoft.Azure.WebJobs.Host;
 
     /// <summary>
     /// A class that exposes methods that help create a tracer

@@ -1,5 +1,6 @@
 ﻿namespace Microsoft.Azure.Monitoring.SmartSignals.Shared
 {
+    using System.Collections.Generic;
     using System.Threading.Tasks;
 
     /// <summary>
@@ -13,5 +14,12 @@
         /// <param name="signalId">The signal ID</param>
         /// <returns>A <see cref="Task{TResult}"/> returning the smart signal metadata</returns>
         Task<SmartSignalMetadata> ReadSignalMetadataAsync(string signalId);
+
+        /// <summary>
+        /// Reads a smart signal's assemblies from the repository
+        /// </summary>
+        /// <param name="signalId">The signal ID</param>
+        /// <returns>A <see cref="Task{TResult}"/> returning a dictionary, mapping an assembly name to the assembly bytes</returns>
+        Task<Dictionary<string, byte[]>> ReadSignalAssembliesAsync(string signalId);
     }
 }
