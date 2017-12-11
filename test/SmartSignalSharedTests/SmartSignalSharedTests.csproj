@@ -13,6 +13,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\SmartSignalsShared\SmartSignalsShared.csproj" />
+    <ProjectReference Include="..\TestChildProcess\TestChildProcess.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />
