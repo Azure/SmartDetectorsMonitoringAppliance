@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:controls="clr-namespace:Microsoft.Azure.Monitoring.SmartSignals.Emulator.Controls"
         mc:Ignorable="d"
-        Title="" Height="730" Width="1100" MinHeight="730" MinWidth="1100">
+        Title="" Height="730" Width="1500" MinHeight="730" MinWidth="1500">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -26,15 +26,15 @@
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
-            
-            <TextBlock Grid.Column="0" VerticalAlignment="Center" Style="{StaticResource HeaderText}">
+
+            <TextBlock Grid.Column="0" VerticalAlignment="Center" Style="{StaticResource EmulatorHeader}">
                 <Run Text="Azure Smart Signals - Emulator" />
                 <Separator Width="5" Visibility="Hidden"/>
                 <Run Text="PREVIEW" FontSize="9" />
             </TextBlock>
 
             <StackPanel Grid.Column="2" Orientation="Horizontal" Margin="0,0,10,0" >
-                <TextBlock Text="Hello, John" Style="{StaticResource HeaderText}" VerticalAlignment="Center"/>
+                <TextBlock Text="Hello, John" Style="{StaticResource EmulatorHeader}" VerticalAlignment="Center"/>
                 <Separator Width="5" Visibility="Hidden"/>
                 <Image Source="Media/ic_power_settings_new_white_48dp_1x.png" Height="24"/>
             </StackPanel>
@@ -81,9 +81,26 @@
                 </TabItem.Header>
                 <controls:SignalsControl/>
             </TabItem>
-            <TabItem>
+            <TabItem HorizontalAlignment="Left" Width="44">
                 <TabItem.Header>
-                    <Image Source="Media/ic_lightbulb_outline_white_48dp_1x.png" Height="40"/>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Image Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" Grid.ColumnSpan="2" Source="Media/ic_lightbulb_outline_white_48dp_1x.png" Height="40"/>
+                        <Canvas Grid.Row="0" Grid.Column="1" Margin="6,0,0,0">
+                            <Border CornerRadius="50" Width="15" Height="15" Background="Red" BorderBrush="White" BorderThickness="1" >
+                                <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="White" Text="12" FontSize="10" FontWeight="Bold" Margin="-0.5,-0.5,0,0" />
+                            </Border>
+                            <!--<Ellipse Fill="Red" Stroke="White" Height="10" Width="10" RenderTransformOrigin="0.967,-0.033" HorizontalAlignment="Left"  />
+                            <TextBlock Foreground="White" Text="12" FontSize="5"/>-->
+                        </Canvas>
+                    </Grid>
                 </TabItem.Header>
                 <Label Content="The detections"/>
             </TabItem>

@@ -5,105 +5,41 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:Microsoft.Azure.Monitoring.SmartSignals.Emulator.Controls"
              mc:Ignorable="d" 
-             d:DesignHeight="300" d:DesignWidth="600">
-    <UserControl.Resources>
-        <Style x:Key="RoundedButtonStyle" TargetType="{x:Type Button}">
-            <Setter Property="HorizontalContentAlignment" Value="Center"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="{x:Type Button}">
-                        <Grid x:Name="grid">
-                            <Border x:Name="border" CornerRadius="5" BorderBrush="white" BorderThickness="1" Background="#FF262626" Margin="1" >
-                                <ContentPresenter Margin="15, 5"/>
-                            </Border>
-                        </Grid>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsPressed" Value="True">
-                                <Setter Property="Background" TargetName="border" Value="White" />
-                                <Setter Property="Foreground" Value="#FF262626"/>
-                            </Trigger>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="BorderThickness" TargetName="border" Value="2"/>
-                                <Setter Property="Margin" TargetName="border" Value="0"/>
-                            </Trigger>
-                            <Trigger Property="IsEnabled" Value="False">
-                                <Setter Property="Opacity" TargetName="grid" Value="0.25"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-        
-        <Style x:Key="SignalSelector" TargetType="{x:Type RadioButton}">
-            <Setter Property="SnapsToDevicePixels" Value="true"/>
-            <Setter Property="OverridesDefaultStyle" Value="true"/>
-            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
-            <Setter Property="FontSize" Value="14"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="{x:Type RadioButton}">
-                        <BulletDecorator Background="Transparent">
-                            <BulletDecorator.Bullet>
-                                <Grid Width="13" Height="13" Margin="10,7,0,10">
-                                    <Ellipse x:Name="Border" Fill="Transparent" StrokeThickness="1" Stroke="#FF4472C4" />
-                                    <Grid x:Name="CheckMark">
-                                        <Ellipse Fill="#FF009900" />
-                                        <Path Name="path4501" StrokeThickness="2" Stroke="#FFFFFFFF" StrokeMiterLimit="4" StrokeLineJoin="Miter" StrokeStartLineCap="Flat" StrokeEndLineCap="Flat" Data="M 3.1214733 6.5003448 5.6548005 9.0024126 10.440684 4.0774068"/>
-                                    </Grid>
-                                </Grid>
-                            </BulletDecorator.Bullet>
-                            <ContentPresenter Margin="30,2,50,0" VerticalAlignment="Center" HorizontalAlignment="Left" RecognizesAccessKey="True"/>
-                        </BulletDecorator>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsChecked" Value="false">
-                                <Setter TargetName="CheckMark" Property="Visibility" Value="Collapsed"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-    </UserControl.Resources>
-    
+             d:DesignHeight="600" d:DesignWidth="1500">
     <Grid Background="#FFECF0F1" >
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto" MinWidth="0.5"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
 
-        <StackPanel Grid.Row="0" Grid.ColumnSpan="2" Background="#FF262626">
-            <Button HorizontalAlignment="Left" Style="{StaticResource RoundedButtonStyle}" Margin="10">
-                <TextBlock Text="Import Library" FontSize="14"/>
-            </Button>
-        </StackPanel>
-
-        <Border Grid.Row="1" Grid.Column="0" BorderBrush="#FFA5A5A5" BorderThickness="0,0,0.5,0">
+        <Border Grid.Column="0" BorderBrush="#FFA5A5A5" BorderThickness="0,0,0.5,0" Padding="20,20,20,0">
             <StackPanel Orientation="Vertical">
-                <Border BorderBrush="#FFA5A5A5" BorderThickness="0,0,0,0.5">
-                    <TextBlock Margin="44,30,0,10" FontSize="14">SIGNAL NAME</TextBlock>
-                </Border>
-                <ItemsControl VerticalAlignment="Stretch" Background="Transparent" FocusVisualStyle="{x:Null}">
-                    <Border BorderBrush="#FFA5A5A5" BorderThickness="0,0,0,0.5">
-                        <RadioButton GroupName="signals" Style="{StaticResource SignalSelector}">
-                            <TextBlock>My Signal 1</TextBlock>
-                        </RadioButton>
-                    </Border>
-                    <Border BorderBrush="#FFA5A5A5" BorderThickness="0,0,0,0.5">
-                        <RadioButton GroupName="signals" Style="{StaticResource SignalSelector}">
-                            <TextBlock>My Signal 2</TextBlock>
-                        </RadioButton>
-                    </Border>
-                </ItemsControl>
+                <TextBlock Style="{StaticResource SectionHeader}" Text="EMULATION SETTINGS - My Signal 1"/>
+                <TextBlock Style="{StaticResource ControlText}" Text="Start date" Margin="0,0,0,10"/>
+                <DatePicker Margin="0,0,0,20" HorizontalAlignment="Left"/>
+                <TextBlock Style="{StaticResource ControlText}" Text="Analysis period" Margin="0,0,0,10"/>
+                <ComboBox Margin="0,0,0,20" HorizontalAlignment="Left">
+                    <ComboBoxItem IsSelected="True">1 hour</ComboBoxItem>
+                    <ComboBoxItem>1 day</ComboBoxItem>
+                </ComboBox>
+                <TextBlock Style="{StaticResource ControlText}" Text="Subscription" Margin="0,0,0,10" />
+                <ComboBox Margin="0,0,0,20" HorizontalAlignment="Left">
+                    <ComboBoxItem IsSelected="True">ACME Telco Prod</ComboBoxItem>
+                    <ComboBoxItem>ACME Telco PPE</ComboBoxItem>
+                </ComboBox>
+
+                <Separator Margin="0,0,0,20"/>
+                
+                <Button Style="{StaticResource RoundedButton}" HorizontalAlignment="Left" Content="Start analysis" Click="ButtonBase_OnClick"/>
+            </StackPanel>
+        </Border>
+
+        <Border Grid.Column="1" BorderThickness="0" Padding="20,20,20,0">
+            <StackPanel Orientation="Vertical">
+                <TextBlock Style="{StaticResource SectionHeader}" Text="EMULATION STATUS"/>
+                <TextBlock x:Name="BeforeStartMessage" Text="Click 'Start analysis' to begin the emulation." Foreground="#FF767171" FontSize="16" Margin="0,80,0,0" HorizontalAlignment="Center"/>
+                <local:EmulationStatusControl x:Name="EmulationStatusControl" Visibility="Collapsed"/>
             </StackPanel>
         </Border>
     </Grid>
-   
 </UserControl>

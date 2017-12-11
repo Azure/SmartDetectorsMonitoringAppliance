@@ -56,6 +56,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Page Include="Controls\EmulationStatusControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Controls\SignalsControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -67,6 +71,9 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Controls\EmulationStatusControl.xaml.cs">
+      <DependentUpon>EmulationStatusControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="Controls\SignalsControl.xaml.cs">
       <DependentUpon>SignalsControl.xaml</DependentUpon>
@@ -118,5 +125,6 @@
     <Resource Include="Media\ic_power_settings_new_white_48dp_1x.png" />
     <Resource Include="Media\ic_power_settings_new_white_48dp_2x.png" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

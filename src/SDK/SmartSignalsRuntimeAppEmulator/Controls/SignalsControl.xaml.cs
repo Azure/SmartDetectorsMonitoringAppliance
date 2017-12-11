@@ -24,5 +24,11 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Emulator.Controls
         {
             InitializeComponent();
         }
+
+        private void ButtonBase_OnClick(object sender, RoutedEventArgs e)
+        {
+            this.BeforeStartMessage.Visibility = Visibility.Collapsed;
+            this.EmulationStatusControl.Visibility = Visibility.Visible;
+        }
     }
 }
