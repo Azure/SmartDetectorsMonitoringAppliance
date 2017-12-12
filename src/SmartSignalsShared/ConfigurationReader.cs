@@ -18,10 +18,23 @@
         /// <returns>The configuration value</returns>
         public static string ReadConfig(string settingName, bool required)
         {
-            string configValue = Environment.GetEnvironmentVariable(settingName, EnvironmentVariableTarget.Process);
+            string configValue = Environment.GetEnvironmentVariable($"APPSETTING_{settingName}", EnvironmentVariableTarget.Process);
             Diagnostics.EnsureArgument(!(required && string.IsNullOrEmpty(configValue)), () => required, $"Configuration item '{settingName}' is required and missing");
 
             Console.WriteLine($"Config: '{settingName}'='{configValue}'");
+            return configValue;
+        }
+
+        /// <summary>
+        /// This method reads configuration connection strings settings from app.config.
+        /// </summary>
+        /// <param name="settingName">The property name to read from app.config</param>
+        /// <param name="required">When true - this setting is required and can not be empty</param>
+        /// <returns>The connection string configuration value</returns>
+        public static string ReadConfigConnectionString(string settingName, bool required)
+        {
+            string configValue = Environment.GetEnvironmentVariable($"CUSTOMCONNSTR_{settingName}", EnvironmentVariableTarget.Process);
+            Diagnostics.EnsureArgument(!(required && string.IsNullOrEmpty(configValue)), () => required, $"Connection string item '{settingName}' is required and missing");
             return configValue;
         }
 

@@ -14,8 +14,16 @@
     /// </summary>
     public class AnalysisExecuter : IAnalysisExecuter
     {
-        // TODO: real analysis URL from configuration
-        private readonly string analysisUrl = string.Empty;
+        private readonly string analysisUrl;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AnalysisExecuter"/> class.
+        /// </summary>
+        public AnalysisExecuter()
+        {
+            var functionAppBaseUrl = ConfigurationReader.ReadConfig("FunctionBaseUrl", true);
+            this.analysisUrl = $"{functionAppBaseUrl}/api/Analyze";
+        }
 
         /// <summary>
         /// Executes the signal via the analysis flow

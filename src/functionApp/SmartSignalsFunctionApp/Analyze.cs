@@ -1,4 +1,4 @@
-namespace Microsoft.Azure.Monitoring.SmartSignals.Analysis
+﻿namespace Microsoft.SmartSignals.FunctionApp
 {
     using System;
     using System.Collections.Generic;
@@ -6,12 +6,16 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Analysis
     using System.Net.Http;
     using System.Threading;
     using System.Threading.Tasks;
+    using Microsoft.Azure.Monitoring.SmartSignals;
+    using Microsoft.Azure.Monitoring.SmartSignals.Analysis;
     using Microsoft.Azure.Monitoring.SmartSignals.Analysis.DetectionPresentation;
     using Microsoft.Azure.Monitoring.SmartSignals.Shared;
+    using Microsoft.Azure.Monitoring.SmartSignals.Shared.Trace;
     using Microsoft.Azure.WebJobs;
     using Microsoft.Azure.WebJobs.Extensions.Http;
     using Microsoft.Azure.WebJobs.Host;
     using Unity;
+    using ExecutionContext = Microsoft.Azure.WebJobs.ExecutionContext;
 
     /// <summary>
     /// A class implementing the analysis endpoint
@@ -41,7 +45,7 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Analysis
         public static async Task<HttpResponseMessage> RunAsync(
             [HttpTrigger(AuthorizationLevel.Function, "post", Route = "signals")]HttpRequestMessage request,
             TraceWriter log,
-            WebJobs.ExecutionContext context,
+            ExecutionContext context,
             CancellationToken cancellationToken)
         {
             using (IUnityContainer childContainer = Container.CreateChildContainer().WithTracer(log, true))

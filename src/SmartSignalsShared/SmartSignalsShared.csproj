@@ -9,14 +9,13 @@
   <ItemGroup>
 	<PackageReference Include="Microsoft.ApplicationInsights" Version="2.4.0" />
 	<PackageReference Include="Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel" Version="2.4.0" />
-	<PackageReference Include="Microsoft.Azure.KeyVault.Core" Version="2.0.4" />
 	<PackageReference Include="Microsoft.Azure.WebJobs" Version="2.0.0" />
 	<PackageReference Include="Microsoft.Azure.WebJobs.Core" Version="2.0.0" />
 	<PackageReference Include="Microsoft.Data.Edm" Version="5.8.3" />
 	<PackageReference Include="Microsoft.Data.OData" Version="5.8.3" />
 	<PackageReference Include="Microsoft.Data.Services.Client" Version="5.8.3" />
 	<PackageReference Include="ncrontab" Version="3.3.0" />
-	<PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
+	<PackageReference Include="Newtonsoft.Json" Version="9.0.1" />
 	<PackageReference Include="StyleCop.MSBuild" Version="5.0.0" />
 	<PackageReference Include="System.ComponentModel.EventBasedAsync" Version="4.3.0" />
 	<PackageReference Include="System.Diagnostics.DiagnosticSource" Version="4.4.1" />

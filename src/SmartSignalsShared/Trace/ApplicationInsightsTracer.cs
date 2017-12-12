@@ -38,7 +38,7 @@
             this.customProperties = new Dictionary<string, string>
             {
                 ["WebAppSiteName"] = AzureFunctionEnvironment.WebAppSiteName ?? string.Empty,
-                ["BuildVersion"] = buildVersion ?? ConfigurationReader.ReadConfig("BuildVersion", required: true),
+                ["BuildVersion"] = (buildVersion ?? ConfigurationReader.ReadConfig("BuildVersion", required: false)) ?? string.Empty,
                 ["MachineName"] = Environment.MachineName,
                 ["WebsiteInstanceId"] = AzureFunctionEnvironment.WebsiteInstanceId ?? string.Empty
             };

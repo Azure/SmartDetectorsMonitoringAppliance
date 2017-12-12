@@ -40,7 +40,13 @@
                     {
                         // Get the main Ikey
                         TelemetryConfiguration.Active.InstrumentationKey = ConfigurationReader.ReadConfig("TelemetryInstrumentationKey", true);
-                        TelemetryConfiguration.Active.TelemetryChannel.EndpointAddress = ConfigurationReader.ReadConfig("TelemetryEndpoint", false);
+
+                        // make sure the telemetry channel is ServerTelemetryChannel
+                        if (!(TelemetryConfiguration.Active.TelemetryChannel is ServerTelemetryChannel))
+                        {
+                            TelemetryConfiguration.Active.TelemetryChannel = new ServerTelemetryChannel();
+                            ((ServerTelemetryChannel)TelemetryConfiguration.Active.TelemetryChannel).Initialize(TelemetryConfiguration.Active);
+                        }
 
                         // Create secondary telemetry configurations if exists
                         secondaryTelemetryConfiguration = CreateAdditionalTelemetryConfiguration("SecondaryTelemetryInstrumentationKey", "SecondaryTelemetryEndpoint");

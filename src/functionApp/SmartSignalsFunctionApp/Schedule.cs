@@ -1,13 +1,17 @@
-namespace Microsoft.SmartSignals.Scheduler
+﻿namespace Microsoft.SmartSignals.FunctionApp
 {
     using System;
     using System.Threading;
     using System.Threading.Tasks;
+    using Microsoft.Azure.Monitoring.SmartSignals;
+    using Microsoft.Azure.Monitoring.SmartSignals.Analysis;
+    using Microsoft.Azure.Monitoring.SmartSignals.Shared;
     using Microsoft.Azure.Monitoring.SmartSignals.Shared.AzureStorage;
     using Microsoft.Azure.Monitoring.SmartSignals.Shared.SignalConfiguration;
     using Microsoft.Azure.Monitoring.SmartSignals.Shared.Trace;
     using Microsoft.Azure.WebJobs;
     using Microsoft.Azure.WebJobs.Host;
+    using Microsoft.SmartSignals.Scheduler;
     using Microsoft.SmartSignals.Scheduler.Publisher;
     using Microsoft.SmartSignals.Scheduler.SignalRunTracker;
     using Microsoft.WindowsAzure.Storage;
@@ -30,8 +34,7 @@ namespace Microsoft.SmartSignals.Scheduler
             System.Net.ServicePointManager.DefaultConnectionLimit = 100;
             ThreadPool.SetMinThreads(100, 100);
 
-            // TODO: get storage connection string from KV
-            var storageConnectionString = string.Empty;
+            var storageConnectionString = ConfigurationReader.ReadConfigConnectionString("StorageConnectionString", true);
             CloudTableClient cloudTableClient = CloudStorageAccount.Parse(storageConnectionString).CreateCloudTableClient();
 
             Container = new UnityContainer()
@@ -52,11 +55,10 @@ namespace Microsoft.SmartSignals.Scheduler
         [FunctionName("Schedule")]
         public static async Task RunAsync([TimerTrigger("0 */5 * * * *")]TimerInfo myTimer, TraceWriter log)
         {
-            using (IUnityContainer childContainer = Container.CreateChildContainer())
+            // Since we add the web job log tracer for each function invocation then we need to register the instance here in a child container
+            using (IUnityContainer childContainer = Container.CreateChildContainer().WithTracer(log, true))
             {
-                // Since we add the web job log tracer for each function invocation then we need to register the instance here in a child container
-                var tracer = TracerFactory.Create(log, true);
-                childContainer.RegisterInstance(tracer);
+                ITracer tracer = childContainer.Resolve<ITracer>();
                 var scheduleFlow = childContainer.Resolve<ScheduleFlow>();
 
                 try
@@ -68,7 +70,7 @@ namespace Microsoft.SmartSignals.Scheduler
                 catch (Exception exception)
                 {
                     tracer.TraceError($"Failed running scheduling with exception {exception}");
-                    tracer.ReportException(exception);
+                    TopLevelExceptionHandler.TraceUnhandledException(exception, tracer, log);
                     throw;
                 }
             }
