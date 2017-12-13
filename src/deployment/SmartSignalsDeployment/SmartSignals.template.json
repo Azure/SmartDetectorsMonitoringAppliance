@@ -49,7 +49,7 @@
     "storageAccountName": { "type": "string" },
     "applicationInsightsName": { "type": "string" },
     "PackageLink": { "type": "securestring" },
-    "LogVerboseTraces": {
+    "logVerboseTraces": {
       "type": "string",
       "defaultValue": "true"
     }
@@ -125,19 +125,43 @@
       },
       "resources": [
         {
+          "name": "MSDeploy",
+          "type": "extensions",
+          "location": "[resourceGroup().location]",
+          "apiVersion": "2015-08-01",
+          "dependsOn": [
+            "[resourceId('Microsoft.Web/sites', parameters('functionsAppName'))]"
+          ],
+          "tags": {
+            "displayName": "deploy"
+          },
+          "properties": {
+            "packageUri": "[parameters('PackageLink')]",
+            "dbType": "None",
+            "connectionString": "",
+            "setParameters": {
+              "IIS Web Application Name": "[parameters('functionsAppName')]"
+            }
+          }
+        },
+        {
           "apiVersion": "2015-08-01",
           "type": "config",
           "name": "appsettings",
           "dependsOn": [
-            "[resourceId('Microsoft.Web/sites', parameters('functionsAppName'))]"
+            "[resourceId('Microsoft.Web/sites', parameters('functionsAppName'))]",
+            "[concat('Microsoft.Web/Sites/', parameters('functionsAppName'), '/Extensions/MSDeploy')]"
           ],
           "tags": {
             "displayName": "appsettings"
           },
           "properties": {
+            "AzureWebJobsDashboard": "[concat('DefaultEndpointsProtocol=https;AccountName=', parameters('functionsLogsStorageAccountName'), ';AccountKey=', listKeys(variables('functionsLogsStorageAccountId'),'2015-05-01-preview').key1)]",
+            "AzureWebJobsStorage": "[concat('DefaultEndpointsProtocol=https;AccountName=', parameters('functionsLogsStorageAccountName'), ';AccountKey=', listKeys(variables('functionsLogsStorageAccountId'),'2015-05-01-preview').key1)]",
             "FUNCTIONS_EXTENSION_VERSION": "~1",
+            "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING": "[concat('DefaultEndpointsProtocol=https;AccountName=', parameters('functionsLogsStorageAccountName'), ';AccountKey=', listKeys(variables('functionsLogsStorageAccountId'),'2015-05-01-preview').key1)]",
             "WEBSITE_CONTENTSHARE": "[toLower(parameters('functionsAppName'))]",
-            "SendVerboseTracesToAI": "[parameters('LogVerboseTraces')]",
+            "SendVerboseTracesToAI": "[parameters('logVerboseTraces')]",
             "TelemetryInstrumentationKey": "[reference(resourceId('Microsoft.Insights/components', parameters('applicationInsightsName')), '2014-04-01').InstrumentationKey]",
             "ResourceGroupName": "[variables('resourceGroupName')]",
             "SubscriptionId": "[subscription().subscriptionId]",
@@ -152,7 +176,8 @@
           "name": "connectionstrings",
           "dependsOn": [
             "[resourceId('Microsoft.Web/sites', parameters('functionsAppName'))]",
-            "[resourceId('Microsoft.Web/sites/config', parameters('functionsAppName'), 'appsettings')]"
+            "[resourceId('Microsoft.Web/sites/config', parameters('functionsAppName'), 'appsettings')]",
+            "[concat('Microsoft.Web/Sites/', parameters('functionsAppName'), '/Extensions/MSDeploy')]"
           ],
           "tags": {
             "displayName": "connectionstrings"
@@ -160,18 +185,6 @@
           "properties": {
             "StorageConnectionString": {
               "value": "[concat('DefaultEndpointsProtocol=https;AccountName=', parameters('storageAccountName'), ';AccountKey=', listKeys(variables('storageAccountId'),'2015-05-01-preview').key1)]",
-              "type": "Custom"
-            },
-            "AzureWebJobsDashboard": {
-              "value": "[concat('DefaultEndpointsProtocol=https;AccountName=', parameters('functionsLogsStorageAccountName'), ';AccountKey=', listKeys(variables('functionsLogsStorageAccountId'),'2015-05-01-preview').key1)]",
-              "type": "Custom"
-            },
-            "AzureWebJobsStorage": {
-              "value": "[concat('DefaultEndpointsProtocol=https;AccountName=', parameters('functionsLogsStorageAccountName'), ';AccountKey=', listKeys(variables('functionsLogsStorageAccountId'),'2015-05-01-preview').key1)]",
-              "type": "Custom"
-            },
-            "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING": {
-              "value": "[concat('DefaultEndpointsProtocol=https;AccountName=', parameters('functionsLogsStorageAccountName'), ';AccountKey=', listKeys(variables('functionsLogsStorageAccountId'),'2015-05-01-preview').key1)]",
               "type": "Custom"
             }
           }
