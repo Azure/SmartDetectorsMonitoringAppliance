@@ -48,7 +48,6 @@
     "functionsLogsStorageAccountName": { "type": "string" },
     "storageAccountName": { "type": "string" },
     "applicationInsightsName": { "type": "string" },
-    "PackageLink": { "type": "securestring" },
     "logVerboseTraces": {
       "type": "string",
       "defaultValue": "true"
@@ -125,32 +124,11 @@
       },
       "resources": [
         {
-          "name": "MSDeploy",
-          "type": "extensions",
-          "location": "[resourceGroup().location]",
-          "apiVersion": "2015-08-01",
-          "dependsOn": [
-            "[resourceId('Microsoft.Web/sites', parameters('functionsAppName'))]"
-          ],
-          "tags": {
-            "displayName": "deploy"
-          },
-          "properties": {
-            "packageUri": "[parameters('PackageLink')]",
-            "dbType": "None",
-            "connectionString": "",
-            "setParameters": {
-              "IIS Web Application Name": "[parameters('functionsAppName')]"
-            }
-          }
-        },
-        {
           "apiVersion": "2015-08-01",
           "type": "config",
           "name": "appsettings",
           "dependsOn": [
-            "[resourceId('Microsoft.Web/sites', parameters('functionsAppName'))]",
-            "[concat('Microsoft.Web/Sites/', parameters('functionsAppName'), '/Extensions/MSDeploy')]"
+            "[resourceId('Microsoft.Web/sites', parameters('functionsAppName'))]"
           ],
           "tags": {
             "displayName": "appsettings"
@@ -166,7 +144,6 @@
             "ResourceGroupName": "[variables('resourceGroupName')]",
             "SubscriptionId": "[subscription().subscriptionId]",
             "FunctionBaseUrl": "[variables('functionBaseUrl')]",
-            "MSDEPLOY_RENAME_LOCKED_FILES": 1,
             "StorageAccountName": "[parameters('storageAccountName')]"
           }
         },
@@ -176,8 +153,7 @@
           "name": "connectionstrings",
           "dependsOn": [
             "[resourceId('Microsoft.Web/sites', parameters('functionsAppName'))]",
-            "[resourceId('Microsoft.Web/sites/config', parameters('functionsAppName'), 'appsettings')]",
-            "[concat('Microsoft.Web/Sites/', parameters('functionsAppName'), '/Extensions/MSDeploy')]"
+            "[resourceId('Microsoft.Web/sites/config', parameters('functionsAppName'), 'appsettings')]"
           ],
           "tags": {
             "displayName": "connectionstrings"

@@ -1,19 +1,12 @@
 ﻿{
   "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
   "contentVersion": "1.0.0.0",
-  "ServiceMetadata": {
-    "Environment": { "value": "Dev" },
-    "ArmTemplatePath": { "value": "SmartSignals.template.json" },
-    "AzureResourceGroupName": { "value": "SmartSignalsDev" },
-    "AzureSubscriptionId": { "value": "b4b7d4c1-8c25-4da3-bf1c-e50f647a8130" }
-  },
   "parameters": {
-    "defaultResourceLocation": { "value": "South Central US" },
-    "functionsAppName": { "value": "smartsignals-dev" },
-    "functionsHostingPlanName": { "value": "smartsignals-sp-dev" },
-    "functionsLogsStorageAccountName": { "value": "smartsignalslogsdev" },
-    "storageAccountName": { "value": "smartsignalssadev" },
-    "applicationInsightsName": { "value": "smartsignals-ai-dev" },
-    "PackageLink": { "value": "smartsignals.zip" }
+    "defaultResourceLocation": { "value": "" },
+    "functionsAppName": { "value": "" },
+    "functionsHostingPlanName": { "value": "" },
+    "functionsLogsStorageAccountName": { "value": "" },
+    "storageAccountName": { "value": "" },
+    "applicationInsightsName": { "value": "" }
   }
 }
