@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Azure.Monitoring.SmartSignals.Analysis.DetectionPresentation
+﻿namespace Microsoft.Azure.Monitoring.SmartSignals.Shared.DetectionPresentation
 {
     using Newtonsoft.Json;
 

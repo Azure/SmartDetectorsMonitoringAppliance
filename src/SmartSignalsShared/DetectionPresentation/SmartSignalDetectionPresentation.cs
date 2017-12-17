@@ -1,11 +1,11 @@
-﻿namespace Microsoft.Azure.Monitoring.SmartSignals.Analysis.DetectionPresentation
+﻿namespace Microsoft.Azure.Monitoring.SmartSignals.Shared.DetectionPresentation
 {
     using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
-    using Microsoft.Azure.Monitoring.SmartSignals.Shared;
-    using Microsoft.Azure.Monitoring.SmartSignals.Shared.Extensions;
+    using Extensions;
+    using Microsoft.Azure.Monitoring.SmartSignals.Shared.Exceptions;
     using Newtonsoft.Json;
     using SmartFormat;
 

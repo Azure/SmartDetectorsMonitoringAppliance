@@ -1,10 +1,11 @@
 ﻿namespace Microsoft.Azure.Monitoring.SmartSignals.Shared.SignalConfiguration
 {
-    using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
     using Microsoft.Azure.Monitoring.SmartSignals.Shared.AzureStorage;
+    using Microsoft.Azure.Monitoring.SmartSignals.Shared.Exceptions;
+    using Microsoft.WindowsAzure.Storage;
     using Microsoft.WindowsAzure.Storage.Table;
     using NCrontab;
 
@@ -39,18 +40,25 @@
         /// <returns>A <see cref="IList{SmartSignalConfiguration}"/> containing all the signal configurations in the store.</returns>
         public async Task<IList<SmartSignalConfiguration>> GetAllSmartSignalConfigurationsAsync()
         {
-            this.tracer.TraceInformation("Getting all smart signal configurations");
-            var signalConfigurationEntities = await this.configurationTable.ReadPartitionAsync<SmartConfigurationEntity>(PartitionKey);
-            this.tracer.TraceInformation($"Found {signalConfigurationEntities.Count} signal configurations");
-
-            this.tracer.TraceVerbose($"Found configurations for signals: {string.Join(", ", signalConfigurationEntities.Select(e => e.RowKey))}");
-
-            return signalConfigurationEntities.Select(entity => new SmartSignalConfiguration
+            try
             {
-                SignalId = entity.RowKey,
-                ResourceType = entity.ResourceType,
-                Schedule = CrontabSchedule.Parse(entity.CrontabSchedule)
-            }).ToList();
+                this.tracer.TraceInformation("Getting all smart signal configurations");
+                var signalConfigurationEntities = await this.configurationTable.ReadPartitionAsync<SmartConfigurationEntity>(PartitionKey);
+                this.tracer.TraceInformation($"Found {signalConfigurationEntities.Count} signal configurations");
+
+                this.tracer.TraceVerbose($"Found configurations for signals: {string.Join(", ", signalConfigurationEntities.Select(e => e.RowKey))}");
+
+                return signalConfigurationEntities.Select(entity => new SmartSignalConfiguration
+                {
+                    SignalId = entity.RowKey,
+                    ResourceType = entity.ResourceType,
+                    Schedule = CrontabSchedule.Parse(entity.CrontabSchedule)
+                }).ToList();
+            }
+            catch (StorageException e)
+            {
+                throw new SmartSignalConfigurationStoreException("Failed to get smart signals", e);
+            }
         }
 
         /// <summary>
@@ -60,19 +68,26 @@
         /// <returns>A <see cref="System.Threading.Tasks.Task"/> object that represents the asynchronous operation.</returns>
         public async Task AddOrReplaceSmartSignalConfigurationAsync(SmartSignalConfiguration signalConfiguration)
         {
-            // Execute the update operation
-            this.tracer.TraceInformation($"updating signal configuration for: {signalConfiguration.SignalId}");
-            var operation = TableOperation.InsertOrReplace(new SmartConfigurationEntity
+            try
             {
-                PartitionKey = PartitionKey,
-                RowKey = signalConfiguration.SignalId,
-                ResourceType = signalConfiguration.ResourceType,
-                CrontabSchedule = signalConfiguration.Schedule.ToString()
-            });
+                // Execute the update operation
+                this.tracer.TraceInformation($"updating signal configuration for: {signalConfiguration.SignalId}");
+                var operation = TableOperation.InsertOrReplace(new SmartConfigurationEntity
+                {
+                    PartitionKey = PartitionKey,
+                    RowKey = signalConfiguration.SignalId,
+                    ResourceType = signalConfiguration.ResourceType,
+                    CrontabSchedule = signalConfiguration.Schedule.ToString()
+                });
 
-            await this.configurationTable.ExecuteAsync(operation);
+                await this.configurationTable.ExecuteAsync(operation);
 
-            this.tracer.TraceInformation($"updated signal configuration for: {signalConfiguration.SignalId}");
+                this.tracer.TraceInformation($"updated signal configuration for: {signalConfiguration.SignalId}");
+            }
+            catch (StorageException e)
+            {
+                throw new SmartSignalConfigurationStoreException("Failed to add/replace smart signal", e);
+            }
         }
     }
 }
