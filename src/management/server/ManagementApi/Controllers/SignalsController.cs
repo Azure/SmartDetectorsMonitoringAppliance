@@ -63,6 +63,7 @@
                 throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.BadRequest, ModelState));
             }
 
+            // Verify CRON value is valid
             CrontabSchedule crontabSchedule = CrontabSchedule.TryParse(model.Schedule);
             if (crontabSchedule == null)
             {
@@ -71,6 +72,8 @@
 
             try
             {
+                // Although this add-or-replace method, we are only adding a signal
+                // Replace is being done via a 'Post' request
                 await this.smartSignalConfigurationStore.AddOrReplaceSmartSignalConfigurationAsync(new SmartSignalConfiguration()
                 {
                     SignalId = Guid.NewGuid().ToString(),
