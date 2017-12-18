@@ -14,14 +14,14 @@
         public void WhenCreatingTimeRangeWithEndTimeBeforeStartThenExceptionIsThrown()
         {
             DateTime startTime = DateTime.Now;
-            new TimeRange(startTime, startTime.AddTicks(-1));
+            var unused = new TimeRange(startTime, startTime.AddTicks(-1));
         }
 
         [TestMethod]
         [ExpectedException(typeof(ArgumentOutOfRangeException))]
         public void WhenCreatingTimeRangeNegativeDurationThenExceptionIsThrown()
         {
-            new TimeRange(DateTime.Now, TimeSpan.FromTicks(-1));
+            var unused = new TimeRange(DateTime.Now, TimeSpan.FromTicks(-1));
         }
 
         #endregion

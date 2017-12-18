@@ -1,5 +1,9 @@
 ﻿namespace Microsoft.Azure.Monitoring.SmartSignals.Shared
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+
     /// <summary>
     /// Represents metadata of a smart signal, stored in the smart signals repository
     /// </summary>
@@ -14,7 +18,8 @@
         /// <param name="version">The signal's version</param>
         /// <param name="assemblyName">The name of the signal's assembly file.</param>
         /// <param name="className">The (fully qualified) name for the signal's class.</param>
-        public SmartSignalMetadata(string id, string name, string description, string version, string assemblyName, string className)
+        /// <param name="supportedResourceTypes">The types of resources that this signal supports</param>
+        public SmartSignalMetadata(string id, string name, string description, string version, string assemblyName, string className, IReadOnlyList<ResourceType> supportedResourceTypes)
         {
             this.Id = Diagnostics.EnsureStringNotNullOrWhiteSpace(() => id);
             this.Name = Diagnostics.EnsureStringNotNullOrWhiteSpace(() => name);
@@ -22,6 +27,13 @@
             this.Version = Diagnostics.EnsureStringNotNullOrWhiteSpace(() => version);
             this.AssemblyName = Diagnostics.EnsureStringNotNullOrWhiteSpace(() => assemblyName);
             this.ClassName = Diagnostics.EnsureStringNotNullOrWhiteSpace(() => className);
+            this.SupportedResourceTypes = Diagnostics.EnsureArgumentNotNull(() => supportedResourceTypes);
+
+            // Verify that the signal supports at least one resource
+            if (!this.SupportedResourceTypes.Any())
+            {
+                throw new ArgumentException("A signal must support at least one resource type");
+            }
         }
 
         /// <summary>
@@ -54,6 +66,11 @@
         /// </summary>
         public string ClassName { get; }
 
+        /// <summary>
+        /// Gets the types of resources that this signal supports
+        /// </summary>
+        public IReadOnlyList<ResourceType> SupportedResourceTypes { get; }
+
         #region Overrides of Object
 
         /// <summary>
@@ -77,7 +94,8 @@
                 this.Description.Equals(other.Description) &&
                 this.Version.Equals(other.Version) &&
                 this.AssemblyName.Equals(other.AssemblyName) &&
-                this.ClassName.Equals(other.ClassName);
+                this.ClassName.Equals(other.ClassName) &&
+                this.SupportedResourceTypes.SequenceEqual(other.SupportedResourceTypes);
         }
 
         /// <summary>
@@ -93,6 +111,12 @@
                 hash = (31 * hash) + this.Description.GetHashCode();
                 hash = (31 * hash) + this.Version.GetHashCode();
                 hash = (31 * hash) + this.AssemblyName.GetHashCode();
+
+                foreach (ResourceType resourceType in this.SupportedResourceTypes)
+                {
+                    hash = (31 * hash) + resourceType.GetHashCode();
+                }
+
                 return hash;
             }
         }
@@ -103,7 +127,7 @@
         /// <returns>A string that represents the current object.</returns>
         public override string ToString()
         {
-            return $"Id={this.Id}, Name={this.Name}, Description={this.Description}, Version={this.Version}";
+            return $"Id={this.Id}, Name={this.Name}, Description={this.Description}, Version={this.Version}, SupportedResourceTypes={string.Join("|", this.SupportedResourceTypes)}";
         }
 
         #endregion

@@ -19,6 +19,7 @@
         private readonly ISignalRunsTracker signalRunsTracker;
         private readonly IAnalysisExecuter analysisExecuter;
         private readonly IDetectionPublisher detectionPublisher;
+        private readonly IAzureResourceManagerClient azureResourceManagerClient;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ScheduleFlow"/> class.
@@ -28,13 +29,21 @@
         /// <param name="signalRunsTracker">The signal run tracker</param>
         /// <param name="analysisExecuter">The analysis executer instance</param>
         /// <param name="detectionPublisher">The detection publisher instance</param>
-        public ScheduleFlow(ITracer tracer, ISmartSignalConfigurationStore signalConfigurationStore, ISignalRunsTracker signalRunsTracker, IAnalysisExecuter analysisExecuter, IDetectionPublisher detectionPublisher)
+        /// <param name="azureResourceManagerClient">The azure resource manager client</param>
+        public ScheduleFlow(
+            ITracer tracer,
+            ISmartSignalConfigurationStore signalConfigurationStore,
+            ISignalRunsTracker signalRunsTracker,
+            IAnalysisExecuter analysisExecuter,
+            IDetectionPublisher detectionPublisher,
+            IAzureResourceManagerClient azureResourceManagerClient)
         {
             this.tracer = Diagnostics.EnsureArgumentNotNull(() => tracer);
             this.signalConfigurationStore = Diagnostics.EnsureArgumentNotNull(() => signalConfigurationStore);
             this.signalRunsTracker = Diagnostics.EnsureArgumentNotNull(() => signalRunsTracker);
             this.analysisExecuter = Diagnostics.EnsureArgumentNotNull(() => analysisExecuter);
             this.detectionPublisher = Diagnostics.EnsureArgumentNotNull(() => detectionPublisher);
+            this.azureResourceManagerClient = Diagnostics.EnsureArgumentNotNull(() => azureResourceManagerClient);
         }
 
         /// <summary>
@@ -46,8 +55,8 @@
             IList<SmartSignalConfiguration> signalConfigurations = await this.signalConfigurationStore.GetAllSmartSignalConfigurationsAsync();
             IList<SignalExecutionInfo> signalsToRun = await this.signalRunsTracker.GetSignalsToRunAsync(signalConfigurations);
 
-            // TODO: get resources
-            var resourceIds = new List<string>();
+            // We get all subscriptions as the resource IDs
+            var resourceIds = await this.azureResourceManagerClient.GetAllSubscriptionIds();
 
             foreach (SignalExecutionInfo signalExecution in signalsToRun)
             {

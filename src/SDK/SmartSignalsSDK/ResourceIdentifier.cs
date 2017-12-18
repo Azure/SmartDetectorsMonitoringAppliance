@@ -1,6 +1,7 @@
 ﻿namespace Microsoft.Azure.Monitoring.SmartSignals
 {
     using System;
+    using Newtonsoft.Json;
 
     /// <summary>
     /// A representation of the identity a specific resource in Azure.
@@ -9,55 +10,78 @@
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="ResourceIdentifier"/> structure.
+        /// This constructor performs all necessary parameter validations, and is called
+        /// from each of the ResourceIdentifier.Create methods.
+        /// It is only called directly by JSON serialization.
         /// </summary>
         /// <param name="resourceType">The resource's type.</param>
         /// <param name="subscriptionId">The ID of the subscription the resource belongs to.</param>
-        /// <param name="resourceGroupName">
-        /// The name of the resource group the resource belongs to.
-        /// This can be <code>null</code> if the resource is a subscription or
-        /// resource group.
-        /// </param>
+        /// <param name="resourceGroupName">The name of the resource group the resource belongs to.</param>
         /// <param name="resourceName">The name of the resource.</param>
-        /// <exception cref="ArgumentNullException">
-        /// Either <paramref name="subscriptionId"/> or <paramref name="resourceName"/> are empty, or 
-        /// <paramref name="resourceGroupName"/> is empty and the resource is not a subscription or resource group
-        /// resource.
-        /// </exception>
-        /// <exception cref="ArgumentOutOfRangeException">
-        /// <paramref name="resourceGroupName"/> is not empty and the resource is a subscription or resource group
-        /// resource.
-        /// </exception> 
-        public ResourceIdentifier(ResourceType resourceType, string subscriptionId, string resourceGroupName, string resourceName)
+        /// <exception cref="ArgumentNullException">One of the string parameters that should not be empty, is empty</exception>
+        /// <exception cref="ArgumentOutOfRangeException">One of the string parameters that should be empty, is not empty</exception>
+        [JsonConstructor]
+        private ResourceIdentifier(ResourceType resourceType, string subscriptionId, string resourceGroupName, string resourceName)
         {
-            if (string.IsNullOrWhiteSpace(subscriptionId))
+            // Parameter validations
+            if (resourceType == ResourceType.Subscription)
             {
-                throw new ArgumentNullException(nameof(subscriptionId), "A resource's subscription ID cannot be empty");
+                // Validate that the subscriptionId is not empty, and that the resourceGroupName and resourceName are empty
+                if (string.IsNullOrWhiteSpace(subscriptionId))
+                {
+                    throw new ArgumentNullException(nameof(subscriptionId), "The subscription's ID cannot be empty");
+                }
+
+                if (!string.IsNullOrWhiteSpace(resourceGroupName))
+                {
+                    throw new ArgumentOutOfRangeException(nameof(resourceGroupName), "The subscription's resource group name must be empty");
+                }
+
+                if (!string.IsNullOrWhiteSpace(resourceName))
+                {
+                    throw new ArgumentOutOfRangeException(nameof(resourceName), "The subscription's resource name must be empty");
+                }
+
+                resourceGroupName = string.Empty;
+                resourceName = string.Empty;
             }
-
-            if (string.IsNullOrWhiteSpace(resourceName))
+            else if (resourceType == ResourceType.ResourceGroup)
             {
-                throw new ArgumentNullException(nameof(resourceName), "A resource's name cannot be empty");
+                // Validate that the subscriptionId and resourceGroupName are not empty, and that the resourceName is empty
+                if (string.IsNullOrWhiteSpace(subscriptionId))
+                {
+                    throw new ArgumentNullException(nameof(subscriptionId), "The resource group's subscription ID cannot be empty");
+                }
+
+                if (string.IsNullOrWhiteSpace(resourceGroupName))
+                {
+                    throw new ArgumentNullException(nameof(resourceGroupName), "The resource group name cannot be empty");
+                }
+
+                if (!string.IsNullOrWhiteSpace(resourceName))
+                {
+                    throw new ArgumentOutOfRangeException(nameof(resourceName), "The resource group's resource name must be empty");
+                }
+
+                resourceName = string.Empty;
             }
-
-            resourceGroupName = string.IsNullOrWhiteSpace(resourceGroupName) ? null : resourceGroupName;
-            switch (resourceType)
+            else
             {
-                case ResourceType.Subscription:
-                case ResourceType.ResourceGroup:
-                    if (resourceGroupName != null)
-                    {
-                        throw new ArgumentOutOfRangeException(nameof(resourceGroupName), $"A resource's resource group name must be empty for resources of type {resourceType}");
-                    }
+                // Validate that the subscriptionId, resourceGroupName, and resourceName are not empty
+                if (string.IsNullOrWhiteSpace(subscriptionId))
+                {
+                    throw new ArgumentNullException(nameof(subscriptionId), "The resource's subscription ID cannot be empty");
+                }
 
-                    break;
+                if (string.IsNullOrWhiteSpace(resourceGroupName))
+                {
+                    throw new ArgumentNullException(nameof(resourceGroupName), "The resource's resource group name cannot be empty");
+                }
 
-                default:
-                    if (resourceGroupName == null)
-                    {
-                        throw new ArgumentNullException(nameof(resourceGroupName), $"A resource's resource group name cannot be empty for resources of type {resourceType}");
-                    }
-
-                    break;
+                if (string.IsNullOrWhiteSpace(resourceName))
+                {
+                    throw new ArgumentNullException(nameof(resourceName), "The resource's name cannot be empty");
+                }
             }
 
             this.ResourceType = resourceType;
@@ -87,6 +111,62 @@
         /// Gets the name of the resource.
         /// </summary>
         public string ResourceName { get; }
+
+        /// <summary>
+        /// Creates a new instance of the <see cref="ResourceIdentifier"/> structure,
+        /// representing a resource of type <see cref="SmartSignals.ResourceType.Subscription"/>.
+        /// </summary>
+        /// <param name="subscriptionId">The subscription Id</param>
+        /// <exception cref="ArgumentNullException">The subscription ID is empty.</exception>
+        /// <returns>A new instance of the <see cref="ResourceIdentifier"/> structure</returns>
+        public static ResourceIdentifier Create(string subscriptionId)
+        {
+            return new ResourceIdentifier(ResourceType.Subscription, subscriptionId, string.Empty, string.Empty);
+        }
+
+        /// <summary>
+        /// Creates a new instance of the <see cref="ResourceIdentifier"/> structure,
+        /// representing a resource of type <see cref="SmartSignals.ResourceType.ResourceGroup"/>.
+        /// </summary>
+        /// <param name="subscriptionId">The subscription Id</param>
+        /// <param name="resourceGroupName">The resource group name</param>
+        /// <exception cref="ArgumentNullException">The subscription ID or resource group name is empty.</exception>
+        /// <returns>A new instance of the <see cref="ResourceIdentifier"/> structure</returns>
+        public static ResourceIdentifier Create(string subscriptionId, string resourceGroupName)
+        {
+            return new ResourceIdentifier(ResourceType.ResourceGroup, subscriptionId, resourceGroupName, string.Empty);
+        }
+
+        /// <summary>
+        /// Creates a new instance of the <see cref="ResourceIdentifier"/> structure,
+        /// representing a specific Azure resource.
+        /// This method should not be used to created a <see cref="ResourceIdentifier"/>
+        /// structure of type <see cref="SmartSignals.ResourceType.Subscription"/> or of type
+        /// <see cref="SmartSignals.ResourceType.ResourceGroup"/> - use the other specialized
+        /// ResourceIdentifier.Create methods to create strictures of these resource types.
+        /// </summary>
+        /// <param name="resourceType">The resource's type.</param>
+        /// <param name="subscriptionId">The ID of the subscription the resource belongs to.</param>
+        /// <param name="resourceGroupName">The name of the resource group the resource belongs to.</param>
+        /// <param name="resourceName">The name of the resource.</param>
+        /// <exception cref="ArgumentNullException">
+        /// Either <paramref name="subscriptionId"/>, <paramref name="resourceGroupName"/>,
+        /// or <paramref name="resourceName"/> are empty.
+        /// </exception>
+        /// <exception cref="ArgumentOutOfRangeException">
+        /// <paramref name="resourceType"/> is either <see cref="SmartSignals.ResourceType.Subscription"/>
+        /// or <see cref="SmartSignals.ResourceType.ResourceGroup"/>.
+        /// </exception> 
+        /// <returns>A new instance of the <see cref="ResourceIdentifier"/> structure</returns>
+        public static ResourceIdentifier Create(ResourceType resourceType, string subscriptionId, string resourceGroupName, string resourceName)
+        {
+            if (resourceType == ResourceType.Subscription || resourceType == ResourceType.ResourceGroup)
+            {
+                throw new ArgumentOutOfRangeException(nameof(resourceType), "The resource type cannot be Subscription or ResourceGroup");
+            }
+
+            return new ResourceIdentifier(resourceType, subscriptionId, resourceGroupName, resourceName);
+        }
 
         #region Overrides of ValueType
 
@@ -125,7 +205,7 @@
         /// </returns>
         public override bool Equals(object value)
         {
-            return value is ResourceIdentifier && this == (ResourceIdentifier)value;
+            return value is ResourceIdentifier identifier && this == identifier;
         }
 
         /// <summary>
@@ -141,7 +221,7 @@
                 hash = (31 * hash) + this.ResourceType.GetHashCode();
                 hash = (31 * hash) + this.SubscriptionId.GetHashCode();
                 hash = (31 * hash) + (this.ResourceGroupName?.GetHashCode() ?? 0);
-                hash = (31 * hash) + this.ResourceName.GetHashCode();
+                hash = (31 * hash) + (this.ResourceName?.GetHashCode() ?? 0);
                 return hash;
             }
         }

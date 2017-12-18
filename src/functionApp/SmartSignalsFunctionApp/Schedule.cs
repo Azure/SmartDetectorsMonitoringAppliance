@@ -8,7 +8,6 @@
     using Microsoft.Azure.Monitoring.SmartSignals.Shared;
     using Microsoft.Azure.Monitoring.SmartSignals.Shared.AzureStorage;
     using Microsoft.Azure.Monitoring.SmartSignals.Shared.SignalConfiguration;
-    using Microsoft.Azure.Monitoring.SmartSignals.Shared.Trace;
     using Microsoft.Azure.WebJobs;
     using Microsoft.Azure.WebJobs.Host;
     using Microsoft.SmartSignals.Scheduler;
@@ -43,7 +42,8 @@
                 .RegisterType<ISmartSignalConfigurationStore, SmartSignalConfigurationStore>()
                 .RegisterType<ISignalRunsTracker, SignalRunsTracker>()
                 .RegisterType<IAnalysisExecuter, AnalysisExecuter>()
-                .RegisterType<IDetectionPublisher, DetectionPublisher>();
+                .RegisterType<IDetectionPublisher, DetectionPublisher>()
+                .RegisterType<IAzureResourceManagerClient, AzureResourceManagerClient>();
         }
 
         /// <summary>

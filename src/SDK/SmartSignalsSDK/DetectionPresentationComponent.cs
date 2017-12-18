@@ -16,6 +16,6 @@
         /// <summary>
         /// Indicates a property belonging to the summary component.
         /// </summary>
-        Summary = 2,
+        Summary = 2
     }
 }

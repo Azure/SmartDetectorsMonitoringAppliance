@@ -8,11 +8,23 @@
     using Microsoft.Azure.Monitoring.SmartSignals.Analysis.DetectionPresentation;
     using Microsoft.Azure.Monitoring.SmartSignals.Shared;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using Moq;
 
     [TestClass]
     public class SmartSignalDetectionPresentationTests
     {
         private const string SignalName = "signalName";
+
+        private Mock<IAzureResourceManagerClient> azureResourceManagerClientMock;
+
+        [TestInitialize]
+        public void TestInitialize()
+        {
+            this.azureResourceManagerClientMock = new Mock<IAzureResourceManagerClient>();
+            this.azureResourceManagerClientMock
+                .Setup(x => x.GetResourceId(It.IsAny<ResourceIdentifier>()))
+                .Returns((ResourceIdentifier resourceIdentifier) => resourceIdentifier.ResourceName);
+        }
 
         [TestMethod]
         public void WhenProcessingDetectionThenThePresentationIsCreatedCorrectly()
@@ -21,7 +33,7 @@
             string resourceId = "resourceId";
             var request = new SmartSignalRequest(new List<string>() { resourceId }, "signalId", dataEndTime.AddDays(-1), dataEndTime, new SmartSignalSettings());
             var detection = new TestDetection();
-            var presentation = SmartSignalDetectionPresentation.CreateFromDetection(request, SignalName, detection);
+            var presentation = SmartSignalDetectionPresentation.CreateFromDetection(request, SignalName, detection, this.azureResourceManagerClientMock.Object);
             Assert.AreEqual(dataEndTime, presentation.AnalysisTimestamp, "Unexpected data end time");
             Assert.AreEqual(24 * 60, presentation.AnalysisWindowSizeInMinutes, "Unexpected analysis window size");
             Assert.AreEqual(SignalName, presentation.SignalName, "Unexpected signal name");
@@ -99,7 +111,7 @@
             DateTime dataEndTime = DateTime.Now.Date;
             string resourceId = "resourceId";
             var request = new SmartSignalRequest(new List<string>() { resourceId }, "signalId", dataEndTime.AddDays(-1), dataEndTime, new SmartSignalSettings());
-            return SmartSignalDetectionPresentation.CreateFromDetection(request, SignalName, detection);
+            return SmartSignalDetectionPresentation.CreateFromDetection(request, SignalName, detection, this.azureResourceManagerClientMock.Object);
         }
 
         private void VerifyProperty(List<SmartSignalDetectionPresentationProperty> properties, string name, DetectionPresentationSection displayCategory, string value, string infoBalloon)

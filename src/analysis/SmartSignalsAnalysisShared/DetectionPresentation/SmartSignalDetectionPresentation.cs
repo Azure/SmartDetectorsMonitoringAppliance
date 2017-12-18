@@ -116,8 +116,9 @@
         /// <param name="request">The smart signal request</param>
         /// <param name="signalName">The signal name</param>
         /// <param name="smartSignalDetection">The detection</param>
+        /// <param name="azureResourceManagerClient">The azure resource manager client</param>
         /// <returns>The presentation</returns>
-        public static SmartSignalDetectionPresentation CreateFromDetection(SmartSignalRequest request, string signalName, SmartSignalDetection smartSignalDetection)
+        public static SmartSignalDetectionPresentation CreateFromDetection(SmartSignalRequest request, string signalName, SmartSignalDetection smartSignalDetection, IAzureResourceManagerClient azureResourceManagerClient)
         {
             // A null detection has null presentation
             if (smartSignalDetection == null)
@@ -199,7 +200,7 @@
             }
 
             string id = string.Join("##", smartSignalDetection.GetType().FullName, JsonConvert.SerializeObject(request), JsonConvert.SerializeObject(smartSignalDetection)).Hash();
-            string resourceId = string.Empty; // TODO: add resource ID to every detection
+            string resourceId = azureResourceManagerClient.GetResourceId(smartSignalDetection.ResourceIdentifier);
             string correlationHash = string.Join("##", predicates.OrderBy(x => x.Key).Select(x => x.Key + "|" + x.Value)).Hash();
 
             // Return the presentation object

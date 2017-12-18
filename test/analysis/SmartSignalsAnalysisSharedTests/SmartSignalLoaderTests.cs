@@ -42,8 +42,8 @@
 
             this.metadatas = new Dictionary<string, SmartSignalMetadata>()
             {
-                ["1"] = new SmartSignalMetadata("1", "Test signal", "Test signal description", "1.0", "TestSignalLibrary", "TestSignalLibrary.TestSignal"),
-                ["2"] = new SmartSignalMetadata("2", "Test signal with dependency", "Test signal with dependency description", "1.0", "TestSignalLibrary", "TestSignalLibrary.TestSignalWithDependency"),
+                ["1"] = new SmartSignalMetadata("1", "Test signal", "Test signal description", "1.0", "TestSignalLibrary", "TestSignalLibrary.TestSignal", new List<ResourceType>() { ResourceType.Subscription }),
+                ["2"] = new SmartSignalMetadata("2", "Test signal with dependency", "Test signal with dependency description", "1.0", "TestSignalLibrary", "TestSignalLibrary.TestSignalWithDependency", new List<ResourceType>() { ResourceType.Subscription })
             };
 
             this.assemblies = new Dictionary<string, Dictionary<string, byte[]>>
@@ -132,7 +132,7 @@
         private async Task TestLoadSignalSimple(Type signalType, string expectedTitle = "test test test")
         {
             ISmartSignalLoader loader = new SmartSignalLoader(this.smartSignalsRepositoryMock.Object, this.tracerMock.Object);
-            SmartSignalMetadata metadata = new SmartSignalMetadata("3", "simple", "description", "1.0", signalType.Assembly.GetName().Name, signalType.FullName);
+            SmartSignalMetadata metadata = new SmartSignalMetadata("3", "simple", "description", "1.0", signalType.Assembly.GetName().Name, signalType.FullName, new List<ResourceType>() { ResourceType.Subscription });
             ISmartSignal signal = await loader.LoadSignalAsync(metadata);
             Assert.IsNotNull(signal, "Signal is NULL");
 
