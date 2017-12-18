@@ -7,7 +7,7 @@
 
     /// <summary>
     /// An class that implements the <see cref="IHttpClientWrapper"/> interface.
-    /// We are wrapping the HttpClient class in order to make it mockable and testable.
+    /// We are wrapping the HttpClient class in order to make it testable.
     /// </summary>
     public class HttpClientWrapper : IHttpClientWrapper
     {
