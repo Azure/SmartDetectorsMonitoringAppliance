@@ -4,8 +4,8 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
-    using Extensions;
     using Microsoft.Azure.Monitoring.SmartSignals.Shared.Exceptions;
+    using Microsoft.Azure.Monitoring.SmartSignals.Shared.Extensions;
     using Newtonsoft.Json;
     using SmartFormat;
 

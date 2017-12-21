@@ -9,6 +9,15 @@
     public class SmartSignalsRepository : ISmartSignalsRepository
     {
         /// <summary>
+        /// Reads all the smart signals metadata from the repository
+        /// </summary>
+        /// <returns>A <see cref="Task{TResult}"/> returning the smart signals metadata</returns>
+        public Task<IList<SmartSignalMetadata>> ReadAllSignalsMetadataAsync()
+        {
+            throw new System.NotImplementedException();
+        }
+
+        /// <summary>
         /// Reads a smart signal's metadata from the repository
         /// </summary>
         /// <param name="signalId">The signal ID</param>

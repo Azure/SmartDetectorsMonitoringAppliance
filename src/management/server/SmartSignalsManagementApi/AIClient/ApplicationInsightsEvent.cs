@@ -8,7 +8,7 @@
     /// This class represents the Application Insights event data model.
     /// As we don't need all the fields, we only put the required ones.
     /// </summary>
-    internal class ApplicationInsightsEvent
+    public class ApplicationInsightsEvent
     {
         /// <summary>
         /// Gets or sets the event id.

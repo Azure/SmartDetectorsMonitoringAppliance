@@ -1,4 +1,4 @@
-﻿namespace Microsoft.SmartSignals.FunctionApp
+﻿namespace Microsoft.Azure.Monitoring.SmartSignals.FunctionApp
 {
     using System;
     using System.Collections.Generic;
@@ -6,15 +6,15 @@
     using System.Net.Http;
     using System.Threading;
     using System.Threading.Tasks;
-    using Microsoft.Azure.Monitoring.SmartSignals;
-    using Microsoft.Azure.Monitoring.SmartSignals.Analysis;
-    using Microsoft.Azure.Monitoring.SmartSignals.Shared;
-    using Microsoft.Azure.Monitoring.SmartSignals.Shared.DetectionPresentation;
-    using Microsoft.Azure.WebJobs;
-    using Microsoft.Azure.WebJobs.Extensions.Http;
-    using Microsoft.Azure.WebJobs.Host;
+    using Analysis;
+    using Shared;
+    using Shared.DetectionPresentation;
+    using SmartSignals;
     using Unity;
-    using ExecutionContext = Microsoft.Azure.WebJobs.ExecutionContext;
+    using WebJobs;
+    using WebJobs.Extensions.Http;
+    using WebJobs.Host;
+    using ExecutionContext = WebJobs.ExecutionContext;
 
     /// <summary>
     /// A class implementing the analysis endpoint

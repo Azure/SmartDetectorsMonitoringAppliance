@@ -41,7 +41,7 @@
                               });
                 
             // Get data using AI client
-            var customEvents = await this.applicationInsightsClient.GetCustomEventsAsync(CancellationToken.None);
+            var customEvents = await this.applicationInsightsClient.GetCustomEventsAsync();
 
             // Verify we got the required amount of events
             Assert.AreEqual(10, customEvents.Count());
@@ -51,7 +51,7 @@
         }
 
         [TestMethod]
-        public async Task WhenQueryApplicationInsightForCustomEventsWithStartTime()
+        public async Task WhenQueryApplicationInsightForCustomEventsWithStartTimeThenCorrectRequestRaised()
         {
             HttpRequestMessage requestMessage = null;
             DateTime queryStartTime = DateTime.UtcNow.AddDays(-1);
@@ -65,7 +65,7 @@
                 });
 
             // Get data using AI client
-            var customEvents = await this.applicationInsightsClient.GetCustomEventsAsync(CancellationToken.None, queryStartTime);
+            var customEvents = await this.applicationInsightsClient.GetCustomEventsAsync(queryStartTime);
 
             // Verify we got the required amount of events
             Assert.AreEqual(10, customEvents.Count());
@@ -77,7 +77,7 @@
         }
 
         [TestMethod]
-        public async Task WhenQueryApplicationInsightForCustomEventsWithStartTimeAndEndTime()
+        public async Task WhenQueryApplicationInsightForCustomEventsWithStartTimeAndEndTimeThenCorrectRequestRaised()
         {
             HttpRequestMessage requestMessage = null;
             DateTime queryStartTime = DateTime.UtcNow.AddDays(-1);
@@ -92,7 +92,7 @@
                 });
 
             // Get data using AI client
-            var customEvents = await this.applicationInsightsClient.GetCustomEventsAsync(CancellationToken.None, queryStartTime, queryEndTime);
+            var customEvents = await this.applicationInsightsClient.GetCustomEventsAsync(queryStartTime, queryEndTime);
 
             // Verify we got the required amount of events
             Assert.AreEqual(10, customEvents.Count());
@@ -104,7 +104,7 @@
         }
 
         [TestMethod]
-        public async Task WhenQueryApplicationInsightForCustomEventsWithStartTimeAndEndTimeButEndTimeIsBeforeStartTime()
+        public async Task WhenQueryApplicationInsightForCustomEventsWithStartTimeAndEndTimeButEndTimeIsBeforeStartTimeThenExceptionThrown()
         {
             DateTime queryStartTime = DateTime.UtcNow;
             DateTime queryEndTime = DateTime.UtcNow.AddDays(-1);
@@ -119,7 +119,7 @@
             try
             {
                 // Get data using AI client
-                await this.applicationInsightsClient.GetCustomEventsAsync(CancellationToken.None, queryStartTime, queryEndTime);
+                await this.applicationInsightsClient.GetCustomEventsAsync(queryStartTime, queryEndTime);
             }
             catch (ArgumentOutOfRangeException)
             {
@@ -130,7 +130,7 @@
         }
 
         [TestMethod]
-        public async Task WhenQueryApplicationInsightForCustomEventsButEndpointReturnsCorruptedResults()
+        public async Task WhenQueryApplicationInsightForCustomEventsButEndpointReturnsCorruptedResultsThenExceptionThrown()
         {
             // Configure mock to return the successful response
             this.httpClientMock.Setup(h => h.SendAsync(It.IsAny<HttpRequestMessage>(), It.IsAny<CancellationToken>()))
@@ -142,7 +142,7 @@
             try
             {
                 // Get data using AI client
-                await this.applicationInsightsClient.GetCustomEventsAsync(CancellationToken.None);
+                await this.applicationInsightsClient.GetCustomEventsAsync();
             }
             catch (ApplicationInsightsClientException)
             {
@@ -153,7 +153,7 @@
         }
 
         [TestMethod]
-        public async Task WhenQueryApplicationInsightForCustomEventsButEndpointReturnsNotSuccessStatusCode()
+        public async Task WhenQueryApplicationInsightForCustomEventsButEndpointReturnsNotSuccessStatusCodeThenExceptionThrownWithResponseContent()
         {
             // Configure mock to return the successful response
             this.httpClientMock.Setup(h => h.SendAsync(It.IsAny<HttpRequestMessage>(), It.IsAny<CancellationToken>()))
@@ -165,7 +165,7 @@
             try
             {
                 // Get data using AI client
-                await this.applicationInsightsClient.GetCustomEventsAsync(CancellationToken.None);
+                await this.applicationInsightsClient.GetCustomEventsAsync();
             }
             catch (ApplicationInsightsClientException e)
             {
@@ -178,7 +178,7 @@
         }
 
         [TestMethod]
-        public async Task WhenQueryApplicationInsightForCustomEventsButHttpClientThrowsException()
+        public async Task WhenQueryApplicationInsightForCustomEventsButHttpClientThrowsExceptionTheWrappedExceptionThrown()
         {
             // Configure mock to return the successful response
             this.httpClientMock.Setup(h => h.SendAsync(It.IsAny<HttpRequestMessage>(), It.IsAny<CancellationToken>()))
@@ -187,7 +187,7 @@
             try
             {
                 // Get data using AI client
-                await this.applicationInsightsClient.GetCustomEventsAsync(CancellationToken.None);
+                await this.applicationInsightsClient.GetCustomEventsAsync();
             }
             catch (ApplicationInsightsClientException)
             {

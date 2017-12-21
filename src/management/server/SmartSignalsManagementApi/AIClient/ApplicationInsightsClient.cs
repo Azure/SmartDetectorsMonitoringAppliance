@@ -14,7 +14,7 @@
     /// <summary>
     /// This class is responsible for querying Application Insights via Rest API
     /// </summary>
-    internal class ApplicationInsightsClient : IApplicationInsightsClient
+    public class ApplicationInsightsClient : IApplicationInsightsClient
     {
         private readonly IHttpClientWrapper httpClient;
         private readonly string applicationId;
@@ -35,7 +35,7 @@
         /// We are using this constructor for UTs.
         /// </summary>
         /// <param name="applicationId">The AI application id.</param>
-        /// <param name="httpClient">The http client.</param>
+        /// <param name="httpClient">The HTTP client.</param>
         internal ApplicationInsightsClient(string applicationId, IHttpClientWrapper httpClient)
         {
             this.applicationId = applicationId;
@@ -45,11 +45,14 @@
         /// <summary>
         /// Gets all the custom events from Application Insights for the configured application by the given filtering.
         /// </summary>
-        /// <param name="cancellationToken">The cancellation token.</param>
         /// <param name="startTime">(optional) filtering by start time.</param>
         /// <param name="endTime">(optional) filtering by end time.</param>
+        /// <param name="cancellationToken">(optional) The cancellation token.</param>
         /// <returns>The Application Insights events.</returns>
-        public async Task<IEnumerable<ApplicationInsightsEvent>> GetCustomEventsAsync(CancellationToken cancellationToken, DateTime? startTime = null, DateTime? endTime = null)
+        public async Task<IEnumerable<ApplicationInsightsEvent>> GetCustomEventsAsync(
+                                                                 DateTime? startTime = null,
+                                                                 DateTime? endTime = null,
+                                                                 CancellationToken cancellationToken = default(CancellationToken))
         {
             Diagnostics.EnsureArgument(startTime.HasValue && endTime.HasValue ? startTime <= endTime : true, () => startTime, "End time must be after start time");
 
@@ -71,7 +74,7 @@
                     appInsightsRelativeUrl += $"?$filter=timestamp le {endTime}";
                 }
 
-                // TODO - generate a token for talkign with AI
+                // TODO - generate a token for talking with AI
                 // Send the AI Rest API request
                 using (var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, new Uri(this.applicationInsightUri, appInsightsRelativeUrl)))
                 {

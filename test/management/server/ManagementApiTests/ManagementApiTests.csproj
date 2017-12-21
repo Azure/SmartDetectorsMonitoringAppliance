@@ -56,23 +56,17 @@
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Net.Http.Formatting, Version=5.2.3.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\..\..\..\packages\Microsoft.AspNet.WebApi.Client.5.2.3\lib\net45\System.Net.Http.Formatting.dll</HintPath>
-    </Reference>
+    <Reference Include="System.Net.Http" />
     <Reference Include="System.Web" />
-    <Reference Include="System.Web.Http, Version=5.2.3.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\..\..\..\packages\Microsoft.AspNet.WebApi.Core.5.2.3\lib\net45\System.Web.Http.dll</HintPath>
-    </Reference>
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
-    <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AIClient\ApplicationInsightsClientTests.cs" />
-    <Compile Include="Controllers\SignalsControllerTests.cs" />
+    <Compile Include="EndpointsLogic\SignalsLogicTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -81,9 +75,9 @@
     <None Include="StyleCop.Cache" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\src\management\server\ManagementApi\ManagementApi.csproj">
-      <Project>{c9c28ced-d681-4d2b-a65b-ea6f779cba93}</Project>
-      <Name>ManagementApi</Name>
+    <ProjectReference Include="..\..\..\..\src\management\server\SmartSignalsManagementApi\SmartSignalsManagementApi.csproj">
+      <Project>{60c06658-1910-410d-bd34-5058f1e09422}</Project>
+      <Name>SmartSignalsManagementApi</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\..\src\SDK\SmartSignalsSDK\SmartSignalsSDK.csproj">
       <Project>{8c942f8e-1741-4d63-87cb-d79c0f0ec02c}</Project>

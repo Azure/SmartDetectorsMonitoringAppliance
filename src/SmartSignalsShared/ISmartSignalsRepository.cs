@@ -9,6 +9,12 @@
     public interface ISmartSignalsRepository
     {
         /// <summary>
+        /// Reads all the smart signals metadata from the repository
+        /// </summary>
+        /// <returns>A <see cref="Task{TResult}"/> returning the smart signals metadata</returns>
+        Task<IList<SmartSignalMetadata>> ReadAllSignalsMetadataAsync();
+
+        /// <summary>
         /// Reads a smart signal's metadata from the repository
         /// </summary>
         /// <param name="signalId">The signal ID</param>
