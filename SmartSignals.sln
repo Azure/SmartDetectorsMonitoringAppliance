@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.27004.2010
+VisualStudioVersion = 15.0.27004.2002
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{114AB921-11E0-472F-B30D-73850169098D}"
 EndProject
@@ -73,6 +73,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SmartSignalsFunctionApp", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmartSignalsRuntimeAppEmulator", "src\SDK\SmartSignalsRuntimeAppEmulator\SmartSignalsRuntimeAppEmulator.csproj", "{3617AC50-C6F9-4333-9611-E96DD82E02AA}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "sampleSignal", "sampleSignal", "{B99970A9-C8C6-43D9-BA6E-B724148165F4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SampleSignal", "SampleSignal\SampleSignal.csproj", "{521A2CF8-0977-402C-B36E-A70724B0DE94}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -139,6 +143,10 @@ Global
 		{3617AC50-C6F9-4333-9611-E96DD82E02AA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3617AC50-C6F9-4333-9611-E96DD82E02AA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3617AC50-C6F9-4333-9611-E96DD82E02AA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{521A2CF8-0977-402C-B36E-A70724B0DE94}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{521A2CF8-0977-402C-B36E-A70724B0DE94}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{521A2CF8-0977-402C-B36E-A70724B0DE94}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{521A2CF8-0977-402C-B36E-A70724B0DE94}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -173,6 +181,8 @@ Global
 		{EA87A229-121E-4508-8F59-B7392128F5E4} = {114AB921-11E0-472F-B30D-73850169098D}
 		{E9C1D127-3B82-417B-AF8E-B24AADAE8391} = {EA87A229-121E-4508-8F59-B7392128F5E4}
 		{3617AC50-C6F9-4333-9611-E96DD82E02AA} = {8EB82F44-C8BC-49D7-8E86-285C7C846211}
+		{B99970A9-C8C6-43D9-BA6E-B724148165F4} = {114AB921-11E0-472F-B30D-73850169098D}
+		{521A2CF8-0977-402C-B36E-A70724B0DE94} = {B99970A9-C8C6-43D9-BA6E-B724148165F4}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {07D047F4-DA5D-48AA-82EA-55DA2452F3C3}
