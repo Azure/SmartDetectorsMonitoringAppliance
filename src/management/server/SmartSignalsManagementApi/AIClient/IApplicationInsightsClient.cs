@@ -18,8 +18,8 @@
         /// <param name="cancellationToken">(optional) The cancellation token.</param>
         /// <returns>The Application Insights events.</returns>
         Task<IEnumerable<ApplicationInsightsEvent>> GetCustomEventsAsync(
-                                                    DateTime? startTime = null,
-                                                    DateTime? endTime = null,
-                                                    CancellationToken cancellationToken = default(CancellationToken));
+            DateTime? startTime = null,
+            DateTime? endTime = null,
+            CancellationToken cancellationToken = default(CancellationToken));
     }
 }

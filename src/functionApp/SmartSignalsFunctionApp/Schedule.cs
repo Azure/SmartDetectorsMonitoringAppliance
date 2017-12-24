@@ -16,10 +16,6 @@
     using Microsoft.WindowsAzure.Storage;
     using Microsoft.WindowsAzure.Storage.Table;
     using Unity;
-    using WebJobs;
-    using WebJobs.Host;
-    using WindowsAzure.Storage;
-    using WindowsAzure.Storage.Table;
 
     /// <summary>
     /// A class responsible for scheduling the signals execution

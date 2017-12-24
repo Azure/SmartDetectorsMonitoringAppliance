@@ -50,9 +50,9 @@
         /// <param name="cancellationToken">(optional) The cancellation token.</param>
         /// <returns>The Application Insights events.</returns>
         public async Task<IEnumerable<ApplicationInsightsEvent>> GetCustomEventsAsync(
-                                                                 DateTime? startTime = null,
-                                                                 DateTime? endTime = null,
-                                                                 CancellationToken cancellationToken = default(CancellationToken))
+            DateTime? startTime = null,
+            DateTime? endTime = null,
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             Diagnostics.EnsureArgument(startTime.HasValue && endTime.HasValue ? startTime <= endTime : true, () => startTime, "End time must be after start time");
 

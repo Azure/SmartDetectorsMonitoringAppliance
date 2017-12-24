@@ -1,98 +1,55 @@
 ﻿namespace ManagementApiTests.EndpointsLogic
 {
     using System;
-    using System.Collections.Generic;
-    using System.Linq;
     using System.Net;
     using System.Threading.Tasks;
     using Microsoft.Azure.Monitoring.SmartSignals;
     using Microsoft.Azure.Monitoring.SmartSignals.ManagementApi;
     using Microsoft.Azure.Monitoring.SmartSignals.ManagementApi.EndpointsLogic;
-    using Microsoft.Azure.Monitoring.SmartSignals.ManagementApi.Responses;
     using Microsoft.Azure.Monitoring.SmartSignals.Shared;
+    using Microsoft.Azure.Monitoring.SmartSignals.Shared.AlertRules;
     using Microsoft.Azure.Monitoring.SmartSignals.Shared.Exceptions;
     using Microsoft.Azure.Monitoring.SmartSignals.Shared.Models;
-    using Microsoft.Azure.Monitoring.SmartSignals.Shared.SignalConfiguration;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Moq;
 
     [TestClass]
-    public class SignalsControllerTests
+    public class AlertRuleApiTests
     {
-        private Mock<ISmartSignalConfigurationStore> smartSignalConfigurationStoreMock;
-        private Mock<ISmartSignalsRepository> smartSignalsRepository;
+        private Mock<IAlertRuleStore> alertRuleStoreMock;
 
-        private ISignalsLogic signalsLogic;
+        private IAlertRuleApi alertRuleApi;
 
         [TestInitialize]
         public void Initialize()
         {
-            this.smartSignalConfigurationStoreMock = new Mock<ISmartSignalConfigurationStore>();
-            this.smartSignalsRepository = new Mock<ISmartSignalsRepository>();
-            this.signalsLogic = new SignalsLogic(this.smartSignalsRepository.Object, this.smartSignalConfigurationStoreMock.Object);
+            this.alertRuleStoreMock = new Mock<IAlertRuleStore>();
+            this.alertRuleApi = new AlertRuleApi(this.alertRuleStoreMock.Object);
         }
 
-        #region Getting Signals Tests
-
-        [TestMethod]
-        public async Task WhenGettingAllSignalsHappyFlow()
-        {
-            this.smartSignalsRepository.Setup(repository => repository.ReadAllSignalsMetadataAsync())
-                                       .ReturnsAsync(() => new List<SmartSignalMetadata>()
-                {
-                    new SmartSignalMetadata("someId", "someName", "someDescription", "someVersion", "someAssemblyName", "someClassName")
-                });
-
-            ListSmartSignalsResponse response = await this.signalsLogic.GetAllSmartSignalsAsync();
-
-            Assert.AreEqual(1, response.Signals.Count);
-            Assert.AreEqual("someId", response.Signals.First().Id);
-            Assert.AreEqual("someName", response.Signals.First().Name);
-        }
-
-        [TestMethod]
-        public async Task WhenGettingAllSignalsButSignalsRepositoryThrowsExceptionThenThrowsWrappedException()
-        {
-            this.smartSignalsRepository.Setup(repository => repository.ReadAllSignalsMetadataAsync())
-                                       .ThrowsAsync(new SmartSignalConfigurationStoreException("some message", new Exception()));
-
-            try
-            {
-                await this.signalsLogic.GetAllSmartSignalsAsync();
-            }
-            catch (SmartSignalsManagementApiException)
-            {
-                return;
-            }
-
-            Assert.Fail("Exception from the signals store should cause to management API exception");
-        }
-
-        #endregion
-
-        #region Adding New Signal Version Tests
+        #region Adding New Alert Rule Tests
 
         [TestMethod]
         public async Task WhenAddingSignalHappyFlow()
         {
-            var addSignalModel = new AddSignalVersion()
+            var addSignalModel = new AddAlertRule()
             {
                 SignalId = Guid.NewGuid().ToString(),
                 ResourceType = ResourceType.ResourceGroup,
                 Schedule = "0 0 */1 * *"
             };
 
-            this.smartSignalConfigurationStoreMock.Setup(s => s.AddOrReplaceSmartSignalConfigurationAsync(It.IsAny<SmartSignalConfiguration>()))
+            this.alertRuleStoreMock.Setup(s => s.AddOrReplaceAlertRuleAsync(It.IsAny<AlertRule>()))
                                                   .Returns(Task.CompletedTask);
-            
+
             // This shouldn't throw any exception
-            await this.signalsLogic.AddSignalVersionAsync(addSignalModel);
+            await this.alertRuleApi.AddAlertRuleAsync(addSignalModel);
         }
 
         [TestMethod]
         public async Task WhenAddingSignalButModelIsInvalidBecauseSignalIdIsEmptyThenThrowException()
         {
-            var addSignalModel = new AddSignalVersion()
+            var addSignalModel = new AddAlertRule()
             {
                 SignalId = string.Empty,
                 ResourceType = ResourceType.ResourceGroup,
@@ -101,7 +58,7 @@
 
             try
             {
-                await this.signalsLogic.AddSignalVersionAsync(addSignalModel);
+                await this.alertRuleApi.AddAlertRuleAsync(addSignalModel);
             }
             catch (SmartSignalsManagementApiException e)
             {
@@ -115,7 +72,7 @@
         [TestMethod]
         public async Task WhenAddingSignalButModelIsInvalidBecauseScheduleValueIsEmptyThenThrowException()
         {
-            var addSignalModel = new AddSignalVersion()
+            var addSignalModel = new AddAlertRule()
             {
                 SignalId = Guid.NewGuid().ToString(),
                 ResourceType = ResourceType.ResourceGroup,
@@ -124,7 +81,7 @@
 
             try
             {
-                await this.signalsLogic.AddSignalVersionAsync(addSignalModel);
+                await this.alertRuleApi.AddAlertRuleAsync(addSignalModel);
             }
             catch (SmartSignalsManagementApiException e)
             {
@@ -138,7 +95,7 @@
         [TestMethod]
         public async Task WhenAddingSignalButScheduleValueIsInvalidCronValueThenThrowException()
         {
-            var addSignalModel = new AddSignalVersion()
+            var addSignalModel = new AddAlertRule()
             {
                 SignalId = Guid.NewGuid().ToString(),
                 ResourceType = ResourceType.ResourceGroup,
@@ -147,7 +104,7 @@
 
             try
             {
-                await this.signalsLogic.AddSignalVersionAsync(addSignalModel);
+                await this.alertRuleApi.AddAlertRuleAsync(addSignalModel);
             }
             catch (SmartSignalsManagementApiException e)
             {
@@ -161,19 +118,19 @@
         [TestMethod]
         public async Task WhenAddingSignalButStoreThrowsExceptionThenThrowTheWrappedException()
         {
-            var addSignalModel = new AddSignalVersion()
+            var addSignalModel = new AddAlertRule()
             {
                 SignalId = Guid.NewGuid().ToString(),
                 ResourceType = ResourceType.ResourceGroup,
                 Schedule = "0 0 */1 * *"
             };
 
-            this.smartSignalConfigurationStoreMock.Setup(s => s.AddOrReplaceSmartSignalConfigurationAsync(It.IsAny<SmartSignalConfiguration>()))
-                                                  .ThrowsAsync(new SmartSignalConfigurationStoreException(string.Empty, new Exception()));
+            this.alertRuleStoreMock.Setup(s => s.AddOrReplaceAlertRuleAsync(It.IsAny<AlertRule>()))
+                                                  .ThrowsAsync(new AlertRuleStoreException(string.Empty, new Exception()));
 
             try
             {
-                await this.signalsLogic.AddSignalVersionAsync(addSignalModel);
+                await this.alertRuleApi.AddAlertRuleAsync(addSignalModel);
             }
             catch (SmartSignalsManagementApiException e)
             {

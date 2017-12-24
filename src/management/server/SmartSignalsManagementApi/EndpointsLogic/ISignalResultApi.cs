@@ -4,9 +4,9 @@
     using System.Threading.Tasks;
 
     /// <summary>
-    /// This interface represents the /detections API logic.
+    /// This class is the logic for the /signalResult endpoint.
     /// </summary>
-    public interface IDetectionsLogic
+    public interface ISignalResultApi
     {
         /// <summary>
         /// Gets all the detections.

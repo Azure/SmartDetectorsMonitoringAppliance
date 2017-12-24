@@ -8,16 +8,13 @@
     using System.Threading.Tasks;
     using Microsoft.Azure.Monitoring.SmartSignals;
     using Microsoft.Azure.Monitoring.SmartSignals.Analysis;
-    using Microsoft.Azure.Monitoring.SmartSignals.Analysis.DetectionPresentation;
     using Microsoft.Azure.Monitoring.SmartSignals.Shared;
+    using Microsoft.Azure.Monitoring.SmartSignals.Shared.DetectionPresentation;
     using Microsoft.Azure.WebJobs;
     using Microsoft.Azure.WebJobs.Extensions.Http;
     using Microsoft.Azure.WebJobs.Host;
     using Newtonsoft.Json;
     using Unity;
-    using WebJobs;
-    using WebJobs.Extensions.Http;
-    using WebJobs.Host;
     using ExecutionContext = WebJobs.ExecutionContext;
 
     /// <summary>

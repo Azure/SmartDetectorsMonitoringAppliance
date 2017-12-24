@@ -1,42 +1,53 @@
 namespace Microsoft.Azure.Monitoring.SmartSignals.FunctionApp
 {
     using System;
-    using System.Collections.Generic;
     using System.Net;
     using System.Net.Http;
     using System.Threading;
     using System.Threading.Tasks;
-    using Analysis;
-    using ManagementApi;
-    using ManagementApi.EndpointsLogic;
-    using ManagementApi.Responses;
-    using Shared;
-    using Shared.Models;
-    using Shared.SignalConfiguration;
+    using Microsoft.Azure.Monitoring.SmartSignals.Analysis;
+    using Microsoft.Azure.Monitoring.SmartSignals.ManagementApi;
+    using Microsoft.Azure.Monitoring.SmartSignals.ManagementApi.EndpointsLogic;
+    using Microsoft.Azure.Monitoring.SmartSignals.ManagementApi.Responses;
+    using Microsoft.Azure.Monitoring.SmartSignals.Shared.Models;
+    using Microsoft.Azure.WebJobs;
+    using Microsoft.Azure.WebJobs.Extensions.Http;
+    using Microsoft.Azure.WebJobs.Host;
     using Unity;
-    using WebJobs;
-    using WebJobs.Extensions.Http;
-    using WebJobs.Host;
 
     /// <summary>
-    /// This class is the entry point for the /signals endpoint.
+    /// This class is the entry point for the /detections endpoint.
     /// </summary>
-    public static class Signals
+    public static class Management
     {
         private static readonly IUnityContainer Container;
 
         /// <summary>
-        /// Initializes static members of the <see cref="Signals"/> class.
+        /// Initializes static members of the <see cref="Management"/> class.
         /// </summary>
-        static Signals()
+        static Management()
         {
             // To increase Azure calls performance we increase default connection limit (default is 2) and ThreadPool minimum threads to allow more open connections
             ServicePointManager.DefaultConnectionLimit = 100;
             ThreadPool.SetMinThreads(100, 100);
 
             Container = new UnityContainer()
-                .RegisterType<ISmartSignalConfigurationStore, SmartSignalConfigurationStore>()
-                .RegisterType<ISignalsLogic, SignalsLogic>();
+                .RegisterType<ISignalApi, SignalApi>()
+                .RegisterType<IAlertRuleApi, AlertRuleApi>();
+        }
+
+        /// <summary>
+        /// Gets all the detections.
+        /// </summary>
+        /// <param name="req">The incoming request.</param>
+        /// <param name="log">The logger.</param>
+        /// <returns>The detections.</returns>
+        [FunctionName("signalResult")]
+        public static async Task<HttpResponseMessage> GetAllDetections([HttpTrigger(AuthorizationLevel.Function, "get")]HttpRequestMessage req, TraceWriter log)
+        {
+            await Task.CompletedTask;
+
+            return req.CreateResponse();
         }
 
         /// <summary>
@@ -45,13 +56,13 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.FunctionApp
         /// <param name="req">The incoming request.</param>
         /// <param name="log">The logger.</param>
         /// <returns>The smart signals encoded as JSON.</returns>
-        [FunctionName("Signals/query")]
+        [FunctionName("signal")]
         public static async Task<HttpResponseMessage> GetAllSmartSignals([HttpTrigger(AuthorizationLevel.Function, "get")] HttpRequestMessage req, TraceWriter log)
         {
             using (IUnityContainer childContainer = Container.CreateChildContainer().WithTracer(log, true))
             {
                 ITracer tracer = childContainer.Resolve<ITracer>();
-                var signalsLogic = childContainer.Resolve<SignalsLogic>();
+                var signalsLogic = childContainer.Resolve<SignalApi>();
 
                 try
                 {
@@ -61,13 +72,13 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.FunctionApp
                 }
                 catch (SmartSignalsManagementApiException e)
                 {
-                    tracer.TraceError($"Failed to get smart signals due of managed exception: {e}");
+                    tracer.TraceError($"Failed to get smart signals due to managed exception: {e}");
 
                     return req.CreateErrorResponse(e.StatusCode, "Failed to get smart signals", e);
                 }
                 catch (Exception e)
                 {
-                    tracer.TraceError($"Failed to get smart signals due of un-managed exception: {e}");
+                    tracer.TraceError($"Failed to get smart signals due to un-managed exception: {e}");
 
                     return req.CreateErrorResponse(HttpStatusCode.InternalServerError, "Failed to get smart signals", e);
                 }
@@ -80,32 +91,32 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.FunctionApp
         /// <param name="req">The incoming request.</param>
         /// <param name="log">The logger.</param>
         /// <returns>200 if request was successful, 500 if not.</returns>
-        [FunctionName("v1/Signals")]
-        public static async Task<HttpResponseMessage> AddSignalVersion([HttpTrigger(AuthorizationLevel.Function, "put")] HttpRequestMessage req, TraceWriter log)
+        [FunctionName("signal")]
+        public static async Task<HttpResponseMessage> AddAlertRule([HttpTrigger(AuthorizationLevel.Function, "put")] HttpRequestMessage req, TraceWriter log)
         {
             using (IUnityContainer childContainer = Container.CreateChildContainer().WithTracer(log, true))
             {
                 ITracer tracer = childContainer.Resolve<ITracer>();
-                var signalsLogic = childContainer.Resolve<SignalsLogic>();
+                var alertRuleApi = childContainer.Resolve<AlertRuleApi>();
 
                 // Read given parameters from body
-                var addSignalVersion = await req.Content.ReadAsAsync<AddSignalVersion>();
+                var addAlertRule = await req.Content.ReadAsAsync<AddAlertRule>();
 
                 try
                 {
-                    await signalsLogic.AddSignalVersionAsync(addSignalVersion);
+                    await alertRuleApi.AddAlertRuleAsync(addAlertRule);
 
                     return req.CreateResponse(HttpStatusCode.OK);
                 }
                 catch (SmartSignalsManagementApiException e)
                 {
-                    tracer.TraceError($"Failed to add smart signal configuration due of managed exception: {e}");
+                    tracer.TraceError($"Failed to add smart signal configuration due to managed exception: {e}");
 
                     return req.CreateErrorResponse(e.StatusCode, "Failed to add the given smart signal configuration", e);
                 }
                 catch (Exception e)
                 {
-                    tracer.TraceError($"Failed to add smart signal configuration due of un-managed exception: {e}");
+                    tracer.TraceError($"Failed to add smart signal configuration due to un-managed exception: {e}");
 
                     return req.CreateErrorResponse(HttpStatusCode.InternalServerError, "Failed to get smart signals", e);
                 }

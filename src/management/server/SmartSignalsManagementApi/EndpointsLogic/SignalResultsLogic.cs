@@ -4,9 +4,9 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.ManagementApi.EndpointsLogic
     using System.Threading.Tasks;
 
     /// <summary>
-    /// This class is the logic for the /detections endpoint.
+    /// This class is the logic for the /signalResult endpoint.
     /// </summary>
-    public class DetectionsLogic : IDetectionsLogic
+    public class SignalResultApi : ISignalResultApi
     {
         /// <summary>
         /// Gets all the detections.

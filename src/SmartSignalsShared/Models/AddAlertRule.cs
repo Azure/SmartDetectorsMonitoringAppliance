@@ -1,9 +1,9 @@
 ﻿namespace Microsoft.Azure.Monitoring.SmartSignals.Shared.Models
 {
     /// <summary>
-    /// This class represents the model of the PUT signals request body.
+    /// This class represents the model of the PUT alert rule operation request body.
     /// </summary>
-    public class AddSignalVersion
+    public class AddAlertRule
     {
         /// <summary>
         /// Gets or sets the signal ID.
