@@ -1,4 +1,10 @@
-﻿namespace TestChildProcess
+﻿//-----------------------------------------------------------------------
+// <copyright file="TestChildProcessMain.cs" company="Microsoft Corporation">
+//        Copyright (c) Microsoft Corporation.  All rights reserved.
+// </copyright>
+//-----------------------------------------------------------------------
+
+namespace TestChildProcess
 {
     using System;
     using System.Threading;

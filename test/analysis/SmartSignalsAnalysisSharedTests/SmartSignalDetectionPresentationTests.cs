@@ -1,4 +1,10 @@
-﻿namespace SmartSignalsAnalysisSharedTests
+﻿//-----------------------------------------------------------------------
+// <copyright file="SmartSignalDetectionPresentationTests.cs" company="Microsoft Corporation">
+//        Copyright (c) Microsoft Corporation.  All rights reserved.
+// </copyright>
+//-----------------------------------------------------------------------
+
+namespace SmartSignalsAnalysisSharedTests
 {
     using System;
     using System.Collections.Generic;

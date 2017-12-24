@@ -1,4 +1,10 @@
-﻿namespace Microsoft.Azure.Monitoring.SmartSignals.Emulator
+﻿//-----------------------------------------------------------------------
+// <copyright file="ObservableObject.cs" company="Microsoft Corporation">
+//        Copyright (c) Microsoft Corporation.  All rights reserved.
+// </copyright>
+//-----------------------------------------------------------------------
+
+namespace Microsoft.Azure.Monitoring.SmartSignals.Emulator
 {
     using System.ComponentModel;
     using System.Runtime.CompilerServices;

@@ -1,4 +1,10 @@
-﻿namespace SmartSignalSharedTests
+﻿//-----------------------------------------------------------------------
+// <copyright file="AzureResourceManagerClientTests.cs" company="Microsoft Corporation">
+//        Copyright (c) Microsoft Corporation.  All rights reserved.
+// </copyright>
+//-----------------------------------------------------------------------
+
+namespace SmartSignalSharedTests
 {
     using Microsoft.Azure.Monitoring.SmartSignals;
     using Microsoft.Azure.Monitoring.SmartSignals.Shared;

@@ -1,4 +1,10 @@
-﻿namespace Microsoft.Azure.Monitoring.SmartSignals.Analysis
+﻿//-----------------------------------------------------------------------
+// <copyright file="ISmartSignalAnalysisServicesFactory.cs" company="Microsoft Corporation">
+//        Copyright (c) Microsoft Corporation.  All rights reserved.
+// </copyright>
+//-----------------------------------------------------------------------
+
+namespace Microsoft.Azure.Monitoring.SmartSignals.Analysis
 {
     using System.Collections.Generic;
     using System.Threading.Tasks;

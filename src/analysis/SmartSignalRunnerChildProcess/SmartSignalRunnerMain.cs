@@ -1,4 +1,10 @@
-﻿namespace SmartSignalRunnerChildProcess
+﻿//-----------------------------------------------------------------------
+// <copyright file="SmartSignalRunnerMain.cs" company="Microsoft Corporation">
+//        Copyright (c) Microsoft Corporation.  All rights reserved.
+// </copyright>
+//-----------------------------------------------------------------------
+
+namespace SmartSignalRunnerChildProcess
 {
     using System.Collections.Generic;
     using System.Threading;

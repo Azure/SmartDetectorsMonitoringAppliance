@@ -1,4 +1,10 @@
-﻿namespace Microsoft.Azure.Monitoring.SmartSignals.Emulator.Converters
+﻿//-----------------------------------------------------------------------
+// <copyright file="CountToVisibilityConverter.cs" company="Microsoft Corporation">
+//        Copyright (c) Microsoft Corporation.  All rights reserved.
+// </copyright>
+//-----------------------------------------------------------------------
+
+namespace Microsoft.Azure.Monitoring.SmartSignals.Emulator.Converters
 {
     using System;
     using System.Globalization;

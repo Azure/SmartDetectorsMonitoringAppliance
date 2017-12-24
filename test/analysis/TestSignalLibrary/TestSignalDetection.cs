@@ -1,4 +1,10 @@
-﻿namespace TestSignalLibrary
+﻿//-----------------------------------------------------------------------
+// <copyright file="TestSignalDetection.cs" company="Microsoft Corporation">
+//        Copyright (c) Microsoft Corporation.  All rights reserved.
+// </copyright>
+//-----------------------------------------------------------------------
+
+namespace TestSignalLibrary
 {
     using Microsoft.Azure.Monitoring.SmartSignals;
 

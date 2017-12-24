@@ -1,4 +1,10 @@
-﻿namespace Microsoft.Azure.Monitoring.SmartSignals
+﻿//-----------------------------------------------------------------------
+// <copyright file="ResourceType.cs" company="Microsoft Corporation">
+//        Copyright (c) Microsoft Corporation.  All rights reserved.
+// </copyright>
+//-----------------------------------------------------------------------
+
+namespace Microsoft.Azure.Monitoring.SmartSignals
 {
     /// <summary>
     /// An enumeration of all resource types supported by Smart Signals.

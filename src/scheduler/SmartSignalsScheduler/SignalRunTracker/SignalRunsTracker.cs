@@ -1,4 +1,10 @@
-﻿namespace Microsoft.Azure.Monitoring.SmartSignals.Scheduler.SignalRunTracker
+﻿//-----------------------------------------------------------------------
+// <copyright file="SignalRunsTracker.cs" company="Microsoft Corporation">
+//        Copyright (c) Microsoft Corporation.  All rights reserved.
+// </copyright>
+//-----------------------------------------------------------------------
+
+namespace Microsoft.Azure.Monitoring.SmartSignals.Scheduler.SignalRunTracker
 {
     using System;
     using System.Collections.Generic;

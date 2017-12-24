@@ -1,4 +1,10 @@
-﻿namespace Microsoft.Azure.Monitoring.SmartSignals.Shared.AlertRules
+﻿//-----------------------------------------------------------------------
+// <copyright file="AlertRuleEntity.cs" company="Microsoft Corporation">
+//        Copyright (c) Microsoft Corporation.  All rights reserved.
+// </copyright>
+//-----------------------------------------------------------------------
+
+namespace Microsoft.Azure.Monitoring.SmartSignals.Shared.AlertRules
 {
     using Microsoft.WindowsAzure.Storage.Table;
 

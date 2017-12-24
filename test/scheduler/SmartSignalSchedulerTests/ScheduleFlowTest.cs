@@ -1,4 +1,10 @@
-﻿namespace SmartSignalSchedulerTests
+﻿//-----------------------------------------------------------------------
+// <copyright file="ScheduleFlowTest.cs" company="Microsoft Corporation">
+//        Copyright (c) Microsoft Corporation.  All rights reserved.
+// </copyright>
+//-----------------------------------------------------------------------
+
+namespace SmartSignalSchedulerTests
 {
     using System;
     using System.Collections.Generic;

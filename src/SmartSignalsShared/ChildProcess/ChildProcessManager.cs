@@ -1,4 +1,10 @@
-﻿namespace Microsoft.Azure.Monitoring.SmartSignals.Shared.ChildProcess
+﻿//-----------------------------------------------------------------------
+// <copyright file="ChildProcessManager.cs" company="Microsoft Corporation">
+//        Copyright (c) Microsoft Corporation.  All rights reserved.
+// </copyright>
+//-----------------------------------------------------------------------
+
+namespace Microsoft.Azure.Monitoring.SmartSignals.Shared.ChildProcess
 {
     using System;
     using System.Collections.Generic;
