@@ -4,6 +4,7 @@
     using System.Collections;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.Azure.Monitoring.SmartSignals;
     using Microsoft.Azure.Monitoring.SmartSignals.Shared;
@@ -21,6 +22,7 @@
         private Mock<ISignalRunsTracker> signalRunTrackerMock;
         private Mock<IAnalysisExecuter> analysisExecuterMock;
         private Mock<IDetectionPublisher> detectionPublisherMock;
+        private Mock<IAzureResourceManagerClient> azureResourceManagerClientMock;
 
         private ScheduleFlow scheduleFlow;
 
@@ -32,8 +34,15 @@
             this.signalRunTrackerMock = new Mock<ISignalRunsTracker>();
             this.analysisExecuterMock = new Mock<IAnalysisExecuter>();
             this.detectionPublisherMock = new Mock<IDetectionPublisher>();
+            this.azureResourceManagerClientMock = new Mock<IAzureResourceManagerClient>();
 
-            this.scheduleFlow = new ScheduleFlow(tracerMock.Object, this.configurationStoreMock.Object, this.signalRunTrackerMock.Object, this.analysisExecuterMock.Object, this.detectionPublisherMock.Object);
+            this.scheduleFlow = new ScheduleFlow(
+                tracerMock.Object,
+                this.configurationStoreMock.Object,
+                this.signalRunTrackerMock.Object,
+                this.analysisExecuterMock.Object,
+                this.detectionPublisherMock.Object,
+                this.azureResourceManagerClientMock.Object);
         }
 
         [TestMethod]
@@ -56,9 +65,11 @@
 
             this.signalRunTrackerMock.Setup(m => m.GetSignalsToRunAsync(It.IsAny<IList<SmartSignalConfiguration>>())).ReturnsAsync(signalExecutions);
 
+            this.azureResourceManagerClientMock.Setup(m => m.GetAllSubscriptionIds(It.IsAny<CancellationToken>())).ReturnsAsync(new List<string> { "someSubscriptionId" });
+
             // first signal execution throws exception and the second one returns detections
             const string DetectionTitle = "someTitle";
-            this.analysisExecuterMock.SetupSequence(m => m.ExecuteSignalAsync(It.IsAny<SignalExecutionInfo>(), It.IsAny<IList<string>>()))
+            this.analysisExecuterMock.SetupSequence(m => m.ExecuteSignalAsync(It.IsAny<SignalExecutionInfo>(), It.Is<IList<string>>(lst => lst.First() == "someSubscriptionId")))
                 .Throws(new Exception())
                 .ReturnsAsync(new List<SmartSignalDetection> { new TestDetection(DetectionTitle) });
 
@@ -92,8 +103,10 @@
 
             this.signalRunTrackerMock.Setup(m => m.GetSignalsToRunAsync(It.IsAny<IList<SmartSignalConfiguration>>())).ReturnsAsync(signalExecutions);
 
+            this.azureResourceManagerClientMock.Setup(m => m.GetAllSubscriptionIds(It.IsAny<CancellationToken>())).ReturnsAsync(new List<string> { "someSubscriptionId" });
+
             // each signal execution returns detections
-            this.analysisExecuterMock.Setup(m => m.ExecuteSignalAsync(It.IsAny<SignalExecutionInfo>(), It.IsAny<IList<string>>()))
+            this.analysisExecuterMock.Setup(m => m.ExecuteSignalAsync(It.IsAny<SignalExecutionInfo>(), It.Is<IList<string>>(lst => lst.First() == "someSubscriptionId")))
                 .ReturnsAsync(new List<SmartSignalDetection> { new TestDetection("title") });
 
             await this.scheduleFlow.RunAsync();

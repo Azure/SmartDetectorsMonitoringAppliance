@@ -17,6 +17,7 @@
         private readonly ISmartSignalsRepository smartSignalsRepository;
         private readonly ISmartSignalLoader smartSignalLoader;
         private readonly ISmartSignalAnalysisServicesFactory smartSignalAnalysisServicesFactory;
+        private readonly IAzureResourceManagerClient azureResourceManagerClient;
         private readonly ITracer tracer;
 
         /// <summary>
@@ -25,12 +26,19 @@
         /// <param name="smartSignalsRepository">The smart signals repository</param>
         /// <param name="smartSignalLoader">The smart signals loader</param>
         /// <param name="smartSignalAnalysisServicesFactory">The smart signals analysis factory</param>
+        /// <param name="azureResourceManagerClient">The azure resource manager client</param>
         /// <param name="tracer">The tracer</param>
-        public SmartSignalRunner(ISmartSignalsRepository smartSignalsRepository, ISmartSignalLoader smartSignalLoader, ISmartSignalAnalysisServicesFactory smartSignalAnalysisServicesFactory, ITracer tracer)
+        public SmartSignalRunner(
+            ISmartSignalsRepository smartSignalsRepository,
+            ISmartSignalLoader smartSignalLoader,
+            ISmartSignalAnalysisServicesFactory smartSignalAnalysisServicesFactory,
+            IAzureResourceManagerClient azureResourceManagerClient,
+            ITracer tracer)
         {
             this.smartSignalsRepository = Diagnostics.EnsureArgumentNotNull(() => smartSignalsRepository);
             this.smartSignalLoader = Diagnostics.EnsureArgumentNotNull(() => smartSignalLoader);
             this.smartSignalAnalysisServicesFactory = Diagnostics.EnsureArgumentNotNull(() => smartSignalAnalysisServicesFactory);
+            this.azureResourceManagerClient = Diagnostics.EnsureArgumentNotNull(() => azureResourceManagerClient);
             this.tracer = tracer;
         }
 
@@ -57,8 +65,8 @@
             TimeRange analysisWindow = new TimeRange(request.AnalysisStartTime, request.AnalysisEndTime);
             this.tracer.TraceInformation($"Signal analysis window is: {analysisWindow}");
 
-            // TODO: handle resources
-            List<ResourceIdentifier> resources = request.ResourceIds.Select(resourceId => new ResourceIdentifier(ResourceType.VirtualMachine, resourceId, resourceId, resourceId)).ToList();
+            // Get the resources on which to run the signal
+            List<ResourceIdentifier> resources = await this.GetResourcesForSignal(request.ResourceIds, signalMetadata, cancellationToken);
 
             // Create the analysis services
             ISmartSignalAnalysisServices analysisServices = await this.smartSignalAnalysisServicesFactory.CreateAsync(resources);
@@ -85,9 +93,61 @@
             }
 
             // And return the detections
-            return detections.Select(detection => SmartSignalDetectionPresentation.CreateFromDetection(request, signalMetadata.Name, detection)).ToList();
+            return detections.Select(detection => SmartSignalDetectionPresentation.CreateFromDetection(request, signalMetadata.Name, detection, this.azureResourceManagerClient)).ToList();
         }
 
         #endregion
+
+        /// <summary>
+        /// Verify that the request resource type is supported by the signal, and enumerate
+        /// the resources that the signal should run on.
+        /// </summary>
+        /// <param name="requestResourceIds">The request resource Ids</param>
+        /// <param name="smartSignalMetadata">The signal metadata</param>
+        /// <param name="cancellationToken">The cancellation token</param>
+        /// <returns>A <see cref="Task{TResult}"/>, returning the resource identifiers that the signal should run on</returns>
+        private async Task<List<ResourceIdentifier>> GetResourcesForSignal(IList<string> requestResourceIds, SmartSignalMetadata smartSignalMetadata, CancellationToken cancellationToken)
+        {
+            HashSet<ResourceIdentifier> resourcesForSignal = new HashSet<ResourceIdentifier>();
+            foreach (string requestResourceId in requestResourceIds)
+            {
+                ResourceIdentifier requestResource = this.azureResourceManagerClient.GetResourceIdentifier(requestResourceId);
+
+                if (smartSignalMetadata.SupportedResourceTypes.Contains(requestResource.ResourceType))
+                {
+                    // If the signal directly supports the requested resource type, then that's it
+                    resourcesForSignal.Add(requestResource);
+                }
+                else if (requestResource.ResourceType == ResourceType.Subscription && smartSignalMetadata.SupportedResourceTypes.Contains(ResourceType.ResourceGroup))
+                {
+                    // If the request is for a subscription, and the signal supports a resource group type, enumerate all resource groups in the requested subscription
+                    IList<ResourceIdentifier> resourceGroups = await this.azureResourceManagerClient.GetAllResourceGroupsInSubscription(requestResource.SubscriptionId, cancellationToken);
+                    resourcesForSignal.UnionWith(resourceGroups);
+                    this.tracer.TraceInformation($"Added {resourceGroups.Count} resource groups found in subscription {requestResource.SubscriptionId}");
+                }
+                else if (requestResource.ResourceType == ResourceType.Subscription)
+                {
+                    // If the request is for a subscription, enumerate all the resources in the requested subscription that the signal supports
+                    IList<ResourceIdentifier> resources = await this.azureResourceManagerClient.GetAllResourcesInSubscription(requestResource.SubscriptionId, smartSignalMetadata.SupportedResourceTypes, cancellationToken);
+                    resourcesForSignal.UnionWith(resources);
+                    this.tracer.TraceInformation($"Added {resources.Count} resources found in subscription {requestResource.SubscriptionId}");
+                }
+                else if (requestResource.ResourceType == ResourceType.ResourceGroup && smartSignalMetadata.SupportedResourceTypes.Any(type => type != ResourceType.Subscription))
+                {
+                    // If the request is for a resource group, and the signal supports resource types (other than subscription),
+                    // enumerate all the resources in the requested resource group that the signal supports
+                    IList<ResourceIdentifier> resources = await this.azureResourceManagerClient.GetAllResourcesInResourceGroup(requestResource.SubscriptionId, requestResource.ResourceGroupName, smartSignalMetadata.SupportedResourceTypes, cancellationToken);
+                    resourcesForSignal.UnionWith(resources);
+                    this.tracer.TraceInformation($"Added {resources.Count} resources found in the specified resource group in subscription {requestResource.SubscriptionId}");
+                }
+                else
+                {
+                    // The signal does not support the requested resource type
+                    throw new IncompatibleResourceTypesException(requestResource.ResourceType, smartSignalMetadata);
+                }
+            }
+
+            return resourcesForSignal.ToList();
+        }
     }
 }

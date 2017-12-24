@@ -19,6 +19,7 @@
             // Register main dependencies
             IUnityContainer container = new UnityContainer();
             container
+                .RegisterType<IAzureResourceManagerClient, AzureResourceManagerClient>()
                 .RegisterType<ISmartSignalsRepository, SmartSignalsRepository>()
                 .RegisterType<ISmartSignalAnalysisServicesFactory, SmartSignalAnalysisServicesFactory>()
                 .RegisterType<ISmartSignalLoader, SmartSignalLoader>();

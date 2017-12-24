@@ -6,10 +6,14 @@
     using System.Net.Http;
     using System.Threading;
     using System.Threading.Tasks;
-    using Analysis;
-    using Shared;
-    using Shared.DetectionPresentation;
-    using SmartSignals;
+    using Microsoft.Azure.Monitoring.SmartSignals;
+    using Microsoft.Azure.Monitoring.SmartSignals.Analysis;
+    using Microsoft.Azure.Monitoring.SmartSignals.Analysis.DetectionPresentation;
+    using Microsoft.Azure.Monitoring.SmartSignals.Shared;
+    using Microsoft.Azure.WebJobs;
+    using Microsoft.Azure.WebJobs.Extensions.Http;
+    using Microsoft.Azure.WebJobs.Host;
+    using Newtonsoft.Json;
     using Unity;
     using WebJobs;
     using WebJobs.Extensions.Http;
@@ -52,11 +56,15 @@
                 // Create a tracer for this run (that will also log to the specified TraceWriter)
                 ITracer tracer = childContainer.Resolve<ITracer>();
                 tracer.TraceInformation($"Analyze function request received with invocation Id {context.InvocationId}");
+                tracer.AddCustomProperty("FunctionName", context.FunctionName);
+                tracer.AddCustomProperty("InvocationId", context.InvocationId.ToString("N"));
 
                 try
                 {
                     // Read the request
                     SmartSignalRequest smartSignalRequest = await request.Content.ReadAsAsync<SmartSignalRequest>(cancellationToken);
+                    tracer.AddCustomProperty("SignalId", smartSignalRequest.SignalId);
+                    tracer.TraceInformation($"Analyze request received: {JsonConvert.SerializeObject(smartSignalRequest)}");
 
                     // Process the request
                     ISmartSignalRunner runner = childContainer.Resolve<ISmartSignalRunner>();

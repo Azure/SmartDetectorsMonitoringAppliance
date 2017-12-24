@@ -9,6 +9,7 @@
   <ItemGroup>
 	<PackageReference Include="Microsoft.ApplicationInsights" Version="2.4.0" />
 	<PackageReference Include="Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel" Version="2.4.0" />
+	<PackageReference Include="Microsoft.Azure.Management.ResourceManager.Fluent" Version="1.4.1" />
 	<PackageReference Include="Microsoft.Azure.WebJobs" Version="2.0.0" />
 	<PackageReference Include="Microsoft.Azure.WebJobs.Core" Version="2.0.0" />
 	<PackageReference Include="Microsoft.Data.Edm" Version="5.8.3" />

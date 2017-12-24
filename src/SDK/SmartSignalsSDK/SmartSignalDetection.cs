@@ -11,5 +11,10 @@
         /// Gets the title of this detection.
         /// </summary>
         public abstract string Title { get; }
+
+        /// <summary>
+        /// Gets the <see cref="ResourceIdentifier"/> structure, representing the resource that this detection applies to.
+        /// </summary>
+        public ResourceIdentifier ResourceIdentifier { get; }
     }
 }

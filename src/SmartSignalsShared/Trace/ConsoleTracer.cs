@@ -123,6 +123,15 @@
         {
         }
 
+        /// <summary>
+        /// Adds a custom property, to be included in all traces.
+        /// </summary>
+        /// <param name="name">The property name</param>
+        /// <param name="value">The property value</param>
+        public void AddCustomProperty(string name, string value)
+        {
+        }
+
         #region Private helper methods
 
         /// <summary>

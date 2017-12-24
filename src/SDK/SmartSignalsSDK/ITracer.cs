@@ -85,5 +85,12 @@
         /// Flushes the telemetry channel
         /// </summary>
         void Flush();
+
+        /// <summary>
+        /// Adds a custom property, to be included in all traces.
+        /// </summary>
+        /// <param name="name">The property name</param>
+        /// <param name="value">The property value</param>
+        void AddCustomProperty(string name, string value);
     }
 }
