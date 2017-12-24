@@ -1,4 +1,4 @@
-﻿namespace Microsoft.SmartSignals.Scheduler
+﻿namespace Microsoft.Azure.Monitoring.SmartSignals.Scheduler
 {
     using System;
     using System.Collections.Generic;
@@ -33,7 +33,7 @@
         /// <returns>The signal detections</returns>
         public async Task<IList<SmartSignalDetection>> ExecuteSignalAsync(SignalExecutionInfo signalExecutionInfo, IList<string> resourceIds)
         {
-            var analysisRequest = new SmartSignalRequest(resourceIds, signalExecutionInfo.SignalId, signalExecutionInfo.AnalysisStartTime, signalExecutionInfo.AnalysisEndTime, null);
+            var analysisRequest = new SmartSignalRequest(resourceIds, signalExecutionInfo.SignalId, signalExecutionInfo.LastExecutionTime, signalExecutionInfo.Cadence, null);
             return await this.SendToAnalysisAsync(analysisRequest);
         }
 

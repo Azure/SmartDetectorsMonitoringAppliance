@@ -5,18 +5,16 @@
     using System.Threading.Tasks;
     using Microsoft.Azure.Monitoring.SmartSignals;
     using Microsoft.Azure.Monitoring.SmartSignals.Analysis;
+    using Microsoft.Azure.Monitoring.SmartSignals.Scheduler;
+    using Microsoft.Azure.Monitoring.SmartSignals.Scheduler.Publisher;
+    using Microsoft.Azure.Monitoring.SmartSignals.Scheduler.SignalRunTracker;
     using Microsoft.Azure.Monitoring.SmartSignals.Shared;
+    using Microsoft.Azure.Monitoring.SmartSignals.Shared.AlertRules;
     using Microsoft.Azure.Monitoring.SmartSignals.Shared.AzureStorage;
-    using Microsoft.Azure.Monitoring.SmartSignals.Shared.SignalConfiguration;
     using Microsoft.Azure.WebJobs;
     using Microsoft.Azure.WebJobs.Host;
-    using Microsoft.SmartSignals.Scheduler;
-    using Microsoft.SmartSignals.Scheduler.Publisher;
-    using Microsoft.SmartSignals.Scheduler.SignalRunTracker;
-    using Shared;
-    using Shared.AzureStorage;
-    using Shared.SignalConfiguration;
-    using SmartSignals;
+    using Microsoft.WindowsAzure.Storage;
+    using Microsoft.WindowsAzure.Storage.Table;
     using Unity;
     using WebJobs;
     using WebJobs.Host;
@@ -45,7 +43,7 @@
             Container = new UnityContainer()
                 .RegisterInstance(cloudTableClient)
                 .RegisterType<ICloudTableClientWrapper, CloudTableClientWrapper>()
-                .RegisterType<ISmartSignalConfigurationStore, SmartSignalConfigurationStore>()
+                .RegisterType<IAlertRuleStore, AlertRuleStore>()
                 .RegisterType<ISignalRunsTracker, SignalRunsTracker>()
                 .RegisterType<IAnalysisExecuter, AnalysisExecuter>()
                 .RegisterType<IDetectionPublisher, DetectionPublisher>()

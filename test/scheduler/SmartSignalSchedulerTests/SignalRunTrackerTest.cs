@@ -5,10 +5,10 @@
     using System.Linq;
     using System.Threading.Tasks;
     using Microsoft.Azure.Monitoring.SmartSignals;
-    using Microsoft.Azure.Monitoring.SmartSignals.Shared;
+    using Microsoft.Azure.Monitoring.SmartSignals.Scheduler;
+    using Microsoft.Azure.Monitoring.SmartSignals.Scheduler.SignalRunTracker;
+    using Microsoft.Azure.Monitoring.SmartSignals.Shared.AlertRules;
     using Microsoft.Azure.Monitoring.SmartSignals.Shared.AzureStorage;
-    using Microsoft.SmartSignals.Scheduler;
-    using Microsoft.SmartSignals.Scheduler.SignalRunTracker;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Microsoft.WindowsAzure.Storage.Table;
     using Moq;
@@ -36,36 +36,40 @@
         {
             var signalExecution = new SignalExecutionInfo
             {
+                RuleId = "some_rule",
                 SignalId = "some_signal",
-                AnalysisEndTime = DateTime.UtcNow,
-                AnalysisStartTime = DateTime.UtcNow.AddHours(-1)
+                LastExecutionTime = DateTime.UtcNow.AddHours(-1),
+                CurrentExecutionTime = DateTime.UtcNow.AddMinutes(-1)
             };
             await this.signalRunsTracker.UpdateSignalRunAsync(signalExecution);
             this.tableMock.Verify(m => m.ExecuteAsync(It.Is<TableOperation>(operation =>
                 operation.OperationType == TableOperationType.InsertOrReplace &&
-                operation.Entity.RowKey.Equals(signalExecution.SignalId) && 
-                ((TrackSignalRunEntity)operation.Entity).LastSuccessfulRunStartTime.Equals(signalExecution.AnalysisStartTime) &&
-                ((TrackSignalRunEntity)operation.Entity).LastSuccessfulRunEndTime.Equals(signalExecution.AnalysisEndTime))));
+                operation.Entity.RowKey.Equals(signalExecution.RuleId) && 
+                ((TrackSignalRunEntity)operation.Entity).SignalId.Equals(signalExecution.SignalId) &&
+                ((TrackSignalRunEntity)operation.Entity).LastSuccessfulExecutionTime.Equals(signalExecution.CurrentExecutionTime))));
         }
 
         [TestMethod]
-        public async Task WhenGettingSignalsToRunWithConfigurationThenOnlyValidSignalsAreReturned()
+        public async Task WhenGettingSignalsToRunWithRulesThenOnlyValidSignalsAreReturned()
         {
-            var configurations = new List<SmartSignalConfiguration>
+            var rules = new List<AlertRule>
             {
-                new SmartSignalConfiguration
+                new AlertRule
                 {
-                    SignalId = "should_not_run",
+                    Id = "should_not_run_rule",
+                    SignalId = "should_not_run_signal",
                     Schedule = CrontabSchedule.Parse("0 0 */1 * *") // once a day at midnight
                 },
-                new SmartSignalConfiguration
+                new AlertRule
                 {
-                    SignalId = "should_run",
+                    Id = "should_run_rule",
+                    SignalId = "should_run_signal",
                     Schedule = CrontabSchedule.Parse("0 */1 * * *") // every round hour
                 },
-                new SmartSignalConfiguration
+                new AlertRule
                 {
-                    SignalId = "should_run2",
+                    Id = "should_run_rule2",
+                    SignalId = "should_run_signal2",
                     Schedule = CrontabSchedule.Parse("0 0 */1 * *") // once a day at midnight
                 }
             };
@@ -76,22 +80,24 @@
             {
                 new TrackSignalRunEntity
                 {
-                    RowKey = "should_not_run",
-                    LastSuccessfulRunEndTime = new DateTime(now.Year, now.Month, now.Day, 0, 5, 0)
+                    RowKey = "should_not_run_rule",
+                    SignalId = "should_not_run_signal",
+                    LastSuccessfulExecutionTime = new DateTime(now.Year, now.Month, now.Day, 0, 5, 0)
                 },
                 new TrackSignalRunEntity
                 {
-                    RowKey = "should_run",
-                    LastSuccessfulRunEndTime = now.AddHours(-2)
+                    RowKey = "should_run_rule",
+                    SignalId = "should_run_signal",
+                    LastSuccessfulExecutionTime = now.AddHours(-2)
                 }
             };
             
             this.tableMock.Setup(m => m.ReadPartitionAsync<TrackSignalRunEntity>("tracking")).ReturnsAsync(tableResult);
 
-            var signalsToRun = await this.signalRunsTracker.GetSignalsToRunAsync(configurations);
+            var signalsToRun = await this.signalRunsTracker.GetSignalsToRunAsync(rules);
             Assert.AreEqual(2, signalsToRun.Count);
-            Assert.AreEqual("should_run", signalsToRun.First().SignalId);
-            Assert.AreEqual("should_run2", signalsToRun.Last().SignalId);
+            Assert.AreEqual("should_run_signal", signalsToRun.First().SignalId);
+            Assert.AreEqual("should_run_signal2", signalsToRun.Last().SignalId);
         }
     }
 }

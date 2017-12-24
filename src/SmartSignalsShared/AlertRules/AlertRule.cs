@@ -1,12 +1,17 @@
-namespace Microsoft.Azure.Monitoring.SmartSignals.Shared
+namespace Microsoft.Azure.Monitoring.SmartSignals.Shared.AlertRules
 {
     using NCrontab;
 
     /// <summary>
-    /// Holds a smart signal configuration
+    /// Holds an alert rule
     /// </summary>
-    public class SmartSignalConfiguration
+    public class AlertRule
     {
+        /// <summary>
+        /// Gets or sets the rule ID.
+        /// </summary>
+        public string Id { get; set; }
+
         /// <summary>
         /// Gets or sets the signal ID.
         /// </summary>

@@ -1,22 +1,22 @@
-﻿namespace Microsoft.SmartSignals.Scheduler
+﻿namespace Microsoft.Azure.Monitoring.SmartSignals.Scheduler.SignalRunTracker
 {
     using System;
     using Microsoft.WindowsAzure.Storage.Table;
 
     /// <summary>
     /// A row holds the last successful run of a signal job.
-    /// The signal ID is the row key.
+    /// The rule ID is the row key.
     /// </summary>
     public class TrackSignalRunEntity : TableEntity
     {
         /// <summary>
-        /// Gets or sets the start time of the last successful run
+        /// Gets or sets the signal ID
         /// </summary>
-        public DateTime LastSuccessfulRunStartTime { get; set; }
+        public string SignalId { get; set; }
 
         /// <summary>
-        /// Gets or sets the end time of the last successful run
+        /// Gets or sets the last successful run execution time
         /// </summary>
-        public DateTime LastSuccessfulRunEndTime { get; set; }
+        public DateTime LastSuccessfulExecutionTime { get; set; }
     }
 }

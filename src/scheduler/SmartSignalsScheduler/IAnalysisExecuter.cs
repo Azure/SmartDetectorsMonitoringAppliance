@@ -1,10 +1,8 @@
-﻿namespace Microsoft.SmartSignals.Scheduler
+﻿namespace Microsoft.Azure.Monitoring.SmartSignals.Scheduler
 {
-    using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
     using Microsoft.Azure.Monitoring.SmartSignals;
-    using Microsoft.Azure.Monitoring.SmartSignals.Shared;
 
     /// <summary>
     /// An interface responsible for executing signals via the analysis flow

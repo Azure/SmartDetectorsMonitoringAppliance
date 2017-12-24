@@ -1,24 +1,23 @@
 ﻿namespace SmartSignalSchedulerTests
 {
     using System;
-    using System.Collections;
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.Azure.Monitoring.SmartSignals;
+    using Microsoft.Azure.Monitoring.SmartSignals.Scheduler;
+    using Microsoft.Azure.Monitoring.SmartSignals.Scheduler.Publisher;
+    using Microsoft.Azure.Monitoring.SmartSignals.Scheduler.SignalRunTracker;
     using Microsoft.Azure.Monitoring.SmartSignals.Shared;
-    using Microsoft.Azure.Monitoring.SmartSignals.Shared.SignalConfiguration;
-    using Microsoft.SmartSignals.Scheduler;
-    using Microsoft.SmartSignals.Scheduler.Publisher;
-    using Microsoft.SmartSignals.Scheduler.SignalRunTracker;
+    using Microsoft.Azure.Monitoring.SmartSignals.Shared.AlertRules;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Moq;
 
     [TestClass]
     public class ScheduleFlowTest
     {
-        private Mock<ISmartSignalConfigurationStore> configurationStoreMock;
+        private Mock<IAlertRuleStore> alertRuleStoreMock;
         private Mock<ISignalRunsTracker> signalRunTrackerMock;
         private Mock<IAnalysisExecuter> analysisExecuterMock;
         private Mock<IDetectionPublisher> detectionPublisherMock;
@@ -30,7 +29,7 @@
         public void Setup()
         {
             var tracerMock = new Mock<ITracer>();
-            this.configurationStoreMock = new Mock<ISmartSignalConfigurationStore>();
+            this.alertRuleStoreMock = new Mock<IAlertRuleStore>();
             this.signalRunTrackerMock = new Mock<ISignalRunsTracker>();
             this.analysisExecuterMock = new Mock<IAnalysisExecuter>();
             this.detectionPublisherMock = new Mock<IDetectionPublisher>();
@@ -38,7 +37,7 @@
 
             this.scheduleFlow = new ScheduleFlow(
                 tracerMock.Object,
-                this.configurationStoreMock.Object,
+                this.alertRuleStoreMock.Object,
                 this.signalRunTrackerMock.Object,
                 this.analysisExecuterMock.Object,
                 this.detectionPublisherMock.Object,
@@ -51,19 +50,19 @@
             // Create signal execution information to be returned from the job tracker
             var signalExecution1 = new SignalExecutionInfo
             {
-                SignalId = "1",
-                AnalysisStartTime = DateTime.UtcNow.AddHours(-1),
-                AnalysisEndTime = DateTime.UtcNow
+                SignalId = "s1",
+                RuleId = "r1",
+                LastExecutionTime = DateTime.UtcNow.AddHours(-1)
             };
             var signalExecution2 = new SignalExecutionInfo
             {
-                SignalId = "2",
-                AnalysisStartTime = DateTime.UtcNow.AddHours(-1),
-                AnalysisEndTime = DateTime.UtcNow
+                SignalId = "s2",
+                RuleId = "r2",
+                LastExecutionTime = DateTime.UtcNow.AddHours(-1)
             };
             var signalExecutions = new List<SignalExecutionInfo> { signalExecution1, signalExecution2 };
 
-            this.signalRunTrackerMock.Setup(m => m.GetSignalsToRunAsync(It.IsAny<IList<SmartSignalConfiguration>>())).ReturnsAsync(signalExecutions);
+            this.signalRunTrackerMock.Setup(m => m.GetSignalsToRunAsync(It.IsAny<IList<AlertRule>>())).ReturnsAsync(signalExecutions);
 
             this.azureResourceManagerClientMock.Setup(m => m.GetAllSubscriptionIds(It.IsAny<CancellationToken>())).ReturnsAsync(new List<string> { "someSubscriptionId" });
 
@@ -75,10 +74,10 @@
 
             await this.scheduleFlow.RunAsync();
 
-            this.configurationStoreMock.Verify(m => m.GetAllSmartSignalConfigurationsAsync(), Times.Once);
+            this.alertRuleStoreMock.Verify(m => m.GetAllAlertRulesAsync(), Times.Once);
             
             // Verify that these were called only once since the first signal execution throwed exception
-            this.detectionPublisherMock.Verify(m => m.PublishDetections("2", It.Is<IList<SmartSignalDetection>>(lst => lst.Count == 1 && lst.First().Title == DetectionTitle)), Times.Once);
+            this.detectionPublisherMock.Verify(m => m.PublishDetections("s2", It.Is<IList<SmartSignalDetection>>(lst => lst.Count == 1 && lst.First().Title == DetectionTitle)), Times.Once);
             this.signalRunTrackerMock.Verify(m => m.UpdateSignalRunAsync(It.IsAny<SignalExecutionInfo>()), Times.Once());
             this.signalRunTrackerMock.Verify(m => m.UpdateSignalRunAsync(signalExecution2));
         }
@@ -89,19 +88,19 @@
             // Create signal execution information to be returned from the job tracker
             var signalExecution1 = new SignalExecutionInfo
             {
-                SignalId = "1",
-                AnalysisStartTime = DateTime.UtcNow.AddHours(-1),
-                AnalysisEndTime = DateTime.UtcNow
+                RuleId = "r1",
+                SignalId = "s1",
+                LastExecutionTime = DateTime.UtcNow.AddHours(-1)
             };
             var signalExecution2 = new SignalExecutionInfo
             {
-                SignalId = "2",
-                AnalysisStartTime = DateTime.UtcNow.AddHours(-1),
-                AnalysisEndTime = DateTime.UtcNow
+                RuleId = "r2",
+                SignalId = "s2",
+                LastExecutionTime = DateTime.UtcNow.AddHours(-1)
             };
             var signalExecutions = new List<SignalExecutionInfo> { signalExecution1, signalExecution2 };
 
-            this.signalRunTrackerMock.Setup(m => m.GetSignalsToRunAsync(It.IsAny<IList<SmartSignalConfiguration>>())).ReturnsAsync(signalExecutions);
+            this.signalRunTrackerMock.Setup(m => m.GetSignalsToRunAsync(It.IsAny<IList<AlertRule>>())).ReturnsAsync(signalExecutions);
 
             this.azureResourceManagerClientMock.Setup(m => m.GetAllSubscriptionIds(It.IsAny<CancellationToken>())).ReturnsAsync(new List<string> { "someSubscriptionId" });
 
@@ -112,7 +111,7 @@
             await this.scheduleFlow.RunAsync();
 
             // Verify detections were published and signal tracker was updated for each signal execution
-            this.configurationStoreMock.Verify(m => m.GetAllSmartSignalConfigurationsAsync(), Times.Once);
+            this.alertRuleStoreMock.Verify(m => m.GetAllAlertRulesAsync(), Times.Once);
             this.detectionPublisherMock.Verify(m => m.PublishDetections(It.IsAny<string>(), It.IsAny<IList<SmartSignalDetection>>()), Times.Exactly(2));
             this.signalRunTrackerMock.Verify(m => m.UpdateSignalRunAsync(It.IsAny<SignalExecutionInfo>()), Times.Exactly(2));
         }
