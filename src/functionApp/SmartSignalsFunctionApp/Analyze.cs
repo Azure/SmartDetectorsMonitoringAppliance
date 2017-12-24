@@ -1,4 +1,4 @@
-﻿namespace Microsoft.SmartSignals.FunctionApp
+﻿namespace Microsoft.Azure.Monitoring.SmartSignals.FunctionApp
 {
     using System;
     using System.Collections.Generic;

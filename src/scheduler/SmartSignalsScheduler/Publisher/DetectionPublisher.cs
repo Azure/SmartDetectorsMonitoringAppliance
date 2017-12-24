@@ -1,4 +1,4 @@
-﻿namespace Microsoft.SmartSignals.Scheduler.Publisher
+﻿namespace Microsoft.Azure.Monitoring.SmartSignals.Scheduler.Publisher
 {
     using System.Collections.Generic;
     using System.Linq;

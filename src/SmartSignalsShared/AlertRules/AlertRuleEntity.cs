@@ -1,13 +1,18 @@
-﻿namespace Microsoft.Azure.Monitoring.SmartSignals.Shared.SignalConfiguration
+﻿namespace Microsoft.Azure.Monitoring.SmartSignals.Shared.AlertRules
 {
     using Microsoft.WindowsAzure.Storage.Table;
 
     /// <summary>
-    /// A row holds the smart signal running configuration.
-    /// The signal ID is the row key.
+    /// A row holds the alert rule for the smart signal.
+    /// The rule ID is the row key.
     /// </summary>
-    public class SmartConfigurationEntity : TableEntity
+    public class AlertRuleEntity : TableEntity
     {
+        /// <summary>
+        /// Gets or sets the signal ID.
+        /// </summary>
+        public string SignalId { get; set; }
+        
         /// <summary>
         /// Gets or sets the type of the resource applicable for the signal.
         /// </summary>

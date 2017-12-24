@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net461</TargetFramework>
-	<RootNamespace>Microsoft.SmartSignals.FunctionApp</RootNamespace>
+	<RootNamespace>Microsoft.Azure.Monitoring.SmartSignals.FunctionApp</RootNamespace>
 	<StyleCopTreatErrorsAsWarnings>False</StyleCopTreatErrorsAsWarnings>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
