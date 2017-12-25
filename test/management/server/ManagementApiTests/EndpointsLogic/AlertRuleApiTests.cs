@@ -1,4 +1,10 @@
-﻿namespace ManagementApiTests.EndpointsLogic
+﻿//-----------------------------------------------------------------------
+// <copyright file="AlertRuleApiTests.cs" company="Microsoft Corporation">
+//        Copyright (c) Microsoft Corporation.  All rights reserved.
+// </copyright>
+//-----------------------------------------------------------------------
+
+namespace ManagementApiTests.EndpointsLogic
 {
     using System;
     using System.Net;
@@ -7,7 +13,6 @@
     using Microsoft.Azure.Monitoring.SmartSignals.ManagementApi;
     using Microsoft.Azure.Monitoring.SmartSignals.ManagementApi.EndpointsLogic;
     using Microsoft.Azure.Monitoring.SmartSignals.ManagementApi.Models;
-    using Microsoft.Azure.Monitoring.SmartSignals.Shared;
     using Microsoft.Azure.Monitoring.SmartSignals.Shared.AlertRules;
     using Microsoft.Azure.Monitoring.SmartSignals.Shared.Exceptions;
     using Microsoft.VisualStudio.TestTools.UnitTesting;

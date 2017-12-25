@@ -1,4 +1,10 @@
-﻿namespace ManagementApiTests.AIClient
+﻿//-----------------------------------------------------------------------
+// <copyright file="ApplicationInsightsClientTests.cs" company="Microsoft Corporation">
+//        Copyright (c) Microsoft Corporation.  All rights reserved.
+// </copyright>
+//-----------------------------------------------------------------------
+
+namespace ManagementApiTests.AIClient
 {
     using System;
     using System.IO;

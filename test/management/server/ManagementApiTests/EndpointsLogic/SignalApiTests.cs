@@ -1,4 +1,10 @@
-﻿namespace ManagementApiTests.EndpointsLogic
+﻿//-----------------------------------------------------------------------
+// <copyright file="SignalApiTests.cs" company="Microsoft Corporation">
+//        Copyright (c) Microsoft Corporation.  All rights reserved.
+// </copyright>
+//-----------------------------------------------------------------------
+
+namespace ManagementApiTests.EndpointsLogic
 {
     using System;
     using System.Collections.Generic;
