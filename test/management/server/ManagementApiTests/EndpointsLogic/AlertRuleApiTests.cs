@@ -6,10 +6,10 @@
     using Microsoft.Azure.Monitoring.SmartSignals;
     using Microsoft.Azure.Monitoring.SmartSignals.ManagementApi;
     using Microsoft.Azure.Monitoring.SmartSignals.ManagementApi.EndpointsLogic;
+    using Microsoft.Azure.Monitoring.SmartSignals.ManagementApi.Models;
     using Microsoft.Azure.Monitoring.SmartSignals.Shared;
     using Microsoft.Azure.Monitoring.SmartSignals.Shared.AlertRules;
     using Microsoft.Azure.Monitoring.SmartSignals.Shared.Exceptions;
-    using Microsoft.Azure.Monitoring.SmartSignals.Shared.Models;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Moq;
 

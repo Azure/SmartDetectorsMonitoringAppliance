@@ -1,3 +1,9 @@
+//-----------------------------------------------------------------------
+// <copyright file="SignalApi.cs" company="Microsoft Corporation">
+//        Copyright (c) Microsoft Corporation.  All rights reserved.
+// </copyright>
+//-----------------------------------------------------------------------
+
 namespace Microsoft.Azure.Monitoring.SmartSignals.ManagementApi.EndpointsLogic
 {
     using System;
@@ -5,7 +11,6 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.ManagementApi.EndpointsLogic
     using System.Linq;
     using System.Net;
     using System.Threading.Tasks;
-    using Microsoft.Azure.Monitoring.SmartSignals.Shared.AlertRules;
     using Models;
     using Responses;
     using Shared;
@@ -18,7 +23,7 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.ManagementApi.EndpointsLogic
         private readonly ISmartSignalsRepository smartSignalsRepository;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="SignalLogic"/> class.
+        /// Initializes a new instance of the <see cref="SignalApi"/> class.
         /// </summary>
         /// <param name="smartSignalsRepository">The smart signal repository.</param>
         public SignalApi(ISmartSignalsRepository smartSignalsRepository)

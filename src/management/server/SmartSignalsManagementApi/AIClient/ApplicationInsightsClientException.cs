@@ -1,4 +1,10 @@
-﻿namespace Microsoft.Azure.Monitoring.SmartSignals.ManagementApi.AIClient
+﻿//-----------------------------------------------------------------------
+// <copyright file="ApplicationInsightsClientException.cs" company="Microsoft Corporation">
+//        Copyright (c) Microsoft Corporation.  All rights reserved.
+// </copyright>
+//-----------------------------------------------------------------------
+
+namespace Microsoft.Azure.Monitoring.SmartSignals.ManagementApi.AIClient
 {
     using System;
 

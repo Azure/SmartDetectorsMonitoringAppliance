@@ -1,3 +1,9 @@
+//-----------------------------------------------------------------------
+// <copyright file="Management.cs" company="Microsoft Corporation">
+//        Copyright (c) Microsoft Corporation.  All rights reserved.
+// </copyright>
+//-----------------------------------------------------------------------
+
 namespace Microsoft.Azure.Monitoring.SmartSignals.FunctionApp
 {
     using System;
@@ -8,8 +14,8 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.FunctionApp
     using Microsoft.Azure.Monitoring.SmartSignals.Analysis;
     using Microsoft.Azure.Monitoring.SmartSignals.ManagementApi;
     using Microsoft.Azure.Monitoring.SmartSignals.ManagementApi.EndpointsLogic;
+    using Microsoft.Azure.Monitoring.SmartSignals.ManagementApi.Models;
     using Microsoft.Azure.Monitoring.SmartSignals.ManagementApi.Responses;
-    using Microsoft.Azure.Monitoring.SmartSignals.Shared.Models;
     using Microsoft.Azure.WebJobs;
     using Microsoft.Azure.WebJobs.Extensions.Http;
     using Microsoft.Azure.WebJobs.Host;
@@ -45,6 +51,7 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.FunctionApp
         [FunctionName("signalResult")]
         public static async Task<HttpResponseMessage> GetAllDetections([HttpTrigger(AuthorizationLevel.Function, "get")]HttpRequestMessage req, TraceWriter log)
         {
+            // TODO - complete the logic
             await Task.CompletedTask;
 
             return req.CreateResponse();
@@ -62,11 +69,11 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.FunctionApp
             using (IUnityContainer childContainer = Container.CreateChildContainer().WithTracer(log, true))
             {
                 ITracer tracer = childContainer.Resolve<ITracer>();
-                var signalsLogic = childContainer.Resolve<SignalApi>();
+                var signalApi = childContainer.Resolve<SignalApi>();
 
                 try
                 {
-                    ListSmartSignalsResponse smartSignals = await signalsLogic.GetAllSmartSignalsAsync();
+                    ListSmartSignalsResponse smartSignals = await signalApi.GetAllSmartSignalsAsync();
 
                     return req.CreateResponse(smartSignals);
                 }
@@ -86,12 +93,12 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.FunctionApp
         }
 
         /// <summary>
-        /// Add the given signal to the smart signal configuration store.
+        /// Add the given alert rule to the alert rules store..
         /// </summary>
         /// <param name="req">The incoming request.</param>
         /// <param name="log">The logger.</param>
         /// <returns>200 if request was successful, 500 if not.</returns>
-        [FunctionName("signal")]
+        [FunctionName("alertRule")]
         public static async Task<HttpResponseMessage> AddAlertRule([HttpTrigger(AuthorizationLevel.Function, "put")] HttpRequestMessage req, TraceWriter log)
         {
             using (IUnityContainer childContainer = Container.CreateChildContainer().WithTracer(log, true))
@@ -110,15 +117,15 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.FunctionApp
                 }
                 catch (SmartSignalsManagementApiException e)
                 {
-                    tracer.TraceError($"Failed to add smart signal configuration due to managed exception: {e}");
+                    tracer.TraceError($"Failed to add alert rule due to managed exception: {e}");
 
-                    return req.CreateErrorResponse(e.StatusCode, "Failed to add the given smart signal configuration", e);
+                    return req.CreateErrorResponse(e.StatusCode, "Failed to add the given alert rule", e);
                 }
                 catch (Exception e)
                 {
-                    tracer.TraceError($"Failed to add smart signal configuration due to un-managed exception: {e}");
+                    tracer.TraceError($"Failed to add alert rule due to un-managed exception: {e}");
 
-                    return req.CreateErrorResponse(HttpStatusCode.InternalServerError, "Failed to get smart signals", e);
+                    return req.CreateErrorResponse(HttpStatusCode.InternalServerError, "Failed to add the given alert rule", e);
                 }
             }
         }

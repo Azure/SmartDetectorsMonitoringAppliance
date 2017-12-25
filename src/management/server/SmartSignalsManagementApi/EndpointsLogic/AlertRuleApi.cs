@@ -1,12 +1,18 @@
-﻿namespace Microsoft.Azure.Monitoring.SmartSignals.ManagementApi.EndpointsLogic
+﻿//-----------------------------------------------------------------------
+// <copyright file="AlertRuleApi.cs" company="Microsoft Corporation">
+//        Copyright (c) Microsoft Corporation.  All rights reserved.
+// </copyright>
+//-----------------------------------------------------------------------
+
+namespace Microsoft.Azure.Monitoring.SmartSignals.ManagementApi.EndpointsLogic
 {
     using System;
-    using System.Threading.Tasks;
     using System.Net;
+    using System.Threading.Tasks;
+    using Microsoft.Azure.Monitoring.SmartSignals.ManagementApi.Models;
     using Microsoft.Azure.Monitoring.SmartSignals.Shared;
     using Microsoft.Azure.Monitoring.SmartSignals.Shared.AlertRules;
     using Microsoft.Azure.Monitoring.SmartSignals.Shared.Exceptions;
-    using Microsoft.Azure.Monitoring.SmartSignals.Shared.Models;
     using NCrontab;
 
     /// <summary>
@@ -19,7 +25,7 @@
         /// <summary>
         /// Initializes a new instance of the <see cref="AlertRuleApi"/> class.
         /// </summary>
-        /// <param name="alertRuleStore">The smart signal configuration store.</param>
+        /// <param name="alertRuleStore">The alert rules store.</param>
         public AlertRuleApi(IAlertRuleStore alertRuleStore)
         {
             Diagnostics.EnsureArgumentNotNull(() => alertRuleStore);
@@ -31,8 +37,8 @@
         /// Add the given alert rule to the alert rules store.
         /// </summary>
         /// <returns>A task represents this operation.</returns>
-        /// <param name="addAlertRule">The model that contains all the require parameters for adding signal version.</param>
-        /// <exception cref="SmartSignalsManagementApiException">This exception is thrown when we failed to add smart signals version.</exception>
+        /// <param name="addAlertRule">The model that contains all the require parameters for adding alert rule.</param>
+        /// <exception cref="SmartSignalsManagementApiException">This exception is thrown when we failed to add the alert rule.</exception>
         public async Task AddAlertRuleAsync(AddAlertRule addAlertRule)
         {
             Diagnostics.EnsureArgumentNotNull(() => addAlertRule);
@@ -55,12 +61,12 @@
             }
             catch (AlertRuleStoreException e)
             {
-                throw new SmartSignalsManagementApiException("Failed to add the given smart signal configuration", e, HttpStatusCode.InternalServerError);
+                throw new SmartSignalsManagementApiException("Failed to add the given alert rule", e, HttpStatusCode.InternalServerError);
             }
         }
 
         /// <summary>
-        /// Validates if the given model for adding signal configuration is valid.
+        /// Validates if the given model for adding alert rule is valid.
         /// </summary>
         /// <param name="model">The model.</param>
         /// <param name="errorInformation">The error information which will be filled in case validation will fail.</param>

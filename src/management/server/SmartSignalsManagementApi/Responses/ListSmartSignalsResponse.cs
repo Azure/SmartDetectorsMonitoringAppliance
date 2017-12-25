@@ -1,4 +1,10 @@
-﻿namespace Microsoft.Azure.Monitoring.SmartSignals.ManagementApi.Responses
+﻿//-----------------------------------------------------------------------
+// <copyright file="ListSmartSignalsResponse.cs" company="Microsoft Corporation">
+//        Copyright (c) Microsoft Corporation.  All rights reserved.
+// </copyright>
+//-----------------------------------------------------------------------
+
+namespace Microsoft.Azure.Monitoring.SmartSignals.ManagementApi.Responses
 {
     using System.Collections.Generic;
     using Models;

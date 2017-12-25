@@ -1,4 +1,10 @@
-﻿namespace Microsoft.Azure.Monitoring.SmartSignals.ManagementApi.EndpointsLogic
+﻿//-----------------------------------------------------------------------
+// <copyright file="ISignalResultApi.cs" company="Microsoft Corporation">
+//        Copyright (c) Microsoft Corporation.  All rights reserved.
+// </copyright>
+//-----------------------------------------------------------------------
+
+namespace Microsoft.Azure.Monitoring.SmartSignals.ManagementApi.EndpointsLogic
 {
     using System.Collections.Generic;
     using System.Threading.Tasks;
