@@ -1,4 +1,10 @@
-﻿namespace Microsoft.Azure.Monitoring.SmartSignals.Shared.Exceptions
+﻿//-----------------------------------------------------------------------
+// <copyright file="InvalidDetectionPresentationException.cs" company="Microsoft Corporation">
+//        Copyright (c) Microsoft Corporation.  All rights reserved.
+// </copyright>
+//-----------------------------------------------------------------------
+
+namespace Microsoft.Azure.Monitoring.SmartSignals.Shared.Exceptions
 {
     using System;
     using System.Runtime.Serialization;
@@ -7,6 +13,7 @@
     /// This exception is thrown when the presentation information returned by a
     /// smart signal detection is invalid
     /// </summary>
+    [Serializable]
     public class InvalidDetectionPresentationException : Exception
     {
         /// <summary>

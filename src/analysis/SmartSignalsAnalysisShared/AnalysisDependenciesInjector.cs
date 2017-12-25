@@ -1,6 +1,13 @@
-﻿namespace Microsoft.Azure.Monitoring.SmartSignals.Analysis
+﻿//-----------------------------------------------------------------------
+// <copyright file="AnalysisDependenciesInjector.cs" company="Microsoft Corporation">
+//        Copyright (c) Microsoft Corporation.  All rights reserved.
+// </copyright>
+//-----------------------------------------------------------------------
+
+namespace Microsoft.Azure.Monitoring.SmartSignals.Analysis
 {
     using Microsoft.Azure.Monitoring.SmartSignals.Shared;
+    using Microsoft.Azure.Monitoring.SmartSignals.Shared.HttpClient;
     using Microsoft.Azure.Monitoring.SmartSignals.Shared.Trace;
     using Microsoft.Azure.WebJobs.Host;
     using Unity;
@@ -19,9 +26,10 @@
             // Register main dependencies
             IUnityContainer container = new UnityContainer();
             container
+                .RegisterType<IHttpClientWrapper, HttpClientWrapper>()
                 .RegisterType<IAzureResourceManagerClient, AzureResourceManagerClient>()
                 .RegisterType<ISmartSignalsRepository, SmartSignalsRepository>()
-                .RegisterType<ISmartSignalAnalysisServicesFactory, SmartSignalAnalysisServicesFactory>()
+                .RegisterType<IAnalysisServicesFactory, AnalysisServicesFactory>()
                 .RegisterType<ISmartSignalLoader, SmartSignalLoader>();
 
             return container;

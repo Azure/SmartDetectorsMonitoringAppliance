@@ -1,4 +1,10 @@
-﻿namespace SmartSignalSchedulerTests
+﻿//-----------------------------------------------------------------------
+// <copyright file="ScheduleFlowTest.cs" company="Microsoft Corporation">
+//        Copyright (c) Microsoft Corporation.  All rights reserved.
+// </copyright>
+//-----------------------------------------------------------------------
+
+namespace SmartSignalSchedulerTests
 {
     using System;
     using System.Collections.Generic;
@@ -64,13 +70,13 @@
 
             this.signalRunTrackerMock.Setup(m => m.GetSignalsToRunAsync(It.IsAny<IList<AlertRule>>())).ReturnsAsync(signalExecutions);
 
-            this.azureResourceManagerClientMock.Setup(m => m.GetAllSubscriptionIds(It.IsAny<CancellationToken>())).ReturnsAsync(new List<string> { "someSubscriptionId" });
+            this.azureResourceManagerClientMock.Setup(m => m.GetAllSubscriptionIdsAsync(It.IsAny<CancellationToken>())).ReturnsAsync(new List<string> { "someSubscriptionId" });
 
             // first signal execution throws exception and the second one returns detections
             const string DetectionTitle = "someTitle";
             this.analysisExecuterMock.SetupSequence(m => m.ExecuteSignalAsync(It.IsAny<SignalExecutionInfo>(), It.Is<IList<string>>(lst => lst.First() == "someSubscriptionId")))
                 .Throws(new Exception())
-                .ReturnsAsync(new List<SmartSignalDetection> { new TestDetection(DetectionTitle) });
+                .ReturnsAsync(new List<SmartSignalDetection> { new TestDetection(DetectionTitle, ResourceIdentifier.Create("subscriptionId")) });
 
             await this.scheduleFlow.RunAsync();
 
@@ -102,11 +108,11 @@
 
             this.signalRunTrackerMock.Setup(m => m.GetSignalsToRunAsync(It.IsAny<IList<AlertRule>>())).ReturnsAsync(signalExecutions);
 
-            this.azureResourceManagerClientMock.Setup(m => m.GetAllSubscriptionIds(It.IsAny<CancellationToken>())).ReturnsAsync(new List<string> { "someSubscriptionId" });
+            this.azureResourceManagerClientMock.Setup(m => m.GetAllSubscriptionIdsAsync(It.IsAny<CancellationToken>())).ReturnsAsync(new List<string> { "someSubscriptionId" });
 
             // each signal execution returns detections
             this.analysisExecuterMock.Setup(m => m.ExecuteSignalAsync(It.IsAny<SignalExecutionInfo>(), It.Is<IList<string>>(lst => lst.First() == "someSubscriptionId")))
-                .ReturnsAsync(new List<SmartSignalDetection> { new TestDetection("title") });
+                .ReturnsAsync(new List<SmartSignalDetection> { new TestDetection("title", ResourceIdentifier.Create("subscriptionId")) });
 
             await this.scheduleFlow.RunAsync();
 
@@ -118,12 +124,15 @@
 
         private class TestDetection : SmartSignalDetection
         {
-            public TestDetection(string title)
+            public TestDetection(string title, ResourceIdentifier resourceIdentifier)
             {
                 this.Title = title;
+                this.ResourceIdentifier = resourceIdentifier;
             }
-            
+
             public override string Title { get; }
+
+            public override ResourceIdentifier ResourceIdentifier { get; }
         }
     }
 }

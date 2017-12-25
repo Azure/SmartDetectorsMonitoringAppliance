@@ -1,4 +1,10 @@
-﻿namespace SmartSignalSharedTests
+﻿//-----------------------------------------------------------------------
+// <copyright file="AzureResourceManagerClientTests.cs" company="Microsoft Corporation">
+//        Copyright (c) Microsoft Corporation.  All rights reserved.
+// </copyright>
+//-----------------------------------------------------------------------
+
+namespace SmartSignalSharedTests
 {
     using Microsoft.Azure.Monitoring.SmartSignals;
     using Microsoft.Azure.Monitoring.SmartSignals.Shared;
@@ -7,9 +13,6 @@
     [TestClass]
     public class AzureResourceManagerClientTests
     {
-        private const string TestResourceId = "subscriptions/7904b7bd-5e6b-4415-99a8-355657b7da19/resourceGroups/MyResourceGroupName/providers/Microsoft.Compute/virtualMachines/MyVirtualMachineName";
-        private static readonly ResourceIdentifier TestResourceIdentifier = ResourceIdentifier.Create(ResourceType.VirtualMachine, "7904b7bd-5e6b-4415-99a8-355657b7da19", "MyResourceGroupName", "MyVirtualMachineName");
-
         [TestMethod]
         public void WhenConvertingSubscriptionResourceTheConversionIsSuccessful()
         {
@@ -34,7 +37,7 @@
             this.VerifyConversion(testResourceId, testResourceIdentifier);
         }
 
-        public void VerifyConversion(string testResourceId, ResourceIdentifier testResourceIdentifier)
+        private void VerifyConversion(string testResourceId, ResourceIdentifier testResourceIdentifier)
         {
             IAzureResourceManagerClient client = new AzureResourceManagerClient();
 

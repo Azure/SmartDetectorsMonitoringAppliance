@@ -1,4 +1,10 @@
-﻿namespace Microsoft.Azure.Monitoring.SmartSignals
+﻿//-----------------------------------------------------------------------
+// <copyright file="ISmartSignal.cs" company="Microsoft Corporation">
+//        Copyright (c) Microsoft Corporation.  All rights reserved.
+// </copyright>
+//-----------------------------------------------------------------------
+
+namespace Microsoft.Azure.Monitoring.SmartSignals
 {
     using System.Collections.Generic;
     using System.Threading;
@@ -22,7 +28,7 @@
         /// A time range to perform the smart signal analysis on. Although a specific smart signal implementation may query telemetry from
         /// a wider time range in order to perform the analysis, the resulting detections must be manifested in this time window.
         /// </param>
-        /// <param name="analysisServices">Contains the analysis services clients to be used for querying the resources telemetry.</param>
+        /// <param name="analysisServicesFactory">A factory to create services to be used for querying the resources telemetry.</param>
         /// <param name="tracer">
         /// A tracer used for emitting telemetry from the signal's execution. This telemetry will be used for troubleshooting and
         /// monitoring the signal's executions.
@@ -35,7 +41,7 @@
         Task<List<SmartSignalDetection>> AnalyzeResourcesAsync(
             IList<ResourceIdentifier> targetResources,
             TimeRange analysisWindow,
-            ISmartSignalAnalysisServices analysisServices,
+            IAnalysisServicesFactory analysisServicesFactory,
             ITracer tracer,
             CancellationToken cancellationToken);
     }

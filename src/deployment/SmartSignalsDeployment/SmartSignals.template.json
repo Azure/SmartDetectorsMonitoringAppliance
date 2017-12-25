@@ -144,7 +144,8 @@
             "ResourceGroupName": "[variables('resourceGroupName')]",
             "SubscriptionId": "[subscription().subscriptionId]",
             "FunctionBaseUrl": "[variables('functionBaseUrl')]",
-            "StorageAccountName": "[parameters('storageAccountName')]"
+            "StorageAccountName": "[parameters('storageAccountName')]",
+            "AnalyticsQueryTimeoutInMinutes": "15"
           }
         },
         {

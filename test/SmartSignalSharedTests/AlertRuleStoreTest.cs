@@ -1,4 +1,10 @@
-﻿namespace SmartSignalSharedTests
+﻿//-----------------------------------------------------------------------
+// <copyright file="AlertRuleStoreTest.cs" company="Microsoft Corporation">
+//        Copyright (c) Microsoft Corporation.  All rights reserved.
+// </copyright>
+//-----------------------------------------------------------------------
+
+namespace SmartSignalSharedTests
 {
     using System.Collections.Generic;
     using System.Linq;

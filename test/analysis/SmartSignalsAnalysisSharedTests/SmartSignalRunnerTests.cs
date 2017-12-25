@@ -1,4 +1,10 @@
-﻿namespace SmartSignalsAnalysisSharedTests
+﻿//-----------------------------------------------------------------------
+// <copyright file="SmartSignalRunnerTests.cs" company="Microsoft Corporation">
+//        Copyright (c) Microsoft Corporation.  All rights reserved.
+// </copyright>
+//-----------------------------------------------------------------------
+
+namespace SmartSignalsAnalysisSharedTests
 {
     using System;
     using System.Collections.Generic;
@@ -22,7 +28,7 @@
         private Mock<ITracer> tracerMock;
         private Mock<ISmartSignalsRepository> smartSignalsRepositoryMock;
         private Mock<ISmartSignalLoader> smartSignalLoaderMock;
-        private Mock<ISmartSignalAnalysisServicesFactory> smartSignalAnalysisServicesFactoryMock;
+        private Mock<IAnalysisServicesFactory> analysisServicesFactoryMock;
         private Mock<IAzureResourceManagerClient> azureResourceManagerClientMock;
 
         [TestInitialize]
@@ -35,7 +41,7 @@
         public async Task WhenRunningSignalThenTheCorrectDetectionIsReturned()
         {
             // Run the signal and validate results
-            ISmartSignalRunner runner = new SmartSignalRunner(this.smartSignalsRepositoryMock.Object, this.smartSignalLoaderMock.Object, this.smartSignalAnalysisServicesFactoryMock.Object, this.azureResourceManagerClientMock.Object, this.tracerMock.Object);
+            ISmartSignalRunner runner = new SmartSignalRunner(this.smartSignalsRepositoryMock.Object, this.smartSignalLoaderMock.Object, this.analysisServicesFactoryMock.Object, this.azureResourceManagerClientMock.Object, this.tracerMock.Object);
             List<SmartSignalDetectionPresentation> detections = await runner.RunAsync(this.request, default(CancellationToken));
             Assert.IsNotNull(detections, "Detections list is null");
             Assert.AreEqual(1, detections.Count);
@@ -50,7 +56,7 @@
             this.signal.ShouldStuck = true;
 
             // Run the signal asynchronously
-            ISmartSignalRunner runner = new SmartSignalRunner(this.smartSignalsRepositoryMock.Object, this.smartSignalLoaderMock.Object, this.smartSignalAnalysisServicesFactoryMock.Object, this.azureResourceManagerClientMock.Object, this.tracerMock.Object);
+            ISmartSignalRunner runner = new SmartSignalRunner(this.smartSignalsRepositoryMock.Object, this.smartSignalLoaderMock.Object, this.analysisServicesFactoryMock.Object, this.azureResourceManagerClientMock.Object, this.tracerMock.Object);
             CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
             Task t = runner.RunAsync(this.request, cancellationTokenSource.Token);
             SpinWait.SpinUntil(() => this.signal.IsRunning);
@@ -89,7 +95,7 @@
         private async Task RunSignalWithResourceTypes(ResourceType requestResourceType, ResourceType signalResourceType, bool shouldFail)
         {
             this.TestInitialize(requestResourceType, signalResourceType);
-            ISmartSignalRunner runner = new SmartSignalRunner(this.smartSignalsRepositoryMock.Object, this.smartSignalLoaderMock.Object, this.smartSignalAnalysisServicesFactoryMock.Object, this.azureResourceManagerClientMock.Object, this.tracerMock.Object);
+            ISmartSignalRunner runner = new SmartSignalRunner(this.smartSignalsRepositoryMock.Object, this.smartSignalLoaderMock.Object, this.analysisServicesFactoryMock.Object, this.azureResourceManagerClientMock.Object, this.tracerMock.Object);
             try
             {
                 List<SmartSignalDetectionPresentation> detections = await runner.RunAsync(this.request, default(CancellationToken));
@@ -124,7 +130,7 @@
                 .Setup(x => x.ReadSignalMetadataAsync(It.IsAny<string>()))
                 .ReturnsAsync(() => this.smartSignalMetadata);
 
-            this.smartSignalAnalysisServicesFactoryMock = new Mock<ISmartSignalAnalysisServicesFactory>();
+            this.analysisServicesFactoryMock = new Mock<IAnalysisServicesFactory>();
 
             this.signal = new TestSignal { ExpectedResourceType = signalResourceType };
 
@@ -153,13 +159,13 @@
                     }
                 });
             this.azureResourceManagerClientMock
-                .Setup(x => x.GetAllResourceGroupsInSubscription(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                .Setup(x => x.GetAllResourceGroupsInSubscriptionAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync((string subscriptionId, CancellationToken cancellationToken) => new List<ResourceIdentifier>() { ResourceIdentifier.Create(subscriptionId, "resourceGroupName") });
             this.azureResourceManagerClientMock
-                .Setup(x => x.GetAllResourcesInSubscription(It.IsAny<string>(), It.IsAny<IEnumerable<ResourceType>>(), It.IsAny<CancellationToken>()))
+                .Setup(x => x.GetAllResourcesInSubscriptionAsync(It.IsAny<string>(), It.IsAny<IEnumerable<ResourceType>>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync((string subscriptionId, IEnumerable<ResourceType> resourceTypes, CancellationToken cancellationToken) => new List<ResourceIdentifier>() { ResourceIdentifier.Create(ResourceType.VirtualMachine, subscriptionId, "resourceGroupName", "resourceName") });
             this.azureResourceManagerClientMock
-                .Setup(x => x.GetAllResourcesInResourceGroup(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<IEnumerable<ResourceType>>(), It.IsAny<CancellationToken>()))
+                .Setup(x => x.GetAllResourcesInResourceGroupAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<IEnumerable<ResourceType>>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync((string subscriptionId, string resourceGroupName, IEnumerable<ResourceType> resourceTypes, CancellationToken cancellationToken) => new List<ResourceIdentifier>() { ResourceIdentifier.Create(ResourceType.VirtualMachine, subscriptionId, resourceGroupName, "resourceName") });
         }
 
@@ -173,7 +179,7 @@
 
             public ResourceType ExpectedResourceType { private get; set; }
 
-            public async Task<List<SmartSignalDetection>> AnalyzeResourcesAsync(IList<ResourceIdentifier> targetResources, TimeRange analysisWindow, ISmartSignalAnalysisServices analysisServices, ITracer tracer, CancellationToken cancellationToken)
+            public async Task<List<SmartSignalDetection>> AnalyzeResourcesAsync(IList<ResourceIdentifier> targetResources, TimeRange analysisWindow, IAnalysisServicesFactory analysisServicesFactory, ITracer tracer, CancellationToken cancellationToken)
             {
                 this.IsRunning = true;
 
@@ -196,14 +202,21 @@
 
                 return await Task.FromResult(new List<SmartSignalDetection>()
                 {
-                    new TestSignalDetection()
+                    new TestSignalDetection(targetResources[0])
                 });
             }
         }
 
         private class TestSignalDetection : SmartSignalDetection
         {
+            public TestSignalDetection(ResourceIdentifier resourceIdentifier)
+            {
+                this.ResourceIdentifier = resourceIdentifier;
+            }
+
             public override string Title { get; } = "Test title";
+
+            public override ResourceIdentifier ResourceIdentifier { get; }
 
             [DetectionPresentation(DetectionPresentationSection.Property, "Summary title", InfoBalloon = "Summary info", Component = DetectionPresentationComponent.Summary)]
             public string Summary { get; } = "Summary value";

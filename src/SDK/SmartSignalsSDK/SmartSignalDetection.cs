@@ -1,4 +1,10 @@
-﻿namespace Microsoft.Azure.Monitoring.SmartSignals
+﻿//-----------------------------------------------------------------------
+// <copyright file="SmartSignalDetection.cs" company="Microsoft Corporation">
+//        Copyright (c) Microsoft Corporation.  All rights reserved.
+// </copyright>
+//-----------------------------------------------------------------------
+
+namespace Microsoft.Azure.Monitoring.SmartSignals
 {
     /// <summary>
     /// A class representing a detection made by a Smart Signal.
@@ -15,6 +21,6 @@
         /// <summary>
         /// Gets the <see cref="ResourceIdentifier"/> structure, representing the resource that this detection applies to.
         /// </summary>
-        public ResourceIdentifier ResourceIdentifier { get; }
+        public abstract ResourceIdentifier ResourceIdentifier { get; }
     }
 }

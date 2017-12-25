@@ -1,4 +1,10 @@
-﻿namespace Microsoft.Azure.Monitoring.SmartSignals.Emulator
+﻿//-----------------------------------------------------------------------
+// <copyright file="MainWindow.xaml.cs" company="Microsoft Corporation">
+//        Copyright (c) Microsoft Corporation.  All rights reserved.
+// </copyright>
+//-----------------------------------------------------------------------
+
+namespace Microsoft.Azure.Monitoring.SmartSignals.Emulator
 {
     using System;
     using System.Windows;

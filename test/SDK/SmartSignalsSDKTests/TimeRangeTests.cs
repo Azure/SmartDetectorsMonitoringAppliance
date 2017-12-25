@@ -1,4 +1,10 @@
-﻿namespace SmartSignalsSDKTests
+﻿//-----------------------------------------------------------------------
+// <copyright file="TimeRangeTests.cs" company="Microsoft Corporation">
+//        Copyright (c) Microsoft Corporation.  All rights reserved.
+// </copyright>
+//-----------------------------------------------------------------------
+
+namespace SmartSignalsSDKTests
 {
     using System;
     using Microsoft.Azure.Monitoring.SmartSignals;

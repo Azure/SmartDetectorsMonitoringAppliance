@@ -1,4 +1,10 @@
-﻿namespace Microsoft.Azure.Monitoring.SmartSignals.Emulator.ViewModels
+﻿//-----------------------------------------------------------------------
+// <copyright file="CommandHandler.cs" company="Microsoft Corporation">
+//        Copyright (c) Microsoft Corporation.  All rights reserved.
+// </copyright>
+//-----------------------------------------------------------------------
+
+namespace Microsoft.Azure.Monitoring.SmartSignals.Emulator.ViewModels
 {
     using System;
     using System.Windows.Input;

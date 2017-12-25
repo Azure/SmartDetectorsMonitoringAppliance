@@ -1,4 +1,10 @@
-﻿namespace SmartSignalsAnalysisSharedTests
+﻿//-----------------------------------------------------------------------
+// <copyright file="SmartSignalDetectionPresentationTests.cs" company="Microsoft Corporation">
+//        Copyright (c) Microsoft Corporation.  All rights reserved.
+// </copyright>
+//-----------------------------------------------------------------------
+
+namespace SmartSignalsAnalysisSharedTests
 {
     using System;
     using System.Collections.Generic;
@@ -126,6 +132,8 @@
         private class TestDetectionNoSummary : SmartSignalDetection
         {
             public override string Title => "Test title";
+
+            public override ResourceIdentifier ResourceIdentifier => ResourceIdentifier.Create(ResourceType.VirtualMachine, "subscriptionId", "resourceGroupName", "resourceName");
 
             [DetectionPredicate]
             [DetectionPresentation(DetectionPresentationSection.Property, "CPU increased", InfoBalloon = "CPU increase on machine {MachineName}", Component = DetectionPresentationComponent.Details)]

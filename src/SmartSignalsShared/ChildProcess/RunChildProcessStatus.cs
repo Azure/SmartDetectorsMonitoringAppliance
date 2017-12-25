@@ -1,3 +1,9 @@
+//-----------------------------------------------------------------------
+// <copyright file="RunChildProcessStatus.cs" company="Microsoft Corporation">
+//        Copyright (c) Microsoft Corporation.  All rights reserved.
+// </copyright>
+//-----------------------------------------------------------------------
+
 namespace Microsoft.Azure.Monitoring.SmartSignals.Shared.ChildProcess
 {
     /// <summary>

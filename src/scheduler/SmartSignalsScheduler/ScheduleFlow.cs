@@ -1,4 +1,10 @@
-﻿namespace Microsoft.Azure.Monitoring.SmartSignals.Scheduler
+﻿//-----------------------------------------------------------------------
+// <copyright file="ScheduleFlow.cs" company="Microsoft Corporation">
+//        Copyright (c) Microsoft Corporation.  All rights reserved.
+// </copyright>
+//-----------------------------------------------------------------------
+
+namespace Microsoft.Azure.Monitoring.SmartSignals.Scheduler
 {
     using System;
     using System.Collections.Generic;
@@ -56,7 +62,7 @@
             IList<SignalExecutionInfo> signalsToRun = await this.signalRunsTracker.GetSignalsToRunAsync(alertRules);
 
             // We get all subscriptions as the resource IDs
-            var resourceIds = await this.azureResourceManagerClient.GetAllSubscriptionIds();
+            var resourceIds = await this.azureResourceManagerClient.GetAllSubscriptionIdsAsync();
 
             foreach (SignalExecutionInfo signalExecution in signalsToRun)
             {

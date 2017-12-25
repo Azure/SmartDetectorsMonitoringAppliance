@@ -1,4 +1,10 @@
-﻿namespace Microsoft.Azure.Monitoring.SmartSignals.Shared.DetectionPresentation
+﻿//-----------------------------------------------------------------------
+// <copyright file="SmartSignalDetectionPresentationProperty.cs" company="Microsoft Corporation">
+//        Copyright (c) Microsoft Corporation.  All rights reserved.
+// </copyright>
+//-----------------------------------------------------------------------
+
+namespace Microsoft.Azure.Monitoring.SmartSignals.Shared.DetectionPresentation
 {
     using Newtonsoft.Json;
 

@@ -1,4 +1,10 @@
-﻿namespace Microsoft.Azure.Monitoring.SmartSignals.Scheduler
+﻿//-----------------------------------------------------------------------
+// <copyright file="IAnalysisExecuter.cs" company="Microsoft Corporation">
+//        Copyright (c) Microsoft Corporation.  All rights reserved.
+// </copyright>
+//-----------------------------------------------------------------------
+
+namespace Microsoft.Azure.Monitoring.SmartSignals.Scheduler
 {
     using System.Collections.Generic;
     using System.Threading.Tasks;
