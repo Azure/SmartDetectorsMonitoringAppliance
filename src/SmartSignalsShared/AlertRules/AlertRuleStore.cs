@@ -6,10 +6,13 @@
 
 namespace Microsoft.Azure.Monitoring.SmartSignals.Shared.AlertRules
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
     using Microsoft.Azure.Monitoring.SmartSignals.Shared.AzureStorage;
+    using Microsoft.Azure.Monitoring.SmartSignals.Shared.Exceptions;
+    using Microsoft.WindowsAzure.Storage;
     using Microsoft.WindowsAzure.Storage.Table;
     using NCrontab;
 
@@ -44,19 +47,26 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Shared.AlertRules
         /// <returns>A <see cref="IList{AlertRule}"/> containing all the alert rules in the store.</returns>
         public async Task<IList<AlertRule>> GetAllAlertRulesAsync()
         {
-            this.tracer.TraceInformation("Getting all smart signal alert rules");
-            var alertRulesEntities = await this.alertRulesTable.ReadPartitionAsync<AlertRuleEntity>(PartitionKey);
-            this.tracer.TraceInformation($"Found {alertRulesEntities.Count} alert rules");
-
-            this.tracer.TraceVerbose($"Found alert rules: {string.Join(", ", alertRulesEntities.Select(e => e.RowKey))}");
-
-            return alertRulesEntities.Select(entity => new AlertRule
+            try
             {
-                Id = entity.RowKey,
-                SignalId = entity.SignalId,
-                ResourceType = entity.ResourceType,
-                Schedule = CrontabSchedule.Parse(entity.CrontabSchedule)
-            }).ToList();
+                this.tracer.TraceInformation("Getting all smart signal alert rules");
+                var alertRulesEntities = await this.alertRulesTable.ReadPartitionAsync<AlertRuleEntity>(PartitionKey);
+                this.tracer.TraceInformation($"Found {alertRulesEntities.Count} alert rules");
+
+                this.tracer.TraceVerbose($"Found alert rules: {string.Join(", ", alertRulesEntities.Select(e => e.RowKey))}");
+
+                return alertRulesEntities.Select(entity => new AlertRule
+                {
+                    Id = entity.RowKey,
+                    SignalId = entity.SignalId,
+                    ResourceType = entity.ResourceType,
+                    Schedule = CrontabSchedule.Parse(entity.CrontabSchedule)
+                }).ToList();
+            }
+            catch (StorageException e)
+            {
+                throw new AlertRuleStoreException("Failed to get alert rules", e);
+            }
         }
 
         /// <summary>
@@ -66,20 +76,27 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Shared.AlertRules
         /// <returns>A <see cref="System.Threading.Tasks.Task"/> object that represents the asynchronous operation.</returns>
         public async Task AddOrReplaceAlertRuleAsync(AlertRule alertRule)
         {
-            // Execute the update operation
-            this.tracer.TraceInformation($"updating alert rule: {alertRule.Id} for signal: {alertRule.SignalId}");
-            var operation = TableOperation.InsertOrReplace(new AlertRuleEntity
+            try
             {
-                PartitionKey = PartitionKey,
-                RowKey = alertRule.Id,
-                SignalId = alertRule.SignalId,
-                ResourceType = alertRule.ResourceType,
-                CrontabSchedule = alertRule.Schedule.ToString()
-            });
+                // Execute the update operation
+                this.tracer.TraceInformation($"updating alert rule: {alertRule.Id} for signal: {alertRule.SignalId}");
+                var operation = TableOperation.InsertOrReplace(new AlertRuleEntity
+                {
+                    PartitionKey = PartitionKey,
+                    RowKey = alertRule.Id,
+                    SignalId = alertRule.SignalId,
+                    ResourceType = alertRule.ResourceType,
+                    CrontabSchedule = alertRule.Schedule.ToString()
+                });
 
-            await this.alertRulesTable.ExecuteAsync(operation);
+                await this.alertRulesTable.ExecuteAsync(operation);
 
-            this.tracer.TraceInformation($"updated alert rule: {alertRule.Id}");
+                this.tracer.TraceInformation($"updated alert rule: {alertRule.Id}");
+            }
+            catch (StorageException e)
+            {
+                throw new AlertRuleStoreException("Failed to add/replace alert rule", e);
+            }
         }
     }
 }

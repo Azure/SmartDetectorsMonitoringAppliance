@@ -1,0 +1,483 @@
+﻿{
+	"@odata.context": "https://api.applicationinsights.io/v1/apps/DEMO_APP/events/$metadata#customEvents",
+	"value": [{
+		"id": "798b7ee0-e30b-11e7-8384-9df976743fa4",
+		"type": "customEvent",
+		"count": 1,
+		"timestamp": "2017-12-17T09:20:00.034Z",
+		"customDimensions": null,
+		"customMeasurements": null,
+		"operation": {
+			"name": "/",
+			"id": "5W5ok",
+			"parentId": "5W5ok",
+			"syntheticSource": null
+		},
+		"session": {
+			"id": "QTsdF"
+		},
+		"user": {
+			"id": "hCM00",
+			"accountId": null,
+			"authenticatedId": null
+		},
+		"cloud": {
+			"roleName": null,
+			"roleInstance": null
+		},
+		"ai": {
+			"iKey": "5a2e4e0c-e136-4a15-9824-90ba859b0a89",
+			"appName": "fabrikamprod",
+			"appId": "cf58dcfd-0683-487c-bc84-048789bca8e5",
+			"sdkVersion": "javascript:1.0.8"
+		},
+		"customEvent": {
+			"name": "Clicked Create New Ticket Button"
+		},
+		"application": {
+			"version": "1.2.6"
+		},
+		"client": {
+			"model": null,
+			"os": "Windows 10",
+			"type": "Browser",
+			"browser": null,
+			"ip": "2.125.100.0",
+			"city": "Peterborough",
+			"stateOrProvince": "Peterborough",
+			"countryOrRegion": "United Kingdom"
+		}
+	},
+	{
+		"id": "79a43700-e30b-11e7-bea2-a511eae16021",
+		"type": "customEvent",
+		"count": 1,
+		"timestamp": "2017-12-17T09:20:00.034Z",
+		"customDimensions": null,
+		"customMeasurements": null,
+		"operation": {
+			"name": "/",
+			"id": "r2Fqz",
+			"parentId": "r2Fqz",
+			"syntheticSource": null
+		},
+		"session": {
+			"id": "4WHuf"
+		},
+		"user": {
+			"id": "hYP00",
+			"accountId": null,
+			"authenticatedId": null
+		},
+		"cloud": {
+			"roleName": null,
+			"roleInstance": null
+		},
+		"ai": {
+			"iKey": "5a2e4e0c-e136-4a15-9824-90ba859b0a89",
+			"appName": "fabrikamprod",
+			"appId": "cf58dcfd-0683-487c-bc84-048789bca8e5",
+			"sdkVersion": "javascript:1.0.8"
+		},
+		"customEvent": {
+			"name": "Clicked Assign Ticket Button"
+		},
+		"application": {
+			"version": "1.2.6"
+		},
+		"client": {
+			"model": null,
+			"os": "macOS 10.12",
+			"type": "Browser",
+			"browser": null,
+			"ip": "2.125.100.0",
+			"city": "Peterborough",
+			"stateOrProvince": "Peterborough",
+			"countryOrRegion": "United Kingdom"
+		}
+	},
+	{
+		"id": "7a5c3c60-e30b-11e7-be67-bb2bb8ca21a1",
+		"type": "customEvent",
+		"count": 1,
+		"timestamp": "2017-12-17T09:20:00.034Z",
+		"customDimensions": null,
+		"customMeasurements": null,
+		"operation": {
+			"name": "/",
+			"id": "80lFy",
+			"parentId": "80lFy",
+			"syntheticSource": null
+		},
+		"session": {
+			"id": "m6HtZ"
+		},
+		"user": {
+			"id": "hTO00",
+			"accountId": null,
+			"authenticatedId": null
+		},
+		"cloud": {
+			"roleName": null,
+			"roleInstance": null
+		},
+		"ai": {
+			"iKey": "5a2e4e0c-e136-4a15-9824-90ba859b0a89",
+			"appName": "fabrikamprod",
+			"appId": "cf58dcfd-0683-487c-bc84-048789bca8e5",
+			"sdkVersion": "javascript:1.0.8"
+		},
+		"customEvent": {
+			"name": "Clicked Assign Ticket Button"
+		},
+		"application": {
+			"version": "1.2.6"
+		},
+		"client": {
+			"model": null,
+			"os": "Windows 10",
+			"type": "Browser",
+			"browser": null,
+			"ip": "2.125.100.0",
+			"city": "Peterborough",
+			"stateOrProvince": "Peterborough",
+			"countryOrRegion": "United Kingdom"
+		}
+	},
+	{
+		"id": "7a0dce43-e30b-11e7-9415-7b46c082ba87",
+		"type": "customEvent",
+		"count": 1,
+		"timestamp": "2017-12-17T09:20:00.034Z",
+		"customDimensions": null,
+		"customMeasurements": null,
+		"operation": {
+			"name": "/",
+			"id": "Irri7",
+			"parentId": "Irri7",
+			"syntheticSource": null
+		},
+		"session": {
+			"id": "ZA9zH"
+		},
+		"user": {
+			"id": "hZI00",
+			"accountId": null,
+			"authenticatedId": null
+		},
+		"cloud": {
+			"roleName": null,
+			"roleInstance": null
+		},
+		"ai": {
+			"iKey": "5a2e4e0c-e136-4a15-9824-90ba859b0a89",
+			"appName": "fabrikamprod",
+			"appId": "cf58dcfd-0683-487c-bc84-048789bca8e5",
+			"sdkVersion": "javascript:1.0.8"
+		},
+		"customEvent": {
+			"name": "Clicked Create New Ticket Button"
+		},
+		"application": {
+			"version": "1.2.6"
+		},
+		"client": {
+			"model": null,
+			"os": "Windows 7",
+			"type": "Browser",
+			"browser": null,
+			"ip": "2.125.100.0",
+			"city": "Peterborough",
+			"stateOrProvince": "Peterborough",
+			"countryOrRegion": "United Kingdom"
+		}
+	},
+	{
+		"id": "7a1a5160-e30b-11e7-9071-ff65b9ca730f",
+		"type": "customEvent",
+		"count": 1,
+		"timestamp": "2017-12-17T09:20:00.034Z",
+		"customDimensions": null,
+		"customMeasurements": null,
+		"operation": {
+			"name": "/",
+			"id": "uErSG",
+			"parentId": "uErSG",
+			"syntheticSource": null
+		},
+		"session": {
+			"id": "lImls"
+		},
+		"user": {
+			"id": "hBO00",
+			"accountId": null,
+			"authenticatedId": null
+		},
+		"cloud": {
+			"roleName": null,
+			"roleInstance": null
+		},
+		"ai": {
+			"iKey": "5a2e4e0c-e136-4a15-9824-90ba859b0a89",
+			"appName": "fabrikamprod",
+			"appId": "cf58dcfd-0683-487c-bc84-048789bca8e5",
+			"sdkVersion": "javascript:1.0.8"
+		},
+		"customEvent": {
+			"name": "Clicked Create New Ticket Button"
+		},
+		"application": {
+			"version": "1.3.2"
+		},
+		"client": {
+			"model": null,
+			"os": "Windows 10",
+			"type": "Browser",
+			"browser": null,
+			"ip": "2.125.100.0",
+			"city": "Peterborough",
+			"stateOrProvince": "Peterborough",
+			"countryOrRegion": "United Kingdom"
+		}
+	},
+	{
+		"id": "7a59a450-e30b-11e7-8daf-15772364dee3",
+		"type": "customEvent",
+		"count": 1,
+		"timestamp": "2017-12-17T09:20:00.034Z",
+		"customDimensions": null,
+		"customMeasurements": null,
+		"operation": {
+			"name": "/",
+			"id": "HnVrw",
+			"parentId": "HnVrw",
+			"syntheticSource": null
+		},
+		"session": {
+			"id": "2GPOE"
+		},
+		"user": {
+			"id": "htI00",
+			"accountId": null,
+			"authenticatedId": null
+		},
+		"cloud": {
+			"roleName": null,
+			"roleInstance": null
+		},
+		"ai": {
+			"iKey": "5a2e4e0c-e136-4a15-9824-90ba859b0a89",
+			"appName": "fabrikamprod",
+			"appId": "cf58dcfd-0683-487c-bc84-048789bca8e5",
+			"sdkVersion": "javascript:1.0.8"
+		},
+		"customEvent": {
+			"name": "Clicked Create New Ticket Button"
+		},
+		"application": {
+			"version": "1.2.6"
+		},
+		"client": {
+			"model": null,
+			"os": "Windows 10",
+			"type": "Browser",
+			"browser": null,
+			"ip": "2.125.100.0",
+			"city": "Peterborough",
+			"stateOrProvince": "Peterborough",
+			"countryOrRegion": "United Kingdom"
+		}
+	},
+	{
+		"id": "7a3860b0-e30b-11e7-8032-73f30ec02f51",
+		"type": "customEvent",
+		"count": 1,
+		"timestamp": "2017-12-17T09:20:00.034Z",
+		"customDimensions": null,
+		"customMeasurements": null,
+		"operation": {
+			"name": "/",
+			"id": "26lrI",
+			"parentId": "26lrI",
+			"syntheticSource": null
+		},
+		"session": {
+			"id": "fiQ92"
+		},
+		"user": {
+			"id": "hvR00",
+			"accountId": null,
+			"authenticatedId": null
+		},
+		"cloud": {
+			"roleName": null,
+			"roleInstance": null
+		},
+		"ai": {
+			"iKey": "5a2e4e0c-e136-4a15-9824-90ba859b0a89",
+			"appName": "fabrikamprod",
+			"appId": "cf58dcfd-0683-487c-bc84-048789bca8e5",
+			"sdkVersion": "javascript:1.0.8"
+		},
+		"customEvent": {
+			"name": "Clicked Create New Ticket Button"
+		},
+		"application": {
+			"version": "1.2.6"
+		},
+		"client": {
+			"model": null,
+			"os": "Windows 10",
+			"type": "Browser",
+			"browser": null,
+			"ip": "2.125.100.0",
+			"city": "Peterborough",
+			"stateOrProvince": "Peterborough",
+			"countryOrRegion": "United Kingdom"
+		}
+	},
+	{
+		"id": "77ebffb1-e30b-11e7-9840-4d85b308154f",
+		"type": "customEvent",
+		"count": 1,
+		"timestamp": "2017-12-17T09:20:00.019Z",
+		"customDimensions": null,
+		"customMeasurements": null,
+		"operation": {
+			"name": "/",
+			"id": "cLvwN",
+			"parentId": "cLvwN",
+			"syntheticSource": null
+		},
+		"session": {
+			"id": "RGkzp"
+		},
+		"user": {
+			"id": "b5A00",
+			"accountId": null,
+			"authenticatedId": null
+		},
+		"cloud": {
+			"roleName": null,
+			"roleInstance": null
+		},
+		"ai": {
+			"iKey": "5a2e4e0c-e136-4a15-9824-90ba859b0a89",
+			"appName": "fabrikamprod",
+			"appId": "cf58dcfd-0683-487c-bc84-048789bca8e5",
+			"sdkVersion": "javascript:1.0.8"
+		},
+		"customEvent": {
+			"name": "Clicked Create New Ticket Button"
+		},
+		"application": {
+			"version": "1.3.2"
+		},
+		"client": {
+			"model": null,
+			"os": "Windows 10",
+			"type": "Browser",
+			"browser": null,
+			"ip": "5.56.177.0",
+			"city": "Rottweil",
+			"stateOrProvince": "Baden-Württemberg Region",
+			"countryOrRegion": "Germany"
+		}
+	},
+	{
+		"id": "777c9c10-e30b-11e7-8384-9df976743fa4",
+		"type": "customEvent",
+		"count": 1,
+		"timestamp": "2017-12-17T09:20:00.019Z",
+		"customDimensions": null,
+		"customMeasurements": null,
+		"operation": {
+			"name": "/",
+			"id": "v1SLU",
+			"parentId": "v1SLU",
+			"syntheticSource": null
+		},
+		"session": {
+			"id": "pVGPh"
+		},
+		"user": {
+			"id": "bpK00",
+			"accountId": null,
+			"authenticatedId": null
+		},
+		"cloud": {
+			"roleName": null,
+			"roleInstance": null
+		},
+		"ai": {
+			"iKey": "5a2e4e0c-e136-4a15-9824-90ba859b0a89",
+			"appName": "fabrikamprod",
+			"appId": "cf58dcfd-0683-487c-bc84-048789bca8e5",
+			"sdkVersion": "javascript:1.0.8"
+		},
+		"customEvent": {
+			"name": "Clicked Create New Ticket Button"
+		},
+		"application": {
+			"version": "1.3.2"
+		},
+		"client": {
+			"model": null,
+			"os": "Windows 10",
+			"type": "Browser",
+			"browser": null,
+			"ip": "5.56.177.0",
+			"city": "Rottweil",
+			"stateOrProvince": "Baden-Württemberg Region",
+			"countryOrRegion": "Germany"
+		}
+	},
+	{
+		"id": "77d1e800-e30b-11e7-956a-6fec05cff937",
+		"type": "customEvent",
+		"count": 1,
+		"timestamp": "2017-12-17T09:20:00.019Z",
+		"customDimensions": null,
+		"customMeasurements": null,
+		"operation": {
+			"name": "/",
+			"id": "o6ETx",
+			"parentId": "o6ETx",
+			"syntheticSource": null
+		},
+		"session": {
+			"id": "FSVSW"
+		},
+		"user": {
+			"id": "bfC00",
+			"accountId": null,
+			"authenticatedId": null
+		},
+		"cloud": {
+			"roleName": null,
+			"roleInstance": null
+		},
+		"ai": {
+			"iKey": "5a2e4e0c-e136-4a15-9824-90ba859b0a89",
+			"appName": "fabrikamprod",
+			"appId": "cf58dcfd-0683-487c-bc84-048789bca8e5",
+			"sdkVersion": "javascript:1.0.8"
+		},
+		"customEvent": {
+			"name": "Clicked Create New Ticket Button"
+		},
+		"application": {
+			"version": "1.3.2"
+		},
+		"client": {
+			"model": null,
+			"os": "Windows 10",
+			"type": "Browser",
+			"browser": null,
+			"ip": "5.56.177.0",
+			"city": "Rottweil",
+			"stateOrProvince": "Baden-Württemberg Region",
+			"countryOrRegion": "Germany"
+		}
+	}]
+}
