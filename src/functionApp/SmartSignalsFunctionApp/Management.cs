@@ -22,7 +22,7 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.FunctionApp
     using Unity;
 
     /// <summary>
-    /// This class is the entry point for the /detections endpoint.
+    /// This class is the entry point for the management endpoints.
     /// </summary>
     public static class Management
     {

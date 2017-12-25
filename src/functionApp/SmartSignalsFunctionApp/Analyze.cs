@@ -15,7 +15,7 @@
     using Microsoft.Azure.WebJobs.Host;
     using Newtonsoft.Json;
     using Unity;
-    using ExecutionContext = WebJobs.ExecutionContext;
+    using ExecutionContext = Microsoft.Azure.WebJobs.ExecutionContext;
 
     /// <summary>
     /// A class implementing the analysis endpoint
