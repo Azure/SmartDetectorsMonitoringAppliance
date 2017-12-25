@@ -7,6 +7,7 @@
 namespace Microsoft.Azure.Monitoring.SmartSignals.Shared
 {
     using System;
+    using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Linq;
     using System.Text.RegularExpressions;
@@ -18,6 +19,7 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Shared
     using Microsoft.Azure.Monitoring.SmartSignals.Shared.Exceptions;
     using Microsoft.Rest.Azure;
     using Microsoft.Rest.Azure.OData;
+    using Newtonsoft.Json.Linq;
 
     /// <summary>
     /// Implementation of the <see cref="IAzureResourceManagerClient"/> interface
@@ -29,22 +31,26 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Shared
         /// </summary>
         private const int MaxResourcesToEnumerate = 100;
 
-        private const string SubscriptionRegexPattern = "/subscriptions/(?<subscriptionId>.*)";
-        private const string ResourceGroupRegexPattern = SubscriptionRegexPattern + "/resourceGroups/(?<resourceGroupName>.*)";
-        private const string ResourceRegexPattern = ResourceGroupRegexPattern + "/providers/(?<resourceProviderAndType>.*)/(?<resourceName>.*)";
+        private const string SubscriptionRegexPattern = "/subscriptions/(?<subscriptionId>[^/]*)";
+        private const string ResourceGroupRegexPattern = SubscriptionRegexPattern + "/resourceGroups/(?<resourceGroupName>[^/]*)";
+        private const string ResourceRegexPattern = ResourceGroupRegexPattern + "/providers/(?<resourceProviderAndType>.*)/(?<resourceName>[^/]*)";
+
+        private static readonly ConcurrentDictionary<string, ProviderInner> ProvidersCache = new ConcurrentDictionary<string, ProviderInner>(StringComparer.CurrentCultureIgnoreCase);
 
         /// <summary>
         /// A dictionary, mapping <see cref="ResourceType"/> enumeration values to matching ARM string
         /// </summary>
         private static readonly Dictionary<ResourceType, string> MapResourceTypeToString = new Dictionary<ResourceType, string>()
         {
-            [ResourceType.VirtualMachine] = "Microsoft.Compute/virtualMachines"
+            [ResourceType.VirtualMachine] = "Microsoft.Compute/virtualMachines",
+            [ResourceType.ApplicationInsights] = "Microsoft.Insights/components",
+            [ResourceType.LogAnalytics] = "Microsoft.OperationalInsights/workspaces"
         };
 
         /// <summary>
         /// A dictionary, mapping ARM strings to their matching <see cref="ResourceType"/> enumeration values
         /// </summary>
-        private static readonly Dictionary<string, ResourceType> MapStringToResourceType = MapResourceTypeToString.ToDictionary(x => x.Value, x => x.Key, StringComparer.InvariantCultureIgnoreCase);
+        private static readonly Dictionary<string, ResourceType> MapStringToResourceType = MapResourceTypeToString.ToDictionary(x => x.Value, x => x.Key, StringComparer.CurrentCultureIgnoreCase);
 
         private readonly AzureCredentials credentials;
 
@@ -89,14 +95,14 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Shared
             }
 
             // Replace the pattern components based on the resource identifier properties
-            pattern = pattern.Replace("(?<subscriptionId>.*)", resourceIdentifier.SubscriptionId);
+            pattern = pattern.Replace("(?<subscriptionId>[^/]*)", resourceIdentifier.SubscriptionId);
             if (resourceIdentifier.ResourceType != ResourceType.Subscription)
             {
-                pattern = pattern.Replace("(?<resourceGroupName>.*)", resourceIdentifier.ResourceGroupName);
+                pattern = pattern.Replace("(?<resourceGroupName>[^/]*)", resourceIdentifier.ResourceGroupName);
                 if (resourceIdentifier.ResourceType != ResourceType.ResourceGroup)
                 {
                     pattern = pattern.Replace("(?<resourceProviderAndType>.*)", resourceProviderAndType);
-                    pattern = pattern.Replace("(?<resourceName>.*)", resourceIdentifier.ResourceName);
+                    pattern = pattern.Replace("(?<resourceName>[^/]*)", resourceIdentifier.ResourceName);
                 }
             }
 
@@ -151,7 +157,7 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Shared
         /// <param name="subscriptionId">The subscription ID.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A <see cref="Task{TResult}"/>, returning the resource groups.</returns>
-        public async Task<IList<ResourceIdentifier>> GetAllResourceGroupsInSubscription(string subscriptionId, CancellationToken cancellationToken)
+        public async Task<IList<ResourceIdentifier>> GetAllResourceGroupsInSubscriptionAsync(string subscriptionId, CancellationToken cancellationToken)
         {
             ResourceManagementClient resourceManagementClient = this.GetResourceManagementClient(subscriptionId);
             Task<IPage<ResourceGroupInner>> FirstPage() => resourceManagementClient.ResourceGroups.ListAsync(cancellationToken: cancellationToken);
@@ -168,7 +174,7 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Shared
         /// <param name="resourceTypes">The types of resource to enumerate.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A <see cref="Task{TResult}"/>, returning the resource identifiers.</returns>
-        public async Task<IList<ResourceIdentifier>> GetAllResourcesInSubscription(string subscriptionId, IEnumerable<ResourceType> resourceTypes, CancellationToken cancellationToken)
+        public async Task<IList<ResourceIdentifier>> GetAllResourcesInSubscriptionAsync(string subscriptionId, IEnumerable<ResourceType> resourceTypes, CancellationToken cancellationToken)
         {
             ResourceManagementClient resourceManagementClient = this.GetResourceManagementClient(subscriptionId);
             List<string> resourceTypesStrings = this.ConvertResourceTypes(resourceTypes);
@@ -188,7 +194,7 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Shared
         /// <param name="resourceTypes">The types of resource to enumerate.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A <see cref="Task{TResult}"/>, returning the resource identifiers.</returns>
-        public async Task<IList<ResourceIdentifier>> GetAllResourcesInResourceGroup(string subscriptionId, string resourceGroupName, IEnumerable<ResourceType> resourceTypes, CancellationToken cancellationToken)
+        public async Task<IList<ResourceIdentifier>> GetAllResourcesInResourceGroupAsync(string subscriptionId, string resourceGroupName, IEnumerable<ResourceType> resourceTypes, CancellationToken cancellationToken)
         {
             ResourceManagementClient resourceManagementClient = this.GetResourceManagementClient(subscriptionId);
             List<string> resourceTypesStrings = this.ConvertResourceTypes(resourceTypes);
@@ -205,10 +211,149 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Shared
         /// </summary>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A <see cref="Task{TResult}"/>, returning the subscription IDs</returns>
-        public async Task<IList<string>> GetAllSubscriptionIds(CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<IList<string>> GetAllSubscriptionIdsAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             var subscriptions = await this.GetSubscriptionClient().Subscriptions.ListAsync(cancellationToken);
             return subscriptions.Select(subscription => subscription.SubscriptionId).ToList();
+        }
+
+        /// <summary>
+        /// Returns the resource properties, as a <see cref="JObject"/> instance.
+        /// </summary>
+        /// <param name="resourceIdentifier">The resource identifier.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A <see cref="Task{TResult}"/>, returning the resource properties.</returns>
+        public async Task<JObject> GetResourcePropertiesAsync(ResourceIdentifier resourceIdentifier, CancellationToken cancellationToken)
+        {
+            var client = this.GetResourceManagementClient(resourceIdentifier.SubscriptionId);
+
+            // Get the resource type string
+            if (!MapResourceTypeToString.TryGetValue(resourceIdentifier.ResourceType, out string resourceTypeString))
+            {
+                throw new ArgumentException($"Resource type {resourceIdentifier.ResourceType} is not supported for the GetResourceProperties method");
+            }
+
+            // Extract the provider and resource type
+            string provider, type;
+            ParseResourceTypeString(resourceTypeString, out provider, out type);
+
+            // Get the API version that should be used for this resource type
+            string apiVersion = await GetApiVersionAsync(client, provider, type, cancellationToken);
+
+            // Get the resource
+            var resource = await client.Resources.GetAsync(
+                resourceIdentifier.ResourceGroupName,
+                provider,
+                string.Empty,
+                type,
+                resourceIdentifier.ResourceName,
+                apiVersion,
+                cancellationToken);
+
+            // Get the resource properties as a JObject
+            return resource.Properties as JObject;
+        }
+
+        /// <summary>
+        /// Returns the application insights app ID.
+        /// </summary>
+        /// <param name="resourceIdentifier">
+        /// The application insights resource identifier.
+        /// The value of the <see cref="ResourceIdentifier.ResourceType"/> property must be equal to <see cref="ResourceType.ApplicationInsights"/>
+        /// </param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A <see cref="Task{TResult}"/>, returning the app ID.</returns>
+        public async Task<string> GetApplicationInsightsAppIdAsync(ResourceIdentifier resourceIdentifier, CancellationToken cancellationToken)
+        {
+            if (resourceIdentifier.ResourceType != ResourceType.ApplicationInsights)
+            {
+                throw new ArgumentOutOfRangeException(nameof(resourceIdentifier.ResourceType), resourceIdentifier.ResourceType, "The resource type must be ApplicationInsights");
+            }
+
+            // Extract the AppId from the resource properties
+            JObject properties = await this.GetResourcePropertiesAsync(resourceIdentifier, cancellationToken);
+            string applicationId = properties["AppId"].ToObject<string>();
+            if (applicationId == null)
+            {
+                throw new ArgumentException($"No application ID found for resource {resourceIdentifier.ResourceName}");
+            }
+
+            return applicationId;
+        }
+
+        /// <summary>
+        /// Returns the log analytics workspace ID.
+        /// </summary>
+        /// <param name="resourceIdentifier">
+        /// The log analytics resource identifier.
+        /// The value of the <see cref="ResourceIdentifier.ResourceType"/> property must be equal to <see cref="ResourceType.LogAnalytics"/>
+        /// </param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A <see cref="Task{TResult}"/>, returning the workspace ID.</returns>
+        public async Task<string> GetLogAnalyticsWorkspaceIdAsync(ResourceIdentifier resourceIdentifier, CancellationToken cancellationToken)
+        {
+            if (resourceIdentifier.ResourceType != ResourceType.LogAnalytics)
+            {
+                throw new ArgumentOutOfRangeException(nameof(resourceIdentifier.ResourceType), resourceIdentifier.ResourceType, "The resource type must be ApplicationInsights");
+            }
+
+            // Extract the workspace ID from the resource properties
+            JObject properties = await this.GetResourcePropertiesAsync(resourceIdentifier, cancellationToken);
+            string workspaceId = properties["customerId"].ToObject<string>();
+            if (workspaceId == null)
+            {
+                throw new ArgumentException($"No workspace ID found for resource {resourceIdentifier.ResourceName}");
+            }
+
+            return workspaceId;
+        }
+
+        /// <summary>
+        /// Separates the resource type string to a provider and resource type components.
+        /// </summary>
+        /// <param name="resourceTypeString">The resource type string.</param>
+        /// <param name="provider">The provider.</param>
+        /// <param name="type">The resource type.</param>
+        private static void ParseResourceTypeString(string resourceTypeString, out string provider, out string type)
+        {
+            int slashPosition = resourceTypeString.IndexOf("/", StringComparison.CurrentCulture);
+            provider = resourceTypeString.Substring(0, slashPosition);
+            type = resourceTypeString.Substring(slashPosition + 1);
+        }
+
+        /// <summary>
+        /// Gets the provider information, either from cache or using the ARM client.
+        /// </summary>
+        /// <param name="client">The ARM client.</param>
+        /// <param name="provider">The provider name.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A <see cref="Task{TResult}"/>, returning the provider information.</returns>
+        private static async Task<ProviderInner> GetProviderInformationAsync(ResourceManagementClient client, string provider, CancellationToken cancellationToken)
+        {
+            return ProvidersCache.GetOrAdd(
+                provider,
+                await client.Providers.GetAsync(provider, null, cancellationToken));
+        }
+
+        /// <summary>
+        /// Returns the API version to use for getting data for resources of the specified provider and type.
+        /// This method always returns the latest API version.
+        /// </summary>
+        /// <param name="client">The ARM client.</param>
+        /// <param name="provider">The provider name.</param>
+        /// <param name="type">The resource type.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A <see cref="Task{TResult}"/>, returning the API version.</returns>
+        private static async Task<string> GetApiVersionAsync(ResourceManagementClient client, string provider, string type, CancellationToken cancellationToken)
+        {
+            ProviderInner providerInformation = await GetProviderInformationAsync(client, provider, cancellationToken);
+            ProviderResourceType providerResourceType = providerInformation.ResourceTypes.FirstOrDefault(resourceType => resourceType.ResourceType.Equals(type, StringComparison.CurrentCultureIgnoreCase));
+            if (providerResourceType == null)
+            {
+                throw new ArgumentException($"Provider {provider} does not support type {type}");
+            }
+
+            return providerResourceType.ApiVersions.Max();
         }
 
         /// <summary>

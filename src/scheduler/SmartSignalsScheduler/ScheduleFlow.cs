@@ -62,7 +62,7 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Scheduler
             IList<SignalExecutionInfo> signalsToRun = await this.signalRunsTracker.GetSignalsToRunAsync(alertRules);
 
             // We get all subscriptions as the resource IDs
-            var resourceIds = await this.azureResourceManagerClient.GetAllSubscriptionIds();
+            var resourceIds = await this.azureResourceManagerClient.GetAllSubscriptionIdsAsync();
 
             foreach (SignalExecutionInfo signalExecution in signalsToRun)
             {

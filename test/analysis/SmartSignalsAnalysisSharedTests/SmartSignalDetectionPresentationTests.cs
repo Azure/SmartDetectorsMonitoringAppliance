@@ -133,6 +133,8 @@ namespace SmartSignalsAnalysisSharedTests
         {
             public override string Title => "Test title";
 
+            public override ResourceIdentifier ResourceIdentifier => ResourceIdentifier.Create(ResourceType.VirtualMachine, "subscriptionId", "resourceGroupName", "resourceName");
+
             [DetectionPredicate]
             [DetectionPresentation(DetectionPresentationSection.Property, "CPU increased", InfoBalloon = "CPU increase on machine {MachineName}", Component = DetectionPresentationComponent.Details)]
             public double Value => 22.4;

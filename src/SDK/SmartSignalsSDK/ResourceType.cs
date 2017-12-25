@@ -25,5 +25,15 @@ namespace Microsoft.Azure.Monitoring.SmartSignals
         /// The Virtual Machine resource type.
         /// </summary>
         VirtualMachine,
+
+        /// <summary>
+        /// The Application Instance resource type.
+        /// </summary>
+        ApplicationInsights,
+
+        /// <summary>
+        /// The log analytics workspace resource type.
+        /// </summary>
+        LogAnalytics
     }
 }

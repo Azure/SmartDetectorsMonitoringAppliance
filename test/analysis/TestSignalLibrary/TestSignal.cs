@@ -13,11 +13,11 @@ namespace TestSignalLibrary
 
     public class TestSignal : ISmartSignal
     {
-        public Task<List<SmartSignalDetection>> AnalyzeResourcesAsync(IList<ResourceIdentifier> targetResources, TimeRange analysisWindow, ISmartSignalAnalysisServices analysisServices, ITracer tracer, CancellationToken cancellationToken)
+        public Task<List<SmartSignalDetection>> AnalyzeResourcesAsync(IList<ResourceIdentifier> targetResources, TimeRange analysisWindow, IAnalysisServicesFactory analysisServicesFactory, ITracer tracer, CancellationToken cancellationToken)
         {
             return Task.FromResult(new List<SmartSignalDetection>()
             {
-                new TestSignalDetection("test title")
+                new TestSignalDetection("test title", targetResources[0])
             });
         }
     }

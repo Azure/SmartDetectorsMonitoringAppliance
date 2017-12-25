@@ -21,6 +21,6 @@ namespace Microsoft.Azure.Monitoring.SmartSignals
         /// <summary>
         /// Gets the <see cref="ResourceIdentifier"/> structure, representing the resource that this detection applies to.
         /// </summary>
-        public ResourceIdentifier ResourceIdentifier { get; }
+        public abstract ResourceIdentifier ResourceIdentifier { get; }
     }
 }

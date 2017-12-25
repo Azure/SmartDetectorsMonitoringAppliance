@@ -13,6 +13,7 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Analysis
     /// <summary>
     /// This exception is thrown when the requested resource type is not supported by the requested signal.
     /// </summary>
+    [Serializable]
     public class IncompatibleResourceTypesException : Exception
     {
         /// <summary>

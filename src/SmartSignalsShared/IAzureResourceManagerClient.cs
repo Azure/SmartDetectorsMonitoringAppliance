@@ -9,6 +9,7 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Shared
     using System.Collections.Generic;
     using System.Threading;
     using System.Threading.Tasks;
+    using Newtonsoft.Json.Linq;
 
     /// <summary>
     /// An interface for azure resource manager client
@@ -43,7 +44,7 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Shared
         /// <param name="subscriptionId">The subscription ID.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A <see cref="Task{TResult}"/>, returning the resource groups.</returns>
-        Task<IList<ResourceIdentifier>> GetAllResourceGroupsInSubscription(string subscriptionId, CancellationToken cancellationToken);
+        Task<IList<ResourceIdentifier>> GetAllResourceGroupsInSubscriptionAsync(string subscriptionId, CancellationToken cancellationToken);
 
         /// <summary>
         /// Enumerates all the resources of the specified types in the specified subscription.
@@ -52,7 +53,7 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Shared
         /// <param name="resourceTypes">The types of resource to enumerate.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A <see cref="Task{TResult}"/>, returning the resource identifiers.</returns>
-        Task<IList<ResourceIdentifier>> GetAllResourcesInSubscription(string subscriptionId, IEnumerable<ResourceType> resourceTypes, CancellationToken cancellationToken);
+        Task<IList<ResourceIdentifier>> GetAllResourcesInSubscriptionAsync(string subscriptionId, IEnumerable<ResourceType> resourceTypes, CancellationToken cancellationToken);
 
         /// <summary>
         /// Enumerates all the resources in the specified resource group.
@@ -62,13 +63,43 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Shared
         /// <param name="resourceTypes">The types of resource to enumerate.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A <see cref="Task{TResult}"/>, returning the resource identifiers.</returns>
-        Task<IList<ResourceIdentifier>> GetAllResourcesInResourceGroup(string subscriptionId, string resourceGroupName, IEnumerable<ResourceType> resourceTypes, CancellationToken cancellationToken);
+        Task<IList<ResourceIdentifier>> GetAllResourcesInResourceGroupAsync(string subscriptionId, string resourceGroupName, IEnumerable<ResourceType> resourceTypes, CancellationToken cancellationToken);
 
         /// <summary>
         /// Enumerates all the accessible subscriptions.
         /// </summary>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A <see cref="Task{TResult}"/>, returning the subscription IDs</returns>
-        Task<IList<string>> GetAllSubscriptionIds(CancellationToken cancellationToken = default(CancellationToken));
+        Task<IList<string>> GetAllSubscriptionIdsAsync(CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
+        /// Returns the resource properties, as a <see cref="JObject"/> instance.
+        /// </summary>
+        /// <param name="resourceIdentifier">The resource identifier.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A <see cref="Task{TResult}"/>, returning the resource properties.</returns>
+        Task<JObject> GetResourcePropertiesAsync(ResourceIdentifier resourceIdentifier, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Returns the application insights app ID.
+        /// </summary>
+        /// <param name="resourceIdentifier">
+        /// The application insights resource identifier.
+        /// The value of the <see cref="ResourceIdentifier.ResourceType"/> property must be equal to <see cref="ResourceType.ApplicationInsights"/>
+        /// </param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A <see cref="Task{TResult}"/>, returning the app ID.</returns>
+        Task<string> GetApplicationInsightsAppIdAsync(ResourceIdentifier resourceIdentifier, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Returns the log analytics workspace ID.
+        /// </summary>
+        /// <param name="resourceIdentifier">
+        /// The log analytics resource identifier.
+        /// The value of the <see cref="ResourceIdentifier.ResourceType"/> property must be equal to <see cref="ResourceType.LogAnalytics"/>
+        /// </param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A <see cref="Task{TResult}"/>, returning the workspace ID.</returns>
+        Task<string> GetLogAnalyticsWorkspaceIdAsync(ResourceIdentifier resourceIdentifier, CancellationToken cancellationToken);
     }
 }

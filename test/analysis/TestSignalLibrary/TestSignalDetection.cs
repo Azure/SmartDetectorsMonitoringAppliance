@@ -10,11 +10,14 @@ namespace TestSignalLibrary
 
     public class TestSignalDetection : SmartSignalDetection
     {
-        public TestSignalDetection(string title)
+        public TestSignalDetection(string title, ResourceIdentifier resourceIdentifier)
         {
             this.Title = title;
+            this.ResourceIdentifier = resourceIdentifier;
         }
 
         public override string Title { get; }
+
+        public override ResourceIdentifier ResourceIdentifier { get; }
     }
 }
