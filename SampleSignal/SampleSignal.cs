@@ -3,14 +3,17 @@
     using System.Collections.Generic;
     using System.Threading;
     using System.Threading.Tasks;
+    using System.Windows.Documents;
 
     public class SampleSignal : ISmartSignal
 
     {
-        public Task<List<SmartSignalDetection>> AnalyzeResourcesAsync(IList<ResourceIdentifier> targetResources, TimeRange analysisWindow,
+        public  async Task<List<SmartSignalDetection>> AnalyzeResourcesAsync(IList<ResourceIdentifier> targetResources, TimeRange analysisWindow,
             ISmartSignalAnalysisServices analysisServices, ITracer tracer, CancellationToken cancellationToken)
         {
-            throw new System.NotImplementedException();
+            SampleSignalDetection sampleSignalDetection = new SampleSignalDetection();
+            List<SmartSignalDetection> smartSignalDetections = new List<SmartSignalDetection> {sampleSignalDetection};
+            return smartSignalDetections;
         }
     }
 }
