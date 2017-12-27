@@ -40,13 +40,13 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Analysis
         }
 
         /// <summary>
-        /// Creates an instance of <see cref="IQueryClient"/>, used for running queries against data in log analytics workspaces.
+        /// Creates an instance of <see cref="ITelemetryDataClient"/>, used for running queries against data in log analytics workspaces.
         /// </summary>
         /// <param name="resources">The list of resources to analyze.</param>
         /// <param name="cancellationToken">The cancellation token</param>
-        /// <exception cref="QueryClientCreationException">A log analytics query client could not be created for the specified resources.</exception>
-        /// <returns>The query client, that can be used to run queries on log analytics workspaces.</returns>
-        public async Task<IQueryClient> CreateLogAnalyticsQueryClientAsync(IReadOnlyList<ResourceIdentifier> resources, CancellationToken cancellationToken)
+        /// <exception cref="TelemetryDataClientCreationException">A log analytics telemetry data client could not be created for the specified resources.</exception>
+        /// <returns>The telemetry data client, that can be used to run queries on log analytics workspaces.</returns>
+        public async Task<ITelemetryDataClient> CreateLogAnalyticsTelemetryDataClientAsync(IReadOnlyList<ResourceIdentifier> resources, CancellationToken cancellationToken)
         {
             // Basic validation
             this.VerifyResources(resources);
@@ -54,7 +54,7 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Analysis
             // Verify that there are no application insights resources
             if (resources.Any(resource => resource.ResourceType == ResourceType.ApplicationInsights))
             {
-                throw new QueryClientCreationException("A log analytics client cannot be created to access application insights resources");
+                throw new TelemetryDataClientCreationException("A log analytics client cannot be created to access application insights resources");
             }
 
             IReadOnlyList<ResourceIdentifier> workspaces;
@@ -82,24 +82,24 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Analysis
             // Verify there are not too many resources
             if (workspaces.Count > MaxNumberOfResourcesInQuery)
             {
-                throw new QueryClientCreationException($"Cannot run analysis on more than {MaxNumberOfResourcesInQuery} workspaces");
+                throw new TelemetryDataClientCreationException($"Cannot run analysis on more than {MaxNumberOfResourcesInQuery} workspaces");
             }
 
             // Get workspace Id (for the 1st workspace)
             string workspaceId = await this.azureResourceManagerClient.GetLogAnalyticsWorkspaceIdAsync(workspaces[0], cancellationToken);
 
             // Create the client
-            return new LogAnalyticsQueryClient(this.httpClientWrapper, workspaceId, workspaces.Select(workspace => this.azureResourceManagerClient.GetResourceId(workspace)), this.queryTimeout);
+            return new LogAnalyticsTelemetryDataClient(this.httpClientWrapper, workspaceId, workspaces.Select(workspace => this.azureResourceManagerClient.GetResourceId(workspace)), this.queryTimeout);
         }
 
         /// <summary>
-        /// Creates an instance of <see cref="IQueryClient"/>, used for running queries against data in application insights.
+        /// Creates an instance of <see cref="ITelemetryDataClient"/>, used for running queries against data in application insights.
         /// </summary>
         /// <param name="resources">The list of resources to analyze.</param>
         /// <param name="cancellationToken">The cancellation token</param>
-        /// <exception cref="QueryClientCreationException">An application insights query client could not be created for the specified resources.</exception>
-        /// <returns>The query client, that can be used to run queries on application insights.</returns>
-        public async Task<IQueryClient> CreateApplicationInsightsQueryClientAsync(IReadOnlyList<ResourceIdentifier> resources, CancellationToken cancellationToken)
+        /// <exception cref="TelemetryDataClientCreationException">An application insights telemetry data client could not be created for the specified resources.</exception>
+        /// <returns>The telemetry data client, that can be used to run queries on application insights.</returns>
+        public async Task<ITelemetryDataClient> CreateApplicationInsightsTelemetryDataClientAsync(IReadOnlyList<ResourceIdentifier> resources, CancellationToken cancellationToken)
         {
             // Basic validation
             this.VerifyResources(resources);
@@ -107,20 +107,20 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Analysis
             // Verify that all resources are of type ApplicationInsights
             if (resources.Any(resource => resource.ResourceType != ResourceType.ApplicationInsights))
             {
-                throw new QueryClientCreationException("An application insights query client can only be created for resources of type ApplicationInsights");
+                throw new TelemetryDataClientCreationException("An application insights telemetry data client can only be created for resources of type ApplicationInsights");
             }
 
             // Verify there are not too many resources
             if (resources.Count > MaxNumberOfResourcesInQuery)
             {
-                throw new QueryClientCreationException($"Cannot run analysis on more than {MaxNumberOfResourcesInQuery} applications");
+                throw new TelemetryDataClientCreationException($"Cannot run analysis on more than {MaxNumberOfResourcesInQuery} applications");
             }
 
             // Get application Id (for the 1st application)
             string applicationId = await this.azureResourceManagerClient.GetApplicationInsightsAppIdAsync(resources[0], cancellationToken);
 
             // Create the client
-            return new ApplicationInsightsQueryClient(this.httpClientWrapper, applicationId, resources.Select(resource => this.azureResourceManagerClient.GetResourceId(resource)), this.queryTimeout);
+            return new ApplicationInsightsTelemetryDataClient(this.httpClientWrapper, applicationId, resources.Select(resource => this.azureResourceManagerClient.GetResourceId(resource)), this.queryTimeout);
         }
 
         /// <summary>
@@ -132,7 +132,7 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Analysis
             // Verify that there are resources
             if (!resources.Any())
             {
-                throw new QueryClientCreationException("No resources provided");
+                throw new TelemetryDataClientCreationException("No resources provided");
             }
         }
     }

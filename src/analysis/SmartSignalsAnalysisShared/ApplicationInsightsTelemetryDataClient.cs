@@ -1,5 +1,5 @@
 ﻿//-----------------------------------------------------------------------
-// <copyright file="ApplicationInsightsQueryClient.cs" company="Microsoft Corporation">
+// <copyright file="ApplicationInsightsTelemetryDataClient.cs" company="Microsoft Corporation">
 //        Copyright (c) Microsoft Corporation.  All rights reserved.
 // </copyright>
 //-----------------------------------------------------------------------
@@ -14,9 +14,9 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Analysis
     using Newtonsoft.Json.Linq;
 
     /// <summary>
-    /// An implementation of <see cref="IQueryClient"/> to access application insights resources.
+    /// An implementation of <see cref="ITelemetryDataClient"/> to access application insights resources.
     /// </summary>
-    public class ApplicationInsightsQueryClient : QueryClientBase
+    public class ApplicationInsightsTelemetryDataClient : TelemetryDataClientBase
     {
         private const string UriFormat = "https://api.applicationinsights.io/v1/apps/{0}/query";
 
@@ -24,7 +24,7 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Analysis
         private readonly IReadOnlyList<string> applicationsResourceIds;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ApplicationInsightsQueryClient"/> class.
+        /// Initializes a new instance of the <see cref="ApplicationInsightsTelemetryDataClient"/> class.
         /// </summary>
         /// <param name="httpClientWrapper">The HTTP client wrapper</param>
         /// <param name="applicationId">The application Id on which the queries will run. If there are multiple applications, this should be the ID of one of them.</param>
@@ -34,7 +34,7 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Analysis
         /// one of these IDs need to match the application identified by the specified <paramref name="applicationId"/>. 
         /// </param>
         /// <param name="queryTimeout">The query timeout.</param>
-        public ApplicationInsightsQueryClient(IHttpClientWrapper httpClientWrapper, string applicationId, IEnumerable<string> applicationsResourceIds, TimeSpan queryTimeout)
+        public ApplicationInsightsTelemetryDataClient(IHttpClientWrapper httpClientWrapper, string applicationId, IEnumerable<string> applicationsResourceIds, TimeSpan queryTimeout)
             : base(httpClientWrapper, queryTimeout)
         {
             this.applicationId = Diagnostics.EnsureStringNotNullOrWhiteSpace(() => applicationId);

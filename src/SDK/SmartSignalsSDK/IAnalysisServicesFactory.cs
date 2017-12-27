@@ -17,21 +17,21 @@ namespace Microsoft.Azure.Monitoring.SmartSignals
     public interface IAnalysisServicesFactory
     {
         /// <summary>
-        /// Creates an instance of <see cref="IQueryClient"/>, used for running queries against data in log analytics workspaces.
+        /// Creates an instance of <see cref="ITelemetryDataClient"/>, used for running queries against data in log analytics workspaces.
         /// </summary>
         /// <param name="resources">The list of resources to analyze.</param>
         /// <param name="cancellationToken">The cancellation token</param>
-        /// <exception cref="QueryClientCreationException">A log analytics query client could not be created for the specified resources.</exception>
-        /// <returns>The query client, that can be used to run queries on log analytics workspaces.</returns>
-        Task<IQueryClient> CreateLogAnalyticsQueryClientAsync(IReadOnlyList<ResourceIdentifier> resources, CancellationToken cancellationToken);
+        /// <exception cref="TelemetryDataClientCreationException">A log analytics telemetry data client could not be created for the specified resources.</exception>
+        /// <returns>The telemetry data client, that can be used to run queries on log analytics workspaces.</returns>
+        Task<ITelemetryDataClient> CreateLogAnalyticsTelemetryDataClientAsync(IReadOnlyList<ResourceIdentifier> resources, CancellationToken cancellationToken);
 
         /// <summary>
-        /// Creates an instance of <see cref="IQueryClient"/>, used for running queries against data in application insights.
+        /// Creates an instance of <see cref="ITelemetryDataClient"/>, used for running queries against data in application insights.
         /// </summary>
         /// <param name="resources">The list of resources to analyze.</param>
         /// <param name="cancellationToken">The cancellation token</param>
-        /// <exception cref="QueryClientCreationException">An application insights query client could not be created for the specified resources.</exception>
-        /// <returns>The query client, that can be used to run queries on application insights.</returns>
-        Task<IQueryClient> CreateApplicationInsightsQueryClientAsync(IReadOnlyList<ResourceIdentifier> resources, CancellationToken cancellationToken);
+        /// <exception cref="TelemetryDataClientCreationException">An application insights telemetry data client could not be created for the specified resources.</exception>
+        /// <returns>The telemetry data client, that can be used to run queries on application insights.</returns>
+        Task<ITelemetryDataClient> CreateApplicationInsightsTelemetryDataClientAsync(IReadOnlyList<ResourceIdentifier> resources, CancellationToken cancellationToken);
     }
 }

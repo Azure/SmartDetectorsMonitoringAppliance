@@ -1,5 +1,5 @@
 ﻿//-----------------------------------------------------------------------
-// <copyright file="QueryClientException.cs" company="Microsoft Corporation">
+// <copyright file="TelemetryDataClientException.cs" company="Microsoft Corporation">
 //        Copyright (c) Microsoft Corporation.  All rights reserved.
 // </copyright>
 //-----------------------------------------------------------------------
@@ -14,41 +14,41 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Analysis
     /// This exception is thrown when there was an error running an analytics query.
     /// </summary>
     [Serializable]
-    public class QueryClientException : Exception
+    public class TelemetryDataClientException : Exception
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="QueryClientException"/> class,
+        /// Initializes a new instance of the <see cref="TelemetryDataClientException"/> class,
         /// with the details contained in the specified error response in OData JSON format.
         /// </summary>
         /// <param name="errorObject">The error object, in OData JSON format</param>
         /// <param name="query">The query that was run</param>
-        public QueryClientException(JObject errorObject, string query)
+        public TelemetryDataClientException(JObject errorObject, string query)
             : this(errorObject, query, 0)
         {
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="QueryClientException"/> class
+        /// Initializes a new instance of the <see cref="TelemetryDataClientException"/> class
         /// with serialized data.
         /// </summary>
         /// <param name="info">The <see cref="T:System.Runtime.Serialization.SeraizliationInfo"/> that holds the serialized
         /// object data about the exception being thrown.</param>
         /// <param name="context">The <see cref="T:System.Runtime.Serialization.StreamingContext"/> that contains contextual
         /// information about the source or destination.</param>
-        protected QueryClientException(SerializationInfo info, StreamingContext context)
+        protected TelemetryDataClientException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="QueryClientException"/> class.
+        /// Initializes a new instance of the <see cref="TelemetryDataClientException"/> class.
         /// with the details contained in the specified error response in OData JSON format.
         /// This private constructor is used to create both the outer and inner exceptions.
         /// </summary>
         /// <param name="errorObject">The error object</param>
         /// <param name="query">The query that was run</param>
         /// <param name="depth">The depth of the inner exception</param>
-        private QueryClientException(JObject errorObject, string query, int depth)
+        private TelemetryDataClientException(JObject errorObject, string query, int depth)
             : base(BuildExceptionMessage(errorObject, query), BuildInnerException(errorObject["innererror"], depth))
         {
         }
@@ -81,14 +81,14 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Analysis
         /// <param name="innerErrorObject">The inner error token</param>
         /// <param name="depth">The depth of the inner exception</param>
         /// <returns>The inner exception</returns>
-        private static QueryClientException BuildInnerException(JToken innerErrorObject, int depth)
+        private static TelemetryDataClientException BuildInnerException(JToken innerErrorObject, int depth)
         {
             if (depth >= 5 || innerErrorObject == null)
             {
                 return null;
             }
             
-            return new QueryClientException((JObject)innerErrorObject, string.Empty, depth + 1);
+            return new TelemetryDataClientException((JObject)innerErrorObject, string.Empty, depth + 1);
         }
     }
 }

@@ -1,5 +1,5 @@
 ﻿//-----------------------------------------------------------------------
-// <copyright file="QueryClientBase.cs" company="Microsoft Corporation">
+// <copyright file="TelemetryDataClientBase.cs" company="Microsoft Corporation">
 //        Copyright (c) Microsoft Corporation.  All rights reserved.
 // </copyright>
 //-----------------------------------------------------------------------
@@ -19,18 +19,18 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Analysis
     using Newtonsoft.Json.Linq;
 
     /// <summary>
-    /// A base class for implementations of <see cref="IQueryClient"/>.
+    /// A base class for implementations of <see cref="ITelemetryDataClient"/>.
     /// </summary>
-    public abstract class QueryClientBase : IQueryClient
+    public abstract class TelemetryDataClientBase : ITelemetryDataClient
     {
         private readonly IHttpClientWrapper httpClientWrapper;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="QueryClientBase"/> class.
+        /// Initializes a new instance of the <see cref="TelemetryDataClientBase"/> class.
         /// </summary>
         /// <param name="httpClientWrapper">The HTTP client wrapper</param>
         /// <param name="queryTimeout">The query timeout.</param>
-        protected QueryClientBase(IHttpClientWrapper httpClientWrapper, TimeSpan queryTimeout)
+        protected TelemetryDataClientBase(IHttpClientWrapper httpClientWrapper, TimeSpan queryTimeout)
         {
             this.httpClientWrapper = Diagnostics.EnsureArgumentNotNull(() => httpClientWrapper);
             this.Timeout = Diagnostics.EnsureArgumentInRange(() => queryTimeout, TimeSpan.FromMinutes(0), TimeSpan.FromHours(2));
@@ -77,7 +77,7 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Analysis
             {
                 // Parse the error and throw
                 JObject errorObject = (JObject)responseObject["error"];
-                throw new QueryClientException(errorObject, query);
+                throw new TelemetryDataClientException(errorObject, query);
             }
             else
             {

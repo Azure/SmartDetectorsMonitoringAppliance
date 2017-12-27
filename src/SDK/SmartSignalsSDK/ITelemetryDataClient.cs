@@ -1,5 +1,5 @@
 ﻿//-----------------------------------------------------------------------
-// <copyright file="IQueryClient.cs" company="Microsoft Corporation">
+// <copyright file="ITelemetryDataClient.cs" company="Microsoft Corporation">
 //        Copyright (c) Microsoft Corporation.  All rights reserved.
 // </copyright>
 //-----------------------------------------------------------------------
@@ -15,7 +15,7 @@ namespace Microsoft.Azure.Monitoring.SmartSignals
     /// <summary>
     /// An interface for running queries against the relevant telemetry database.
     /// </summary>
-    public interface IQueryClient
+    public interface ITelemetryDataClient
     {
         /// <summary>
         /// Gets or sets the query timeout.

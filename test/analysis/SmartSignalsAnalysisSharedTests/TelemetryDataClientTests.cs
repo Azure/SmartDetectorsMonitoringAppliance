@@ -1,5 +1,5 @@
 ﻿//-----------------------------------------------------------------------
-// <copyright file="QueryClientTests.cs" company="Microsoft Corporation">
+// <copyright file="TelemetryDataClientTests.cs" company="Microsoft Corporation">
 //        Copyright (c) Microsoft Corporation.  All rights reserved.
 // </copyright>
 //-----------------------------------------------------------------------
@@ -22,7 +22,7 @@ namespace SmartSignalsAnalysisSharedTests
     using Newtonsoft.Json.Linq;
 
     [TestClass]
-    public class QueryClientTests
+    public class TelemetryDataClientTests
     {
         private const string Query = "myQuery";
         private const string WorkspaceId = "id";
@@ -31,7 +31,7 @@ namespace SmartSignalsAnalysisSharedTests
         [TestMethod]
         public async Task WhenSendingQueryThenTheResultsAreAsExpected()
         {
-            var client = new LogAnalyticsQueryClient(new TestHttpClientWrapper(), WorkspaceId, WorkspaceNames, TimeSpan.FromMinutes(10));
+            var client = new LogAnalyticsTelemetryDataClient(new TestHttpClientWrapper(), WorkspaceId, WorkspaceNames, TimeSpan.FromMinutes(10));
             IList<DataTable> results = await client.RunQueryAsync(Query, default(CancellationToken));
             VerifyDataTables(TestHttpClientWrapper.GetExpectedResults(), results);
         }
@@ -39,7 +39,7 @@ namespace SmartSignalsAnalysisSharedTests
         [TestMethod]
         public async Task WhenSendingQueryToApplicationInsightsThenTheResultsAreAsExpected()
         {
-            var client = new ApplicationInsightsQueryClient(new TestHttpClientWrapper(applicationInsights: true), WorkspaceId, WorkspaceNames, TimeSpan.FromMinutes(10));
+            var client = new ApplicationInsightsTelemetryDataClient(new TestHttpClientWrapper(applicationInsights: true), WorkspaceId, WorkspaceNames, TimeSpan.FromMinutes(10));
             IList<DataTable> results = await client.RunQueryAsync(Query, default(CancellationToken));
             VerifyDataTables(TestHttpClientWrapper.GetExpectedResults(), results);
         }
@@ -48,7 +48,7 @@ namespace SmartSignalsAnalysisSharedTests
         [ExpectedException(typeof(ArgumentException))]
         public async Task WhenSendingQueryWithInvalidTypeThenAnExceptionIsThrown()
         {
-            var client = new LogAnalyticsQueryClient(new TestHttpClientWrapper(invalidType: true), WorkspaceId, WorkspaceNames, TimeSpan.FromMinutes(10));
+            var client = new LogAnalyticsTelemetryDataClient(new TestHttpClientWrapper(invalidType: true), WorkspaceId, WorkspaceNames, TimeSpan.FromMinutes(10));
             IList<DataTable> results = await client.RunQueryAsync(Query, default(CancellationToken));
             VerifyDataTables(TestHttpClientWrapper.GetExpectedResults(), results);
         }
@@ -56,7 +56,7 @@ namespace SmartSignalsAnalysisSharedTests
         [TestMethod]
         public async Task WhenSendingQueryWithEmptyResultsThenResultsAreAsExpected()
         {
-            var client = new LogAnalyticsQueryClient(new TestHttpClientWrapper(emptyResults: true), WorkspaceId, WorkspaceNames, TimeSpan.FromMinutes(10));
+            var client = new LogAnalyticsTelemetryDataClient(new TestHttpClientWrapper(emptyResults: true), WorkspaceId, WorkspaceNames, TimeSpan.FromMinutes(10));
             IList<DataTable> results = await client.RunQueryAsync(Query, default(CancellationToken));
             VerifyDataTables(new List<DataTable>(), results);
         }
@@ -64,17 +64,17 @@ namespace SmartSignalsAnalysisSharedTests
         [TestMethod]
         public async Task WhenQueryReturnsAnErrorThenTheCorrectExceptionIsThrown()
         {
-            var client = new LogAnalyticsQueryClient(new TestHttpClientWrapper(error: true), WorkspaceId, WorkspaceNames, TimeSpan.FromMinutes(10));
+            var client = new LogAnalyticsTelemetryDataClient(new TestHttpClientWrapper(error: true), WorkspaceId, WorkspaceNames, TimeSpan.FromMinutes(10));
             try
             {
                 await client.RunQueryAsync(Query, default(CancellationToken));
                 Assert.Fail("An exception should have been thrown");
             }
-            catch (QueryClientException e)
+            catch (TelemetryDataClientException e)
             {
                 Assert.AreEqual($"[test error code] test error message\r\n query = {Query}", e.Message, "Exception message mismatch");
                 Assert.IsNotNull(e.InnerException, "Inner exception is null");
-                Assert.AreEqual(typeof(QueryClientException), e.InnerException.GetType(), "Inner exception is null");
+                Assert.AreEqual(typeof(TelemetryDataClientException), e.InnerException.GetType(), "Inner exception is null");
                 Assert.AreEqual("[test inner error code] test inner error message", e.InnerException.Message, "Inner exception message mismatch");
                 Assert.IsNull(e.InnerException.InnerException, "Inner exception of inner exception is not null");
             }

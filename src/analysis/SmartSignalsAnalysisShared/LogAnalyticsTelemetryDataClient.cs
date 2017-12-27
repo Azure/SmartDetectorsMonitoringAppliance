@@ -1,5 +1,5 @@
 ﻿//-----------------------------------------------------------------------
-// <copyright file="LogAnalyticsQueryClient.cs" company="Microsoft Corporation">
+// <copyright file="LogAnalyticsTelemetryDataClient.cs" company="Microsoft Corporation">
 //        Copyright (c) Microsoft Corporation.  All rights reserved.
 // </copyright>
 //-----------------------------------------------------------------------
@@ -14,9 +14,9 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Analysis
     using Newtonsoft.Json.Linq;
 
     /// <summary>
-    /// An implementation of <see cref="IQueryClient"/> to access log analytics workspaces.
+    /// An implementation of <see cref="ITelemetryDataClient"/> to access log analytics workspaces.
     /// </summary>
-    public class LogAnalyticsQueryClient : QueryClientBase
+    public class LogAnalyticsTelemetryDataClient : TelemetryDataClientBase
     {
         private const string UriFormat = "https://api.loganalytics.io/v1/workspaces/{0}/query";
 
@@ -24,7 +24,7 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Analysis
         private readonly IReadOnlyList<string> workspacesResourceIds;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="LogAnalyticsQueryClient"/> class.
+        /// Initializes a new instance of the <see cref="LogAnalyticsTelemetryDataClient"/> class.
         /// </summary>
         /// <param name="httpClientWrapper">The HTTP client wrapper</param>
         /// <param name="workspaceId">The workspace Id on which the queries will run. If there are multiple workspaces, this should be the ID of one of them.</param>
@@ -34,7 +34,7 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Analysis
         /// one of these IDs need to match the workspace identified by the specified <paramref name="workspaceId"/>. 
         /// </param>
         /// <param name="queryTimeout">The query timeout.</param>
-        public LogAnalyticsQueryClient(IHttpClientWrapper httpClientWrapper, string workspaceId, IEnumerable<string> workspacesResourceIds, TimeSpan queryTimeout)
+        public LogAnalyticsTelemetryDataClient(IHttpClientWrapper httpClientWrapper, string workspaceId, IEnumerable<string> workspacesResourceIds, TimeSpan queryTimeout)
             : base(httpClientWrapper, queryTimeout)
         {
             this.workspaceId = Diagnostics.EnsureStringNotNullOrWhiteSpace(() => workspaceId);

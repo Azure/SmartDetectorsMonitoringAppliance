@@ -69,14 +69,14 @@ namespace SmartSignalsAnalysisSharedTests
             };
 
             IAnalysisServicesFactory factory = new AnalysisServicesFactory(this.httpClientWrapperMock.Object, this.azureResourceManagerClientMock.Object);
-            IQueryClient client = await factory.CreateApplicationInsightsQueryClientAsync(resources, default(CancellationToken));
-            Assert.AreEqual(typeof(ApplicationInsightsQueryClient), client.GetType(), "Wrong query client type created");
+            ITelemetryDataClient client = await factory.CreateApplicationInsightsTelemetryDataClientAsync(resources, default(CancellationToken));
+            Assert.AreEqual(typeof(ApplicationInsightsTelemetryDataClient), client.GetType(), "Wrong telemetry data client type created");
             Assert.AreEqual(ApplicationId, GetPrivateFieldValue<string>(client, "applicationId"), "Wrong application Id");
             CollectionAssert.AreEqual(new[] { ResourceName }, GetPrivateFieldValue<ICollection>(client, "applicationsResourceIds"));
         }
 
         [TestMethod]
-        [ExpectedException(typeof(QueryClientCreationException))]
+        [ExpectedException(typeof(TelemetryDataClientCreationException))]
         public async Task WhenCreatingApplicationInsightsClientForMixedResourcesThenAnExceptionIsThrown()
         {
             var resources = new List<ResourceIdentifier>()
@@ -86,7 +86,7 @@ namespace SmartSignalsAnalysisSharedTests
             };
 
             IAnalysisServicesFactory factory = new AnalysisServicesFactory(this.httpClientWrapperMock.Object, this.azureResourceManagerClientMock.Object);
-            await factory.CreateApplicationInsightsQueryClientAsync(resources, default(CancellationToken));
+            await factory.CreateApplicationInsightsTelemetryDataClientAsync(resources, default(CancellationToken));
         }
 
         [TestMethod]
@@ -99,14 +99,14 @@ namespace SmartSignalsAnalysisSharedTests
             };
 
             IAnalysisServicesFactory factory = new AnalysisServicesFactory(this.httpClientWrapperMock.Object, this.azureResourceManagerClientMock.Object);
-            IQueryClient client = await factory.CreateLogAnalyticsQueryClientAsync(resources, default(CancellationToken));
-            Assert.AreEqual(typeof(LogAnalyticsQueryClient), client.GetType(), "Wrong query client type created");
+            ITelemetryDataClient client = await factory.CreateLogAnalyticsTelemetryDataClientAsync(resources, default(CancellationToken));
+            Assert.AreEqual(typeof(LogAnalyticsTelemetryDataClient), client.GetType(), "Wrong telemetry data client type created");
             Assert.AreEqual(WorkspaceIds[0], GetPrivateFieldValue<string>(client, "workspaceId"), "Wrong application Id");
             CollectionAssert.AreEqual(new[] { WorkspaceNames[0], WorkspaceNames[1] }, GetPrivateFieldValue<ICollection>(client, "workspacesResourceIds"), "Wrong workspace names");
         }
 
         [TestMethod]
-        [ExpectedException(typeof(QueryClientCreationException))]
+        [ExpectedException(typeof(TelemetryDataClientCreationException))]
         public async Task WhenCreatingLogAnalyticsClientForMixedResourcesThenAnExceptionIsSThrown()
         {
             var resources = new List<ResourceIdentifier>()
@@ -116,7 +116,7 @@ namespace SmartSignalsAnalysisSharedTests
             };
 
             IAnalysisServicesFactory factory = new AnalysisServicesFactory(this.httpClientWrapperMock.Object, this.azureResourceManagerClientMock.Object);
-            await factory.CreateLogAnalyticsQueryClientAsync(resources, default(CancellationToken));
+            await factory.CreateLogAnalyticsTelemetryDataClientAsync(resources, default(CancellationToken));
         }
 
         [TestMethod]
@@ -129,8 +129,8 @@ namespace SmartSignalsAnalysisSharedTests
             };
 
             IAnalysisServicesFactory factory = new AnalysisServicesFactory(this.httpClientWrapperMock.Object, this.azureResourceManagerClientMock.Object);
-            IQueryClient client = await factory.CreateLogAnalyticsQueryClientAsync(resources, default(CancellationToken));
-            Assert.AreEqual(typeof(LogAnalyticsQueryClient), client.GetType(), "Wrong query client type created");
+            ITelemetryDataClient client = await factory.CreateLogAnalyticsTelemetryDataClientAsync(resources, default(CancellationToken));
+            Assert.AreEqual(typeof(LogAnalyticsTelemetryDataClient), client.GetType(), "Wrong telemetry data client type created");
             Assert.IsTrue(WorkspaceIds.Contains(GetPrivateFieldValue<string>(client, "workspaceId")), "Wrong workspace Id");
             CollectionAssert.AreEqual(WorkspaceNames, GetPrivateFieldValue<ICollection>(client, "workspacesResourceIds"));
         }
@@ -142,19 +142,19 @@ namespace SmartSignalsAnalysisSharedTests
 
             try
             {
-                await factory.CreateApplicationInsightsQueryClientAsync(new List<ResourceIdentifier>(), default(CancellationToken));
+                await factory.CreateApplicationInsightsTelemetryDataClientAsync(new List<ResourceIdentifier>(), default(CancellationToken));
                 Assert.Fail("An exception should be thrown");
             }
-            catch (QueryClientCreationException)
+            catch (TelemetryDataClientCreationException)
             {
             }
 
             try
             {
-                await factory.CreateLogAnalyticsQueryClientAsync(new List<ResourceIdentifier>(), default(CancellationToken));
+                await factory.CreateLogAnalyticsTelemetryDataClientAsync(new List<ResourceIdentifier>(), default(CancellationToken));
                 Assert.Fail("An exception should be thrown");
             }
-            catch (QueryClientCreationException)
+            catch (TelemetryDataClientCreationException)
             {
             }
         }
@@ -187,7 +187,7 @@ namespace SmartSignalsAnalysisSharedTests
                 .Setup(x => x.GetLogAnalyticsWorkspaceIdAsync(It.Is<ResourceIdentifier>(identifier => identifier.ResourceType == ResourceType.LogAnalytics), It.IsAny<CancellationToken>()))
                 .ReturnsAsync("workspaceId");
 
-            var client = await factory.CreateLogAnalyticsQueryClientAsync(resources, default(CancellationToken));
+            var client = await factory.CreateLogAnalyticsTelemetryDataClientAsync(resources, default(CancellationToken));
 
             this.azureResourceManagerClientMock.Verify(x => x.GetAllResourcesInSubscriptionAsync(SubscriptionId + "1", It.IsAny<IEnumerable<ResourceType>>(), It.IsAny<CancellationToken>()), Times.Once);
             this.azureResourceManagerClientMock.Verify(x => x.GetAllResourcesInSubscriptionAsync(SubscriptionId + "2", It.IsAny<IEnumerable<ResourceType>>(), It.IsAny<CancellationToken>()), Times.Once);
@@ -204,10 +204,10 @@ namespace SmartSignalsAnalysisSharedTests
             {
                 List<ResourceIdentifier> resources = Enumerable.Range(1, TooManyResourcesCount)
                     .Select(i => ResourceIdentifier.Create(ResourceType.ApplicationInsights, SubscriptionId + i, ResourceGroupName + i, ResourceName + i)).ToList();
-                await factory.CreateApplicationInsightsQueryClientAsync(resources, default(CancellationToken));
+                await factory.CreateApplicationInsightsTelemetryDataClientAsync(resources, default(CancellationToken));
                 Assert.Fail("An exception should be thrown");
             }
-            catch (QueryClientCreationException)
+            catch (TelemetryDataClientCreationException)
             {
             }
 
@@ -215,10 +215,10 @@ namespace SmartSignalsAnalysisSharedTests
             {
                 List<ResourceIdentifier> resources = Enumerable.Range(1, TooManyResourcesCount)
                     .Select(i => ResourceIdentifier.Create(ResourceType.LogAnalytics, SubscriptionId + i, ResourceGroupName + i, ResourceName + i)).ToList();
-                await factory.CreateLogAnalyticsQueryClientAsync(resources, default(CancellationToken));
+                await factory.CreateLogAnalyticsTelemetryDataClientAsync(resources, default(CancellationToken));
                 Assert.Fail("An exception should be thrown");
             }
-            catch (QueryClientCreationException)
+            catch (TelemetryDataClientCreationException)
             {
             }
         }
