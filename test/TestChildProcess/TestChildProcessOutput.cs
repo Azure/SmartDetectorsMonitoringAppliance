@@ -1,4 +1,10 @@
-﻿namespace TestChildProcess
+﻿//-----------------------------------------------------------------------
+// <copyright file="TestChildProcessOutput.cs" company="Microsoft Corporation">
+//        Copyright (c) Microsoft Corporation.  All rights reserved.
+// </copyright>
+//-----------------------------------------------------------------------
+
+namespace TestChildProcess
 {
     /// <summary>
     /// The child process output type

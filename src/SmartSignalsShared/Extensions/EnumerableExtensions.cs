@@ -1,4 +1,10 @@
-﻿namespace Microsoft.Azure.Monitoring.SmartSignals.Shared.Extensions
+﻿//-----------------------------------------------------------------------
+// <copyright file="EnumerableExtensions.cs" company="Microsoft Corporation">
+//        Copyright (c) Microsoft Corporation.  All rights reserved.
+// </copyright>
+//-----------------------------------------------------------------------
+
+namespace Microsoft.Azure.Monitoring.SmartSignals.Shared.Extensions
 {
     using System;
     using System.Collections.Generic;

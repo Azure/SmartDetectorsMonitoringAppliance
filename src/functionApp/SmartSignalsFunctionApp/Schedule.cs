@@ -1,18 +1,24 @@
-﻿namespace Microsoft.SmartSignals.FunctionApp
+﻿//-----------------------------------------------------------------------
+// <copyright file="Schedule.cs" company="Microsoft Corporation">
+//        Copyright (c) Microsoft Corporation.  All rights reserved.
+// </copyright>
+//-----------------------------------------------------------------------
+
+namespace Microsoft.Azure.Monitoring.SmartSignals.FunctionApp
 {
     using System;
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.Azure.Monitoring.SmartSignals;
     using Microsoft.Azure.Monitoring.SmartSignals.Analysis;
+    using Microsoft.Azure.Monitoring.SmartSignals.Scheduler;
+    using Microsoft.Azure.Monitoring.SmartSignals.Scheduler.Publisher;
+    using Microsoft.Azure.Monitoring.SmartSignals.Scheduler.SignalRunTracker;
     using Microsoft.Azure.Monitoring.SmartSignals.Shared;
+    using Microsoft.Azure.Monitoring.SmartSignals.Shared.AlertRules;
     using Microsoft.Azure.Monitoring.SmartSignals.Shared.AzureStorage;
-    using Microsoft.Azure.Monitoring.SmartSignals.Shared.SignalConfiguration;
     using Microsoft.Azure.WebJobs;
     using Microsoft.Azure.WebJobs.Host;
-    using Microsoft.SmartSignals.Scheduler;
-    using Microsoft.SmartSignals.Scheduler.Publisher;
-    using Microsoft.SmartSignals.Scheduler.SignalRunTracker;
     using Microsoft.WindowsAzure.Storage;
     using Microsoft.WindowsAzure.Storage.Table;
     using Unity;
@@ -33,16 +39,12 @@
             System.Net.ServicePointManager.DefaultConnectionLimit = 100;
             ThreadPool.SetMinThreads(100, 100);
 
-            var storageConnectionString = ConfigurationReader.ReadConfigConnectionString("StorageConnectionString", true);
-            CloudTableClient cloudTableClient = CloudStorageAccount.Parse(storageConnectionString).CreateCloudTableClient();
-
             Container = new UnityContainer()
-                .RegisterInstance(cloudTableClient)
-                .RegisterType<ICloudTableClientWrapper, CloudTableClientWrapper>()
-                .RegisterType<ISmartSignalConfigurationStore, SmartSignalConfigurationStore>()
+                .RegisterType<ICloudStorageProviderFactory, CloudStorageProviderFactory>()
+                .RegisterType<IAlertRuleStore, AlertRuleStore>()
                 .RegisterType<ISignalRunsTracker, SignalRunsTracker>()
                 .RegisterType<IAnalysisExecuter, AnalysisExecuter>()
-                .RegisterType<IDetectionPublisher, DetectionPublisher>()
+                .RegisterType<ISmartSignalResultPublisher, SmartSignalResultPublisher>()
                 .RegisterType<IAzureResourceManagerClient, AzureResourceManagerClient>();
         }
 

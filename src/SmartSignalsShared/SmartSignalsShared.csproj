@@ -17,6 +17,7 @@
 	<PackageReference Include="Microsoft.Data.Services.Client" Version="5.8.3" />
 	<PackageReference Include="ncrontab" Version="3.3.0" />
 	<PackageReference Include="Newtonsoft.Json" Version="9.0.1" />
+	<PackageReference Include="SmartFormat.Net" Version="2.1.0.2" />
 	<PackageReference Include="StyleCop.MSBuild" Version="5.0.0" />
 	<PackageReference Include="System.ComponentModel.EventBasedAsync" Version="4.3.0" />
 	<PackageReference Include="System.Diagnostics.DiagnosticSource" Version="4.4.1" />
@@ -30,6 +31,7 @@
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
+    <Reference Include="System.IO.Compression" />
     <Reference Include="System.Security" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />

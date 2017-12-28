@@ -4,8 +4,14 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:controls="clr-namespace:Microsoft.Azure.Monitoring.SmartSignals.Emulator.Controls"
+        xmlns:converters="clr-namespace:Microsoft.Azure.Monitoring.SmartSignals.Emulator.Converters"
+        xmlns:viewModels="clr-namespace:Microsoft.Azure.Monitoring.SmartSignals.Emulator.ViewModels"
         mc:Ignorable="d"
+        d:DataContext="{d:DesignInstance Type=viewModels:MainWindowViewModel, IsDesignTimeCreatable=True}"
         Title="" Height="730" Width="1500" MinHeight="730" MinWidth="1500">
+    <Window.Resources>
+        <converters:CountToVisibilityConverter x:Key="CountToVisibilityConverter"/>
+    </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -34,7 +40,7 @@
             </TextBlock>
 
             <StackPanel Grid.Column="2" Orientation="Horizontal" Margin="0,0,10,0" >
-                <TextBlock Text="Hello, John" Style="{StaticResource EmulatorHeader}" VerticalAlignment="Center"/>
+                <TextBlock Text="{Binding UserName, StringFormat=Hello\, {0}}" Style="{StaticResource EmulatorHeader}" VerticalAlignment="Center" />
                 <Separator Width="5" Visibility="Hidden"/>
                 <Image Source="Media/ic_power_settings_new_white_48dp_1x.png" Height="24"/>
             </StackPanel>
@@ -93,16 +99,14 @@
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
                         <Image Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" Grid.ColumnSpan="2" Source="Media/ic_lightbulb_outline_white_48dp_1x.png" Height="40"/>
-                        <Canvas Grid.Row="0" Grid.Column="1" Margin="6,0,0,0">
+                        <Canvas Grid.Row="0" Grid.Column="1" Margin="6,0,0,0" Visibility="{Binding NumberOfResultsFound, Converter={StaticResource CountToVisibilityConverter}}">
                             <Border CornerRadius="50" Width="15" Height="15" Background="Red" BorderBrush="White" BorderThickness="1" >
-                                <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="White" Text="12" FontSize="10" FontWeight="Bold" Margin="-0.5,-0.5,0,0" />
+                                <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="White" Text="{Binding NumberOfResultsFound}" FontSize="10" FontWeight="Bold" Margin="-0.5,-0.5,0,0" />
                             </Border>
-                            <!--<Ellipse Fill="Red" Stroke="White" Height="10" Width="10" RenderTransformOrigin="0.967,-0.033" HorizontalAlignment="Left"  />
-                            <TextBlock Foreground="White" Text="12" FontSize="5"/>-->
                         </Canvas>
                     </Grid>
                 </TabItem.Header>
-                <Label Content="The detections"/>
+                <Label Content="The results"/>
             </TabItem>
         </TabControl>
 

@@ -1,4 +1,10 @@
-﻿namespace Microsoft.Azure.Monitoring.SmartSignals.Analysis
+﻿//-----------------------------------------------------------------------
+// <copyright file="SmartSignalLoader.cs" company="Microsoft Corporation">
+//        Copyright (c) Microsoft Corporation.  All rights reserved.
+// </copyright>
+//-----------------------------------------------------------------------
+
+namespace Microsoft.Azure.Monitoring.SmartSignals.Analysis
 {
     using System;
     using System.Collections.Generic;
@@ -11,17 +17,14 @@
     /// </summary>
     public class SmartSignalLoader : ISmartSignalLoader
     {
-        private readonly ISmartSignalsRepository smartSignalsRepository;
         private readonly ITracer tracer;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SmartSignalLoader"/> class.
         /// </summary>
-        /// <param name="smartSignalsRepository">The smart signals repository, used to read the signal metadata</param>
         /// <param name="tracer">The tracer</param>
-        public SmartSignalLoader(ISmartSignalsRepository smartSignalsRepository, ITracer tracer)
+        public SmartSignalLoader(ITracer tracer)
         {
-            this.smartSignalsRepository = Diagnostics.EnsureArgumentNotNull(() => smartSignalsRepository);
             this.tracer = Diagnostics.EnsureArgumentNotNull(() => tracer);
         }
 
@@ -32,24 +35,24 @@
         /// This method load the signal's assembly into the current application domain,
         /// and creates the signal object using reflection.
         /// </summary>
-        /// <param name="signalMetadata">The signal metadata.</param>
+        /// <param name="signalPackage">The signal package.</param>
         /// <returns>The Smart Signal object.</returns>
         /// <exception cref="SmartSignalLoadException">
         /// Thrown if an error occurred during the signal load (either due to assembly load
         /// error or failure to create the signal object).
         /// </exception>
-        public async Task<ISmartSignal> LoadSignalAsync(SmartSignalMetadata signalMetadata)
+        public ISmartSignal LoadSignal(SmartSignalPackage signalPackage)
         {
+            SmartSignalManifest signalManifest = signalPackage.Manifest;
+            IReadOnlyDictionary<string, byte[]> signalAssemblies = signalPackage.Content;
             try
             {
-                // Read the signal assemblies
-                Dictionary<string, byte[]> signalAssemblies = await this.smartSignalsRepository.ReadSignalAssembliesAsync(signalMetadata.Id);
-                this.tracer.TraceInformation($"Read {signalAssemblies.Count} assemblies for signal ID {signalMetadata.Id}");
+                this.tracer.TraceInformation($"Read {signalAssemblies.Count} assemblies for signal ID {signalManifest.Id}");
 
                 // Add assembly resolver, that uses the signal's assemblies
                 AppDomain.CurrentDomain.AssemblyResolve += (sender, args) =>
                 {
-                    this.tracer.TraceInformation($"Resolving assembly {args.Name} for signal ID {signalMetadata.Id}");
+                    this.tracer.TraceInformation($"Resolving assembly {args.Name} for signal ID {signalManifest.Id}");
 
                     // Get the short name of the assembly (AssemblyName.Name)
                     AssemblyName assemblyName = new AssemblyName(args.Name);
@@ -66,19 +69,19 @@
                 };
 
                 // Find the main signal assembly
-                if (!signalAssemblies.TryGetValue(signalMetadata.AssemblyName, out byte[] signalMainAssemblyBytes))
+                if (!signalAssemblies.TryGetValue(signalManifest.AssemblyName, out byte[] signalMainAssemblyBytes))
                 {
-                    throw new SmartSignalLoadException($"Unable to find main signal assembly: {signalMetadata.AssemblyName}");
+                    throw new SmartSignalLoadException($"Unable to find main signal assembly: {signalManifest.AssemblyName}");
                 }
 
                 Assembly mainSignalAssembly = Assembly.Load(signalMainAssemblyBytes);
 
                 // Get the signal type from the assembly
-                this.tracer.TraceInformation($"Creating Smart signal for {signalMetadata.Name}, version {signalMetadata.Version}, using type {signalMetadata.ClassName}");
-                Type signalType = mainSignalAssembly.GetType(signalMetadata.ClassName);
+                this.tracer.TraceInformation($"Creating Smart signal for {signalManifest.Name}, version {signalManifest.Version}, using type {signalManifest.ClassName}");
+                Type signalType = mainSignalAssembly.GetType(signalManifest.ClassName);
                 if (signalType == null)
                 {
-                    throw new SmartSignalLoadException($"Signal type {signalMetadata.ClassName} was not found in the main signal assembly assembly {signalMetadata.AssemblyName}");
+                    throw new SmartSignalLoadException($"Signal type {signalManifest.ClassName} was not found in the main signal assembly assembly {signalManifest.AssemblyName}");
                 }
 
                 // Check if the type inherits from ISmartSignal
@@ -121,13 +124,13 @@
                     "FailedToLoadSignal",
                     properties: new Dictionary<string, string>
                     {
-                        { "SignalId", signalMetadata.Id },
-                        { "SignalName", signalMetadata.Name },
+                        { "SignalId", signalManifest.Id },
+                        { "SignalName", signalManifest.Name },
                         { "ExceptionType", e.GetType().Name },
                         { "ExceptionMessage", e.Message },
                     });
 
-                throw new SmartSignalLoadException($"Failed to load smart signal {signalMetadata.Name}", e);
+                throw new SmartSignalLoadException($"Failed to load smart signal {signalManifest.Name}", e);
             }
         }
 

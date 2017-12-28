@@ -1,4 +1,10 @@
-﻿namespace Microsoft.Azure.Monitoring.SmartSignals.Shared
+﻿//-----------------------------------------------------------------------
+// <copyright file="SmartSignalRequest.cs" company="Microsoft Corporation">
+//        Copyright (c) Microsoft Corporation.  All rights reserved.
+// </copyright>
+//-----------------------------------------------------------------------
+
+namespace Microsoft.Azure.Monitoring.SmartSignals.Shared
 {
     using System;
     using System.Collections.Generic;
@@ -13,16 +19,16 @@
         /// </summary>
         /// <param name="resourceIds">The resource IDs on which to run the signal</param>
         /// <param name="signalId">The signal ID</param>
-        /// <param name="analysisStartTime">The start of the time range for analysis</param>
-        /// <param name="analysisEndTime">The end of the time range for analysis</param>
+        /// <param name="lastExecutionTime">The last execution of the signal. This can be null if the signal never ran.</param>
+        /// <param name="cadence">The signal configured cadence</param>
         /// <param name="settings">The analysis settings</param>
-        public SmartSignalRequest(IList<string> resourceIds, string signalId, DateTime analysisStartTime, DateTime analysisEndTime, SmartSignalSettings settings)
+        public SmartSignalRequest(IList<string> resourceIds, string signalId, DateTime? lastExecutionTime, TimeSpan cadence, SmartSignalSettings settings)
         {
             this.ResourceIds = resourceIds;
             this.SignalId = signalId;
-            this.AnalysisStartTime = analysisStartTime;
-            this.AnalysisEndTime = analysisEndTime;
+            this.LastExecutionTime = lastExecutionTime;
             this.Settings = settings;
+            this.Cadence = cadence;
         }
 
         /// <summary>
@@ -36,14 +42,14 @@
         public string SignalId { get; }
 
         /// <summary>
-        /// Gets the start of the time range for analysis
+        /// Gets the last execution time
         /// </summary>
-        public DateTime AnalysisStartTime { get; }
+        public DateTime? LastExecutionTime { get; }
 
         /// <summary>
-        /// Gets the end time of the analysis
+        /// Gets the signal configured cadence
         /// </summary>
-        public DateTime AnalysisEndTime { get; }
+        public TimeSpan Cadence { get; }
 
         /// <summary>
         /// Gets the analysis settings

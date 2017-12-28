@@ -1,4 +1,10 @@
-﻿namespace TestChildProcess
+﻿//-----------------------------------------------------------------------
+// <copyright file="RunMode.cs" company="Microsoft Corporation">
+//        Copyright (c) Microsoft Corporation.  All rights reserved.
+// </copyright>
+//-----------------------------------------------------------------------
+
+namespace TestChildProcess
 {
     /// <summary>
     /// This enum is used to specify the expected behavior of the

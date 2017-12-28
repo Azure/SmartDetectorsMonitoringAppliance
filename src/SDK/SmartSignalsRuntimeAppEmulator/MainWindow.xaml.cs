@@ -1,16 +1,31 @@
-﻿namespace Microsoft.Azure.Monitoring.SmartSignals.Emulator
+﻿//-----------------------------------------------------------------------
+// <copyright file="MainWindow.xaml.cs" company="Microsoft Corporation">
+//        Copyright (c) Microsoft Corporation.  All rights reserved.
+// </copyright>
+//-----------------------------------------------------------------------
+
+namespace Microsoft.Azure.Monitoring.SmartSignals.Emulator
 {
     using System;
     using System.Windows;
+
+    using Microsoft.Azure.Monitoring.SmartSignals.Emulator.ViewModels;
+
+    using Unity.Attributes;
 
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
     public partial class MainWindow : Window
     {
-        public MainWindow()
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MainWindow"/> class.
+        /// </summary>
+        /// <param name="viewModel">The view model for this control.</param>
+        public MainWindow(MainWindowViewModel viewModel)
         {
             this.InitializeComponent();
+            this.DataContext = viewModel;
         }
 
         #region Overrides of Window

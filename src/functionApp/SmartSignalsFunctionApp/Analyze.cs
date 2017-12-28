@@ -1,4 +1,10 @@
-﻿namespace Microsoft.SmartSignals.FunctionApp
+﻿//-----------------------------------------------------------------------
+// <copyright file="Analyze.cs" company="Microsoft Corporation">
+//        Copyright (c) Microsoft Corporation.  All rights reserved.
+// </copyright>
+//-----------------------------------------------------------------------
+
+namespace Microsoft.Azure.Monitoring.SmartSignals.FunctionApp
 {
     using System;
     using System.Collections.Generic;
@@ -8,8 +14,8 @@
     using System.Threading.Tasks;
     using Microsoft.Azure.Monitoring.SmartSignals;
     using Microsoft.Azure.Monitoring.SmartSignals.Analysis;
-    using Microsoft.Azure.Monitoring.SmartSignals.Analysis.DetectionPresentation;
     using Microsoft.Azure.Monitoring.SmartSignals.Shared;
+    using Microsoft.Azure.Monitoring.SmartSignals.Shared.SignalResultPresentation;
     using Microsoft.Azure.WebJobs;
     using Microsoft.Azure.WebJobs.Extensions.Http;
     using Microsoft.Azure.WebJobs.Host;
@@ -65,10 +71,10 @@
 
                     // Process the request
                     ISmartSignalRunner runner = childContainer.Resolve<ISmartSignalRunner>();
-                    List<SmartSignalDetectionPresentation> detections = await runner.RunAsync(smartSignalRequest, cancellationToken);
+                    List<SmartSignalResultItemPresentation> resultPresentations = await runner.RunAsync(smartSignalRequest, cancellationToken);
 
-                    // Return the generated detections
-                    return request.CreateResponse(HttpStatusCode.OK, detections);
+                    // Return the generated presentations
+                    return request.CreateResponse(HttpStatusCode.OK, resultPresentations);
                 }
                 catch (Exception e)
                 {

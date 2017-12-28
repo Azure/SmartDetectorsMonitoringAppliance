@@ -1,4 +1,10 @@
-﻿namespace Microsoft.Azure.Monitoring.SmartSignals.Shared
+﻿//-----------------------------------------------------------------------
+// <copyright file="AzureFunctionEnvironment.cs" company="Microsoft Corporation">
+//        Copyright (c) Microsoft Corporation.  All rights reserved.
+// </copyright>
+//-----------------------------------------------------------------------
+
+namespace Microsoft.Azure.Monitoring.SmartSignals.Shared
 {
     /// <summary>
     /// A static class holding Azure function environment variables

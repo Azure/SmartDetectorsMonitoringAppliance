@@ -1,4 +1,10 @@
-﻿namespace SmartSignalsAnalysisSharedTests
+﻿//-----------------------------------------------------------------------
+// <copyright file="SmartSignalLoaderTests.cs" company="Microsoft Corporation">
+//        Copyright (c) Microsoft Corporation.  All rights reserved.
+// </copyright>
+//-----------------------------------------------------------------------
+
+namespace SmartSignalsAnalysisSharedTests
 {
     using System;
     using System.Collections.Generic;
@@ -23,9 +29,8 @@
     {
         private Dictionary<string, DllInfo> dllInfos;
         private Mock<ITracer> tracerMock;
-        private Dictionary<string, SmartSignalMetadata> metadatas;
+        private Dictionary<string, SmartSignalManifest> manifests;
         private Dictionary<string, Dictionary<string, byte[]>> assemblies;
-        private Mock<ISmartSignalsRepository> smartSignalsRepositoryMock;
 
         [TestInitialize]
         public void TestInitialize()
@@ -40,10 +45,10 @@
 
             Assembly currentAssembly = Assembly.GetExecutingAssembly();
 
-            this.metadatas = new Dictionary<string, SmartSignalMetadata>()
+            this.manifests = new Dictionary<string, SmartSignalManifest>()
             {
-                ["1"] = new SmartSignalMetadata("1", "Test signal", "Test signal description", "1.0", "TestSignalLibrary", "TestSignalLibrary.TestSignal", new List<ResourceType>() { ResourceType.Subscription }),
-                ["2"] = new SmartSignalMetadata("2", "Test signal with dependency", "Test signal with dependency description", "1.0", "TestSignalLibrary", "TestSignalLibrary.TestSignalWithDependency", new List<ResourceType>() { ResourceType.Subscription })
+                ["1"] = new SmartSignalManifest("1", "Test signal", "Test signal description", Version.Parse("1.0"), "TestSignalLibrary", "TestSignalLibrary.TestSignal", new List<ResourceType>() { ResourceType.Subscription }),
+                ["2"] = new SmartSignalManifest("2", "Test signal with dependency", "Test signal with dependency description", Version.Parse("1.0"), "TestSignalLibrary", "TestSignalLibrary.TestSignalWithDependency", new List<ResourceType>() { ResourceType.Subscription })
             };
 
             this.assemblies = new Dictionary<string, Dictionary<string, byte[]>>
@@ -63,14 +68,6 @@
                     [currentAssembly.GetName().Name] = File.ReadAllBytes(currentAssembly.Location)
                 }
             };
-
-            this.smartSignalsRepositoryMock = new Mock<ISmartSignalsRepository>();
-            this.smartSignalsRepositoryMock
-                .Setup(x => x.ReadSignalMetadataAsync(It.IsAny<string>()))
-                .ReturnsAsync((string signalId) => this.metadatas[signalId]);
-            this.smartSignalsRepositoryMock
-                .Setup(x => x.ReadSignalAssembliesAsync(It.IsAny<string>()))
-                .ReturnsAsync((string signalId) => this.assemblies[signalId]);
         }
 
         [TestMethod]
@@ -131,25 +128,41 @@
 
         private async Task TestLoadSignalSimple(Type signalType, string expectedTitle = "test test test")
         {
-            ISmartSignalLoader loader = new SmartSignalLoader(this.smartSignalsRepositoryMock.Object, this.tracerMock.Object);
-            SmartSignalMetadata metadata = new SmartSignalMetadata("3", "simple", "description", "1.0", signalType.Assembly.GetName().Name, signalType.FullName, new List<ResourceType>() { ResourceType.Subscription });
-            ISmartSignal signal = await loader.LoadSignalAsync(metadata);
+            ISmartSignalLoader loader = new SmartSignalLoader(this.tracerMock.Object);
+            SmartSignalManifest manifest = new SmartSignalManifest("3", "simple", "description", Version.Parse("1.0"), signalType.Assembly.GetName().Name, signalType.FullName, new List<ResourceType>() { ResourceType.Subscription });
+            SmartSignalPackage package = new SmartSignalPackage(manifest, this.assemblies["3"]);
+            ISmartSignal signal = loader.LoadSignal(package);
             Assert.IsNotNull(signal, "Signal is NULL");
 
-            List<SmartSignalDetection> detections = await signal.AnalyzeResourcesAsync(null, new TimeRange(), null, this.tracerMock.Object, default(CancellationToken));
-            Assert.AreEqual(1, detections.Count, "Incorrect number of detections returned");
-            Assert.AreEqual(expectedTitle, detections.Single().Title, "Detection title is wrong");
+            var resource = ResourceIdentifier.Create(ResourceType.VirtualMachine, "someSubscription", "someGroup", "someVM");
+            var analysisRequest = new AnalysisRequest(
+                new List<ResourceIdentifier> { resource },
+                DateTime.UtcNow.AddDays(-1),
+                TimeSpan.FromDays(1),
+                new Mock<IAnalysisServicesFactory>().Object);
+            SmartSignalResult signalResult = await signal.AnalyzeResourcesAsync(analysisRequest, this.tracerMock.Object, default(CancellationToken));
+            Assert.AreEqual(1, signalResult.ResultItems.Count, "Incorrect number of result items returned");
+            Assert.AreEqual(expectedTitle, signalResult.ResultItems.Single().Title, "Result item title is wrong");
+            Assert.AreEqual(resource, signalResult.ResultItems.Single().ResourceIdentifier, "Result item resource identifier is wrong");
         }
 
         private async Task TestLoadSignalFromDll(string signalId, string expectedTitle)
         {
-            ISmartSignalLoader loader = new SmartSignalLoader(this.smartSignalsRepositoryMock.Object, this.tracerMock.Object);
-            ISmartSignal signal = await loader.LoadSignalAsync(this.metadatas[signalId]);
+            ISmartSignalLoader loader = new SmartSignalLoader(this.tracerMock.Object);
+            SmartSignalPackage package = new SmartSignalPackage(this.manifests[signalId], this.assemblies[signalId]);
+            ISmartSignal signal = loader.LoadSignal(package);
             Assert.IsNotNull(signal, "Signal is NULL");
 
-            List<SmartSignalDetection> detections = await signal.AnalyzeResourcesAsync(null, new TimeRange(), null, this.tracerMock.Object, default(CancellationToken));
-            Assert.AreEqual(1, detections.Count, "Incorrect number of detections returned");
-            Assert.AreEqual(expectedTitle, detections.Single().Title, "Detection title is wrong");
+            var resource = ResourceIdentifier.Create(ResourceType.VirtualMachine, "someSubscription", "someGroup", "someVM");
+            var analysisRequest = new AnalysisRequest(
+                new List<ResourceIdentifier> { resource }, 
+                DateTime.UtcNow.AddDays(-1), 
+                TimeSpan.FromDays(1), 
+                new Mock<IAnalysisServicesFactory>().Object);
+            SmartSignalResult signalResult = await signal.AnalyzeResourcesAsync(analysisRequest, this.tracerMock.Object, default(CancellationToken));
+            Assert.AreEqual(1, signalResult.ResultItems.Count, "Incorrect number of result items returned");
+            Assert.AreEqual(expectedTitle, signalResult.ResultItems.Single().Title, "Result item title is wrong");
+            Assert.AreEqual(resource, signalResult.ResultItems.Single().ResourceIdentifier, "Result item resource identifier is wrong");
         }
 
         private void InitializeDll(string name)
@@ -189,21 +202,21 @@
             public byte[] Bytes { get; set; }
         }
 
-        private class TestDetection : SmartSignalDetection
+        private class TestResultItem : SmartSignalResultItem
         {
-            public TestDetection(string s = "test test test")
+            public TestResultItem(string title, ResourceIdentifier resourceIdentifier) : base(title, resourceIdentifier)
             {
-                this.Title = s;
             }
-
-            public override string Title { get; }
         }
 
         private class TestSignal : ISmartSignal
         {
-            public Task<List<SmartSignalDetection>> AnalyzeResourcesAsync(IList<ResourceIdentifier> targetResources, TimeRange analysisWindow, ISmartSignalAnalysisServices analysisServices, ITracer tracer, CancellationToken cancellationToken)
+            public Task<SmartSignalResult> AnalyzeResourcesAsync(AnalysisRequest analysisRequest, ITracer tracer, CancellationToken cancellationToken)
             {
-                return Task.FromResult(new List<SmartSignalDetection>() { new TestDetection() });
+                return Task.FromResult(new SmartSignalResult
+                {
+                    ResultItems = new List<SmartSignalResultItem> { new TestResultItem("test test test", analysisRequest.TargetResources.Single()) }
+                });
             }
         }
 
@@ -220,17 +233,23 @@
                 this.message = message;
             }
 
-            public Task<List<SmartSignalDetection>> AnalyzeResourcesAsync(IList<ResourceIdentifier> targetResources, TimeRange analysisWindow, ISmartSignalAnalysisServices analysisServices, ITracer tracer, CancellationToken cancellationToken)
+            public Task<SmartSignalResult> AnalyzeResourcesAsync(AnalysisRequest analysisRequest, ITracer tracer, CancellationToken cancellationToken)
             {
-                return Task.FromResult(new List<SmartSignalDetection>() { new TestDetection(this.message) });
+                return Task.FromResult(new SmartSignalResult
+                {
+                    ResultItems = new List<SmartSignalResultItem> { new TestResultItem(this.message, analysisRequest.TargetResources.Single()) }
+                });
             }
         }
 
         private class TestSignalGeneric<T> : ISmartSignal
         {
-            public Task<List<SmartSignalDetection>> AnalyzeResourcesAsync(IList<ResourceIdentifier> targetResources, TimeRange analysisWindow, ISmartSignalAnalysisServices analysisServices, ITracer tracer, CancellationToken cancellationToken)
+            public Task<SmartSignalResult> AnalyzeResourcesAsync(AnalysisRequest analysisRequest, ITracer tracer, CancellationToken cancellationToken)
             {
-                return Task.FromResult(new List<SmartSignalDetection>() { new TestDetection(typeof(T).Name) });
+                return Task.FromResult(new SmartSignalResult
+                {
+                    ResultItems = new List<SmartSignalResultItem> { new TestResultItem(typeof(T).Name, analysisRequest.TargetResources.Single()) }
+                });
             }
         }
     }

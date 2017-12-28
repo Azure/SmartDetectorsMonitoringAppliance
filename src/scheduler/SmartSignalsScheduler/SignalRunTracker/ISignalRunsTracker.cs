@@ -1,8 +1,15 @@
-﻿namespace Microsoft.SmartSignals.Scheduler.SignalRunTracker
+﻿//-----------------------------------------------------------------------
+// <copyright file="ISignalRunsTracker.cs" company="Microsoft Corporation">
+//        Copyright (c) Microsoft Corporation.  All rights reserved.
+// </copyright>
+//-----------------------------------------------------------------------
+
+namespace Microsoft.Azure.Monitoring.SmartSignals.Scheduler.SignalRunTracker
 {
     using System.Collections.Generic;
     using System.Threading.Tasks;
-    using Microsoft.Azure.Monitoring.SmartSignals.Shared;
+    using Microsoft.Azure.Monitoring.SmartSignals.Scheduler;
+    using Microsoft.Azure.Monitoring.SmartSignals.Shared.AlertRules;
 
     /// <summary>
     /// Tracking the signal job runs - Responsible to determine whether the signal job should run.
@@ -11,11 +18,11 @@
     public interface ISignalRunsTracker
     {
         /// <summary>
-        /// Gets the configurations of the signal that needs to be executed based on configuration and their last execution times
+        /// Returns the execution information of the signals that needs to be executed based on their last execution times and the alert rules
         /// </summary>
-        /// <param name="signalConfigurations">list of signal configurations</param>
+        /// <param name="alertRules">The alert rules</param>
         /// <returns>A list of signal execution times of the signals to execute</returns>
-        Task<IList<SignalExecutionInfo>> GetSignalsToRunAsync(IEnumerable<SmartSignalConfiguration> signalConfigurations);
+        Task<IList<SignalExecutionInfo>> GetSignalsToRunAsync(IEnumerable<AlertRule> alertRules);
 
         /// <summary>
         /// Updates a successful run in the tracking table.

@@ -1,11 +1,17 @@
-﻿namespace Microsoft.Azure.Monitoring.SmartSignals.Analysis
+﻿//-----------------------------------------------------------------------
+// <copyright file="SmartSignalRunnerInChildProcess.cs" company="Microsoft Corporation">
+//        Copyright (c) Microsoft Corporation.  All rights reserved.
+// </copyright>
+//-----------------------------------------------------------------------
+
+namespace Microsoft.Azure.Monitoring.SmartSignals.Analysis
 {
     using System.Collections.Generic;
     using System.Threading;
     using System.Threading.Tasks;
-    using Microsoft.Azure.Monitoring.SmartSignals.Analysis.DetectionPresentation;
     using Microsoft.Azure.Monitoring.SmartSignals.Shared;
     using Microsoft.Azure.Monitoring.SmartSignals.Shared.ChildProcess;
+    using Microsoft.Azure.Monitoring.SmartSignals.Shared.SignalResultPresentation;
 
     /// <summary>
     /// An implementation of <see cref="ISmartSignalRunner"/>, that runs the analysis in a separate process
@@ -30,10 +36,10 @@
         /// </summary>
         /// <param name="request">The request</param>
         /// <param name="cancellationToken">The cancellation token</param>
-        /// <returns>A <see cref="Task{TResult}"/>, returning the generated detections</returns>
-        public async Task<List<SmartSignalDetectionPresentation>> RunAsync(SmartSignalRequest request, CancellationToken cancellationToken)
+        /// <returns>A <see cref="Task{TResult}"/>, returning the generated result items presentations</returns>
+        public async Task<List<SmartSignalResultItemPresentation>> RunAsync(SmartSignalRequest request, CancellationToken cancellationToken)
         {
-            return await this.childProcessManager.RunChildProcessAsync<List<SmartSignalDetectionPresentation>>(ChildProcessName, request, cancellationToken);
+            return await this.childProcessManager.RunChildProcessAsync<List<SmartSignalResultItemPresentation>>(ChildProcessName, request, cancellationToken);
         }
     }
 }
