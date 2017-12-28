@@ -1,5 +1,5 @@
 ﻿//-----------------------------------------------------------------------
-// <copyright file="SmartSignalMetadata.cs" company="Microsoft Corporation">
+// <copyright file="SmartSignalManifest.cs" company="Microsoft Corporation">
 //        Copyright (c) Microsoft Corporation.  All rights reserved.
 // </copyright>
 //-----------------------------------------------------------------------
@@ -11,12 +11,12 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Shared
     using System.Linq;
 
     /// <summary>
-    /// Represents metadata of a smart signal, stored in the smart signals repository
+    /// Represents the manifest of a Smart Signal, stored in the smart signals repository
     /// </summary>
-    public class SmartSignalMetadata
+    public sealed class SmartSignalManifest
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="SmartSignalMetadata"/> class.
+        /// Initializes a new instance of the <see cref="SmartSignalManifest"/> class.
         /// </summary>
         /// <param name="id">The signal's id.</param>
         /// <param name="name">The signal's name.</param>
@@ -25,12 +25,12 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Shared
         /// <param name="assemblyName">The name of the signal's assembly file.</param>
         /// <param name="className">The (fully qualified) name for the signal's class.</param>
         /// <param name="supportedResourceTypes">The types of resources that this signal supports</param>
-        public SmartSignalMetadata(string id, string name, string description, string version, string assemblyName, string className, IReadOnlyList<ResourceType> supportedResourceTypes)
+        public SmartSignalManifest(string id, string name, string description, Version version, string assemblyName, string className, IReadOnlyList<ResourceType> supportedResourceTypes)
         {
             this.Id = Diagnostics.EnsureStringNotNullOrWhiteSpace(() => id);
             this.Name = Diagnostics.EnsureStringNotNullOrWhiteSpace(() => name);
             this.Description = Diagnostics.EnsureStringNotNullOrWhiteSpace(() => description);
-            this.Version = Diagnostics.EnsureStringNotNullOrWhiteSpace(() => version);
+            this.Version = Diagnostics.EnsureArgumentNotNull(() => version);
             this.AssemblyName = Diagnostics.EnsureStringNotNullOrWhiteSpace(() => assemblyName);
             this.ClassName = Diagnostics.EnsureStringNotNullOrWhiteSpace(() => className);
             this.SupportedResourceTypes = Diagnostics.EnsureArgumentNotNull(() => supportedResourceTypes);
@@ -60,7 +60,7 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Shared
         /// <summary>
         /// Gets the signal's version.
         /// </summary>
-        public string Version { get; }
+        public Version Version { get; }
 
         /// <summary>
         /// Gets the name of the signal's assembly file.
@@ -86,8 +86,8 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Shared
         /// <param name="obj">The object to compare with the current object. </param>
         public override bool Equals(object obj)
         {
-            // If parameter cannot be cast to SignalMetadata return false.
-            var other = obj as SmartSignalMetadata;
+            // If parameter cannot be cast to SmartSignalManifest return false.
+            var other = obj as SmartSignalManifest;
             if (other == null)
             {
                 return false;

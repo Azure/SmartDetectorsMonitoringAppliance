@@ -20,13 +20,13 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.ManagementApi.EndpointsLogic
     /// </summary>
     public class SignalApi : ISignalApi
     {
-        private readonly ISmartSignalsRepository smartSignalsRepository;
+        private readonly ISmartSignalRepository smartSignalsRepository;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SignalApi"/> class.
         /// </summary>
         /// <param name="smartSignalsRepository">The smart signal repository.</param>
-        public SignalApi(ISmartSignalsRepository smartSignalsRepository)
+        public SignalApi(ISmartSignalRepository smartSignalsRepository)
         {
             Diagnostics.EnsureArgumentNotNull(() => smartSignalsRepository);
 
@@ -42,13 +42,13 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.ManagementApi.EndpointsLogic
         {
             try
             {
-                IList<SmartSignalMetadata> smartSignalMetadata = await this.smartSignalsRepository.ReadAllSignalsMetadataAsync();
+                IList<SmartSignalManifest> smartSignalManifests = await this.smartSignalsRepository.ReadAllSignalsManifestsAsync();
 
                 // Convert smart signals to the required response
-                var signals = smartSignalMetadata.Select(metadata => new Signal
+                var signals = smartSignalManifests.Select(manifest => new Signal
                 {
-                   Id = metadata.Id,
-                   Name = metadata.Name,
+                   Id = manifest.Id,
+                   Name = manifest.Name,
                    SupportedCadences = new List<int>(),  // TODO - wait for Aviram to complete this
                    Configurations = new List<SignalConfiguration>()
                 }).ToList();

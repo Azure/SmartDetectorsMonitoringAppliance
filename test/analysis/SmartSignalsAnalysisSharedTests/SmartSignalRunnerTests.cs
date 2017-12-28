@@ -21,12 +21,12 @@ namespace SmartSignalsAnalysisSharedTests
     [TestClass]
     public class SmartSignalRunnerTests
     {
-        private SmartSignalMetadata smartSignalMetadata;
+        private SmartSignalPackage smartSignalPackage;
         private List<string> resourceIds;
         private SmartSignalRequest request;
         private TestSignal signal;
         private Mock<ITracer> tracerMock;
-        private Mock<ISmartSignalsRepository> smartSignalsRepositoryMock;
+        private Mock<ISmartSignalRepository> smartSignalsRepositoryMock;
         private Mock<ISmartSignalLoader> smartSignalLoaderMock;
         private Mock<IAnalysisServicesFactory> analysisServicesFactoryMock;
         private Mock<IAzureResourceManagerClient> azureResourceManagerClientMock;
@@ -123,12 +123,13 @@ namespace SmartSignalsAnalysisSharedTests
 
             this.request = new SmartSignalRequest(this.resourceIds, "1", DateTime.UtcNow.AddDays(-1), TimeSpan.FromDays(1), new SmartSignalSettings());
 
-            this.smartSignalMetadata = new SmartSignalMetadata("1", "Test signal", "Test signal description", "1.0", "assembly", "class", new List<ResourceType>() { signalResourceType });
+            var smartSignalManifest = new SmartSignalManifest("1", "Test signal", "Test signal description", Version.Parse("1.0"), "assembly", "class", new List<ResourceType>() { signalResourceType });
+            this.smartSignalPackage = new SmartSignalPackage(smartSignalManifest, new Dictionary<string, byte[]>());
 
-            this.smartSignalsRepositoryMock = new Mock<ISmartSignalsRepository>();
+            this.smartSignalsRepositoryMock = new Mock<ISmartSignalRepository>();
             this.smartSignalsRepositoryMock
-                .Setup(x => x.ReadSignalMetadataAsync(It.IsAny<string>()))
-                .ReturnsAsync(() => this.smartSignalMetadata);
+                .Setup(x => x.ReadSignalPackageAsync(It.IsAny<string>()))
+                .ReturnsAsync(() => this.smartSignalPackage);
 
             this.analysisServicesFactoryMock = new Mock<IAnalysisServicesFactory>();
 
@@ -136,8 +137,8 @@ namespace SmartSignalsAnalysisSharedTests
 
             this.smartSignalLoaderMock = new Mock<ISmartSignalLoader>();
             this.smartSignalLoaderMock
-                .Setup(x => x.LoadSignalAsync(this.smartSignalMetadata))
-                .ReturnsAsync(() => this.signal);
+                .Setup(x => x.LoadSignal(this.smartSignalPackage))
+                .Returns(this.signal);
 
             this.azureResourceManagerClientMock = new Mock<IAzureResourceManagerClient>();
             this.azureResourceManagerClientMock

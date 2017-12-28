@@ -21,9 +21,9 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Analysis
         /// with the specified error message.
         /// </summary>
         /// <param name="requestResourceType">The requested resource type</param>
-        /// <param name="smartSignalMetadata">The signal metadata</param>
-        public IncompatibleResourceTypesException(ResourceType requestResourceType, SmartSignalMetadata smartSignalMetadata)
-            : base($"Resource type {requestResourceType} is not supported by signal {smartSignalMetadata.Name}")
+        /// <param name="smartSignalManifest">The signal manifest</param>
+        public IncompatibleResourceTypesException(ResourceType requestResourceType, SmartSignalManifest smartSignalManifest)
+            : base($"Resource type {requestResourceType} is not supported by signal {smartSignalManifest.Name}")
         {
         }
 

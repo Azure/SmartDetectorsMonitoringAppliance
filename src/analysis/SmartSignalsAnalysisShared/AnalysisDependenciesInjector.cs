@@ -6,10 +6,13 @@
 
 namespace Microsoft.Azure.Monitoring.SmartSignals.Analysis
 {
+    using System;
     using Microsoft.Azure.Monitoring.SmartSignals.Shared;
+    using Microsoft.Azure.Monitoring.SmartSignals.Shared.AzureStorage;
     using Microsoft.Azure.Monitoring.SmartSignals.Shared.HttpClient;
     using Microsoft.Azure.Monitoring.SmartSignals.Shared.Trace;
     using Microsoft.Azure.WebJobs.Host;
+    using Microsoft.WindowsAzure.Storage.Blob;
     using Unity;
 
     /// <summary>
@@ -26,9 +29,10 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Analysis
             // Register main dependencies
             IUnityContainer container = new UnityContainer();
             container
+                .RegisterType<ICloudStorageProviderFactory, CloudStorageProviderFactory>()
                 .RegisterType<IHttpClientWrapper, HttpClientWrapper>()
+                .RegisterType<ISmartSignalRepository, SmartSignalRepository>()
                 .RegisterType<IAzureResourceManagerClient, AzureResourceManagerClient>()
-                .RegisterType<ISmartSignalsRepository, SmartSignalsRepository>()
                 .RegisterType<IAnalysisServicesFactory, AnalysisServicesFactory>()
                 .RegisterType<ISmartSignalLoader, SmartSignalLoader>();
 

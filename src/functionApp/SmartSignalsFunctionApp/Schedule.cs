@@ -39,12 +39,8 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.FunctionApp
             System.Net.ServicePointManager.DefaultConnectionLimit = 100;
             ThreadPool.SetMinThreads(100, 100);
 
-            var storageConnectionString = ConfigurationReader.ReadConfigConnectionString("StorageConnectionString", true);
-            CloudTableClient cloudTableClient = CloudStorageAccount.Parse(storageConnectionString).CreateCloudTableClient();
-
             Container = new UnityContainer()
-                .RegisterInstance(cloudTableClient)
-                .RegisterType<ICloudTableClientWrapper, CloudTableClientWrapper>()
+                .RegisterType<ICloudStorageProviderFactory, CloudStorageProviderFactory>()
                 .RegisterType<IAlertRuleStore, AlertRuleStore>()
                 .RegisterType<ISignalRunsTracker, SignalRunsTracker>()
                 .RegisterType<IAnalysisExecuter, AnalysisExecuter>()

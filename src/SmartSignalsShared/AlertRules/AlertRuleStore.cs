@@ -30,13 +30,14 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Shared.AlertRules
         /// <summary>
         /// Initializes a new instance of the<see cref="AlertRuleStore"/> class.
         /// </summary>
-        /// <param name="tableClient">The azure storage table client</param>
+        /// <param name="storageProviderFactory">The Azure Storage provider factory</param>
         /// <param name="tracer">Log wrapper</param>
-        public AlertRuleStore(ICloudTableClientWrapper tableClient, ITracer tracer)
+        public AlertRuleStore(ICloudStorageProviderFactory storageProviderFactory, ITracer tracer)
         {
             this.tracer = tracer;
 
             // create the cloud table instance
+            ICloudTableClientWrapper tableClient = storageProviderFactory.GetSmartSignalStorageTableClient();
             this.alertRulesTable = tableClient.GetTableReference(TableName);
             this.alertRulesTable.CreateIfNotExists();
         }

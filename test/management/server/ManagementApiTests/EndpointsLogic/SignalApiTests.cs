@@ -22,14 +22,14 @@ namespace ManagementApiTests.EndpointsLogic
     [TestClass]
     public class SignalApiTests
     {
-        private Mock<ISmartSignalsRepository> smartSignalsRepository;
+        private Mock<ISmartSignalRepository> smartSignalsRepository;
 
         private ISignalApi signalsLogic;
 
         [TestInitialize]
         public void Initialize()
         {
-            this.smartSignalsRepository = new Mock<ISmartSignalsRepository>();
+            this.smartSignalsRepository = new Mock<ISmartSignalRepository>();
             this.signalsLogic = new SignalApi(this.smartSignalsRepository.Object);
         }
 
@@ -38,10 +38,10 @@ namespace ManagementApiTests.EndpointsLogic
         [TestMethod]
         public async Task WhenGettingAllSignalsHappyFlow()
         {
-            this.smartSignalsRepository.Setup(repository => repository.ReadAllSignalsMetadataAsync())
-                                       .ReturnsAsync(() => new List<SmartSignalMetadata>()
+            this.smartSignalsRepository.Setup(repository => repository.ReadAllSignalsManifestsAsync())
+                                       .ReturnsAsync(() => new List<SmartSignalManifest>()
                 {
-                    new SmartSignalMetadata("someId", "someName", "someDescription", "someVersion", "someAssemblyName", "someClassName", new List<ResourceType> { ResourceType.ResourceGroup })
+                    new SmartSignalManifest("someId", "someName", "someDescription", Version.Parse("1.0"), "someAssemblyName", "someClassName", new List<ResourceType> { ResourceType.ResourceGroup })
                 });
 
             ListSmartSignalsResponse response = await this.signalsLogic.GetAllSmartSignalsAsync();
@@ -54,7 +54,7 @@ namespace ManagementApiTests.EndpointsLogic
         [TestMethod]
         public async Task WhenGettingAllSignalsButSignalsRepositoryThrowsExceptionThenThrowsWrappedException()
         {
-            this.smartSignalsRepository.Setup(repository => repository.ReadAllSignalsMetadataAsync())
+            this.smartSignalsRepository.Setup(repository => repository.ReadAllSignalsManifestsAsync())
                                        .ThrowsAsync(new AlertRuleStoreException("some message", new Exception()));
 
             try

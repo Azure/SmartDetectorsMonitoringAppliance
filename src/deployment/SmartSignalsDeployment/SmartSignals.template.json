@@ -145,7 +145,8 @@
             "SubscriptionId": "[subscription().subscriptionId]",
             "FunctionBaseUrl": "[variables('functionBaseUrl')]",
             "StorageAccountName": "[parameters('storageAccountName')]",
-            "AnalyticsQueryTimeoutInMinutes": "15"
+            "AnalyticsQueryTimeoutInMinutes": "15",
+            "GlobalSmartSignalContainerUri": "https://globalsmartsignals.blob.core.windows.net/signals"
           }
         },
         {

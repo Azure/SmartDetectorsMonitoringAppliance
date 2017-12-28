@@ -11,15 +11,15 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Analysis
     using Microsoft.Azure.Monitoring.SmartSignals.Shared;
 
     /// <summary>
-    /// Interface to load a signal based on its ID
+    /// An interface used for loading a Smart Signal from its package
     /// </summary>
     public interface ISmartSignalLoader
     {
         /// <summary>
-        /// Load a signal based on its metadata
+        /// Load a signal from its package
         /// </summary>
-        /// <param name="signalMetadata">The signal metadata</param>
+        /// <param name="signalPackage">The signal package</param>
         /// <returns>The signal instance</returns>
-        Task<ISmartSignal> LoadSignalAsync(SmartSignalMetadata signalMetadata);
+        ISmartSignal LoadSignal(SmartSignalPackage signalPackage);
     }
 }

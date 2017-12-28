@@ -29,9 +29,11 @@ namespace SmartSignalSharedTests
             this.tableMock = new Mock<ICloudTableWrapper>();
             var tableClientMock = new Mock<ICloudTableClientWrapper>();
             tableClientMock.Setup(m => m.GetTableReference(It.IsAny<string>())).Returns(this.tableMock.Object);
+            var storageProviderFactoryMock = new Mock<ICloudStorageProviderFactory>();
+            storageProviderFactoryMock.Setup(m => m.GetSmartSignalStorageTableClient()).Returns(tableClientMock.Object);
 
             var tracerMock = new Mock<ITracer>();
-            this.alertRuleStore = new AlertRuleStore(tableClientMock.Object, tracerMock.Object);
+            this.alertRuleStore = new AlertRuleStore(storageProviderFactoryMock.Object, tracerMock.Object);
         }
 
         [TestMethod]

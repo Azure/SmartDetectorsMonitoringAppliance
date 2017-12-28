@@ -29,9 +29,8 @@ namespace SmartSignalsAnalysisSharedTests
     {
         private Dictionary<string, DllInfo> dllInfos;
         private Mock<ITracer> tracerMock;
-        private Dictionary<string, SmartSignalMetadata> metadatas;
+        private Dictionary<string, SmartSignalManifest> manifests;
         private Dictionary<string, Dictionary<string, byte[]>> assemblies;
-        private Mock<ISmartSignalsRepository> smartSignalsRepositoryMock;
 
         [TestInitialize]
         public void TestInitialize()
@@ -46,10 +45,10 @@ namespace SmartSignalsAnalysisSharedTests
 
             Assembly currentAssembly = Assembly.GetExecutingAssembly();
 
-            this.metadatas = new Dictionary<string, SmartSignalMetadata>()
+            this.manifests = new Dictionary<string, SmartSignalManifest>()
             {
-                ["1"] = new SmartSignalMetadata("1", "Test signal", "Test signal description", "1.0", "TestSignalLibrary", "TestSignalLibrary.TestSignal", new List<ResourceType>() { ResourceType.Subscription }),
-                ["2"] = new SmartSignalMetadata("2", "Test signal with dependency", "Test signal with dependency description", "1.0", "TestSignalLibrary", "TestSignalLibrary.TestSignalWithDependency", new List<ResourceType>() { ResourceType.Subscription })
+                ["1"] = new SmartSignalManifest("1", "Test signal", "Test signal description", Version.Parse("1.0"), "TestSignalLibrary", "TestSignalLibrary.TestSignal", new List<ResourceType>() { ResourceType.Subscription }),
+                ["2"] = new SmartSignalManifest("2", "Test signal with dependency", "Test signal with dependency description", Version.Parse("1.0"), "TestSignalLibrary", "TestSignalLibrary.TestSignalWithDependency", new List<ResourceType>() { ResourceType.Subscription })
             };
 
             this.assemblies = new Dictionary<string, Dictionary<string, byte[]>>
@@ -69,14 +68,6 @@ namespace SmartSignalsAnalysisSharedTests
                     [currentAssembly.GetName().Name] = File.ReadAllBytes(currentAssembly.Location)
                 }
             };
-
-            this.smartSignalsRepositoryMock = new Mock<ISmartSignalsRepository>();
-            this.smartSignalsRepositoryMock
-                .Setup(x => x.ReadSignalMetadataAsync(It.IsAny<string>()))
-                .ReturnsAsync((string signalId) => this.metadatas[signalId]);
-            this.smartSignalsRepositoryMock
-                .Setup(x => x.ReadSignalAssembliesAsync(It.IsAny<string>()))
-                .ReturnsAsync((string signalId) => this.assemblies[signalId]);
         }
 
         [TestMethod]
@@ -137,9 +128,10 @@ namespace SmartSignalsAnalysisSharedTests
 
         private async Task TestLoadSignalSimple(Type signalType, string expectedTitle = "test test test")
         {
-            ISmartSignalLoader loader = new SmartSignalLoader(this.smartSignalsRepositoryMock.Object, this.tracerMock.Object);
-            SmartSignalMetadata metadata = new SmartSignalMetadata("3", "simple", "description", "1.0", signalType.Assembly.GetName().Name, signalType.FullName, new List<ResourceType>() { ResourceType.Subscription });
-            ISmartSignal signal = await loader.LoadSignalAsync(metadata);
+            ISmartSignalLoader loader = new SmartSignalLoader(this.tracerMock.Object);
+            SmartSignalManifest manifest = new SmartSignalManifest("3", "simple", "description", Version.Parse("1.0"), signalType.Assembly.GetName().Name, signalType.FullName, new List<ResourceType>() { ResourceType.Subscription });
+            SmartSignalPackage package = new SmartSignalPackage(manifest, this.assemblies["3"]);
+            ISmartSignal signal = loader.LoadSignal(package);
             Assert.IsNotNull(signal, "Signal is NULL");
 
             var resource = ResourceIdentifier.Create(ResourceType.VirtualMachine, "someSubscription", "someGroup", "someVM");
@@ -156,8 +148,9 @@ namespace SmartSignalsAnalysisSharedTests
 
         private async Task TestLoadSignalFromDll(string signalId, string expectedTitle)
         {
-            ISmartSignalLoader loader = new SmartSignalLoader(this.smartSignalsRepositoryMock.Object, this.tracerMock.Object);
-            ISmartSignal signal = await loader.LoadSignalAsync(this.metadatas[signalId]);
+            ISmartSignalLoader loader = new SmartSignalLoader(this.tracerMock.Object);
+            SmartSignalPackage package = new SmartSignalPackage(this.manifests[signalId], this.assemblies[signalId]);
+            ISmartSignal signal = loader.LoadSignal(package);
             Assert.IsNotNull(signal, "Signal is NULL");
 
             var resource = ResourceIdentifier.Create(ResourceType.VirtualMachine, "someSubscription", "someGroup", "someVM");
