@@ -15,7 +15,7 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.FunctionApp
     using Microsoft.Azure.Monitoring.SmartSignals;
     using Microsoft.Azure.Monitoring.SmartSignals.Analysis;
     using Microsoft.Azure.Monitoring.SmartSignals.Shared;
-    using Microsoft.Azure.Monitoring.SmartSignals.Shared.DetectionPresentation;
+    using Microsoft.Azure.Monitoring.SmartSignals.Shared.SignalResultPresentation;
     using Microsoft.Azure.WebJobs;
     using Microsoft.Azure.WebJobs.Extensions.Http;
     using Microsoft.Azure.WebJobs.Host;
@@ -71,10 +71,10 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.FunctionApp
 
                     // Process the request
                     ISmartSignalRunner runner = childContainer.Resolve<ISmartSignalRunner>();
-                    List<SmartSignalDetectionPresentation> detections = await runner.RunAsync(smartSignalRequest, cancellationToken);
+                    List<SmartSignalResultItemPresentation> resultPresentations = await runner.RunAsync(smartSignalRequest, cancellationToken);
 
-                    // Return the generated detections
-                    return request.CreateResponse(HttpStatusCode.OK, detections);
+                    // Return the generated presentations
+                    return request.CreateResponse(HttpStatusCode.OK, resultPresentations);
                 }
                 catch (Exception e)
                 {

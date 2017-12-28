@@ -24,7 +24,7 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Emulator
             // Create a Unity container with all the required models and view models registrations
             IUnityContainer container = new UnityContainer();
             container
-                .RegisterInstance(new DetectionsRepository())
+                .RegisterInstance(new SignalsResultsRepository())
                 .RegisterInstance(new AuthenticationServices());
 
             // Authenticate the user to AAD

@@ -1,25 +1,25 @@
 ﻿//-----------------------------------------------------------------------
-// <copyright file="SmartSignalDetectionPresentationSummary.cs" company="Microsoft Corporation">
+// <copyright file="SmartSignalResultItemPresentationSummary.cs" company="Microsoft Corporation">
 //        Copyright (c) Microsoft Corporation.  All rights reserved.
 // </copyright>
 //-----------------------------------------------------------------------
 
-namespace Microsoft.Azure.Monitoring.SmartSignals.Shared.DetectionPresentation
+namespace Microsoft.Azure.Monitoring.SmartSignals.Shared.SignalResultPresentation
 {
     using Newtonsoft.Json;
 
     /// <summary>
-    /// This class holds presentation information of the detection summary (card)
+    /// This class holds presentation information of the Smart Signal result item summary (card)
     /// </summary>
-    public class SmartSignalDetectionPresentationSummary
+    public class SmartSignalResultItemPresentationSummary
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="SmartSignalDetectionPresentationSummary"/> class
+        /// Initializes a new instance of the <see cref="SmartSignalResultItemPresentationSummary"/> class
         /// </summary>
         /// <param name="value">The summary value</param>
         /// <param name="details">The summary details</param>
         /// <param name="chart">The summary chart</param>
-        public SmartSignalDetectionPresentationSummary(string value, string details, SmartSignalDetectionPresentationProperty chart)
+        public SmartSignalResultItemPresentationSummary(string value, string details, SmartSignalResultItemPresentationProperty chart)
         {
             this.Value = value;
             this.Details = details;
@@ -42,6 +42,6 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Shared.DetectionPresentation
         /// Gets the summary chart
         /// </summary>
         [JsonProperty("chart")]
-        public SmartSignalDetectionPresentationProperty Chart { get; }
+        public SmartSignalResultItemPresentationProperty Chart { get; }
     }
 }

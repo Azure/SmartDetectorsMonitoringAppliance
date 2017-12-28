@@ -14,7 +14,7 @@ namespace SmartSignalsAnalysisSharedTests
     using Microsoft.Azure.Monitoring.SmartSignals;
     using Microsoft.Azure.Monitoring.SmartSignals.Analysis;
     using Microsoft.Azure.Monitoring.SmartSignals.Shared;
-    using Microsoft.Azure.Monitoring.SmartSignals.Shared.DetectionPresentation;
+    using Microsoft.Azure.Monitoring.SmartSignals.Shared.SignalResultPresentation;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Moq;
 
@@ -38,15 +38,15 @@ namespace SmartSignalsAnalysisSharedTests
         }
 
         [TestMethod]
-        public async Task WhenRunningSignalThenTheCorrectDetectionIsReturned()
+        public async Task WhenRunningSignalThenTheCorrectResultItemIsReturned()
         {
             // Run the signal and validate results
             ISmartSignalRunner runner = new SmartSignalRunner(this.smartSignalsRepositoryMock.Object, this.smartSignalLoaderMock.Object, this.analysisServicesFactoryMock.Object, this.azureResourceManagerClientMock.Object, this.tracerMock.Object);
-            List<SmartSignalDetectionPresentation> detections = await runner.RunAsync(this.request, default(CancellationToken));
-            Assert.IsNotNull(detections, "Detections list is null");
-            Assert.AreEqual(1, detections.Count);
-            Assert.AreEqual("Test title", detections.Single().Title);
-            Assert.AreEqual("Summary value", detections.Single().Summary.Value);
+            List<SmartSignalResultItemPresentation> resultItemPresentations = await runner.RunAsync(this.request, default(CancellationToken));
+            Assert.IsNotNull(resultItemPresentations, "Presentation list is null");
+            Assert.AreEqual(1, resultItemPresentations.Count);
+            Assert.AreEqual("Test title", resultItemPresentations.Single().Title);
+            Assert.AreEqual("Summary value", resultItemPresentations.Single().Summary.Value);
         }
 
         [TestMethod]
@@ -98,13 +98,13 @@ namespace SmartSignalsAnalysisSharedTests
             ISmartSignalRunner runner = new SmartSignalRunner(this.smartSignalsRepositoryMock.Object, this.smartSignalLoaderMock.Object, this.analysisServicesFactoryMock.Object, this.azureResourceManagerClientMock.Object, this.tracerMock.Object);
             try
             {
-                List<SmartSignalDetectionPresentation> detections = await runner.RunAsync(this.request, default(CancellationToken));
+                List<SmartSignalResultItemPresentation> resultItemPresentations = await runner.RunAsync(this.request, default(CancellationToken));
                 if (shouldFail)
                 {
                     Assert.Fail("An exception should have been thrown - resource types are not compatible");
                 }
 
-                Assert.AreEqual(1, detections.Count);
+                Assert.AreEqual(1, resultItemPresentations.Count);
             }
             catch (IncompatibleResourceTypesException)
             {
@@ -121,7 +121,7 @@ namespace SmartSignalsAnalysisSharedTests
 
             this.resourceIds = new List<string>() { requestResourceType.ToString() };
 
-            this.request = new SmartSignalRequest(this.resourceIds, "1", DateTime.Now.AddDays(-1), DateTime.Now, new SmartSignalSettings());
+            this.request = new SmartSignalRequest(this.resourceIds, "1", DateTime.UtcNow.AddDays(-1), TimeSpan.FromDays(1), new SmartSignalSettings());
 
             this.smartSignalMetadata = new SmartSignalMetadata("1", "Test signal", "Test signal description", "1.0", "assembly", "class", new List<ResourceType>() { signalResourceType });
 
@@ -179,13 +179,13 @@ namespace SmartSignalsAnalysisSharedTests
 
             public ResourceType ExpectedResourceType { private get; set; }
 
-            public async Task<List<SmartSignalDetection>> AnalyzeResourcesAsync(IList<ResourceIdentifier> targetResources, TimeRange analysisWindow, IAnalysisServicesFactory analysisServicesFactory, ITracer tracer, CancellationToken cancellationToken)
+            public async Task<SmartSignalResult> AnalyzeResourcesAsync(AnalysisRequest analysisRequest, ITracer tracer, CancellationToken cancellationToken)
             {
                 this.IsRunning = true;
 
-                Assert.IsNotNull(targetResources, "Resources list is null");
-                Assert.AreEqual(1, targetResources.Count);
-                Assert.AreEqual(this.ExpectedResourceType, targetResources.Single().ResourceType);
+                Assert.IsNotNull(analysisRequest.TargetResources, "Resources list is null");
+                Assert.AreEqual(1, analysisRequest.TargetResources.Count);
+                Assert.AreEqual(this.ExpectedResourceType, analysisRequest.TargetResources.Single().ResourceType);
 
                 if (this.ShouldStuck)
                 {
@@ -200,25 +200,23 @@ namespace SmartSignalsAnalysisSharedTests
                     }
                 }
 
-                return await Task.FromResult(new List<SmartSignalDetection>()
+                return await Task.FromResult(new SmartSignalResult
                 {
-                    new TestSignalDetection(targetResources[0])
+                    ResultItems = new List<SmartSignalResultItem>
+                    {
+                        new TestSignalResultItem(analysisRequest.TargetResources.First())
+                    }
                 });
             }
         }
 
-        private class TestSignalDetection : SmartSignalDetection
+        private class TestSignalResultItem : SmartSignalResultItem
         {
-            public TestSignalDetection(ResourceIdentifier resourceIdentifier)
+            public TestSignalResultItem(ResourceIdentifier resourceIdentifier) : base("Test title", resourceIdentifier)
             {
-                this.ResourceIdentifier = resourceIdentifier;
             }
 
-            public override string Title { get; } = "Test title";
-
-            public override ResourceIdentifier ResourceIdentifier { get; }
-
-            [DetectionPresentation(DetectionPresentationSection.Property, "Summary title", InfoBalloon = "Summary info", Component = DetectionPresentationComponent.Summary)]
+            [ResultItemPresentation(ResultItemPresentationSection.Property, "Summary title", InfoBalloon = "Summary info", Component = ResultItemPresentationComponent.Summary)]
             public string Summary { get; } = "Summary value";
         }
     }

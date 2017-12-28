@@ -99,14 +99,14 @@
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
                         <Image Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" Grid.ColumnSpan="2" Source="Media/ic_lightbulb_outline_white_48dp_1x.png" Height="40"/>
-                        <Canvas Grid.Row="0" Grid.Column="1" Margin="6,0,0,0" Visibility="{Binding NumberOfDetectionsFound, Converter={StaticResource CountToVisibilityConverter}}">
+                        <Canvas Grid.Row="0" Grid.Column="1" Margin="6,0,0,0" Visibility="{Binding NumberOfResultsFound, Converter={StaticResource CountToVisibilityConverter}}">
                             <Border CornerRadius="50" Width="15" Height="15" Background="Red" BorderBrush="White" BorderThickness="1" >
-                                <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="White" Text="{Binding NumberOfDetectionsFound}" FontSize="10" FontWeight="Bold" Margin="-0.5,-0.5,0,0" />
+                                <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="White" Text="{Binding NumberOfResultsFound}" FontSize="10" FontWeight="Bold" Margin="-0.5,-0.5,0,0" />
                             </Border>
                         </Canvas>
                     </Grid>
                 </TabItem.Header>
-                <Label Content="The detections"/>
+                <Label Content="The results"/>
             </TabItem>
         </TabControl>
 

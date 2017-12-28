@@ -13,19 +13,19 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Emulator.ViewModels
     /// </summary>
     public class MainWindowViewModel : ObservableObject
     {
-        private int numberOfDetectionsFound;
+        private int numberOfResultsFound;
         private string userName;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="MainWindowViewModel"/> class.
         /// </summary>
-        /// <param name="detectionsRepository">The detections repository model.</param>
+        /// <param name="signalsResultsRepository">The signal results repository model.</param>
         /// <param name="authenticationServices">The authentication services to use.</param>
-        public MainWindowViewModel(DetectionsRepository detectionsRepository, AuthenticationServices authenticationServices)
+        public MainWindowViewModel(SignalsResultsRepository signalsResultsRepository, AuthenticationServices authenticationServices)
         {
-            this.NumberOfDetectionsFound = 0;
-            detectionsRepository.Detections.CollectionChanged +=
-                (sender, args) => { this.NumberOfDetectionsFound = args.NewItems.Count; };
+            this.NumberOfResultsFound = 0;
+            signalsResultsRepository.Results.CollectionChanged +=
+                (sender, args) => { this.NumberOfResultsFound = args.NewItems.Count; };
 
             authenticationServices.UserAuthenticated += (sender, args) =>
             {
@@ -34,18 +34,18 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Emulator.ViewModels
         }
 
         /// <summary>
-        /// Gets the number of detections found in this run.
+        /// Gets the number of results found in this run.
         /// </summary>
-        public int NumberOfDetectionsFound
+        public int NumberOfResultsFound
         {
             get
             {
-                return this.numberOfDetectionsFound;
+                return this.numberOfResultsFound;
             }
 
             private set
             {
-                this.numberOfDetectionsFound = value;
+                this.numberOfResultsFound = value;
                 this.OnPropertyChanged();
             }
         }

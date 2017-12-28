@@ -1,26 +1,26 @@
 ﻿//-----------------------------------------------------------------------
-// <copyright file="SmartSignalDetectionPresentationProperty.cs" company="Microsoft Corporation">
+// <copyright file="SmartSignalResultItemPresentationProperty.cs" company="Microsoft Corporation">
 //        Copyright (c) Microsoft Corporation.  All rights reserved.
 // </copyright>
 //-----------------------------------------------------------------------
 
-namespace Microsoft.Azure.Monitoring.SmartSignals.Shared.DetectionPresentation
+namespace Microsoft.Azure.Monitoring.SmartSignals.Shared.SignalResultPresentation
 {
     using Newtonsoft.Json;
 
     /// <summary>
-    /// This class holds presentation information of a single detection property
+    /// This class holds presentation information of a single Smart Signal result item property
     /// </summary>
-    public class SmartSignalDetectionPresentationProperty
+    public class SmartSignalResultItemPresentationProperty
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="SmartSignalDetectionPresentationProperty"/> class
+        /// Initializes a new instance of the <see cref="SmartSignalResultItemPresentationProperty"/> class
         /// </summary>
         /// <param name="name">The property name</param>
         /// <param name="value">The property value</param>
         /// <param name="displayCategory">The property display category</param>
         /// <param name="infoBalloon">The property information balloon</param>
-        public SmartSignalDetectionPresentationProperty(string name, string value, DetectionPresentationSection displayCategory, string infoBalloon)
+        public SmartSignalResultItemPresentationProperty(string name, string value, ResultItemPresentationSection displayCategory, string infoBalloon)
         {
             this.Name = name;
             this.Value = value;
@@ -44,7 +44,7 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Shared.DetectionPresentation
         /// Gets the property display category
         /// </summary>
         [JsonProperty("displayCategory")]
-        public DetectionPresentationSection DisplayCategory { get; }
+        public ResultItemPresentationSection DisplayCategory { get; }
 
         /// <summary>
         /// Gets the property information balloon

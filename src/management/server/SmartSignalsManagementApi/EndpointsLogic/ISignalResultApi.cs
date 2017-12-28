@@ -15,9 +15,9 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.ManagementApi.EndpointsLogic
     public interface ISignalResultApi
     {
         /// <summary>
-        /// Gets all the detections.
+        /// Gets all the Smart Signal results.
         /// </summary>
-        /// <returns>The smart detections.</returns>
-        Task<IEnumerable<SmartSignalDetection>> GetAllDetectionsAsync();
+        /// <returns>The Smart Signal results.</returns>
+        Task<IEnumerable<SmartSignalResult>> GetAllSmartSignalResultsAsync();
     }
 }

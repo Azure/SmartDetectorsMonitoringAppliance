@@ -36,19 +36,19 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Scheduler
         /// </summary>
         /// <param name="signalExecutionInfo">The signal execution information</param>
         /// <param name="resourceIds">The resource IDs used by the signal</param>
-        /// <returns>The signal detections</returns>
-        public async Task<IList<SmartSignalDetection>> ExecuteSignalAsync(SignalExecutionInfo signalExecutionInfo, IList<string> resourceIds)
+        /// <returns>The signal result</returns>
+        public async Task<SmartSignalResult> ExecuteSignalAsync(SignalExecutionInfo signalExecutionInfo, IList<string> resourceIds)
         {
             var analysisRequest = new SmartSignalRequest(resourceIds, signalExecutionInfo.SignalId, signalExecutionInfo.LastExecutionTime, signalExecutionInfo.Cadence, null);
             return await this.SendToAnalysisAsync(analysisRequest);
         }
 
         /// <summary>
-        /// Sends an http request to the analysis function with the smart signal request
+        /// Sends an HTTP request to the analysis function with the smart signal request
         /// </summary>
         /// <param name="analysisRequest">The request to send to the analysis function</param>
-        /// <returns>A list of signal detections</returns>
-        private async Task<IList<SmartSignalDetection>> SendToAnalysisAsync(SmartSignalRequest analysisRequest)
+        /// <returns>The Smart Signal result</returns>
+        private async Task<SmartSignalResult> SendToAnalysisAsync(SmartSignalRequest analysisRequest)
         {
             var requestMessage = new HttpRequestMessage(HttpMethod.Post, this.analysisUrl);
 
@@ -73,7 +73,7 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Scheduler
                 }
 
                 var httpAnalysisResult = await response.Content.ReadAsStringAsync();
-                return JsonConvert.DeserializeObject<IList<SmartSignalDetection>>(httpAnalysisResult);
+                return JsonConvert.DeserializeObject<SmartSignalResult>(httpAnalysisResult);
             }
         }
     }

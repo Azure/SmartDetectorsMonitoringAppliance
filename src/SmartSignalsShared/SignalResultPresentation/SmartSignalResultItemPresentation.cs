@@ -1,41 +1,42 @@
 ﻿//-----------------------------------------------------------------------
-// <copyright file="SmartSignalDetectionPresentation.cs" company="Microsoft Corporation">
+// <copyright file="SmartSignalResultItemPresentation.cs" company="Microsoft Corporation">
 //        Copyright (c) Microsoft Corporation.  All rights reserved.
 // </copyright>
 //-----------------------------------------------------------------------
 
-namespace Microsoft.Azure.Monitoring.SmartSignals.Shared.DetectionPresentation
+namespace Microsoft.Azure.Monitoring.SmartSignals.Shared.SignalResultPresentation
 {
     using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
+    using Microsoft.Azure.Monitoring.SmartSignals.Shared;
     using Microsoft.Azure.Monitoring.SmartSignals.Shared.Exceptions;
     using Microsoft.Azure.Monitoring.SmartSignals.Shared.Extensions;
     using Newtonsoft.Json;
     using SmartFormat;
 
     /// <summary>
-    /// This class holds the presentation information of the detection -
-    /// the way a detection should be presented in the UI
+    /// This class holds the presentation information of the result item -
+    /// the way a result item should be presented in the UI
     /// </summary>
-    public class SmartSignalDetectionPresentation
+    public class SmartSignalResultItemPresentation
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="SmartSignalDetectionPresentation"/> class
+        /// Initializes a new instance of the <see cref="SmartSignalResultItemPresentation"/> class
         /// </summary>
-        /// <param name="id">The detection ID</param>
-        /// <param name="title">The detection title</param>
-        /// <param name="summary">The detection summary</param>
-        /// <param name="resourceId">The detection resource ID</param>
-        /// <param name="correlationHash">The detection correlation hash</param>
+        /// <param name="id">The result item ID</param>
+        /// <param name="title">The result item title</param>
+        /// <param name="summary">The result item summary</param>
+        /// <param name="resourceId">The result item resource ID</param>
+        /// <param name="correlationHash">The result item correlation hash</param>
         /// <param name="signalId">The signal ID</param>
         /// <param name="signalName">The signal name</param>
         /// <param name="analysisTimestamp">The end time of the analysis window</param>
         /// <param name="analysisWindowSizeInMinutes">The analysis window size (in minutes)</param>
-        /// <param name="properties">The detection properties</param>
-        /// <param name="rawProperties">The raw detection properties</param>
-        public SmartSignalDetectionPresentation(string id, string title, SmartSignalDetectionPresentationSummary summary, string resourceId, string correlationHash, string signalId, string signalName, DateTime analysisTimestamp, int analysisWindowSizeInMinutes, List<SmartSignalDetectionPresentationProperty> properties, IReadOnlyDictionary<string, string> rawProperties)
+        /// <param name="properties">The result item properties</param>
+        /// <param name="rawProperties">The raw result item properties</param>
+        public SmartSignalResultItemPresentation(string id, string title, SmartSignalResultItemPresentationSummary summary, string resourceId, string correlationHash, string signalId, string signalName, DateTime analysisTimestamp, int analysisWindowSizeInMinutes, List<SmartSignalResultItemPresentationProperty> properties, IReadOnlyDictionary<string, string> rawProperties)
         {
             this.Id = id;
             this.Title = title;
@@ -51,31 +52,31 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Shared.DetectionPresentation
         }
 
         /// <summary>
-        /// Gets the detection ID
+        /// Gets the result item ID
         /// </summary>
         [JsonProperty("id")]
         public string Id { get; }
 
         /// <summary>
-        /// Gets the detection title
+        /// Gets the result item title
         /// </summary>
         [JsonProperty("title")]
         public string Title { get; }
 
         /// <summary>
-        /// Gets the detection summary
+        /// Gets the result item summary
         /// </summary>
         [JsonProperty("summary")]
-        public SmartSignalDetectionPresentationSummary Summary { get; }
+        public SmartSignalResultItemPresentationSummary Summary { get; }
 
         /// <summary>
-        /// Gets the detection resource ID
+        /// Gets the result item resource ID
         /// </summary>
         [JsonProperty("resourceId")]
         public string ResourceId { get; }
 
         /// <summary>
-        /// Gets the detection correlation hash
+        /// Gets the result item correlation hash
         /// </summary>
         [JsonProperty("correlationHash")]
         public string CorrelationHash { get; }
@@ -105,80 +106,80 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Shared.DetectionPresentation
         public int AnalysisWindowSizeInMinutes { get; }
 
         /// <summary>
-        /// Gets the detection properties
+        /// Gets the result item properties
         /// </summary>
         [JsonProperty("properties")]
-        public List<SmartSignalDetectionPresentationProperty> Properties { get; }
+        public List<SmartSignalResultItemPresentationProperty> Properties { get; }
 
         /// <summary>
-        /// Gets the raw detection properties
+        /// Gets the raw result item properties
         /// </summary>
         [JsonProperty("rawProperties")]
         public IReadOnlyDictionary<string, string> RawProperties { get; }
 
         /// <summary>
-        /// Creates a presentation from a detection
+        /// Creates a presentation from a result item
         /// </summary>
         /// <param name="request">The smart signal request</param>
         /// <param name="signalName">The signal name</param>
-        /// <param name="smartSignalDetection">The detection</param>
+        /// <param name="smartSignalResultItem">The result item</param>
         /// <param name="azureResourceManagerClient">The azure resource manager client</param>
         /// <returns>The presentation</returns>
-        public static SmartSignalDetectionPresentation CreateFromDetection(SmartSignalRequest request, string signalName, SmartSignalDetection smartSignalDetection, IAzureResourceManagerClient azureResourceManagerClient)
+        public static SmartSignalResultItemPresentation CreateFromResultItem(SmartSignalRequest request, string signalName, SmartSignalResultItem smartSignalResultItem, IAzureResourceManagerClient azureResourceManagerClient)
         {
-            // A null detection has null presentation
-            if (smartSignalDetection == null)
+            // A null result item has null presentation
+            if (smartSignalResultItem == null)
             {
                 return null;
             }
 
-            // Create presentation elements for each detection property
+            // Create presentation elements for each result item property
             Dictionary<string, string> predicates = new Dictionary<string, string>();
-            List<SmartSignalDetectionPresentationProperty> properties = new List<SmartSignalDetectionPresentationProperty>();
-            SmartSignalDetectionPresentationProperty summaryChart = null;
+            List<SmartSignalResultItemPresentationProperty> properties = new List<SmartSignalResultItemPresentationProperty>();
+            SmartSignalResultItemPresentationProperty summaryChart = null;
             string summaryValue = null;
             string summaryDetails = null;
             Dictionary<string, string> rawProperties = new Dictionary<string, string>();
-            foreach (PropertyInfo property in smartSignalDetection.GetType().GetProperties())
+            foreach (PropertyInfo property in smartSignalResultItem.GetType().GetProperties())
             {
                 // Get the property value
-                string propertyValue = PropertyValueToString(property.GetValue(smartSignalDetection));
+                string propertyValue = PropertyValueToString(property.GetValue(smartSignalResultItem));
                 rawProperties[property.Name] = propertyValue;
 
                 // Check if this property is a predicate
-                if (property.GetCustomAttribute<DetectionPredicateAttribute>() != null)
+                if (property.GetCustomAttribute<ResultItemPredicateAttribute>() != null)
                 {
                     predicates[property.Name] = propertyValue;
                 }
 
                 // Get the presentation attribute
-                DetectionPresentationAttribute attribute = property.GetCustomAttribute<DetectionPresentationAttribute>();
+                ResultItemPresentationAttribute attribute = property.GetCustomAttribute<ResultItemPresentationAttribute>();
                 if (attribute != null)
                 {
                     // Get the attribute title and information balloon - support interpolated strings
-                    string attributeTitle = Smart.Format(attribute.Title, smartSignalDetection);
-                    string attributeInfoBalloon = Smart.Format(attribute.InfoBalloon, smartSignalDetection);
+                    string attributeTitle = Smart.Format(attribute.Title, smartSignalResultItem);
+                    string attributeInfoBalloon = Smart.Format(attribute.InfoBalloon, smartSignalResultItem);
 
                     // Add presentation to the summary component
-                    if (attribute.Component.HasFlag(DetectionPresentationComponent.Summary))
+                    if (attribute.Component.HasFlag(ResultItemPresentationComponent.Summary))
                     {
-                        if (attribute.Section == DetectionPresentationSection.Chart)
+                        if (attribute.Section == ResultItemPresentationSection.Chart)
                         {
                             // Verify there is at most one summary chart
                             if (summaryChart != null)
                             {
-                                throw new InvalidDetectionPresentationException("There can be at most one summary chart for each detection");
+                                throw new InvalidSmartSignalResultItemPresentationException("There can be at most one summary chart for each resultItem");
                             }
 
                             // Create the summary chart presentation property
-                            summaryChart = new SmartSignalDetectionPresentationProperty(attributeTitle, propertyValue, attribute.Section, attributeInfoBalloon);
+                            summaryChart = new SmartSignalResultItemPresentationProperty(attributeTitle, propertyValue, attribute.Section, attributeInfoBalloon);
                         }
-                        else if (attribute.Section == DetectionPresentationSection.Property)
+                        else if (attribute.Section == ResultItemPresentationSection.Property)
                         {
                             // Verify there is at most one summary presentation property
                             if (summaryValue != null)
                             {
-                                throw new InvalidDetectionPresentationException("There must be exactly one summary property for each detection");
+                                throw new InvalidSmartSignalResultItemPresentationException("There must be exactly one summary property for each resultItem");
                             }
 
                             // Set summary presentation elements
@@ -187,14 +188,14 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Shared.DetectionPresentation
                         }
                         else
                         {
-                            throw new InvalidDetectionPresentationException($"Invalid section for summary property {property.Name}: {attribute.Section}");
+                            throw new InvalidSmartSignalResultItemPresentationException($"Invalid section for summary property {property.Name}: {attribute.Section}");
                         }
                     }
 
                     // Add presentation to the details component
-                    if (attribute.Component.HasFlag(DetectionPresentationComponent.Details))
+                    if (attribute.Component.HasFlag(ResultItemPresentationComponent.Details))
                     {
-                        properties.Add(new SmartSignalDetectionPresentationProperty(attributeTitle, propertyValue, attribute.Section, attributeInfoBalloon));
+                        properties.Add(new SmartSignalResultItemPresentationProperty(attributeTitle, propertyValue, attribute.Section, attributeInfoBalloon));
                     }
                 }
             }
@@ -202,24 +203,24 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Shared.DetectionPresentation
             // Verify that a summary was provided
             if (summaryValue == null)
             {
-                throw new InvalidDetectionPresentationException("There must be exactly one summary property for each detection");
+                throw new InvalidSmartSignalResultItemPresentationException("There must be exactly one summary property for each result item");
             }
 
-            string id = string.Join("##", smartSignalDetection.GetType().FullName, JsonConvert.SerializeObject(request), JsonConvert.SerializeObject(smartSignalDetection)).Hash();
-            string resourceId = azureResourceManagerClient.GetResourceId(smartSignalDetection.ResourceIdentifier);
+            string id = string.Join("##", smartSignalResultItem.GetType().FullName, JsonConvert.SerializeObject(request), JsonConvert.SerializeObject(smartSignalResultItem)).Hash();
+            string resourceId = azureResourceManagerClient.GetResourceId(smartSignalResultItem.ResourceIdentifier);
             string correlationHash = string.Join("##", predicates.OrderBy(x => x.Key).Select(x => x.Key + "|" + x.Value)).Hash();
 
             // Return the presentation object
-            return new SmartSignalDetectionPresentation(
+            return new SmartSignalResultItemPresentation(
                 id,
-                smartSignalDetection.Title,
-                new SmartSignalDetectionPresentationSummary(summaryValue, summaryDetails, summaryChart),
+                smartSignalResultItem.Title,
+                new SmartSignalResultItemPresentationSummary(summaryValue, summaryDetails, summaryChart),
                 resourceId,
                 correlationHash,
                 request.SignalId,
                 signalName,
-                request.AnalysisEndTime,
-                (int)(request.AnalysisEndTime - request.AnalysisStartTime).TotalMinutes,
+                DateTime.UtcNow,
+                (int)request.Cadence.TotalMinutes,
                 properties,
                 rawProperties);
         }

@@ -24,7 +24,7 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Scheduler
         private readonly IAlertRuleStore alertRulesStore;
         private readonly ISignalRunsTracker signalRunsTracker;
         private readonly IAnalysisExecuter analysisExecuter;
-        private readonly IDetectionPublisher detectionPublisher;
+        private readonly ISmartSignalResultPublisher smartSignalResultPublisher;
         private readonly IAzureResourceManagerClient azureResourceManagerClient;
 
         /// <summary>
@@ -34,21 +34,21 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Scheduler
         /// <param name="alertRulesStore">The alert rules store repository</param>
         /// <param name="signalRunsTracker">The signal run tracker</param>
         /// <param name="analysisExecuter">The analysis executer instance</param>
-        /// <param name="detectionPublisher">The detection publisher instance</param>
+        /// <param name="smartSignalResultPublisher">The signal results publisher instance</param>
         /// <param name="azureResourceManagerClient">The azure resource manager client</param>
         public ScheduleFlow(
             ITracer tracer,
             IAlertRuleStore alertRulesStore,
             ISignalRunsTracker signalRunsTracker,
             IAnalysisExecuter analysisExecuter,
-            IDetectionPublisher detectionPublisher,
+            ISmartSignalResultPublisher smartSignalResultPublisher,
             IAzureResourceManagerClient azureResourceManagerClient)
         {
             this.tracer = Diagnostics.EnsureArgumentNotNull(() => tracer);
             this.alertRulesStore = Diagnostics.EnsureArgumentNotNull(() => alertRulesStore);
             this.signalRunsTracker = Diagnostics.EnsureArgumentNotNull(() => signalRunsTracker);
             this.analysisExecuter = Diagnostics.EnsureArgumentNotNull(() => analysisExecuter);
-            this.detectionPublisher = Diagnostics.EnsureArgumentNotNull(() => detectionPublisher);
+            this.smartSignalResultPublisher = Diagnostics.EnsureArgumentNotNull(() => smartSignalResultPublisher);
             this.azureResourceManagerClient = Diagnostics.EnsureArgumentNotNull(() => azureResourceManagerClient);
         }
 
@@ -68,8 +68,8 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Scheduler
             {
                 try
                 {
-                    IList<SmartSignalDetection> detections = await this.analysisExecuter.ExecuteSignalAsync(signalExecution, resourceIds);
-                    this.detectionPublisher.PublishDetections(signalExecution.SignalId, detections);
+                    SmartSignalResult signalResult = await this.analysisExecuter.ExecuteSignalAsync(signalExecution, resourceIds);
+                    this.smartSignalResultPublisher.PublishSignalResult(signalExecution.SignalId, signalResult);
                     await this.signalRunsTracker.UpdateSignalRunAsync(signalExecution);
                 }
                 catch (Exception exception)

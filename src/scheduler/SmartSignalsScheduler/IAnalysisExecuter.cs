@@ -20,7 +20,7 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Scheduler
         /// </summary>
         /// <param name="signalExecutionInfo">The signal execution information</param>
         /// <param name="resourceIds">The resource IDs used by the signal</param>
-        /// <returns>The signal detections</returns>
-        Task<IList<SmartSignalDetection>> ExecuteSignalAsync(SignalExecutionInfo signalExecutionInfo, IList<string> resourceIds);
+        /// <returns>The Smart Signal result</returns>
+        Task<SmartSignalResult> ExecuteSignalAsync(SignalExecutionInfo signalExecutionInfo, IList<string> resourceIds);
     }
 }

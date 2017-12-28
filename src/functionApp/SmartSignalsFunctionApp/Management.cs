@@ -43,13 +43,13 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.FunctionApp
         }
 
         /// <summary>
-        /// Gets all the detections.
+        /// Gets all the signal results.
         /// </summary>
         /// <param name="req">The incoming request.</param>
         /// <param name="log">The logger.</param>
-        /// <returns>The detections.</returns>
+        /// <returns>The signal results.</returns>
         [FunctionName("signalResult")]
-        public static async Task<HttpResponseMessage> GetAllDetections([HttpTrigger(AuthorizationLevel.Function, "get")]HttpRequestMessage req, TraceWriter log)
+        public static async Task<HttpResponseMessage> GetAllSmartSignalResults([HttpTrigger(AuthorizationLevel.Function, "get")]HttpRequestMessage req, TraceWriter log)
         {
             // TODO - complete the logic
             await Task.CompletedTask;

@@ -1,5 +1,5 @@
 ﻿//-----------------------------------------------------------------------
-// <copyright file="DetectionPresentationComponent.cs" company="Microsoft Corporation">
+// <copyright file="ResultItemPresentationComponent.cs" company="Microsoft Corporation">
 //        Copyright (c) Microsoft Corporation.  All rights reserved.
 // </copyright>
 //-----------------------------------------------------------------------
@@ -9,10 +9,10 @@ namespace Microsoft.Azure.Monitoring.SmartSignals
     using System;
 
     /// <summary>
-    /// An enumeration of possible components where Smart Signal detection properties can be presented.
+    /// An enumeration of possible components where Smart Signal result item properties can be presented.
     /// </summary>
     [Flags]
-    public enum DetectionPresentationComponent
+    public enum ResultItemPresentationComponent
     {
         /// <summary>
         /// Indicates a property belonging to the details component.

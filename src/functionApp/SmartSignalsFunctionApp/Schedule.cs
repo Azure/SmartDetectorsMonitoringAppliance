@@ -48,7 +48,7 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.FunctionApp
                 .RegisterType<IAlertRuleStore, AlertRuleStore>()
                 .RegisterType<ISignalRunsTracker, SignalRunsTracker>()
                 .RegisterType<IAnalysisExecuter, AnalysisExecuter>()
-                .RegisterType<IDetectionPublisher, DetectionPublisher>()
+                .RegisterType<ISmartSignalResultPublisher, SmartSignalResultPublisher>()
                 .RegisterType<IAzureResourceManagerClient, AzureResourceManagerClient>();
         }
 

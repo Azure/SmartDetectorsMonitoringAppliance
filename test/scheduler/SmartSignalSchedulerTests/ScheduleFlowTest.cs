@@ -26,7 +26,7 @@ namespace SmartSignalSchedulerTests
         private Mock<IAlertRuleStore> alertRuleStoreMock;
         private Mock<ISignalRunsTracker> signalRunTrackerMock;
         private Mock<IAnalysisExecuter> analysisExecuterMock;
-        private Mock<IDetectionPublisher> detectionPublisherMock;
+        private Mock<ISmartSignalResultPublisher> publisherMock;
         private Mock<IAzureResourceManagerClient> azureResourceManagerClientMock;
 
         private ScheduleFlow scheduleFlow;
@@ -38,7 +38,7 @@ namespace SmartSignalSchedulerTests
             this.alertRuleStoreMock = new Mock<IAlertRuleStore>();
             this.signalRunTrackerMock = new Mock<ISignalRunsTracker>();
             this.analysisExecuterMock = new Mock<IAnalysisExecuter>();
-            this.detectionPublisherMock = new Mock<IDetectionPublisher>();
+            this.publisherMock = new Mock<ISmartSignalResultPublisher>();
             this.azureResourceManagerClientMock = new Mock<IAzureResourceManagerClient>();
 
             this.scheduleFlow = new ScheduleFlow(
@@ -46,7 +46,7 @@ namespace SmartSignalSchedulerTests
                 this.alertRuleStoreMock.Object,
                 this.signalRunTrackerMock.Object,
                 this.analysisExecuterMock.Object,
-                this.detectionPublisherMock.Object,
+                this.publisherMock.Object,
                 this.azureResourceManagerClientMock.Object);
         }
 
@@ -72,24 +72,25 @@ namespace SmartSignalSchedulerTests
 
             this.azureResourceManagerClientMock.Setup(m => m.GetAllSubscriptionIdsAsync(It.IsAny<CancellationToken>())).ReturnsAsync(new List<string> { "someSubscriptionId" });
 
-            // first signal execution throws exception and the second one returns detections
-            const string DetectionTitle = "someTitle";
+            // first signal execution throws exception and the second one returns a result
+            ResourceIdentifier resourceIdentifier = ResourceIdentifier.Create("someSubscriptionId");
+            const string ResultItemTitle = "someTitle";
             this.analysisExecuterMock.SetupSequence(m => m.ExecuteSignalAsync(It.IsAny<SignalExecutionInfo>(), It.Is<IList<string>>(lst => lst.First() == "someSubscriptionId")))
                 .Throws(new Exception())
-                .ReturnsAsync(new List<SmartSignalDetection> { new TestDetection(DetectionTitle, ResourceIdentifier.Create("subscriptionId")) });
+                .ReturnsAsync(new SmartSignalResult { ResultItems = new List<SmartSignalResultItem> { new TestResultItem(ResultItemTitle, resourceIdentifier) } });
 
             await this.scheduleFlow.RunAsync();
 
             this.alertRuleStoreMock.Verify(m => m.GetAllAlertRulesAsync(), Times.Once);
             
             // Verify that these were called only once since the first signal execution throwed exception
-            this.detectionPublisherMock.Verify(m => m.PublishDetections("s2", It.Is<IList<SmartSignalDetection>>(lst => lst.Count == 1 && lst.First().Title == DetectionTitle)), Times.Once);
+            this.publisherMock.Verify(m => m.PublishSignalResult("s2", It.Is<SmartSignalResult>(res => res.ResultItems.Count == 1 && res.ResultItems.First().Title == ResultItemTitle)), Times.Once);
             this.signalRunTrackerMock.Verify(m => m.UpdateSignalRunAsync(It.IsAny<SignalExecutionInfo>()), Times.Once());
             this.signalRunTrackerMock.Verify(m => m.UpdateSignalRunAsync(signalExecution2));
         }
 
         [TestMethod]
-        public async Task WhenThereAreSignalsToRunThenAllSiganlDetectionsArePublished()
+        public async Task WhenThereAreSignalsToRunThenAllSiganlResultItemsArePublished()
         {
             // Create signal execution information to be returned from the job tracker
             var signalExecution1 = new SignalExecutionInfo
@@ -110,29 +111,24 @@ namespace SmartSignalSchedulerTests
 
             this.azureResourceManagerClientMock.Setup(m => m.GetAllSubscriptionIdsAsync(It.IsAny<CancellationToken>())).ReturnsAsync(new List<string> { "someSubscriptionId" });
 
-            // each signal execution returns detections
+            // each signal execution returns a result
+            ResourceIdentifier resourceIdentifier = ResourceIdentifier.Create("someSubscriptionId");
             this.analysisExecuterMock.Setup(m => m.ExecuteSignalAsync(It.IsAny<SignalExecutionInfo>(), It.Is<IList<string>>(lst => lst.First() == "someSubscriptionId")))
-                .ReturnsAsync(new List<SmartSignalDetection> { new TestDetection("title", ResourceIdentifier.Create("subscriptionId")) });
+                .ReturnsAsync(new SmartSignalResult { ResultItems = new List<SmartSignalResultItem> { new TestResultItem("title", resourceIdentifier) } });
 
             await this.scheduleFlow.RunAsync();
 
-            // Verify detections were published and signal tracker was updated for each signal execution
+            // Verify result items were published and signal tracker was updated for each signal execution
             this.alertRuleStoreMock.Verify(m => m.GetAllAlertRulesAsync(), Times.Once);
-            this.detectionPublisherMock.Verify(m => m.PublishDetections(It.IsAny<string>(), It.IsAny<IList<SmartSignalDetection>>()), Times.Exactly(2));
+            this.publisherMock.Verify(m => m.PublishSignalResult(It.IsAny<string>(), It.IsAny<SmartSignalResult>()), Times.Exactly(2));
             this.signalRunTrackerMock.Verify(m => m.UpdateSignalRunAsync(It.IsAny<SignalExecutionInfo>()), Times.Exactly(2));
         }
 
-        private class TestDetection : SmartSignalDetection
+        private class TestResultItem : SmartSignalResultItem
         {
-            public TestDetection(string title, ResourceIdentifier resourceIdentifier)
+            public TestResultItem(string title, ResourceIdentifier resourceIdentifier) : base(title, resourceIdentifier)
             {
-                this.Title = title;
-                this.ResourceIdentifier = resourceIdentifier;
             }
-
-            public override string Title { get; }
-
-            public override ResourceIdentifier ResourceIdentifier { get; }
         }
     }
 }
