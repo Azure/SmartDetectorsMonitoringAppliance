@@ -14,6 +14,14 @@ namespace Microsoft.Azure.Monitoring.SmartSignals
     public sealed class SmartSignalResult
     {
         /// <summary>
+        /// Initializes a new instance of the <see cref="SmartSignalResult" /> class 
+        /// </summary>
+        public SmartSignalResult()
+        {
+            this.ResultItems = new List<SmartSignalResultItem>();
+        }
+
+        /// <summary>
         /// Gets or sets the list of Smart Signal result items that were produced in the signal's execution
         /// </summary>
         public List<SmartSignalResultItem> ResultItems { get; set; }

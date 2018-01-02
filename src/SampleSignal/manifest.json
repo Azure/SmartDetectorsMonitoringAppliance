@@ -1,9 +1,9 @@
 {
-  "Id": "SampleSignal",
-  "Name": "SampleSignalNetta",
-  "Description": "Sample Stuff",
-  "Version": "1.0",
-  "AssemblyName": "SampleSignal.dll",
-  "ClassName": "SampleSignal",
-  "SupportedResourceTypes": "LogAnalytics,ApplicationInsights"
+  "id": "SampleSignal",
+  "name": "SampleSignalNetta",
+  "description": "Sample Stuff",
+  "version": "1.0",
+  "assemblyName": "SampleSignal.dll",
+  "className": "SampleSignal",
+  "supportedResourceTypes": "LogAnalytics,ApplicationInsights"
 }
