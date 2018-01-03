@@ -1,9 +1,9 @@
 {
   "id": "SampleSignal",
-  "name": "SampleSignalNetta",
-  "description": "Sample Stuff",
+  "name": "SampleSignal",
+  "description": "Sample signal to test framework abilities",
   "version": "1.0",
-  "assemblyName": "SampleSignal.dll",
-  "className": "SampleSignal",
-  "supportedResourceTypes": "LogAnalytics,ApplicationInsights"
+  "assemblyName": "Microsoft.Azure.Monitoring.SmartSignals.SampleSignal.dll",
+  "className": "Microsoft.Azure.Monitoring.SmartSignals.SampleSignal.HighRequestCountSignal",
+  "supportedResourceTypes": [ "LogAnalytics", "ApplicationInsights" ]
 }

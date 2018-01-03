@@ -22,8 +22,8 @@ namespace Microsoft.Azure.Monitoring.SmartSignals
         }
 
         /// <summary>
-        /// Gets or sets the list of Smart Signal result items that were produced in the signal's execution
+        /// Gets the list of Smart Signal result items that were produced in the signal's execution
         /// </summary>
-        public List<SmartSignalResultItem> ResultItems { get; set; }
+        public List<SmartSignalResultItem> ResultItems { get; }
     }
 }

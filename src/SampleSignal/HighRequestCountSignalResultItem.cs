@@ -43,21 +43,21 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.SampleSignal
         /// </summary>
         [ResultItemPredicate]
         [ResultItemPresentation(ResultItemPresentationSection.Property, "App Name", InfoBalloon = "App Name",
-            Component = ResultItemPresentationComponent.Details | ResultItemPresentationComponent.Summary)]
+            Component = ResultItemPresentationComponent.Details )]
         public string AppName { get; set; }
 
         /// <summary>
         /// Gets or sets the highest Processor Time percentage in the last hour - fetched from log analytics
         /// </summary>
         [ResultItemPredicate]
-        [ResultItemPresentation(ResultItemPresentationSection.Property, "Highest Processor Time Percentage", InfoBalloon = "The highest Processor Time percentage", Component = ResultItemPresentationComponent.Details | ResultItemPresentationComponent.Summary)]
+        [ResultItemPresentation(ResultItemPresentationSection.Property, "Highest Processor Time Percentage", InfoBalloon = "The highest Processor Time percentage", Component = ResultItemPresentationComponent.Details)]
         public double HighestProcessorTimePercent { get; set; }
 
         /// <summary>
         /// Gets or sets the time of the highest Processor Time percentage in the last hour - fetched from log analytics
         /// </summary>
         [ResultItemPredicate]
-        [ResultItemPresentation(ResultItemPresentationSection.Property, "Highest CPU Percentage Time", InfoBalloon = "When was the highest CPU percentage?", Component = ResultItemPresentationComponent.Details | ResultItemPresentationComponent.Summary)]
+        [ResultItemPresentation(ResultItemPresentationSection.Property, "Highest CPU Percentage Time", InfoBalloon = "When was the highest CPU percentage?", Component = ResultItemPresentationComponent.Details)]
         public DateTime TimeOfHighestProcessorTimePercent { get; set; }
 
         /// <summary>

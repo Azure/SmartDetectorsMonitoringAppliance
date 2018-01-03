@@ -201,13 +201,9 @@ namespace SmartSignalsAnalysisSharedTests
                     }
                 }
 
-                return await Task.FromResult(new SmartSignalResult
-                {
-                    ResultItems = new List<SmartSignalResultItem>
-                    {
-                        new TestSignalResultItem(analysisRequest.TargetResources.First())
-                    }
-                });
+                SmartSignalResult smartSignalResult = new SmartSignalResult();
+                smartSignalResult.ResultItems.Add(new TestSignalResultItem(analysisRequest.TargetResources.First()));
+                return await Task.FromResult(smartSignalResult);
             }
         }
 

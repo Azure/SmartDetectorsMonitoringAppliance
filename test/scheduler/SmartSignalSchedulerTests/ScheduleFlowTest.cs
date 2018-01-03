@@ -75,9 +75,11 @@ namespace SmartSignalSchedulerTests
             // first signal execution throws exception and the second one returns a result
             ResourceIdentifier resourceIdentifier = ResourceIdentifier.Create("someSubscriptionId");
             const string ResultItemTitle = "someTitle";
+            SmartSignalResult smartSignalResult = new SmartSignalResult();
+            smartSignalResult.ResultItems.Add(new TestResultItem(ResultItemTitle, resourceIdentifier));
             this.analysisExecuterMock.SetupSequence(m => m.ExecuteSignalAsync(It.IsAny<SignalExecutionInfo>(), It.Is<IList<string>>(lst => lst.First() == "someSubscriptionId")))
                 .Throws(new Exception())
-                .ReturnsAsync(new SmartSignalResult { ResultItems = new List<SmartSignalResultItem> { new TestResultItem(ResultItemTitle, resourceIdentifier) } });
+                .ReturnsAsync(smartSignalResult);
 
             await this.scheduleFlow.RunAsync();
 
@@ -113,8 +115,10 @@ namespace SmartSignalSchedulerTests
 
             // each signal execution returns a result
             ResourceIdentifier resourceIdentifier = ResourceIdentifier.Create("someSubscriptionId");
+            SmartSignalResult smartSignalResult = new SmartSignalResult();
+            smartSignalResult.ResultItems.Add(new TestResultItem("title", resourceIdentifier));
             this.analysisExecuterMock.Setup(m => m.ExecuteSignalAsync(It.IsAny<SignalExecutionInfo>(), It.Is<IList<string>>(lst => lst.First() == "someSubscriptionId")))
-                .ReturnsAsync(new SmartSignalResult { ResultItems = new List<SmartSignalResultItem> { new TestResultItem("title", resourceIdentifier) } });
+                .ReturnsAsync(smartSignalResult);
 
             await this.scheduleFlow.RunAsync();
 

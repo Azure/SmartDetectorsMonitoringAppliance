@@ -213,10 +213,9 @@ namespace SmartSignalsAnalysisSharedTests
         {
             public Task<SmartSignalResult> AnalyzeResourcesAsync(AnalysisRequest analysisRequest, ITracer tracer, CancellationToken cancellationToken)
             {
-                return Task.FromResult(new SmartSignalResult
-                {
-                    ResultItems = new List<SmartSignalResultItem> { new TestResultItem("test test test", analysisRequest.TargetResources.Single()) }
-                });
+                SmartSignalResult smartSignalResult = new SmartSignalResult();
+                smartSignalResult.ResultItems.Add(new TestResultItem("test test test", analysisRequest.TargetResources.Single()));
+                return Task.FromResult(smartSignalResult);
             }
         }
 
@@ -235,10 +234,9 @@ namespace SmartSignalsAnalysisSharedTests
 
             public Task<SmartSignalResult> AnalyzeResourcesAsync(AnalysisRequest analysisRequest, ITracer tracer, CancellationToken cancellationToken)
             {
-                return Task.FromResult(new SmartSignalResult
-                {
-                    ResultItems = new List<SmartSignalResultItem> { new TestResultItem(this.message, analysisRequest.TargetResources.Single()) }
-                });
+                SmartSignalResult smartSignalResult = new SmartSignalResult();
+                smartSignalResult.ResultItems.Add(new TestResultItem(this.message, analysisRequest.TargetResources.Single()));
+                return Task.FromResult(smartSignalResult);
             }
         }
 
@@ -246,10 +244,9 @@ namespace SmartSignalsAnalysisSharedTests
         {
             public Task<SmartSignalResult> AnalyzeResourcesAsync(AnalysisRequest analysisRequest, ITracer tracer, CancellationToken cancellationToken)
             {
-                return Task.FromResult(new SmartSignalResult
-                {
-                    ResultItems = new List<SmartSignalResultItem> { new TestResultItem(typeof(T).Name, analysisRequest.TargetResources.Single()) }
-                });
+                SmartSignalResult smartSignalResult = new SmartSignalResult();
+                smartSignalResult.ResultItems.Add(new TestResultItem(typeof(T).Name, analysisRequest.TargetResources.Single()));
+                return Task.FromResult(smartSignalResult);
             }
         }
     }
