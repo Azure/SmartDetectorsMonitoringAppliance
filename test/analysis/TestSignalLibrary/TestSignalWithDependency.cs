@@ -19,15 +19,11 @@ namespace TestSignalLibrary
         {
             int[] obj = { 1, 2, 3 };
             var dependent = new DependentClass();
-            return Task.FromResult(new SmartSignalResult
-            {
-                ResultItems = new List<SmartSignalResultItem>()
-                {
-                    new TestSignalResultItem(
-                        "test title - " + dependent.GetString() + " - " + dependent.ObjectToString(obj),
-                        analysisRequest.TargetResources.First())
-                }
-            });
+            SmartSignalResult smartSignalResult = new SmartSignalResult();
+            smartSignalResult.ResultItems.Add(new TestSignalResultItem(
+                "test title - " + dependent.GetString() + " - " + dependent.ObjectToString(obj),
+                analysisRequest.TargetResources.First()));
+            return Task.FromResult(smartSignalResult);
         }
     }
 }
