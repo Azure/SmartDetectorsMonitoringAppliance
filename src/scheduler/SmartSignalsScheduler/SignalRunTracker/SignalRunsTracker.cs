@@ -32,13 +32,14 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Scheduler.SignalRunTracker
         /// <summary>
         /// Initializes a new instance of the<see cref="SignalRunsTracker"/> class.
         /// </summary>
-        /// <param name="tableClient">The azure storage table client</param>
+        /// <param name="storageProviderFactory">The Azure Storage provider factory</param>
         /// <param name="tracer">Log wrapper</param>
-        public SignalRunsTracker(ICloudTableClientWrapper tableClient, ITracer tracer)
+        public SignalRunsTracker(ICloudStorageProviderFactory storageProviderFactory, ITracer tracer)
         {
             this.tracer = tracer;
 
             // create the cloud table instance
+            ICloudTableClientWrapper tableClient = storageProviderFactory.GetSmartSignalStorageTableClient();
             this.trackingTable = tableClient.GetTableReference(TableName);
             this.trackingTable.CreateIfNotExists();
         }

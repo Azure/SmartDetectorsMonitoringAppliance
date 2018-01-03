@@ -177,8 +177,7 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Shared
         public async Task<IList<ResourceIdentifier>> GetAllResourcesInSubscriptionAsync(string subscriptionId, IEnumerable<ResourceType> resourceTypes, CancellationToken cancellationToken)
         {
             ResourceManagementClient resourceManagementClient = this.GetResourceManagementClient(subscriptionId);
-            List<string> resourceTypesStrings = this.ConvertResourceTypes(resourceTypes);
-            ODataQuery<GenericResourceFilterInner> query = new ODataQuery<GenericResourceFilterInner>(resource => resourceTypesStrings.Contains(resource.ResourceType));
+            ODataQuery<GenericResourceFilterInner> query = this.GetResourcesByTypeQuery(resourceTypes);
             Task<IPage<GenericResourceInner>> FirstPage() => resourceManagementClient.Resources.ListAsync(query, cancellationToken);
             Task<IPage<GenericResourceInner>> NextPage(string nextPageLink) => resourceManagementClient.Resources.ListNextAsync(nextPageLink, cancellationToken);
             return (await this.ReadAllPages(FirstPage, NextPage, "virtual machines in subscription"))
@@ -197,8 +196,7 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Shared
         public async Task<IList<ResourceIdentifier>> GetAllResourcesInResourceGroupAsync(string subscriptionId, string resourceGroupName, IEnumerable<ResourceType> resourceTypes, CancellationToken cancellationToken)
         {
             ResourceManagementClient resourceManagementClient = this.GetResourceManagementClient(subscriptionId);
-            List<string> resourceTypesStrings = this.ConvertResourceTypes(resourceTypes);
-            ODataQuery<GenericResourceFilterInner> query = new ODataQuery<GenericResourceFilterInner>(resource => resourceTypesStrings.Contains(resource.ResourceType));
+            ODataQuery<GenericResourceFilterInner> query = this.GetResourcesByTypeQuery(resourceTypes);
             Task<IPage<GenericResourceInner>> FirstPage() => resourceManagementClient.ResourceGroups.ListResourcesAsync(resourceGroupName, query, cancellationToken);
             Task<IPage<GenericResourceInner>> NextPage(string nextPageLink) => resourceManagementClient.ResourceGroups.ListResourcesNextAsync(nextPageLink, cancellationToken);
             return (await this.ReadAllPages(FirstPage, NextPage, "virtual machines in resource group"))
@@ -415,13 +413,13 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Shared
         }
 
         /// <summary>
-        /// Converts the collection of <see cref="ResourceType"/> enumeration values
-        /// to a collection of their matching ARM strings.
+        /// Builds an OData query object, that filters the resources by the specified resource types.
         /// </summary>
-        /// <param name="resourceTypes">The resource types.</param>
-        /// <returns>The ARM strings.</returns>
-        private List<string> ConvertResourceTypes(IEnumerable<ResourceType> resourceTypes)
+        /// <param name="resourceTypes">The resource types to filter by.</param>
+        /// <returns>The OData query object.</returns>
+        private ODataQuery<GenericResourceFilterInner> GetResourcesByTypeQuery(IEnumerable<ResourceType> resourceTypes)
         {
+            // Convert the resource types to ARM strings
             List<string> resourceTypesStrings = new List<string>();
             foreach (ResourceType resourceType in resourceTypes)
             {
@@ -433,7 +431,9 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Shared
                 resourceTypesStrings.Add(resourceTypeString);
             }
 
-            return resourceTypesStrings;
+            // Concatenate all the equality conditions with "or"
+            string queryString = string.Join(" or ", resourceTypesStrings.Select(resourceType => "resourceType eq '" + resourceType.Replace("'", "''") + "'"));
+            return new ODataQuery<GenericResourceFilterInner>(queryString);
         }
     }
 }
