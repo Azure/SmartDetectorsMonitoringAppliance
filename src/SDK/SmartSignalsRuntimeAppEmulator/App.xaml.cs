@@ -15,6 +15,10 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Emulator
     /// </summary>
     public partial class App : Application
     {
+        public static IUnityContainer Container { get; private set; }
+
+        //public static IUnityContainer Container { get; private set; }
+
         /// <summary>
         /// Raises the <see cref="E:System.Windows.Application.Startup" /> event.
         /// </summary>
@@ -22,17 +26,20 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Emulator
         protected override void OnStartup(StartupEventArgs e)
         {
             // Create a Unity container with all the required models and view models registrations
-            IUnityContainer container = new UnityContainer();
-            container
+            Container = new UnityContainer();
+            Container
                 .RegisterInstance(new SignalsResultsRepository())
                 .RegisterInstance(new AuthenticationServices());
 
             // Authenticate the user to AAD
-            container.Resolve<AuthenticationServices>().AuthenticateUserAsync();
+            var authResult = Container.Resolve<AuthenticationServices>().AuthenticateUser();
 
-            // Create and show the main window
-            MainWindow mainWindow = container.Resolve<MainWindow>();
-            mainWindow.Show();
+            ////var authResult = authenticationServices.AuthenticationResult;
+            //var activeDirectoryToken = new ActiveDirectoryCredentials(/*authResult.AccessToken*/  "token");
+
+            //var armClient = new AzureResourceManagerClient(activeDirectoryToken);
+
+            //var subsIds = armClient.GetAllSubscriptionIdsAsync().GetAwaiter().GetResult();
         }
     }
 }

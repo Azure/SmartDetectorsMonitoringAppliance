@@ -4,6 +4,9 @@
 // </copyright>
 //-----------------------------------------------------------------------
 
+using Unity.Attributes;
+using Unity.Injection;
+
 namespace Microsoft.Azure.Monitoring.SmartSignals.Emulator.ViewModels
 {
     using Microsoft.Azure.Monitoring.SmartSignals.Emulator.Models;
@@ -16,21 +19,25 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Emulator.ViewModels
         private int numberOfResultsFound;
         private string userName;
 
+        public MainWindowViewModel()
+        {
+            this.UserName = "Jhon";
+            this.NumberOfResultsFound = 20;
+        }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="MainWindowViewModel"/> class.
         /// </summary>
         /// <param name="signalsResultsRepository">The signal results repository model.</param>
         /// <param name="authenticationServices">The authentication services to use.</param>
+        [InjectionConstructor]
         public MainWindowViewModel(SignalsResultsRepository signalsResultsRepository, AuthenticationServices authenticationServices)
         {
             this.NumberOfResultsFound = 0;
             signalsResultsRepository.Results.CollectionChanged +=
                 (sender, args) => { this.NumberOfResultsFound = args.NewItems.Count; };
 
-            authenticationServices.UserAuthenticated += (sender, args) =>
-            {
-                this.UserName = args.UserInfo?.GivenName;
-            };
+            this.UserName = authenticationServices.AuthenticationResult.UserInfo.GivenName;
         }
 
         /// <summary>

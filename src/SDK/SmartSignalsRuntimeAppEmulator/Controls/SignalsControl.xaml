@@ -4,8 +4,14 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:Microsoft.Azure.Monitoring.SmartSignals.Emulator.Controls"
+             xmlns:viewModels="clr-namespace:Microsoft.Azure.Monitoring.SmartSignals.Emulator.ViewModels"
+             xmlns:converters="clr-namespace:Microsoft.Azure.Monitoring.SmartSignals.Emulator.Converters"
              mc:Ignorable="d" 
+             d:DataContext="{d:DesignInstance Type=viewModels:SignalsControlViewModel, IsDesignTimeCreatable=True}"
              d:DesignHeight="600" d:DesignWidth="1500">
+    <UserControl.Resources>
+        <converters:IsNullConverter x:Key="IsNullConverter"/>
+    </UserControl.Resources>
     <Grid Background="#FFECF0F1" >
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto" MinWidth="0.5"/>
@@ -14,6 +20,7 @@
 
         <Border Grid.Column="0" BorderBrush="#FFA5A5A5" BorderThickness="0,0,0.5,0" Padding="20,20,20,0">
             <StackPanel Orientation="Vertical">
+
                 <TextBlock Style="{StaticResource SectionHeader}" Text="EMULATION SETTINGS - My Signal 1"/>
                 <TextBlock Style="{StaticResource ControlText}" Text="Start date" Margin="0,0,0,10"/>
                 <DatePicker Margin="0,0,0,20" HorizontalAlignment="Left"/>
@@ -22,14 +29,72 @@
                     <ComboBoxItem IsSelected="True">1 hour</ComboBoxItem>
                     <ComboBoxItem>1 day</ComboBoxItem>
                 </ComboBox>
+
                 <TextBlock Style="{StaticResource ControlText}" Text="Subscription" Margin="0,0,0,10" />
-                <ComboBox Margin="0,0,0,20" HorizontalAlignment="Left">
-                    <ComboBoxItem IsSelected="True">ACME Telco Prod</ComboBoxItem>
-                    <ComboBoxItem>ACME Telco PPE</ComboBoxItem>
+                <ComboBox x:Name="SubscriptionComboBox"  Margin="0,0,0,20" HorizontalAlignment="Left" MinWidth="250"
+                          ItemsSource="{Binding Path=Subscriptions}"  SelectedItem="{Binding Path=SelectedSubscription}">
+                <ComboBox.Style>
+                        <Style TargetType="{x:Type ComboBox}">
+                            <Setter Property="IsEnabled" Value="True" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding ElementName=SubscriptionComboBox, Path=ItemsSource, Converter={StaticResource IsNullConverter}}" Value="True">
+                                    <Setter Property="IsEnabled" Value="False" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </ComboBox.Style>
+                </ComboBox>
+
+                <TextBlock Style="{StaticResource ControlText}" Text="Resource group" Margin="0,0,0,10"/>
+                <ComboBox x:Name="ResourceGroupsComboBox" Margin="0,0,558,20" HorizontalAlignment="Right" MinWidth="125"
+                          ItemsSource="{Binding Path=ResourceGroups}" SelectedItem="{Binding Path=SelectedResourceGroup}">
+                    <ComboBox.Style>
+                        <Style TargetType="{x:Type ComboBox}">
+                            <Setter Property="IsEnabled" Value="True" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding ElementName=SubscriptionComboBox, Path=SelectedItem, Converter={StaticResource IsNullConverter}}" Value="True">
+                                    <Setter Property="IsEnabled" Value="False" />
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding ElementName=ResourceGroupsComboBox, Path=ItemsSource, Converter={StaticResource IsNullConverter}}" Value="True">
+                                    <Setter Property="IsEnabled" Value="False" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </ComboBox.Style>
+                </ComboBox>
+
+                <TextBlock Style="{StaticResource ControlText}" Text="Resource type" Margin="0,0,0,10"/>
+                <ComboBox x:Name="ResourceTypeComboBox" Margin="0,0,0,20" HorizontalAlignment="Left" MinWidth="130"
+                          ItemsSource="{Binding Path=ResourcesTypes}" SelectedItem="{Binding Path=SelectedResourceType}">
+                    <ComboBox.Style>
+                        <Style TargetType="{x:Type ComboBox}">
+                            <Setter Property="IsEnabled" Value="True" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding ElementName=ResourceGroupsComboBox, Path=SelectedItem, Converter={StaticResource IsNullConverter}}" Value="True">
+                                    <Setter Property="IsEnabled" Value="False" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </ComboBox.Style>
+                </ComboBox>
+
+                <TextBlock Style="{StaticResource ControlText}" Text="Resource" Margin="0,0,0,10"/>
+                <ComboBox x:Name="Resources" Margin="0,0,0,20" HorizontalAlignment="Left" MinWidth="130"
+                          ItemsSource="{Binding Path=Resources}" SelectedItem="{Binding Path=SelectedResource}">
+                    <ComboBox.Style>
+                        <Style TargetType="{x:Type ComboBox}">
+                            <Setter Property="IsEnabled" Value="True" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding ElementName=ResourceTypeComboBox, Path=SelectedItem, Converter={StaticResource IsNullConverter}}" Value="True">
+                                    <Setter Property="IsEnabled" Value="False" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </ComboBox.Style>
                 </ComboBox>
 
                 <Separator Margin="0,0,0,20"/>
-                
+
                 <Button Style="{StaticResource RoundedButton}" HorizontalAlignment="Left" Content="Start analysis" Click="ButtonBase_OnClick"/>
             </StackPanel>
         </Border>
