@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <Dir>bin\Debug\net461</Dir>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <Dir>bin\Release\net461</Dir>
+  </PropertyGroup>
+  <PropertyGroup>
+    <RunPostBuildEvent>Always</RunPostBuildEvent>
+  </PropertyGroup>
+  <UsingTask TaskName="Microsoft.Azure.Monitoring.SmartSignals.Build.PackageSmartSignal" AssemblyFile="$(Dir)\Microsoft.Azure.Monitoring.SmartSignals.Build.dll"/>
+  <Target Name="PackageSmartSignalAfterBuild" AfterTargets="AfterBuild">
+    <PackageSmartSignal/>
+  </Target>
+</Project>

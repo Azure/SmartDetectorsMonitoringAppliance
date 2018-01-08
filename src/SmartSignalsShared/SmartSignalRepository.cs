@@ -11,6 +11,7 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Shared
     using System.IO;
     using System.Linq;
     using System.Threading.Tasks;
+    using Microsoft.Azure.Monitoring.SmartSignals.Package;
     using Microsoft.Azure.Monitoring.SmartSignals.Shared.AzureStorage;
     using Microsoft.Azure.Monitoring.SmartSignals.Shared.Exceptions;
     using Microsoft.WindowsAzure.Storage;

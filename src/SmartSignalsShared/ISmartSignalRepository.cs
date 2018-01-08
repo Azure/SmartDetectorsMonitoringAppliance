@@ -8,6 +8,7 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Shared
 {
     using System.Collections.Generic;
     using System.Threading.Tasks;
+    using Microsoft.Azure.Monitoring.SmartSignals.Package;
 
     /// <summary>
     /// Interface for the Smart Signal repository

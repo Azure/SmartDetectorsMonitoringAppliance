@@ -1,11 +1,16 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net461</TargetFramework>
-	<StyleCopTreatErrorsAsWarnings>False</StyleCopTreatErrorsAsWarnings>
+    <RootNamespace>Microsoft.Azure.Monitoring.SmartSignals.Build</RootNamespace>
+    <AssemblyName>Microsoft.Azure.Monitoring.SmartSignals.Build</AssemblyName>
+    <StyleCopTreatErrorsAsWarnings>False</StyleCopTreatErrorsAsWarnings>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="StyleCop.MSBuild" Version="5.0.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\SDK\SmartSignalsPackage\SmartSignalsPackage.csproj"></ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -16,10 +21,10 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml" />
+    <Reference Include="Microsoft.Build.Framework" />
+    <Reference Include="Microsoft.Build.Utilities.v4.0" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\src\SDK\SmartSignalsSDK\SmartSignalsSDK.csproj" />
-    <ProjectReference Include="..\TestSignalDependentLibrary\TestSignalDependentLibrary.csproj" />
+    <Folder Include="Properties\" />
   </ItemGroup>
-  
 </Project>

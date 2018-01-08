@@ -13,6 +13,7 @@ namespace SmartSignalsAnalysisSharedTests
     using System.Threading.Tasks;
     using Microsoft.Azure.Monitoring.SmartSignals;
     using Microsoft.Azure.Monitoring.SmartSignals.Analysis;
+    using Microsoft.Azure.Monitoring.SmartSignals.Package;
     using Microsoft.Azure.Monitoring.SmartSignals.Shared;
     using Microsoft.Azure.Monitoring.SmartSignals.Shared.SignalResultPresentation;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -124,7 +125,7 @@ namespace SmartSignalsAnalysisSharedTests
             this.request = new SmartSignalRequest(this.resourceIds, "1", DateTime.UtcNow.AddDays(-1), TimeSpan.FromDays(1), new SmartSignalSettings());
 
             var smartSignalManifest = new SmartSignalManifest("1", "Test signal", "Test signal description", Version.Parse("1.0"), "assembly", "class", new List<ResourceType>() { signalResourceType });
-            this.smartSignalPackage = new SmartSignalPackage(smartSignalManifest, new Dictionary<string, byte[]>());
+            this.smartSignalPackage = new SmartSignalPackage(smartSignalManifest, new Dictionary<string, byte[]>() { ["TestSignalLibrary"] = new byte[0] });
 
             this.smartSignalsRepositoryMock = new Mock<ISmartSignalRepository>();
             this.smartSignalsRepositoryMock

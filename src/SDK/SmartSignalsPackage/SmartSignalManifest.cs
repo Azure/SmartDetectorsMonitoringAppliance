@@ -4,7 +4,7 @@
 // </copyright>
 //-----------------------------------------------------------------------
 
-namespace Microsoft.Azure.Monitoring.SmartSignals.Shared
+namespace Microsoft.Azure.Monitoring.SmartSignals.Package
 {
     using System;
     using System.Collections.Generic;
@@ -27,19 +27,52 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Shared
         /// <param name="supportedResourceTypes">The types of resources that this signal supports</param>
         public SmartSignalManifest(string id, string name, string description, Version version, string assemblyName, string className, IReadOnlyList<ResourceType> supportedResourceTypes)
         {
-            this.Id = Diagnostics.EnsureStringNotNullOrWhiteSpace(() => id);
-            this.Name = Diagnostics.EnsureStringNotNullOrWhiteSpace(() => name);
-            this.Description = Diagnostics.EnsureStringNotNullOrWhiteSpace(() => description);
-            this.Version = Diagnostics.EnsureArgumentNotNull(() => version);
-            this.AssemblyName = Diagnostics.EnsureStringNotNullOrWhiteSpace(() => assemblyName);
-            this.ClassName = Diagnostics.EnsureStringNotNullOrWhiteSpace(() => className);
-            this.SupportedResourceTypes = Diagnostics.EnsureArgumentNotNull(() => supportedResourceTypes);
-
-            // Verify that the signal supports at least one resource
-            if (!this.SupportedResourceTypes.Any())
+            if (string.IsNullOrWhiteSpace(id))
             {
-                throw new ArgumentException("A signal must support at least one resource type");
+                throw new ArgumentNullException(nameof(id));
             }
+
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                throw new ArgumentNullException(nameof(name));
+            }
+
+            if (string.IsNullOrWhiteSpace(description))
+            {
+                throw new ArgumentNullException(nameof(description));
+            }
+
+            if (version == null)
+            {
+                throw new ArgumentNullException(nameof(version));
+            }
+
+            if (string.IsNullOrWhiteSpace(assemblyName))
+            {
+                throw new ArgumentNullException(nameof(assemblyName));
+            }
+
+            if (string.IsNullOrWhiteSpace(className))
+            {
+                throw new ArgumentNullException(nameof(className));
+            }
+
+            if (supportedResourceTypes == null)
+            {
+                throw new ArgumentNullException(nameof(supportedResourceTypes));
+            }
+            else if (supportedResourceTypes.Count == 0)
+            {                
+                throw new ArgumentException("A signal must support at least one resource type", nameof(supportedResourceTypes));
+            }
+            
+            this.Id = id;
+            this.Name = name;
+            this.Description = description;
+            this.Version = version;
+            this.AssemblyName = assemblyName;
+            this.ClassName = className;
+            this.SupportedResourceTypes = supportedResourceTypes;
         }
 
         /// <summary>
