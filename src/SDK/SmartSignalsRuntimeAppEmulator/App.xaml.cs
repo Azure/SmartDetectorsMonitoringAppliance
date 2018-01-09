@@ -15,9 +15,10 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Emulator
     /// </summary>
     public partial class App : Application
     {
+        /// <summary>
+        /// Gets the unity container.
+        /// </summary>
         public static IUnityContainer Container { get; private set; }
-
-        //public static IUnityContainer Container { get; private set; }
 
         /// <summary>
         /// Raises the <see cref="E:System.Windows.Application.Startup" /> event.
@@ -32,14 +33,7 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Emulator
                 .RegisterInstance(new AuthenticationServices());
 
             // Authenticate the user to AAD
-            var authResult = Container.Resolve<AuthenticationServices>().AuthenticateUser();
-
-            ////var authResult = authenticationServices.AuthenticationResult;
-            //var activeDirectoryToken = new ActiveDirectoryCredentials(/*authResult.AccessToken*/  "token");
-
-            //var armClient = new AzureResourceManagerClient(activeDirectoryToken);
-
-            //var subsIds = armClient.GetAllSubscriptionIdsAsync().GetAwaiter().GetResult();
+            Container.Resolve<AuthenticationServices>().AuthenticateUser();
         }
     }
 }

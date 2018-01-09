@@ -19,7 +19,6 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Emulator.Models
         private const string CommonAuthority = "https://login.microsoftonline.com/common";
 
         // The resource ID used for authentication requests.
-        //private const string ResourceId = "https://graph.windows.net/";
         private const string ResourceId = "https://management.azure.com/";
 
         // The client ID for the emulator's application - this is registered with Azure, so changing it will break all
@@ -32,13 +31,6 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Emulator.Models
 
         // The authentication context used to authenticate with AAD
         private readonly AuthenticationContext authenticationContext;
-
-        /// <summary>
-        /// Occurs when a property value changes.
-        /// </summary>
-        public event UserAuthenticatedEventHandler UserAuthenticated;
-
-        public AuthenticationResult AuthenticationResult { get; set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AuthenticationServices"/> class.
@@ -59,31 +51,19 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Emulator.Models
             }
         }
 
+        /// <summary>
+        /// Gets or sets the authentication result
+        /// </summary>
+        public AuthenticationResult AuthenticationResult { get; set; }
+
         #region Implementation of IAuthenticationServices
 
         /// <summary>
         /// Authenticates the user with their organization's AAD.
         /// </summary>
-        //public async void AuthenticateUserAsync()
-        //{
-        //    this.authenticationContext.TokenCache.Clear();
-        //    // Get a token for the web API and in so doing present the user with the consent experience
-        //    AuthenticationResult ar = await this.authenticationContext.AcquireTokenAsync(ResourceId, ClientId, new UserCredential())/*RedirectUri, new PlatformParameters(PromptBehavior.Auto, null)*/;
-        //    this.UserAuthenticated?.Invoke(this, new UserAuthenticatedEventArgs(ar.UserInfo));
-        //}
-
-        /// <summary>
-        /// Authenticates the user with their organization's AAD.
-        /// </summary>
-        public AuthenticationResult AuthenticateUser()
+        public void AuthenticateUser()
         {
-            this.authenticationContext.TokenCache.Clear();
-            // Get a token for the web API and in so doing present the user with the consent experience
-            var pb = PromptBehavior.Auto;
-            this.AuthenticationResult = this.authenticationContext.AcquireToken(ResourceId, ClientId, RedirectUri, pb);
-            //this.UserAuthenticated?.Invoke(this, new UserAuthenticatedEventArgs(ar.UserInfo));
-
-            return this.AuthenticationResult;
+            this.AuthenticationResult = this.authenticationContext.AcquireToken(ResourceId, ClientId, RedirectUri, PromptBehavior.Auto); // TODO: handle exceptions here
         }
 
         #endregion

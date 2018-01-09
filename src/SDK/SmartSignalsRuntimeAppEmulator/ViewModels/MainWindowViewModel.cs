@@ -4,12 +4,11 @@
 // </copyright>
 //-----------------------------------------------------------------------
 
-using Unity.Attributes;
-using Unity.Injection;
-
 namespace Microsoft.Azure.Monitoring.SmartSignals.Emulator.ViewModels
 {
     using Microsoft.Azure.Monitoring.SmartSignals.Emulator.Models;
+    using Unity.Attributes;
+    using Unity.Injection;
 
     /// <summary>
     /// The view model class for the <see cref="MainWindow"/> control.
@@ -19,9 +18,12 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Emulator.ViewModels
         private int numberOfResultsFound;
         private string userName;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MainWindowViewModel"/> class for design time only.
+        /// </summary>
         public MainWindowViewModel()
         {
-            this.UserName = "Jhon";
+            this.UserName = "Lionel";
             this.NumberOfResultsFound = 20;
         }
 
@@ -45,10 +47,7 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Emulator.ViewModels
         /// </summary>
         public int NumberOfResultsFound
         {
-            get
-            {
-                return this.numberOfResultsFound;
-            }
+            get => this.numberOfResultsFound;
 
             private set
             {
@@ -62,10 +61,7 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Emulator.ViewModels
         /// </summary>
         public string UserName
         {
-            get
-            {
-                return this.userName;
-            }
+            get => this.userName;
 
             private set
             {

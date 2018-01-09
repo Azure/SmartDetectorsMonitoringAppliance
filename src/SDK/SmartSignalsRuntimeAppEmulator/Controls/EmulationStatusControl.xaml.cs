@@ -4,31 +4,21 @@
 // </copyright>
 //-----------------------------------------------------------------------
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-
 namespace Microsoft.Azure.Monitoring.SmartSignals.Emulator.Controls
 {
+    using System.Windows.Controls;
+
     /// <summary>
     /// Interaction logic for EmulationStatusControl.xaml
     /// </summary>
     public partial class EmulationStatusControl : UserControl
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="EmulationStatusControl"/> class.
+        /// </summary>
         public EmulationStatusControl()
         {
-            InitializeComponent();
+            this.InitializeComponent();
 
             // Temporary code until we have a proper view model
             this.TracerBox.AppendText("[12/1/2017 9:46:12] Lorem ipsum dolor sit amet…\r\n");

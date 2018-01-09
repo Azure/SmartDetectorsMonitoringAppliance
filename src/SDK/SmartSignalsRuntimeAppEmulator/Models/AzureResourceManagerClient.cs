@@ -4,8 +4,6 @@
 // </copyright>
 //-----------------------------------------------------------------------
 
-using Microsoft.Rest;
-
 namespace Microsoft.Azure.Monitoring.SmartSignals.Emulator.Models
 {
     using System;
@@ -18,14 +16,16 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Emulator.Models
     using Microsoft.Azure.Management.ResourceManager.Fluent;
     using Microsoft.Azure.Management.ResourceManager.Fluent.Authentication;
     using Microsoft.Azure.Management.ResourceManager.Fluent.Models;
+    using Microsoft.Rest;
     using Microsoft.Rest.Azure;
     using Microsoft.Rest.Azure.OData;
     using Newtonsoft.Json.Linq;
 
     /// <summary>
-    /// Implementation of the <see cref="IAzureResourceManagerClient"/> interface
+    /// **Temporary duplication** of existing Azure Resources Manager client for the emulator.
+    /// This class will be deprecated soon and emulator will use the original Azure Resources Client from a dedicated shared folder (task )
     /// </summary>
-    public class AzureResourceManagerClient // TODO: should implement IAzureResourceManagerClient
+    public class AzureResourceManagerClient
     {
         /// <summary>
         /// The maximal number of allowed resources to enumerate
@@ -53,7 +53,6 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Emulator.Models
         /// </summary>
         private static readonly Dictionary<string, ResourceType> MapStringToResourceType = MapResourceTypeToString.ToDictionary(x => x.Value, x => x.Key, StringComparer.CurrentCultureIgnoreCase);
 
-        //private readonly AzureCredentials credentials;
         private readonly ServiceClientCredentials credentials;
 
         /// <summary>
@@ -67,6 +66,7 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Emulator.Models
         /// <summary>
         /// Initializes a new instance of the <see cref="AzureResourceManagerClient"/> class
         /// </summary>
+        /// <param name="credentials">The <see cref="ActiveDirectoryCredentials"/> of the logged in user</param>
         public AzureResourceManagerClient(ActiveDirectoryCredentials credentials)
         {
             this.credentials = credentials;
@@ -224,7 +224,6 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Emulator.Models
             var subscriptions = await this.GetSubscriptionClient().Subscriptions.ListAsync(cancellationToken);
             return subscriptions.Select(subscription => subscription.SubscriptionId).ToList();
         }
-
 
         /// <summary>
         /// Returns the resource properties, as a <see cref="JObject"/> instance.

@@ -4,14 +4,12 @@
 // </copyright>
 //-----------------------------------------------------------------------
 
-using Unity;
-
 namespace Microsoft.Azure.Monitoring.SmartSignals.Emulator
 {
     using System;
     using System.Windows;
     using Microsoft.Azure.Monitoring.SmartSignals.Emulator.ViewModels;
-    using Unity.Attributes;
+    using Unity;
 
     /// <summary>
     /// Interaction logic for MainWindow.xaml
