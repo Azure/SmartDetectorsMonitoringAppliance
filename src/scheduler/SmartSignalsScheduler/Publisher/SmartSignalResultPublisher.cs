@@ -9,6 +9,7 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Scheduler.Publisher
     using System.Collections.Generic;
     using System.Linq;
     using Microsoft.Azure.Monitoring.SmartSignals;
+    using Microsoft.Azure.Monitoring.SmartSignals.Shared.SignalResultPresentation;
     using Newtonsoft.Json;
 
     /// <summary>
@@ -30,19 +31,19 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Scheduler.Publisher
         }
 
         /// <summary>
-        /// Publish Smart Signal result as events to Application Insights
+        /// Publish Smart Signal result items as events to Application Insights
         /// </summary>
         /// <param name="signalId">The signal ID</param>
-        /// <param name="smartSignalResult">The Smart Signal result to publish</param>
-        public void PublishSignalResult(string signalId, SmartSignalResult smartSignalResult)
+        /// <param name="smartSignalResultItems">The Smart Signal result items to publish</param>
+        public void PublishSignalResultItems(string signalId, IList<SmartSignalResultItemPresentation> smartSignalResultItems)
         {
-            if (!smartSignalResult.ResultItems.Any())
+            if (!smartSignalResultItems.Any())
             {
-                this.tracer.TraceInformation("no result items to publish");
+                this.tracer.TraceInformation($"no result items to publish for signal {signalId}");
                 return;
             }
 
-            foreach (var resultItem in smartSignalResult.ResultItems)
+            foreach (var resultItem in smartSignalResultItems)
             {
                 var eventProperties = new Dictionary<string, string>
                 {
@@ -53,7 +54,7 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Scheduler.Publisher
                 this.tracer.TrackEvent(ResultEventName, eventProperties);
             }
 
-            this.tracer.TraceInformation($"{smartSignalResult.ResultItems.Count} Smart Signal result items were published to the results store");
+            this.tracer.TraceInformation($"{smartSignalResultItems.Count} Smart Signal result items for signal {signalId} were published to the results store");
         }
     }
 }

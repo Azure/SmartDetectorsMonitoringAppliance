@@ -9,7 +9,6 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Analysis
     using System;
     using System.Collections.Generic;
     using System.Reflection;
-    using System.Threading.Tasks;
     using Microsoft.Azure.Monitoring.SmartSignals.Package;
     using Microsoft.Azure.Monitoring.SmartSignals.Shared;
 
@@ -82,7 +81,7 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Analysis
                 Type signalType = mainSignalAssembly.GetType(signalManifest.ClassName);
                 if (signalType == null)
                 {
-                    throw new SmartSignalLoadException($"Signal type {signalManifest.ClassName} was not found in the main signal assembly assembly {signalManifest.AssemblyName}");
+                    throw new SmartSignalLoadException($"Signal type {signalManifest.ClassName} was not found in the main signal assembly {signalManifest.AssemblyName}");
                 }
 
                 // Check if the type inherits from ISmartSignal

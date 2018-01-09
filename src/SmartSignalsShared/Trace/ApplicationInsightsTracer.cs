@@ -8,6 +8,7 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Shared.Trace
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Threading;
     using Microsoft.ApplicationInsights;
     using Microsoft.ApplicationInsights.DataContracts;
@@ -46,6 +47,7 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Shared.Trace
                 ["WebAppSiteName"] = AzureFunctionEnvironment.WebAppSiteName ?? string.Empty,
                 ["BuildVersion"] = (buildVersion ?? ConfigurationReader.ReadConfig("BuildVersion", required: false)) ?? string.Empty,
                 ["MachineName"] = Environment.MachineName,
+                ["ProcessId"] = Process.GetCurrentProcess().Id.ToString(),
                 ["WebsiteInstanceId"] = AzureFunctionEnvironment.WebsiteInstanceId ?? string.Empty
             };
 

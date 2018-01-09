@@ -36,5 +36,10 @@ namespace TestChildProcess
         /// Run and get stuck (ignore cancellation)
         /// </summary>
         Stuck,
+
+        /// <summary>
+        /// Run and crash
+        /// </summary>
+        Crash,
     }
 }

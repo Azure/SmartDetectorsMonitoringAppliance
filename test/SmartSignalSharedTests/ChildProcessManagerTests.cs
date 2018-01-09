@@ -13,6 +13,7 @@ namespace SmartSignalSharedTests
     using System.Threading.Tasks;
     using Microsoft.Azure.Monitoring.SmartSignals;
     using Microsoft.Azure.Monitoring.SmartSignals.Shared.ChildProcess;
+    using Microsoft.Azure.Monitoring.SmartSignals.Shared.Exceptions;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Moq;
     using TestChildProcess;
@@ -114,8 +115,25 @@ namespace SmartSignalSharedTests
                 await this.childProcessManager.RunChildProcessAsync<TestChildProcessOutput>(ChildProcessName, this.GetInput(RunMode.Exception), default(CancellationToken));
                 Assert.Fail("Child process did not throw an exception");
             }
-            catch (ChildProcessException e) when (e.InnerException is DivideByZeroException)
+            catch (ChildProcessException e) when (e.InnerException is SmartSignalRepositoryException)
             {
+            }
+
+            this.EnsureProcessStopped();
+        }
+
+        [TestMethod]
+        public async Task WhenRunningChildProcessAndItCrashesThenTheExpectedExceptionIsthrown()
+        {
+            // Run the child process and make sure the correct exception is thrown
+            try
+            {
+                await this.childProcessManager.RunChildProcessAsync<TestChildProcessOutput>(ChildProcessName, this.GetInput(RunMode.Crash), default(CancellationToken));
+                Assert.Fail("Child process did not throw an exception");
+            }
+            catch (ChildProcessException e) when (e.Message == "The child process returned empty results")
+            {
+                // Expected exception
             }
 
             this.EnsureProcessStopped();

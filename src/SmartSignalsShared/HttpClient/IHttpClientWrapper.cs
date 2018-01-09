@@ -6,6 +6,7 @@
 
 namespace Microsoft.Azure.Monitoring.SmartSignals.Shared.HttpClient
 {
+    using System;
     using System.Net.Http;
     using System.Threading;
     using System.Threading.Tasks;
@@ -15,6 +16,11 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Shared.HttpClient
     /// </summary>
     public interface IHttpClientWrapper
     {
+        /// <summary>
+        /// Gets or sets the request timeout.
+        /// </summary>
+        TimeSpan Timeout { get; set; }
+
         /// <summary>
         /// Send an HTTP request as an asynchronous operation.
         /// </summary>

@@ -21,18 +21,24 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Analysis
     {
         private const int MaxNumberOfResourcesInQuery = 10;
 
+        private readonly ITracer tracer;
         private readonly IHttpClientWrapper httpClientWrapper;
+        private readonly ICredentialsFactory credentialsFactory;
         private readonly IAzureResourceManagerClient azureResourceManagerClient;
         private readonly TimeSpan queryTimeout;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AnalysisServicesFactory"/> class.
         /// </summary>
+        /// <param name="tracer">The tracer</param>
         /// <param name="httpClientWrapper">The HTTP client wrapper.</param>
+        /// <param name="credentialsFactory">The credentials factory.</param>
         /// <param name="azureResourceManagerClient">The azure resource manager client.</param>
-        public AnalysisServicesFactory(IHttpClientWrapper httpClientWrapper, IAzureResourceManagerClient azureResourceManagerClient)
+        public AnalysisServicesFactory(ITracer tracer, IHttpClientWrapper httpClientWrapper, ICredentialsFactory credentialsFactory, IAzureResourceManagerClient azureResourceManagerClient)
         {
+            this.tracer = tracer;
             this.httpClientWrapper = httpClientWrapper;
+            this.credentialsFactory = credentialsFactory;
             this.azureResourceManagerClient = azureResourceManagerClient;
 
             string timeoutString = ConfigurationReader.ReadConfig("AnalyticsQueryTimeoutInMinutes", required: true);
@@ -89,7 +95,7 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Analysis
             string workspaceId = await this.azureResourceManagerClient.GetLogAnalyticsWorkspaceIdAsync(workspaces[0], cancellationToken);
 
             // Create the client
-            return new LogAnalyticsTelemetryDataClient(this.httpClientWrapper, workspaceId, workspaces.Select(workspace => this.azureResourceManagerClient.GetResourceId(workspace)), this.queryTimeout);
+            return new LogAnalyticsTelemetryDataClient(this.tracer, this.httpClientWrapper, this.credentialsFactory, workspaceId, workspaces.Select(workspace => this.azureResourceManagerClient.GetResourceId(workspace)), this.queryTimeout);
         }
 
         /// <summary>
@@ -120,7 +126,7 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Analysis
             string applicationId = await this.azureResourceManagerClient.GetApplicationInsightsAppIdAsync(resources[0], cancellationToken);
 
             // Create the client
-            return new ApplicationInsightsTelemetryDataClient(this.httpClientWrapper, applicationId, resources.Select(resource => this.azureResourceManagerClient.GetResourceId(resource)), this.queryTimeout);
+            return new ApplicationInsightsTelemetryDataClient(this.tracer, this.httpClientWrapper, this.credentialsFactory, applicationId, resources.Select(resource => this.azureResourceManagerClient.GetResourceId(resource)), this.queryTimeout);
         }
 
         /// <summary>

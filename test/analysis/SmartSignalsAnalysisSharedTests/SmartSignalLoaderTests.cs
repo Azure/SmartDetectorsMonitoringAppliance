@@ -48,8 +48,8 @@ namespace SmartSignalsAnalysisSharedTests
 
             this.manifests = new Dictionary<string, SmartSignalManifest>()
             {
-                ["1"] = new SmartSignalManifest("1", "Test signal", "Test signal description", Version.Parse("1.0"), "TestSignalLibrary", "TestSignalLibrary.TestSignal", new List<ResourceType>() { ResourceType.Subscription }),
-                ["2"] = new SmartSignalManifest("2", "Test signal with dependency", "Test signal with dependency description", Version.Parse("1.0"), "TestSignalLibrary", "TestSignalLibrary.TestSignalWithDependency", new List<ResourceType>() { ResourceType.Subscription })
+                ["1"] = new SmartSignalManifest("1", "Test signal", "Test signal description", Version.Parse("1.0"), "TestSignalLibrary", "TestSignalLibrary.TestSignal", new List<ResourceType>() { ResourceType.Subscription }, new List<int> { 60 }),
+                ["2"] = new SmartSignalManifest("2", "Test signal with dependency", "Test signal with dependency description", Version.Parse("1.0"), "TestSignalLibrary", "TestSignalLibrary.TestSignalWithDependency", new List<ResourceType>() { ResourceType.Subscription }, new List<int> { 60 })
             };
 
             this.assemblies = new Dictionary<string, Dictionary<string, byte[]>>
@@ -130,7 +130,7 @@ namespace SmartSignalsAnalysisSharedTests
         private async Task TestLoadSignalSimple(Type signalType, string expectedTitle = "test test test")
         {
             ISmartSignalLoader loader = new SmartSignalLoader(this.tracerMock.Object);
-            SmartSignalManifest manifest = new SmartSignalManifest("3", "simple", "description", Version.Parse("1.0"), signalType.Assembly.GetName().Name, signalType.FullName, new List<ResourceType>() { ResourceType.Subscription });
+            SmartSignalManifest manifest = new SmartSignalManifest("3", "simple", "description", Version.Parse("1.0"), signalType.Assembly.GetName().Name, signalType.FullName, new List<ResourceType>() { ResourceType.Subscription }, new List<int> { 60 });
             SmartSignalPackage package = new SmartSignalPackage(manifest, this.assemblies["3"]);
             ISmartSignal signal = loader.LoadSignal(package);
             Assert.IsNotNull(signal, "Signal is NULL");

@@ -6,9 +6,13 @@
 
 namespace Microsoft.Azure.Monitoring.SmartSignals
 {
+    using Newtonsoft.Json;
+    using Newtonsoft.Json.Converters;
+
     /// <summary>
     /// An enumeration of all resource types supported by Smart Signals.
     /// </summary>
+    [JsonConverter(typeof(StringEnumConverter))]
     public enum ResourceType
     {
         /// <summary>

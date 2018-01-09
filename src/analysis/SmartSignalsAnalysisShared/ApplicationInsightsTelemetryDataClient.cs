@@ -26,25 +26,22 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Analysis
         /// <summary>
         /// Initializes a new instance of the <see cref="ApplicationInsightsTelemetryDataClient"/> class.
         /// </summary>
+        /// <param name="tracer">The tracer</param>
         /// <param name="httpClientWrapper">The HTTP client wrapper</param>
+        /// <param name="credentialsFactory">The credentials factory</param>
         /// <param name="applicationId">The application Id on which the queries will run. If there are multiple applications, this should be the ID of one of them.</param>
         /// <param name="applicationsResourceIds">
-        /// The resource IDs of the applications on which the queries will run.
-        /// Can be null or empty if there is only one application to analyze. If there are multiple applications,
-        /// one of these IDs need to match the application identified by the specified <paramref name="applicationId"/>. 
+        ///     The resource IDs of the applications on which the queries will run.
+        ///     Can be null or empty if there is only one application to analyze. If there are multiple applications,
+        ///     one of these IDs need to match the application identified by the specified <paramref name="applicationId"/>. 
         /// </param>
         /// <param name="queryTimeout">The query timeout.</param>
-        public ApplicationInsightsTelemetryDataClient(IHttpClientWrapper httpClientWrapper, string applicationId, IEnumerable<string> applicationsResourceIds, TimeSpan queryTimeout)
-            : base(httpClientWrapper, queryTimeout)
+        public ApplicationInsightsTelemetryDataClient(ITracer tracer, IHttpClientWrapper httpClientWrapper, ICredentialsFactory credentialsFactory, string applicationId, IEnumerable<string> applicationsResourceIds, TimeSpan queryTimeout)
+            : base(tracer, httpClientWrapper, credentialsFactory, new Uri(string.Format(UriFormat, applicationId)), queryTimeout)
         {
             this.applicationId = Diagnostics.EnsureStringNotNullOrWhiteSpace(() => applicationId);
             this.applicationsResourceIds = applicationsResourceIds?.ToList() ?? new List<string>();
         }
-
-        /// <summary>
-        /// Gets the URI for REST API calls
-        /// </summary>
-        protected override Uri QueryUri => new Uri(string.Format(UriFormat, this.applicationId));
 
         /// <summary>
         /// Update the HTTP request content with required values.

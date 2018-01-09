@@ -18,19 +18,20 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Shared.Trace
     /// </summary>
     public static class TracerFactory
     {
-        private static bool telemetryConigurationWasSet = false;
+        private static bool telemetryConfigurationWasSet = false;
         private static TelemetryConfiguration secondaryTelemetryConfiguration;
 
         /// <summary>
         /// Create an instance of the tracer
         /// </summary>
+        /// <param name="sessionId">Optional session ID to use</param>
         /// <param name="logger">Optional web jobs tracer</param>
         /// <param name="traceToConsole">Flag denoting if we should trace to console</param>
         /// <returns>An instance of <see cref="ITracer"/></returns>
-        public static ITracer Create(TraceWriter logger = null, bool traceToConsole = false)
+        public static ITracer Create(string sessionId = null, TraceWriter logger = null, bool traceToConsole = false)
         {
             // Creates the aggregated tracer
-            return new AggregatedTracer(GetTracersList(logger, traceToConsole));
+            return new AggregatedTracer(GetTracersList(sessionId, logger, traceToConsole));
         }
 
         /// <summary>
@@ -38,11 +39,11 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Shared.Trace
         /// </summary>
         private static void SetupTelemetryConfiguration()
         {
-            if (!telemetryConigurationWasSet)
+            if (!telemetryConfigurationWasSet)
             {
                 lock (typeof(TracerFactory))
                 {
-                    if (!telemetryConigurationWasSet)
+                    if (!telemetryConfigurationWasSet)
                     {
                         // Get the main Ikey
                         TelemetryConfiguration.Active.InstrumentationKey = ConfigurationReader.ReadConfig("TelemetryInstrumentationKey", true);
@@ -57,7 +58,7 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Shared.Trace
                         // Create secondary telemetry configurations if exists
                         secondaryTelemetryConfiguration = CreateAdditionalTelemetryConfiguration("SecondaryTelemetryInstrumentationKey", "SecondaryTelemetryEndpoint");
 
-                        telemetryConigurationWasSet = true;
+                        telemetryConfigurationWasSet = true;
                     }
                 }
             }
@@ -86,12 +87,17 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Shared.Trace
         /// <summary>
         /// Get a list of <see cref="ITracer "/> objects for creating an aggregated tracer
         /// </summary>
+        /// <param name="sessionId">Optional session Id to use - by default, a new session Id will be generated</param>
         /// <param name="logger">Optional web jobs tracer</param>
         /// <param name="traceToConsole">Flag denoting if we should trace to console</param>
         /// <returns>A list of <see cref="ITracer "/></returns>
-        private static List<ITracer> GetTracersList(TraceWriter logger = null, bool traceToConsole = false)
+        private static List<ITracer> GetTracersList(string sessionId = null, TraceWriter logger = null, bool traceToConsole = false)
         {
-            string sessionId = Guid.NewGuid().ToString();
+            if (sessionId == null)
+            {
+                sessionId = Guid.NewGuid().ToString();
+            }
+
             List<ITracer> tracers = new List<ITracer>();
 
             if (!AzureFunctionEnvironment.IsLocalEnvironment)

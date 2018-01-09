@@ -8,12 +8,14 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Scheduler
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Threading.Tasks;
     using Microsoft.Azure.Monitoring.SmartSignals;
     using Microsoft.Azure.Monitoring.SmartSignals.Scheduler.Publisher;
     using Microsoft.Azure.Monitoring.SmartSignals.Scheduler.SignalRunTracker;
     using Microsoft.Azure.Monitoring.SmartSignals.Shared;
     using Microsoft.Azure.Monitoring.SmartSignals.Shared.AlertRules;
+    using Microsoft.Azure.Monitoring.SmartSignals.Shared.SignalResultPresentation;
 
     /// <summary>
     /// This class is responsible for discovering which signal should be executed and sends them to the analysis flow
@@ -62,14 +64,16 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Scheduler
             IList<SignalExecutionInfo> signalsToRun = await this.signalRunsTracker.GetSignalsToRunAsync(alertRules);
 
             // We get all subscriptions as the resource IDs
-            var resourceIds = await this.azureResourceManagerClient.GetAllSubscriptionIdsAsync();
+            var subscriptionIds = await this.azureResourceManagerClient.GetAllSubscriptionIdsAsync();
+            var resourceIds = subscriptionIds.Select(subscriptionId => "/subscriptions/" + subscriptionId).ToList();
 
             foreach (SignalExecutionInfo signalExecution in signalsToRun)
             {
                 try
                 {
-                    SmartSignalResult signalResult = await this.analysisExecuter.ExecuteSignalAsync(signalExecution, resourceIds);
-                    this.smartSignalResultPublisher.PublishSignalResult(signalExecution.SignalId, signalResult);
+                    IList<SmartSignalResultItemPresentation> signalResultItems = await this.analysisExecuter.ExecuteSignalAsync(signalExecution, resourceIds);
+                    this.tracer.TraceInformation($"Found {signalResultItems.Count} signal result items");
+                    this.smartSignalResultPublisher.PublishSignalResultItems(signalExecution.SignalId, signalResultItems);
                     await this.signalRunsTracker.UpdateSignalRunAsync(signalExecution);
                 }
                 catch (Exception exception)

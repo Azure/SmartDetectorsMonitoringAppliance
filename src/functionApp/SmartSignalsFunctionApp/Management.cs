@@ -16,6 +16,7 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.FunctionApp
     using Microsoft.Azure.Monitoring.SmartSignals.ManagementApi.EndpointsLogic;
     using Microsoft.Azure.Monitoring.SmartSignals.ManagementApi.Models;
     using Microsoft.Azure.Monitoring.SmartSignals.ManagementApi.Responses;
+    using Microsoft.Azure.Monitoring.SmartSignals.Shared;
     using Microsoft.Azure.WebJobs;
     using Microsoft.Azure.WebJobs.Extensions.Http;
     using Microsoft.Azure.WebJobs.Host;

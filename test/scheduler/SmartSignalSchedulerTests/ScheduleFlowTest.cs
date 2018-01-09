@@ -17,6 +17,7 @@ namespace SmartSignalSchedulerTests
     using Microsoft.Azure.Monitoring.SmartSignals.Scheduler.SignalRunTracker;
     using Microsoft.Azure.Monitoring.SmartSignals.Shared;
     using Microsoft.Azure.Monitoring.SmartSignals.Shared.AlertRules;
+    using Microsoft.Azure.Monitoring.SmartSignals.Shared.SignalResultPresentation;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Moq;
 
@@ -73,20 +74,17 @@ namespace SmartSignalSchedulerTests
             this.azureResourceManagerClientMock.Setup(m => m.GetAllSubscriptionIdsAsync(It.IsAny<CancellationToken>())).ReturnsAsync(new List<string> { "someSubscriptionId" });
 
             // first signal execution throws exception and the second one returns a result
-            ResourceIdentifier resourceIdentifier = ResourceIdentifier.Create("someSubscriptionId");
             const string ResultItemTitle = "someTitle";
-            SmartSignalResult smartSignalResult = new SmartSignalResult();
-            smartSignalResult.ResultItems.Add(new TestResultItem(ResultItemTitle, resourceIdentifier));
-            this.analysisExecuterMock.SetupSequence(m => m.ExecuteSignalAsync(It.IsAny<SignalExecutionInfo>(), It.Is<IList<string>>(lst => lst.First() == "someSubscriptionId")))
+            this.analysisExecuterMock.SetupSequence(m => m.ExecuteSignalAsync(It.IsAny<SignalExecutionInfo>(), It.Is<IList<string>>(lst => lst.First() == "/subscriptions/someSubscriptionId")))
                 .Throws(new Exception())
-                .ReturnsAsync(smartSignalResult);
+                .ReturnsAsync(new List<SmartSignalResultItemPresentation> { new TestResultItem(ResultItemTitle) });
 
             await this.scheduleFlow.RunAsync();
 
             this.alertRuleStoreMock.Verify(m => m.GetAllAlertRulesAsync(), Times.Once);
             
             // Verify that these were called only once since the first signal execution throwed exception
-            this.publisherMock.Verify(m => m.PublishSignalResult("s2", It.Is<SmartSignalResult>(res => res.ResultItems.Count == 1 && res.ResultItems.First().Title == ResultItemTitle)), Times.Once);
+            this.publisherMock.Verify(m => m.PublishSignalResultItems("s2", It.Is<IList<SmartSignalResultItemPresentation>>(items => items.Count == 1 && items.First().Title == ResultItemTitle)), Times.Once);
             this.signalRunTrackerMock.Verify(m => m.UpdateSignalRunAsync(It.IsAny<SignalExecutionInfo>()), Times.Once());
             this.signalRunTrackerMock.Verify(m => m.UpdateSignalRunAsync(signalExecution2));
         }
@@ -114,23 +112,20 @@ namespace SmartSignalSchedulerTests
             this.azureResourceManagerClientMock.Setup(m => m.GetAllSubscriptionIdsAsync(It.IsAny<CancellationToken>())).ReturnsAsync(new List<string> { "someSubscriptionId" });
 
             // each signal execution returns a result
-            ResourceIdentifier resourceIdentifier = ResourceIdentifier.Create("someSubscriptionId");
-            SmartSignalResult smartSignalResult = new SmartSignalResult();
-            smartSignalResult.ResultItems.Add(new TestResultItem("title", resourceIdentifier));
-            this.analysisExecuterMock.Setup(m => m.ExecuteSignalAsync(It.IsAny<SignalExecutionInfo>(), It.Is<IList<string>>(lst => lst.First() == "someSubscriptionId")))
-                .ReturnsAsync(smartSignalResult);
+            this.analysisExecuterMock.Setup(m => m.ExecuteSignalAsync(It.IsAny<SignalExecutionInfo>(), It.Is<IList<string>>(lst => lst.First() == "/subscriptions/someSubscriptionId")))
+                .ReturnsAsync(new List<SmartSignalResultItemPresentation> { new TestResultItem("title") });
 
             await this.scheduleFlow.RunAsync();
 
             // Verify result items were published and signal tracker was updated for each signal execution
             this.alertRuleStoreMock.Verify(m => m.GetAllAlertRulesAsync(), Times.Once);
-            this.publisherMock.Verify(m => m.PublishSignalResult(It.IsAny<string>(), It.IsAny<SmartSignalResult>()), Times.Exactly(2));
+            this.publisherMock.Verify(m => m.PublishSignalResultItems(It.IsAny<string>(), It.IsAny<IList<SmartSignalResultItemPresentation>>()), Times.Exactly(2));
             this.signalRunTrackerMock.Verify(m => m.UpdateSignalRunAsync(It.IsAny<SignalExecutionInfo>()), Times.Exactly(2));
         }
 
-        private class TestResultItem : SmartSignalResultItem
+        private class TestResultItem : SmartSignalResultItemPresentation
         {
-            public TestResultItem(string title, ResourceIdentifier resourceIdentifier) : base(title, resourceIdentifier)
+            public TestResultItem(string title) : base(title, title, null, null, null, null, null, DateTime.UtcNow, 0, null, null)
             {
             }
         }
