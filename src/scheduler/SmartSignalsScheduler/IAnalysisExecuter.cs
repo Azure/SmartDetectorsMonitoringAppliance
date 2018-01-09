@@ -8,7 +8,7 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Scheduler
 {
     using System.Collections.Generic;
     using System.Threading.Tasks;
-    using Microsoft.Azure.Monitoring.SmartSignals;
+    using Microsoft.Azure.Monitoring.SmartSignals.Shared.SignalResultPresentation;
 
     /// <summary>
     /// An interface responsible for executing signals via the analysis flow
@@ -20,7 +20,7 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Scheduler
         /// </summary>
         /// <param name="signalExecutionInfo">The signal execution information</param>
         /// <param name="resourceIds">The resource IDs used by the signal</param>
-        /// <returns>The Smart Signal result</returns>
-        Task<SmartSignalResult> ExecuteSignalAsync(SignalExecutionInfo signalExecutionInfo, IList<string> resourceIds);
+        /// <returns>A list of smart signal result items</returns>
+        Task<IList<SmartSignalResultItemPresentation>> ExecuteSignalAsync(SignalExecutionInfo signalExecutionInfo, IList<string> resourceIds);
     }
 }

@@ -62,18 +62,28 @@ function Validate-CorrectPackageVersion
     )
     
     $blobs = Get-AzureStorageBlob -Container $ContainerName -Context $StorageAccount.Context -Prefix "$SignalId/"
+	if (!$blobs) {
+		# No older versions found
+		return
+	}
+
     $blobsWithVersion = [System.Linq.Enumerable]::Where($blobs, [Func[object,bool]]{ param($blob) $blob.ICloudBlob.Metadata.ContainsKey("version") })
+	if (!$blobsWithVersion) {
+		# No older versions found
+		return
+	}
+
     $blobsOrederedByVersion = [System.Linq.Enumerable]::OrderByDescending($blobsWithVersion, [Func[object,System.Version]]{ param($blob) [System.Version]::Parse($blob.ICloudBlob.Metadata["version"]) })
     $latestBlob = [System.Linq.Enumerable]::FirstOrDefault($blobsOrederedByVersion)
     if ($latestBlob)
     {
         # Verifiying that current package is a later version of the latest existing signal version
         $latestVersion = [System.Version]::Parse($latestBlob.ICloudBlob.Metadata["version"])
-        if ($latestVersion -gt $CurrentPackageVersion)
+        if ($latestVersion -ge $CurrentPackageVersion)
         {
             Throw New-Object System.ArgumentException -ArgumentList "current package version should be greater than existing deployed version"
         }
-    } 
+    }
 }
 
 #########################

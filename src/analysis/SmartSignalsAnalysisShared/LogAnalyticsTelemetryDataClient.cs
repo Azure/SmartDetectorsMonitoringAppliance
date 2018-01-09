@@ -26,7 +26,9 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Analysis
         /// <summary>
         /// Initializes a new instance of the <see cref="LogAnalyticsTelemetryDataClient"/> class.
         /// </summary>
+        /// <param name="tracer">The tracer</param>
         /// <param name="httpClientWrapper">The HTTP client wrapper</param>
+        /// <param name="credentialsFactory">The credentials factory</param>
         /// <param name="workspaceId">The workspace Id on which the queries will run. If there are multiple workspaces, this should be the ID of one of them.</param>
         /// <param name="workspacesResourceIds">
         /// The resource IDs of the workspaces on which the queries will run.
@@ -34,17 +36,12 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Analysis
         /// one of these IDs need to match the workspace identified by the specified <paramref name="workspaceId"/>. 
         /// </param>
         /// <param name="queryTimeout">The query timeout.</param>
-        public LogAnalyticsTelemetryDataClient(IHttpClientWrapper httpClientWrapper, string workspaceId, IEnumerable<string> workspacesResourceIds, TimeSpan queryTimeout)
-            : base(httpClientWrapper, queryTimeout)
+        public LogAnalyticsTelemetryDataClient(ITracer tracer, IHttpClientWrapper httpClientWrapper, ICredentialsFactory credentialsFactory, string workspaceId, IEnumerable<string> workspacesResourceIds, TimeSpan queryTimeout)
+            : base(tracer, httpClientWrapper, credentialsFactory, new Uri(string.Format(UriFormat, workspaceId)), queryTimeout)
         {
             this.workspaceId = Diagnostics.EnsureStringNotNullOrWhiteSpace(() => workspaceId);
             this.workspacesResourceIds = workspacesResourceIds?.ToList() ?? new List<string>();
         }
-
-        /// <summary>
-        /// Gets the URI for REST API calls
-        /// </summary>
-        protected override Uri QueryUri => new Uri(string.Format(UriFormat, this.workspaceId));
 
         /// <summary>
         /// Update the HTTP request content with required values.

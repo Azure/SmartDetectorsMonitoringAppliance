@@ -6,7 +6,9 @@
 
 namespace Microsoft.Azure.Monitoring.SmartSignals.Analysis
 {
+    using System;
     using System.Collections.Generic;
+    using System.IO;
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.Azure.Monitoring.SmartSignals.Shared;
@@ -21,14 +23,17 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Analysis
         private const string ChildProcessName = "SmartSignalRunnerChildProcess.exe";
 
         private readonly IChildProcessManager childProcessManager;
+        private readonly ITracer tracer;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SmartSignalRunnerInChildProcess"/> class
         /// </summary>
         /// <param name="childProcessManager">The child process manager</param>
-        public SmartSignalRunnerInChildProcess(IChildProcessManager childProcessManager)
+        /// <param name="tracer">The tracer</param>
+        public SmartSignalRunnerInChildProcess(IChildProcessManager childProcessManager, ITracer tracer)
         {
             this.childProcessManager = childProcessManager;
+            this.tracer = tracer;
         }
 
         /// <summary>
@@ -39,7 +44,17 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Analysis
         /// <returns>A <see cref="Task{TResult}"/>, returning the generated result items presentations</returns>
         public async Task<List<SmartSignalResultItemPresentation>> RunAsync(SmartSignalRequest request, CancellationToken cancellationToken)
         {
-            return await this.childProcessManager.RunChildProcessAsync<List<SmartSignalResultItemPresentation>>(ChildProcessName, request, cancellationToken);
+            // Find the executable location
+            string currentDllPath = new Uri(typeof(SmartSignalRunnerInChildProcess).Assembly.CodeBase).AbsolutePath;
+            string exePath = Path.Combine(Path.GetDirectoryName(currentDllPath) ?? string.Empty, ChildProcessName);
+            if (!File.Exists(exePath))
+            {
+                this.tracer.TraceError($"Verification of executable path {exePath} failed");
+                throw new FileNotFoundException("Could not find child process executable", ChildProcessName);
+            }
+
+            // Run the child process
+            return await this.childProcessManager.RunChildProcessAsync<List<SmartSignalResultItemPresentation>>(exePath, request, cancellationToken);
         }
     }
 }

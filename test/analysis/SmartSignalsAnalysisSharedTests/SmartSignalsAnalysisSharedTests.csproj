@@ -12,12 +12,13 @@
     <PackageReference Include="StyleCop.MSBuild" Version="5.0.0" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\..\src\analysis\SmartSignalsAnalysisShared\SmartSignalsAnalysis.csproj" />
+    <ProjectReference Include="..\..\..\src\SDK\SmartSignalsPackage\SmartSignalsPackage.csproj" />
+  </ItemGroup>
+  <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\..\src\analysis\SmartSignalsAnalysisShared\SmartSignalsAnalysisShared.csproj" />
   </ItemGroup>
   <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
     <Exec Command="xcopy $(TargetDir)..\..\..\..\TestSignalLibrary\$(OutDir)TestSignal*.dll $(TargetDir) /Y" />

@@ -6,9 +6,12 @@
 
 namespace SmartSignalRunnerChildProcess
 {
+    using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Threading;
     using System.Threading.Tasks;
+    using Microsoft.Azure.Monitoring.SmartSignals;
     using Microsoft.Azure.Monitoring.SmartSignals.Analysis;
     using Microsoft.Azure.Monitoring.SmartSignals.Shared;
     using Microsoft.Azure.Monitoring.SmartSignals.Shared.ChildProcess;
@@ -26,16 +29,35 @@ namespace SmartSignalRunnerChildProcess
         /// The main method
         /// </summary>
         /// <param name="args">Command line arguments. These arguments are expected to be created by <see cref="IChildProcessManager.RunChildProcessAsync{TOutput}"/>.</param>
-        public static void Main(string[] args)
+        /// <returns>Exit code</returns>
+        public static int Main(string[] args)
         {
-            // Inject dependencies
-            container = AnalysisDependenciesInjector.GetContainer()
-                .WithSmartSignalRunner<SmartSignalRunner>()
-                .WithTracer(null, true);
+            ITracer tracer = null;
+            try
+            {
+                // Inject dependencies
+                container = DependenciesInjector.GetContainer()
+                    .RegisterType<IAnalysisServicesFactory, AnalysisServicesFactory>()
+                    .RegisterType<ISmartSignalLoader, SmartSignalLoader>()
+                    .RegisterType<ISmartSignalRunner, SmartSignalRunner>()
+                    .WithChildProcessTracer(args);
 
-            // Run the analysis
-            IChildProcessManager childProcessManager = container.Resolve<IChildProcessManager>();
-            childProcessManager.RunAndListenToParentAsync<SmartSignalRequest, List<SmartSignalResultItemPresentation>>(args, RunSignalAsync).Wait();
+                // Trace
+                tracer = container.Resolve<ITracer>();
+                tracer.TraceInformation($"Starting signal runner process, process ID {Process.GetCurrentProcess().Id}");
+
+                // Run the analysis
+                IChildProcessManager childProcessManager = container.Resolve<IChildProcessManager>();
+                childProcessManager.RunAndListenToParentAsync<SmartSignalRequest, List<SmartSignalResultItemPresentation>>(args, RunSignalAsync).Wait();
+
+                return 0;
+            }
+            catch (Exception e)
+            {
+                tracer?.TraceError("Unhandled exception in child process: " + e.Message);
+                Console.Error.WriteLine(e.ToString());
+                return -1;
+            }
         }
 
         /// <summary>

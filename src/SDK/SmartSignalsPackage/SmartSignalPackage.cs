@@ -8,7 +8,6 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Package
 {
     using System;
     using System.Collections.Generic;
-    using System.Collections.ObjectModel;
     using System.IO;
     using System.IO.Compression;
     using System.Text;
@@ -19,7 +18,7 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Package
     /// </summary>
     public sealed class SmartSignalPackage
     {
-        private const string ManifestFileName = "Manifest.json";
+        private const string ManifestFileName = "manifest.json";
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SmartSignalPackage"/> class.
@@ -60,8 +59,9 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Package
         /// Creates a <see cref="SmartSignalPackage"/> from a zipped package stream
         /// </summary>
         /// <param name="zippedPackageStream">The zipped package stream</param>
+        /// <param name="tracer">The tracer</param>
         /// <returns>A <see cref="SmartSignalPackage"/></returns>
-        public static SmartSignalPackage CreateFromStream(Stream zippedPackageStream)
+        public static SmartSignalPackage CreateFromStream(Stream zippedPackageStream, ITracer tracer)
         {
             var packageContent = new Dictionary<string, byte[]>(StringComparer.OrdinalIgnoreCase);
             using (var archive = new ZipArchive(zippedPackageStream, ZipArchiveMode.Read))
@@ -86,7 +86,9 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Package
             }
 
             // Deserialize the manifest
-            SmartSignalManifest signalManifest = JsonConvert.DeserializeObject<SmartSignalManifest>(Encoding.UTF8.GetString(manifestBytes));
+            string manifest = Encoding.UTF8.GetString(manifestBytes);
+            tracer.TraceInformation($"Deserializing signal manifest {manifest}");
+            SmartSignalManifest signalManifest = JsonConvert.DeserializeObject<SmartSignalManifest>(manifest);
 
             return new SmartSignalPackage(signalManifest, packageContent);
         }

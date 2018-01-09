@@ -14,6 +14,7 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Analysis
     using Microsoft.Azure.Monitoring.SmartSignals;
     using Microsoft.Azure.Monitoring.SmartSignals.Package;
     using Microsoft.Azure.Monitoring.SmartSignals.Shared;
+    using Microsoft.Azure.Monitoring.SmartSignals.Shared.Exceptions;
     using Microsoft.Azure.Monitoring.SmartSignals.Shared.SignalResultPresentation;
 
     /// <summary>
@@ -63,7 +64,7 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Analysis
             this.tracer.TraceInformation($"Loading signal package for signal ID {request.SignalId}");
             SmartSignalPackage signalPackage = await this.smartSignalRepository.ReadSignalPackageAsync(request.SignalId);
             SmartSignalManifest signalManifest = signalPackage.Manifest;
-            this.tracer.TraceInformation($"Read signal pacakge, ID {signalManifest.Id}, Version {signalManifest.Version}");
+            this.tracer.TraceInformation($"Read signal package, ID {signalManifest.Id}, Version {signalManifest.Version}");
 
             // Load the signal
             ISmartSignal signal = this.smartSignalLoader.LoadSignal(signalPackage);
@@ -84,7 +85,7 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Analysis
             catch (Exception e)
             {
                 this.tracer.TraceInformation($"Failed running signal ID {signalManifest.Id}, Name {signalManifest.Name}: {e.Message}");
-                throw;
+                throw new SmartSignalCustomException(e.GetType().ToString(), e.Message, e.StackTrace);
             }
 
             // Verify that each result item belongs to one of the provided resources
@@ -104,7 +105,9 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Analysis
             }
 
             // And return the result
-            return signalResult.ResultItems.Select(item => SmartSignalResultItemPresentation.CreateFromResultItem(request, signalManifest.Name, item, this.azureResourceManagerClient)).ToList();
+            List<SmartSignalResultItemPresentation> result = signalResult.ResultItems.Select(item => SmartSignalResultItemPresentation.CreateFromResultItem(request, signalManifest.Name, item, this.azureResourceManagerClient)).ToList();
+            this.tracer.TraceInformation($"Returning {result.Count} results");
+            return result;
         }
 
         #endregion

@@ -15,9 +15,12 @@ namespace SmartSignalsAnalysisSharedTests
     using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
+    using Microsoft.Azure.Monitoring.SmartSignals;
     using Microsoft.Azure.Monitoring.SmartSignals.Analysis;
+    using Microsoft.Azure.Monitoring.SmartSignals.Shared;
     using Microsoft.Azure.Monitoring.SmartSignals.Shared.HttpClient;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using Moq;
     using Newtonsoft.Json;
     using Newtonsoft.Json.Linq;
 
@@ -28,10 +31,13 @@ namespace SmartSignalsAnalysisSharedTests
         private const string WorkspaceId = "id";
         private static readonly List<string> WorkspaceNames = new List<string>() { "workspaceName1", "workspaceName2" };
 
+        private readonly Mock<ITracer> tracerMock = new Mock<ITracer>();
+        private readonly Mock<ICredentialsFactory> credentialsFactoryMock = new Mock<ICredentialsFactory>();
+
         [TestMethod]
         public async Task WhenSendingQueryThenTheResultsAreAsExpected()
         {
-            var client = new LogAnalyticsTelemetryDataClient(new TestHttpClientWrapper(), WorkspaceId, WorkspaceNames, TimeSpan.FromMinutes(10));
+            var client = new LogAnalyticsTelemetryDataClient(this.tracerMock.Object, new TestHttpClientWrapper(), this.credentialsFactoryMock.Object, WorkspaceId, WorkspaceNames, TimeSpan.FromMinutes(10));
             IList<DataTable> results = await client.RunQueryAsync(Query, default(CancellationToken));
             VerifyDataTables(TestHttpClientWrapper.GetExpectedResults(), results);
         }
@@ -39,7 +45,7 @@ namespace SmartSignalsAnalysisSharedTests
         [TestMethod]
         public async Task WhenSendingQueryToApplicationInsightsThenTheResultsAreAsExpected()
         {
-            var client = new ApplicationInsightsTelemetryDataClient(new TestHttpClientWrapper(applicationInsights: true), WorkspaceId, WorkspaceNames, TimeSpan.FromMinutes(10));
+            var client = new ApplicationInsightsTelemetryDataClient(this.tracerMock.Object, new TestHttpClientWrapper(applicationInsights: true), this.credentialsFactoryMock.Object, WorkspaceId, WorkspaceNames, TimeSpan.FromMinutes(10));
             IList<DataTable> results = await client.RunQueryAsync(Query, default(CancellationToken));
             VerifyDataTables(TestHttpClientWrapper.GetExpectedResults(), results);
         }
@@ -48,7 +54,7 @@ namespace SmartSignalsAnalysisSharedTests
         [ExpectedException(typeof(ArgumentException))]
         public async Task WhenSendingQueryWithInvalidTypeThenAnExceptionIsThrown()
         {
-            var client = new LogAnalyticsTelemetryDataClient(new TestHttpClientWrapper(invalidType: true), WorkspaceId, WorkspaceNames, TimeSpan.FromMinutes(10));
+            var client = new LogAnalyticsTelemetryDataClient(this.tracerMock.Object, new TestHttpClientWrapper(invalidType: true), this.credentialsFactoryMock.Object, WorkspaceId, WorkspaceNames, TimeSpan.FromMinutes(10));
             IList<DataTable> results = await client.RunQueryAsync(Query, default(CancellationToken));
             VerifyDataTables(TestHttpClientWrapper.GetExpectedResults(), results);
         }
@@ -56,7 +62,7 @@ namespace SmartSignalsAnalysisSharedTests
         [TestMethod]
         public async Task WhenSendingQueryWithEmptyResultsThenResultsAreAsExpected()
         {
-            var client = new LogAnalyticsTelemetryDataClient(new TestHttpClientWrapper(emptyResults: true), WorkspaceId, WorkspaceNames, TimeSpan.FromMinutes(10));
+            var client = new LogAnalyticsTelemetryDataClient(this.tracerMock.Object, new TestHttpClientWrapper(emptyResults: true), this.credentialsFactoryMock.Object, WorkspaceId, WorkspaceNames, TimeSpan.FromMinutes(10));
             IList<DataTable> results = await client.RunQueryAsync(Query, default(CancellationToken));
             VerifyDataTables(new List<DataTable>(), results);
         }
@@ -64,7 +70,7 @@ namespace SmartSignalsAnalysisSharedTests
         [TestMethod]
         public async Task WhenQueryReturnsAnErrorThenTheCorrectExceptionIsThrown()
         {
-            var client = new LogAnalyticsTelemetryDataClient(new TestHttpClientWrapper(error: true), WorkspaceId, WorkspaceNames, TimeSpan.FromMinutes(10));
+            var client = new LogAnalyticsTelemetryDataClient(this.tracerMock.Object, new TestHttpClientWrapper(error: true), this.credentialsFactoryMock.Object, WorkspaceId, WorkspaceNames, TimeSpan.FromMinutes(10));
             try
             {
                 await client.RunQueryAsync(Query, default(CancellationToken));
@@ -110,6 +116,8 @@ namespace SmartSignalsAnalysisSharedTests
                 this.applicationInsights = applicationInsights;
                 this.error = error;
             }
+
+            public TimeSpan Timeout { get; set; }
 
             public static List<DataTable> GetExpectedResults()
             {

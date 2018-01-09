@@ -50,7 +50,7 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.ManagementApi.EndpointsLogic
                 {
                    Id = manifest.Id,
                    Name = manifest.Name,
-                   SupportedCadences = new List<int>(),  // TODO - wait for Aviram to complete this
+                   SupportedCadences = new List<int>(manifest.SupportedCadencesInMinutes),
                    Configurations = new List<SignalConfiguration>()
                 }).ToList();
 

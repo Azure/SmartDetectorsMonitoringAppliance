@@ -31,12 +31,16 @@ namespace SmartSignalsAnalysisSharedTests
         private static readonly List<string> WorkspaceNames = new List<string>() { "workspaceName1", "workspaceName2", "workspaceName3" };
         private static readonly List<ResourceIdentifier> Workspaces = WorkspaceNames.Select(name => ResourceIdentifier.Create(ResourceType.LogAnalytics, SubscriptionId, ResourceGroupName, name)).ToList();
 
+        private Mock<ITracer> tracerMock;
+        private Mock<ICredentialsFactory> credentialsFactoryMock;
         private Mock<IHttpClientWrapper> httpClientWrapperMock;
         private Mock<IAzureResourceManagerClient> azureResourceManagerClientMock;
 
         [TestInitialize]
         public void TestInitialize()
         {
+            this.tracerMock = new Mock<ITracer>();
+            this.credentialsFactoryMock = new Mock<ICredentialsFactory>();
             this.httpClientWrapperMock = new Mock<IHttpClientWrapper>();
 
             this.azureResourceManagerClientMock = new Mock<IAzureResourceManagerClient>();
@@ -68,7 +72,7 @@ namespace SmartSignalsAnalysisSharedTests
                 ResourceIdentifier.Create(ResourceType.ApplicationInsights, SubscriptionId, ResourceGroupName, ResourceName)
             };
 
-            IAnalysisServicesFactory factory = new AnalysisServicesFactory(this.httpClientWrapperMock.Object, this.azureResourceManagerClientMock.Object);
+            IAnalysisServicesFactory factory = new AnalysisServicesFactory(this.tracerMock.Object, this.httpClientWrapperMock.Object, this.credentialsFactoryMock.Object, this.azureResourceManagerClientMock.Object);
             ITelemetryDataClient client = await factory.CreateApplicationInsightsTelemetryDataClientAsync(resources, default(CancellationToken));
             Assert.AreEqual(typeof(ApplicationInsightsTelemetryDataClient), client.GetType(), "Wrong telemetry data client type created");
             Assert.AreEqual(ApplicationId, GetPrivateFieldValue<string>(client, "applicationId"), "Wrong application Id");
@@ -81,11 +85,11 @@ namespace SmartSignalsAnalysisSharedTests
         {
             var resources = new List<ResourceIdentifier>()
             {
-                ResourceIdentifier.Create(ResourceType.ApplicationInsights, SubscriptionId, ResourceGroupName, ResourceName),
+                ResourceIdentifier.Create(ResourceType.ApplicationInsights, SubscriptionId, ResourceGroupName, ResourceName + "111"),
                 ResourceIdentifier.Create(ResourceType.VirtualMachine, SubscriptionId, ResourceGroupName, ResourceName)
             };
 
-            IAnalysisServicesFactory factory = new AnalysisServicesFactory(this.httpClientWrapperMock.Object, this.azureResourceManagerClientMock.Object);
+            IAnalysisServicesFactory factory = new AnalysisServicesFactory(this.tracerMock.Object, this.httpClientWrapperMock.Object, this.credentialsFactoryMock.Object, this.azureResourceManagerClientMock.Object);
             await factory.CreateApplicationInsightsTelemetryDataClientAsync(resources, default(CancellationToken));
         }
 
@@ -98,7 +102,7 @@ namespace SmartSignalsAnalysisSharedTests
                 ResourceIdentifier.Create(ResourceType.LogAnalytics, SubscriptionId, ResourceGroupName, WorkspaceNames[1])
             };
 
-            IAnalysisServicesFactory factory = new AnalysisServicesFactory(this.httpClientWrapperMock.Object, this.azureResourceManagerClientMock.Object);
+            IAnalysisServicesFactory factory = new AnalysisServicesFactory(this.tracerMock.Object, this.httpClientWrapperMock.Object, this.credentialsFactoryMock.Object, this.azureResourceManagerClientMock.Object);
             ITelemetryDataClient client = await factory.CreateLogAnalyticsTelemetryDataClientAsync(resources, default(CancellationToken));
             Assert.AreEqual(typeof(LogAnalyticsTelemetryDataClient), client.GetType(), "Wrong telemetry data client type created");
             Assert.AreEqual(WorkspaceIds[0], GetPrivateFieldValue<string>(client, "workspaceId"), "Wrong application Id");
@@ -107,7 +111,7 @@ namespace SmartSignalsAnalysisSharedTests
 
         [TestMethod]
         [ExpectedException(typeof(TelemetryDataClientCreationException))]
-        public async Task WhenCreatingLogAnalyticsClientForMixedResourcesThenAnExceptionIsSThrown()
+        public async Task WhenCreatingLogAnalyticsClientForMixedResourcesThenAnExceptionIsThrown()
         {
             var resources = new List<ResourceIdentifier>()
             {
@@ -115,7 +119,7 @@ namespace SmartSignalsAnalysisSharedTests
                 ResourceIdentifier.Create(ResourceType.ApplicationInsights, SubscriptionId, ResourceGroupName, ResourceName)
             };
 
-            IAnalysisServicesFactory factory = new AnalysisServicesFactory(this.httpClientWrapperMock.Object, this.azureResourceManagerClientMock.Object);
+            IAnalysisServicesFactory factory = new AnalysisServicesFactory(this.tracerMock.Object, this.httpClientWrapperMock.Object, this.credentialsFactoryMock.Object, this.azureResourceManagerClientMock.Object);
             await factory.CreateLogAnalyticsTelemetryDataClientAsync(resources, default(CancellationToken));
         }
 
@@ -128,7 +132,7 @@ namespace SmartSignalsAnalysisSharedTests
                 ResourceIdentifier.Create(ResourceType.VirtualMachine, SubscriptionId, ResourceGroupName, ResourceName)
             };
 
-            IAnalysisServicesFactory factory = new AnalysisServicesFactory(this.httpClientWrapperMock.Object, this.azureResourceManagerClientMock.Object);
+            IAnalysisServicesFactory factory = new AnalysisServicesFactory(this.tracerMock.Object, this.httpClientWrapperMock.Object, this.credentialsFactoryMock.Object, this.azureResourceManagerClientMock.Object);
             ITelemetryDataClient client = await factory.CreateLogAnalyticsTelemetryDataClientAsync(resources, default(CancellationToken));
             Assert.AreEqual(typeof(LogAnalyticsTelemetryDataClient), client.GetType(), "Wrong telemetry data client type created");
             Assert.IsTrue(WorkspaceIds.Contains(GetPrivateFieldValue<string>(client, "workspaceId")), "Wrong workspace Id");
@@ -138,7 +142,7 @@ namespace SmartSignalsAnalysisSharedTests
         [TestMethod]
         public async Task WhenCreatingClientForEmptyResourcesThenAnExceptionIsThrown()
         {
-            IAnalysisServicesFactory factory = new AnalysisServicesFactory(this.httpClientWrapperMock.Object, this.azureResourceManagerClientMock.Object);
+            IAnalysisServicesFactory factory = new AnalysisServicesFactory(this.tracerMock.Object, this.httpClientWrapperMock.Object, this.credentialsFactoryMock.Object, this.azureResourceManagerClientMock.Object);
 
             try
             {
@@ -162,7 +166,7 @@ namespace SmartSignalsAnalysisSharedTests
         [TestMethod]
         public async Task WhenCreatingClientForResourcesWithMultipleSubscriptionsThenAllWorkspacesAreReturned()
         {
-            IAnalysisServicesFactory factory = new AnalysisServicesFactory(this.httpClientWrapperMock.Object, this.azureResourceManagerClientMock.Object);
+            IAnalysisServicesFactory factory = new AnalysisServicesFactory(this.tracerMock.Object, this.httpClientWrapperMock.Object, this.credentialsFactoryMock.Object, this.azureResourceManagerClientMock.Object);
 
             var resources = new List<ResourceIdentifier>()
             {
@@ -198,7 +202,7 @@ namespace SmartSignalsAnalysisSharedTests
         public async Task WhenCreatingClientForTooManyResourcesThenAnExceptionIsThrown()
         {
             const int TooManyResourcesCount = 11;
-            IAnalysisServicesFactory factory = new AnalysisServicesFactory(this.httpClientWrapperMock.Object, this.azureResourceManagerClientMock.Object);
+            IAnalysisServicesFactory factory = new AnalysisServicesFactory(this.tracerMock.Object, this.httpClientWrapperMock.Object, this.credentialsFactoryMock.Object, this.azureResourceManagerClientMock.Object);
 
             try
             {

@@ -15,6 +15,7 @@ namespace SmartSignalsAnalysisSharedTests
     using Microsoft.Azure.Monitoring.SmartSignals.Analysis;
     using Microsoft.Azure.Monitoring.SmartSignals.Package;
     using Microsoft.Azure.Monitoring.SmartSignals.Shared;
+    using Microsoft.Azure.Monitoring.SmartSignals.Shared.Exceptions;
     using Microsoft.Azure.Monitoring.SmartSignals.Shared.SignalResultPresentation;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Moq;
@@ -68,10 +69,40 @@ namespace SmartSignalsAnalysisSharedTests
             {
                 t.Wait(TimeSpan.FromSeconds(10));
             }
-            catch (AggregateException e) when (e.InnerExceptions.Single() is TaskCanceledException)
+            catch (AggregateException e) when ((e.InnerExceptions.Single() as SmartSignalCustomException).SignalExceptionType == typeof(TaskCanceledException).ToString())
             {
                 Assert.IsTrue(this.signal.WasCanceled, "The signal was not canceled!");
             }
+        }
+
+        [TestMethod]
+        public async Task WhenRunningSignalThenExceptionsAreHandledCorrectly()
+        {
+            // Notify the signal that it should throw an exception
+            this.signal.ShouldThrow = true;
+
+            // Run the signal
+            ISmartSignalRunner runner = new SmartSignalRunner(this.smartSignalsRepositoryMock.Object, this.smartSignalLoaderMock.Object, this.analysisServicesFactoryMock.Object, this.azureResourceManagerClientMock.Object, this.tracerMock.Object);
+            try
+            {
+                await runner.RunAsync(this.request, default(CancellationToken));
+            }
+            catch (SmartSignalCustomException e) when (e.SignalExceptionType == typeof(DivideByZeroException).ToString())
+            {
+                // Expected exception
+            }
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(SmartSignalCustomException))]
+        public async Task WhenRunningSignalThenCustomExceptionsAreHandledCorrectly()
+        {
+            // Notify the signal that it should throw a custom exception
+            this.signal.ShouldThrowCustom = true;
+
+            // Run the signal
+            ISmartSignalRunner runner = new SmartSignalRunner(this.smartSignalsRepositoryMock.Object, this.smartSignalLoaderMock.Object, this.analysisServicesFactoryMock.Object, this.azureResourceManagerClientMock.Object, this.tracerMock.Object);
+            await runner.RunAsync(this.request, default(CancellationToken));
         }
 
         [TestMethod]
@@ -124,8 +155,8 @@ namespace SmartSignalsAnalysisSharedTests
 
             this.request = new SmartSignalRequest(this.resourceIds, "1", DateTime.UtcNow.AddDays(-1), TimeSpan.FromDays(1), new SmartSignalSettings());
 
-            var smartSignalManifest = new SmartSignalManifest("1", "Test signal", "Test signal description", Version.Parse("1.0"), "assembly", "class", new List<ResourceType>() { signalResourceType });
-            this.smartSignalPackage = new SmartSignalPackage(smartSignalManifest, new Dictionary<string, byte[]>() { ["TestSignalLibrary"] = new byte[0] });
+            var smartSignalManifest = new SmartSignalManifest("1", "Test signal", "Test signal description", Version.Parse("1.0"), "assembly", "class", new List<ResourceType>() { signalResourceType }, new List<int> { 60 });
+            this.smartSignalPackage = new SmartSignalPackage(smartSignalManifest, new Dictionary<string, byte[]> { ["TestSignalLibrary"] = new byte[0] });
 
             this.smartSignalsRepositoryMock = new Mock<ISmartSignalRepository>();
             this.smartSignalsRepositoryMock
@@ -175,6 +206,10 @@ namespace SmartSignalsAnalysisSharedTests
         {
             public bool ShouldStuck { private get; set; }
 
+            public bool ShouldThrow { private get; set; }
+
+            public bool ShouldThrowCustom { private get; set; }
+
             public bool IsRunning { get; private set; }
 
             public bool WasCanceled { get; private set; }
@@ -202,9 +237,23 @@ namespace SmartSignalsAnalysisSharedTests
                     }
                 }
 
+                if (this.ShouldThrow)
+                {
+                    throw new DivideByZeroException();
+                }
+
+                if (this.ShouldThrowCustom)
+                {
+                    throw new CustomException();
+                }
+
                 SmartSignalResult smartSignalResult = new SmartSignalResult();
                 smartSignalResult.ResultItems.Add(new TestSignalResultItem(analysisRequest.TargetResources.First()));
                 return await Task.FromResult(smartSignalResult);
+            }
+
+            private class CustomException : Exception
+            {
             }
         }
 
