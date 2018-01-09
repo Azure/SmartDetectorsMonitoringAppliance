@@ -4,7 +4,7 @@
 // </copyright>
 //-----------------------------------------------------------------------
 
-namespace Microsoft.Azure.Monitoring.SmartSignals.Shared.Exceptions
+namespace Microsoft.Azure.Monitoring.SmartSignals.Package
 {
     using System;
 

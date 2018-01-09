@@ -41,6 +41,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>  
   <ItemGroup>
+    <ProjectReference Include="..\SDK\SmartSignalsPackage\SmartSignalsPackage.csproj" />
     <ProjectReference Include="..\SDK\SmartSignalsSDK\SmartSignalsSDK.csproj" />
   </ItemGroup>
 </Project>

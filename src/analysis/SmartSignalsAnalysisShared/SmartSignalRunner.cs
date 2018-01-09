@@ -12,6 +12,7 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Analysis
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.Azure.Monitoring.SmartSignals;
+    using Microsoft.Azure.Monitoring.SmartSignals.Package;
     using Microsoft.Azure.Monitoring.SmartSignals.Shared;
     using Microsoft.Azure.Monitoring.SmartSignals.Shared.SignalResultPresentation;
 

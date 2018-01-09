@@ -32,9 +32,11 @@ namespace SmartSignalSchedulerTests
             this.tableMock = new Mock<ICloudTableWrapper>();
             var tableClientMock = new Mock<ICloudTableClientWrapper>();
             tableClientMock.Setup(m => m.GetTableReference(It.IsAny<string>())).Returns(this.tableMock.Object);
+            var storageProviderFactoryMock = new Mock<ICloudStorageProviderFactory>();
+            storageProviderFactoryMock.Setup(m => m.GetSmartSignalStorageTableClient()).Returns(tableClientMock.Object);
 
             var tracerMock = new Mock<ITracer>();
-            this.signalRunsTracker = new SignalRunsTracker(tableClientMock.Object, tracerMock.Object);
+            this.signalRunsTracker = new SignalRunsTracker(storageProviderFactoryMock.Object, tracerMock.Object);
         }
 
         [TestMethod]

@@ -4,7 +4,7 @@
 // </copyright>
 //-----------------------------------------------------------------------
 
-namespace Microsoft.Azure.Monitoring.SmartSignals.Shared
+namespace Microsoft.Azure.Monitoring.SmartSignals.Package
 {
     using System;
     using System.Collections.Generic;
@@ -12,7 +12,6 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Shared
     using System.IO;
     using System.IO.Compression;
     using System.Text;
-    using Microsoft.Azure.Monitoring.SmartSignals.Shared.Exceptions;
     using Newtonsoft.Json;
 
     /// <summary>
@@ -29,8 +28,22 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Shared
         /// <param name="content">The signal package content represented by a dictionary mapping a file name to the file content bytes</param>
         public SmartSignalPackage(SmartSignalManifest manifest, IReadOnlyDictionary<string, byte[]> content)
         {
-            this.Manifest = Diagnostics.EnsureArgumentNotNull(() => manifest);
-            this.Content = Diagnostics.EnsureArgumentNotNull(() => content);
+            if (manifest == null)
+            {
+                throw new ArgumentNullException(nameof(manifest));
+            }
+
+            if (content == null)
+            {
+                throw new ArgumentNullException(nameof(content));
+            }
+            else if (content.Count == 0)
+            {
+                throw new ArgumentException("Package content must include at least one item", nameof(content));
+            }
+
+            this.Manifest = manifest;
+            this.Content = content;
         }
 
         /// <summary>

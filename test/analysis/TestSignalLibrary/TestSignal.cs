@@ -16,13 +16,9 @@ namespace TestSignalLibrary
     {
         public Task<SmartSignalResult> AnalyzeResourcesAsync(AnalysisRequest analysisRequest, ITracer tracer, CancellationToken cancellationToken)
         {
-            return Task.FromResult(new SmartSignalResult
-            {
-                ResultItems = new List<SmartSignalResultItem>
-                {
-                    new TestSignalResultItem("test title", analysisRequest.TargetResources.First())
-                }
-            });
+            SmartSignalResult smartSignalResult = new SmartSignalResult();
+            smartSignalResult.ResultItems.Add(new TestSignalResultItem("test title", analysisRequest.TargetResources.First()));
+            return Task.FromResult(smartSignalResult);
         }
     }
 }

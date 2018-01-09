@@ -8,6 +8,7 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Analysis
 {
     using System;
     using System.Runtime.Serialization;
+    using Microsoft.Azure.Monitoring.SmartSignals.Package;
     using Shared;
 
     /// <summary>
