@@ -49,9 +49,9 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Shared
             try
             {
                 var allSignalsManifests = new List<SmartSignalManifest>();
-                IEnumerable<CloudBlob> blobs = (await this.containerClient.ListBlobsAsync(string.Empty, true, BlobListingDetails.Metadata)).Cast<CloudBlob>();
+                IEnumerable<CloudBlob> blobs = (await this.containerClient.ListBlobsAsync(string.Empty, true, BlobListingDetails.Metadata)).Cast<CloudBlob>().Where(blob => blob.Metadata.ContainsKey("id"));
 
-                ILookup<string, CloudBlob> signalIdToAllVersionsLookup = blobs.ToLookup(x => x.Metadata["id"], x => x);
+                ILookup<string, CloudBlob> signalIdToAllVersionsLookup = blobs.ToLookup(blob => blob.Metadata["id"], blob => blob);
                 foreach (IGrouping<string, CloudBlob> signalVersionsGroup in signalIdToAllVersionsLookup)
                 {
                     string signalId = signalVersionsGroup.Key;
