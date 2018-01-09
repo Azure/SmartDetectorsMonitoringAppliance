@@ -7,6 +7,7 @@
 namespace Microsoft.Azure.Monitoring.SmartSignals.FunctionApp
 {
     using System;
+    using System.Collections.Specialized;
     using System.Net;
     using System.Net.Http;
     using System.Threading;
@@ -39,7 +40,8 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.FunctionApp
 
             Container = new UnityContainer()
                 .RegisterType<ISignalApi, SignalApi>()
-                .RegisterType<IAlertRuleApi, AlertRuleApi>();
+                .RegisterType<IAlertRuleApi, AlertRuleApi>()
+                .RegisterType<ISignalResultApi, SignalResultApi>();
         }
 
         /// <summary>
@@ -51,10 +53,35 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.FunctionApp
         [FunctionName("signalResult")]
         public static async Task<HttpResponseMessage> GetAllSmartSignalResults([HttpTrigger(AuthorizationLevel.Function, "get")]HttpRequestMessage req, TraceWriter log)
         {
-            // TODO - complete the logic
-            await Task.CompletedTask;
+            using (IUnityContainer childContainer = Container.CreateChildContainer().WithTracer(log, true))
+            {
+                ITracer tracer = childContainer.Resolve<ITracer>();
+                var signalResultApi = childContainer.Resolve<SignalResultApi>();
 
-            return req.CreateResponse();
+                try
+                {
+                    // Extract the url parameters
+                    NameValueCollection queryParameters = req.RequestUri.ParseQueryString();
+                    DateTime startTime = DateTime.Parse(queryParameters.Get("startTime"));
+                    DateTime endTime = DateTime.Parse(queryParameters.Get("endTime"));
+
+                    ListSmartSignalsResultsResponse smartSignalsResultsResponse = await signalResultApi.GetAllSmartSignalResultsAsync(startTime, endTime, CancellationToken.None);
+
+                    return req.CreateResponse(smartSignalsResultsResponse);
+                }
+                catch (SmartSignalsManagementApiException e)
+                {
+                    tracer.TraceError($"Failed to get smart signals results due to managed exception: {e}");
+
+                    return req.CreateErrorResponse(e.StatusCode, "Failed to get smart signals", e);
+                }
+                catch (Exception e)
+                {
+                    tracer.TraceError($"Failed to get smart signals results due to un-managed exception: {e}");
+
+                    return req.CreateErrorResponse(HttpStatusCode.InternalServerError, "Failed to get smart signals", e);
+                }
+            }
         }
 
         /// <summary>

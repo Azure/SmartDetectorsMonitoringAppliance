@@ -22,6 +22,7 @@ namespace ManagementApiTests.AIClient
     public class ApplicationInsightsClientTests
     {
         private const string ApplicationId = "someApplicationId";
+        private const string EventName = "eventName";
 
         private Mock<IHttpClientWrapper> httpClientMock;
         private IApplicationInsightsClient applicationInsightsClient;
@@ -47,13 +48,13 @@ namespace ManagementApiTests.AIClient
                               });
                 
             // Get data using AI client
-            var customEvents = await this.applicationInsightsClient.GetCustomEventsAsync();
+            var customEvents = await this.applicationInsightsClient.GetCustomEventsAsync(EventName);
 
             // Verify we got the required amount of events
             Assert.AreEqual(10, customEvents.Count());
 
             // Verify the executed url was the correct one
-            Assert.AreEqual("https://api.applicationinsights.io/v1/apps/someApplicationId/events/customEvents", requestMessage.RequestUri.ToString());
+            Assert.AreEqual($"https://api.applicationinsights.io/v1/apps/someApplicationId/events/customEvents?$filter=customEvent/name eq '{EventName}'", requestMessage.RequestUri.ToString());
         }
 
         [TestMethod]
@@ -71,14 +72,14 @@ namespace ManagementApiTests.AIClient
                 });
 
             // Get data using AI client
-            var customEvents = await this.applicationInsightsClient.GetCustomEventsAsync(queryStartTime);
+            var customEvents = await this.applicationInsightsClient.GetCustomEventsAsync(EventName, queryStartTime);
 
             // Verify we got the required amount of events
             Assert.AreEqual(10, customEvents.Count());
 
             // Verify the executed url was the correct one
             Assert.AreEqual(
-                   $"https://api.applicationinsights.io/v1/apps/someApplicationId/events/customEvents?$filter=timestamp ge {queryStartTime}", 
+                   $"https://api.applicationinsights.io/v1/apps/someApplicationId/events/customEvents?$filter=customEvent/name eq '{EventName}' AND timestamp ge {queryStartTime}", 
                    requestMessage.RequestUri.ToString());
         }
 
@@ -98,14 +99,14 @@ namespace ManagementApiTests.AIClient
                 });
 
             // Get data using AI client
-            var customEvents = await this.applicationInsightsClient.GetCustomEventsAsync(queryStartTime, queryEndTime);
+            var customEvents = await this.applicationInsightsClient.GetCustomEventsAsync(EventName, queryStartTime, queryEndTime);
 
             // Verify we got the required amount of events
             Assert.AreEqual(10, customEvents.Count());
 
             // Verify the executed url was the correct one
             Assert.AreEqual(
-                   $"https://api.applicationinsights.io/v1/apps/someApplicationId/events/customEvents?$filter=timestamp ge {queryStartTime} AND timestamp le {queryEndTime}",
+                   $"https://api.applicationinsights.io/v1/apps/someApplicationId/events/customEvents?$filter=customEvent/name eq '{EventName}' AND timestamp ge {queryStartTime} AND timestamp le {queryEndTime}",
                    requestMessage.RequestUri.ToString());
         }
 
@@ -125,7 +126,7 @@ namespace ManagementApiTests.AIClient
             try
             {
                 // Get data using AI client
-                await this.applicationInsightsClient.GetCustomEventsAsync(queryStartTime, queryEndTime);
+                await this.applicationInsightsClient.GetCustomEventsAsync(EventName, queryStartTime, queryEndTime);
             }
             catch (ArgumentOutOfRangeException)
             {
@@ -148,7 +149,7 @@ namespace ManagementApiTests.AIClient
             try
             {
                 // Get data using AI client
-                await this.applicationInsightsClient.GetCustomEventsAsync();
+                await this.applicationInsightsClient.GetCustomEventsAsync(EventName);
             }
             catch (ApplicationInsightsClientException)
             {
@@ -171,7 +172,7 @@ namespace ManagementApiTests.AIClient
             try
             {
                 // Get data using AI client
-                await this.applicationInsightsClient.GetCustomEventsAsync();
+                await this.applicationInsightsClient.GetCustomEventsAsync(EventName);
             }
             catch (ApplicationInsightsClientException e)
             {
@@ -193,7 +194,7 @@ namespace ManagementApiTests.AIClient
             try
             {
                 // Get data using AI client
-                await this.applicationInsightsClient.GetCustomEventsAsync();
+                await this.applicationInsightsClient.GetCustomEventsAsync(EventName);
             }
             catch (ApplicationInsightsClientException)
             {
