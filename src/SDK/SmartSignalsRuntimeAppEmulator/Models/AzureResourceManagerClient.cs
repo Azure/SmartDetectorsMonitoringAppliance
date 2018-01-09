@@ -23,7 +23,7 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Emulator.Models
 
     /// <summary>
     /// **Temporary duplication** of existing Azure Resources Manager client for the emulator.
-    /// This class will be deprecated soon and emulator will use the original Azure Resources Client from a dedicated shared folder (task )
+    /// TODO: remove this class use the original Azure Resources Client from a dedicated shared folder (task #1157701)
     /// </summary>
     public class AzureResourceManagerClient
     {
@@ -222,7 +222,17 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Emulator.Models
         public async Task<IList<string>> GetAllSubscriptionIdsAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             var subscriptions = await this.GetSubscriptionClient().Subscriptions.ListAsync(cancellationToken);
-            return subscriptions.Select(subscription => subscription.SubscriptionId).ToList();
+            return subscriptions.Select(subscription => subscription.DisplayName).ToList();
+        }
+        
+        /// <summary>
+        /// Enumerates all the accessible subscriptions.
+        /// </summary>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A <see cref="Task{TResult}"/>, returning the subscription IDs</returns>
+        public async Task<IList<SubscriptionInner>> GetAllSubscriptionsAsync(CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return (await this.GetSubscriptionClient().Subscriptions.ListAsync(cancellationToken)).ToList();
         }
 
         /// <summary>

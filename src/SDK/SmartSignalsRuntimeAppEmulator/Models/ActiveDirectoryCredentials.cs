@@ -31,9 +31,9 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Emulator.Models
         /// <summary>
         /// Apply the credentials to the HTTP request and process it.
         /// </summary>
-        /// <param name="request">The HTTP request message.</param>
-        /// <param name="cancellationToken">Cancellation token.</param>
-        /// <returns>Task that will complete when processing has finished.</returns>
+        /// <param name="request">The HTTP request message</param>
+        /// <param name="cancellationToken">Cancellation token</param>
+        /// <returns>Task that will complete when processing has finished</returns>
         public override async Task ProcessHttpRequestAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {       
             // Add the authentication header

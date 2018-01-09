@@ -8,7 +8,7 @@
         xmlns:viewModels="clr-namespace:Microsoft.Azure.Monitoring.SmartSignals.Emulator.ViewModels"
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance Type=viewModels:MainWindowViewModel, IsDesignTimeCreatable=True}"
-        Title="" Height="730" Width="1500" MinHeight="730" MinWidth="1500" Cursor="Arrow" IsEnabled="True">
+        Title="" Height="730" Width="1500" MinHeight="730" MinWidth="1500">
     <Window.Resources>
         <converters:CountToVisibilityConverter x:Key="CountToVisibilityConverter"/>
     </Window.Resources>

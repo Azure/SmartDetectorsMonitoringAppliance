@@ -1,12 +1,12 @@
 ﻿<UserControl x:Class="Microsoft.Azure.Monitoring.SmartSignals.Emulator.Controls.SignalsControl"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:mc2="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:Microsoft.Azure.Monitoring.SmartSignals.Emulator.Controls"
              xmlns:viewModels="clr-namespace:Microsoft.Azure.Monitoring.SmartSignals.Emulator.ViewModels"
              xmlns:converters="clr-namespace:Microsoft.Azure.Monitoring.SmartSignals.Emulator.Converters"
-             mc2:Ignorable="d" 
+             mc:Ignorable="d" 
              d:DataContext="{d:DesignInstance Type=viewModels:SignalsControlViewModel, IsDesignTimeCreatable=True}"
              d:DesignHeight="600" d:DesignWidth="1500">
     <UserControl.Resources>
@@ -30,13 +30,14 @@
                 </ComboBox>
 
                 <TextBlock Style="{StaticResource ControlText}" Text="Subscription" Margin="0,0,0,10" />
-                <ComboBox x:Name="SubscriptionComboBox"  Margin="0,0,0,20" HorizontalAlignment="Left" MinWidth="250"
-                          ItemsSource="{Binding Path=Subscriptions}"  SelectedItem="{Binding Path=SelectedSubscription}">
+                <ComboBox x:Name="SubscriptionsComboBox"  Margin="0,0,0,20" HorizontalAlignment="Left" MinWidth="200"
+                          ItemsSource="{Binding Path=Subscriptions}"  SelectedItem="{Binding Path=SelectedSubscription}"
+                          DisplayMemberPath="DisplayName" >
                 <ComboBox.Style>
                         <Style TargetType="{x:Type ComboBox}">
                             <Setter Property="IsEnabled" Value="True" />
                             <Style.Triggers>
-                                <DataTrigger Binding="{Binding ElementName=SubscriptionComboBox, Path=ItemsSource, Converter={StaticResource IsNullConverter}}" Value="True">
+                                <DataTrigger Binding="{Binding ElementName=SubscriptionsComboBox, Path=ItemsSource, Converter={StaticResource IsNullConverter}}" Value="True">
                                     <Setter Property="IsEnabled" Value="False" />
                                 </DataTrigger>
                             </Style.Triggers>
@@ -51,7 +52,7 @@
                         <Style TargetType="{x:Type ComboBox}">
                             <Setter Property="IsEnabled" Value="True" />
                             <Style.Triggers>
-                                <DataTrigger Binding="{Binding ElementName=SubscriptionComboBox, Path=SelectedItem, Converter={StaticResource IsNullConverter}}" Value="True">
+                                <DataTrigger Binding="{Binding ElementName=SubscriptionsComboBox, Path=SelectedItem, Converter={StaticResource IsNullConverter}}" Value="True">
                                     <Setter Property="IsEnabled" Value="False" />
                                 </DataTrigger>
                                 <DataTrigger Binding="{Binding ElementName=ResourceGroupsComboBox, Path=ItemsSource, Converter={StaticResource IsNullConverter}}" Value="True">
@@ -63,13 +64,16 @@
                 </ComboBox>
 
                 <TextBlock Style="{StaticResource ControlText}" Text="Resource type" Margin="0,0,0,10"/>
-                <ComboBox x:Name="ResourceTypeComboBox" Margin="0,0,0,20" HorizontalAlignment="Left" MinWidth="130"
+                <ComboBox x:Name="ResourceTypesComboBox" Margin="0,0,0,20" HorizontalAlignment="Left" MinWidth="130"
                           ItemsSource="{Binding Path=ResourcesTypes}" SelectedItem="{Binding Path=SelectedResourceType}">
                     <ComboBox.Style>
                         <Style TargetType="{x:Type ComboBox}">
                             <Setter Property="IsEnabled" Value="True" />
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding ElementName=ResourceGroupsComboBox, Path=SelectedItem, Converter={StaticResource IsNullConverter}}" Value="True">
+                                    <Setter Property="IsEnabled" Value="False" />
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding ElementName=ResourceTypesComboBox, Path=ItemsSource, Converter={StaticResource IsNullConverter}}" Value="True">
                                     <Setter Property="IsEnabled" Value="False" />
                                 </DataTrigger>
                             </Style.Triggers>
@@ -84,7 +88,10 @@
                         <Style TargetType="{x:Type ComboBox}">
                             <Setter Property="IsEnabled" Value="True" />
                             <Style.Triggers>
-                                <DataTrigger Binding="{Binding ElementName=ResourceTypeComboBox, Path=SelectedItem, Converter={StaticResource IsNullConverter}}" Value="True">
+                                <DataTrigger Binding="{Binding ElementName=ResourceTypesComboBox, Path=SelectedItem, Converter={StaticResource IsNullConverter}}" Value="True">
+                                    <Setter Property="IsEnabled" Value="False" />
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding ElementName=ResourcesComboBox, Path=ItemsSource, Converter={StaticResource IsNullConverter}}" Value="True">
                                     <Setter Property="IsEnabled" Value="False" />
                                 </DataTrigger>
                             </Style.Triggers>

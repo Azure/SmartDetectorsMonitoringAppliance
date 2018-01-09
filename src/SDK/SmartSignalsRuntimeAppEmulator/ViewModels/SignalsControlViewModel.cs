@@ -20,9 +20,11 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Emulator.ViewModels
     /// </summary>
     public class SignalsControlViewModel : ObservableObject
     {
-        private List<string> subscriptions;
+        private readonly AzureResourceManagerClient azureResourceManagerClient;
 
-        private string selectedSubscription;
+        private List<AzureSubscription> subscriptions;
+
+        private AzureSubscription selectedSubscription;
 
         private List<string> resourceGroups;
 
@@ -36,16 +38,17 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Emulator.ViewModels
 
         private string selectedResource;
 
+        // Holds all user's azure resources identifiers according to selected subscription & resource group
         private List<ResourceIdentifier> resourcesIndentifiers;
 
-        private readonly AzureResourceManagerClient azureResourceManagerClient;
+        #region Ctros
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SignalsControlViewModel"/> class for design time only.
         /// </summary>
         public SignalsControlViewModel()
         {
-            this.Subscriptions = new List<string>() { "e0b6713a-be99-421c-ab05-8277c6d8b02d", "subscription_2" };
+            this.Subscriptions = new List<AzureSubscription>() { new AzureSubscription("subscription_1_id", "subscription_1_displayName") };
             this.ResourceGroups = new List<string>() { "resourceGroups_1", "resourceGroups_2" };
             this.ResourcesTypes = new List<string>() { "resourceType_1", "resourceType_2" };
         }
@@ -63,11 +66,13 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Emulator.ViewModels
             this.GetSubscriptionsAsync();
         }
 
+        #endregion
+
         #region Binded Properties
         /// <summary>
         /// Gets the user's subscriptions.
         /// </summary>
-        public List<string> Subscriptions
+        public List<AzureSubscription> Subscriptions
         {
             get
             {
@@ -84,7 +89,7 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Emulator.ViewModels
         /// <summary>
         /// Gets or sets the subscription selected by the user.
         /// </summary>
-        public string SelectedSubscription
+        public AzureSubscription SelectedSubscription
         {
             get
             {
@@ -178,9 +183,16 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Emulator.ViewModels
 
                 if (value != null)
                 {
-                    ResourceType selectedResourceType = (ResourceType)Enum.Parse(typeof(ResourceType), this.SelectedResourceType);
-                    this.Resources = this.resourcesIndentifiers.Where(resourceIndentifier => resourceIndentifier.ResourceType == selectedResourceType)
-                                        .Select(resourceIndentifier => resourceIndentifier.ResourceName).ToList();
+                    try
+                    {
+                        ResourceType selectedResourceType = (ResourceType)Enum.Parse(typeof(ResourceType), this.SelectedResourceType);
+                        this.Resources = this.resourcesIndentifiers.Where(resourceIndentifier => resourceIndentifier.ResourceType == selectedResourceType)
+                                            .Select(resourceIndentifier => resourceIndentifier.ResourceName).ToList();
+                    }
+                    catch (Exception e)
+                    {
+                        Console.Write(e);
+                    } 
                 }
             }
         }
@@ -228,7 +240,8 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Emulator.ViewModels
         {
             try
             {
-                this.Subscriptions = (await this.azureResourceManagerClient.GetAllSubscriptionIdsAsync()).ToList();
+                var subscriptions = (await this.azureResourceManagerClient.GetAllSubscriptionsAsync()).ToList();
+                this.Subscriptions = subscriptions.Select(sub => new AzureSubscription(sub.Id, sub.DisplayName)).ToList();
             }
             catch (Exception e)
             {
@@ -243,7 +256,7 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Emulator.ViewModels
         {
             try
             {
-                var groupsIndentifiers = (await this.azureResourceManagerClient.GetAllResourceGroupsInSubscriptionAsync(this.SelectedSubscription, CancellationToken.None)).ToList();
+                var groupsIndentifiers = (await this.azureResourceManagerClient.GetAllResourceGroupsInSubscriptionAsync(this.SelectedSubscription.Id, CancellationToken.None)).ToList();
                 this.ResourceGroups = groupsIndentifiers.Select(ri => ri.ResourceGroupName).ToList();
             }
             catch (Exception e)
@@ -260,7 +273,7 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Emulator.ViewModels
             try
             {
                 var supportedResourceTypes = new List<ResourceType>() { ResourceType.ApplicationInsights, ResourceType.LogAnalytics, ResourceType.VirtualMachine };
-                this.resourcesIndentifiers = (await this.azureResourceManagerClient.GetAllResourcesInResourceGroupAsync(this.SelectedSubscription, this.SelectedResourceGroup, supportedResourceTypes, CancellationToken.None)).ToList();
+                this.resourcesIndentifiers = (await this.azureResourceManagerClient.GetAllResourcesInResourceGroupAsync(this.SelectedSubscription.Id, this.SelectedResourceGroup, supportedResourceTypes, CancellationToken.None)).ToList();
                 var resourcesTypesGrouping = this.resourcesIndentifiers.GroupBy(resourceIndentifier => resourceIndentifier.ResourceType);
                 this.ResourcesTypes = resourcesTypesGrouping.Select(group => group.Key.ToString()).ToList();
             }
