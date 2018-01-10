@@ -13,6 +13,8 @@
       ]
     },
     "siraPrefix": { "type": "string" },
+    "sendgridApiKey": { "type": "string" },
+    "emailRecipient": { "type": "string" },
     "logVerboseTraces": {
       "type": "string",
       "defaultValue": "true"
@@ -115,6 +117,8 @@
             "SubscriptionId": "[subscription().subscriptionId]",
             "FunctionBaseUrl": "[variables('functionBaseUrl')]",
             "StorageAccountName": "[variables('storageAccountName')]",
+            "SendgridApiKey": "[parameters('sendgridApiKey')]",
+            "EmailRecipient": "[parameters('emailRecipient')]",
             "AnalyticsQueryTimeoutInMinutes": "15",
             "GlobalSmartSignalContainerUri": "https://globalsmartsignals.blob.core.windows.net/signals"
           }

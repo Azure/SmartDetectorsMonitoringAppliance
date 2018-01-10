@@ -12,6 +12,7 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Scheduler
     using System.Text;
     using System.Threading.Tasks;
     using Microsoft.Azure.Monitoring.SmartSignals;
+    using Microsoft.Azure.Monitoring.SmartSignals.Scheduler.Exceptions;
     using Microsoft.Azure.Monitoring.SmartSignals.Shared;
     using Microsoft.Azure.Monitoring.SmartSignals.Shared.SignalResultPresentation;
     using Newtonsoft.Json;
@@ -56,10 +57,6 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Scheduler
         private async Task<IList<SmartSignalResultItemPresentation>> SendToAnalysisAsync(SmartSignalRequest analysisRequest)
         {
             var requestMessage = new HttpRequestMessage(HttpMethod.Post, this.analysisUrl);
-
-            //// TODO: should add headers?
-            //// requestMessage.Headers.Add("key", "value");
-
             string requestBody = JsonConvert.SerializeObject(analysisRequest);
             requestMessage.Content = new StringContent(requestBody, Encoding.UTF8, "application/json");
             this.tracer.TraceVerbose($"Sending analysis request {requestBody}");
@@ -71,8 +68,9 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Scheduler
 
                 if (!response.IsSuccessStatusCode)
                 {
-                    var message = $"Failed to execute signal {analysisRequest.SignalId}. Fail StatusCode: {response.StatusCode}.";
-                    throw new InvalidOperationException(message);
+                    string content = response.Content != null ? await response.Content.ReadAsStringAsync() : string.Empty;
+                    var message = $"Failed to execute signal {analysisRequest.SignalId}. Fail StatusCode: {response.StatusCode}. Reason: {response.ReasonPhrase}. Content: {content}.";
+                    throw new AnalysisExecutionException(message);
                 }
 
                 var httpAnalysisResult = await response.Content.ReadAsStringAsync();
