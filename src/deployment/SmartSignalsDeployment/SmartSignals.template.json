@@ -2,37 +2,6 @@
   "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
-    "defaultResourceLocation": {
-      "type": "string",
-      "allowedValues": [
-        "East Asia",
-        "Southeast Asia",
-        "Central US",
-        "East US",
-        "East US 2",
-        "West US",
-        "North Central US",
-        "South Central US",
-        "North Europe",
-        "West Europe",
-        "Japan West",
-        "Japan East",
-        "Brazil South",
-        "Australia East",
-        "Australia Southeast",
-        "Central India",
-        "West India",
-        "South India",
-        "Canada Central",
-        "Canada East",
-        "West Central US",
-        "West US 2",
-        "UK South",
-        "UK West",
-        "Korea Central",
-        "Korea South"
-      ]
-    },
     "storageAccountType": {
       "type": "string",
       "defaultValue": "Standard_LRS",
@@ -43,37 +12,38 @@
         "Premium_LRS"
       ]
     },
-    "functionsAppName": { "type": "string" },
-    "functionsHostingPlanName": { "type": "string" },
-    "functionsLogsStorageAccountName": { "type": "string" },
-    "storageAccountName": { "type": "string" },
-    "applicationInsightsName": { "type": "string" },
+    "siraPrefix": { "type": "string" },
     "logVerboseTraces": {
       "type": "string",
       "defaultValue": "true"
     }
   },
   "variables": {
-    "functionsLogsStorageAccountId": "[concat(resourceGroup().id,'/providers/','Microsoft.Storage/storageAccounts/', parameters('functionsLogsStorageAccountName'))]",
-    "storageAccountId": "[concat(resourceGroup().id,'/providers/','Microsoft.Storage/storageAccounts/', parameters('storageAccountName'))]",
+    "functionsAppName": "[concat(parameters('siraPrefix'), '-fa')]",
+    "functionsHostingPlanName": "[concat(parameters('siraPrefix'), '-sp')]",
+    "functionsLogsStorageAccountName": "[concat(parameters('siraPrefix'), 'logs')]",
+    "storageAccountName": "[concat(parameters('siraPrefix'), 'sa')]",
+    "applicationInsightsName": "[concat(parameters('siraPrefix'), '-ai')]",
+    "functionsLogsStorageAccountId": "[concat(resourceGroup().id,'/providers/','Microsoft.Storage/storageAccounts/', variables('functionsLogsStorageAccountName'))]",
+    "storageAccountId": "[concat(resourceGroup().id,'/providers/','Microsoft.Storage/storageAccounts/', variables('storageAccountName'))]",
     "resourceGroupName": "[resourceGroup().name]",
-    "functionBaseUrl": "[concat('https://', parameters('functionsAppName'), '.azurewebsites.net')]"
+    "functionBaseUrl": "[concat('https://', variables('functionsAppName'), '.azurewebsites.net')]"
   },
   "resources": [
     {
       "apiVersion": "2014-04-01",
-      "name": "[parameters('applicationInsightsName')]",
+      "name": "[variables('applicationInsightsName')]",
       "type": "Microsoft.Insights/components",
-      "location": "[parameters('defaultResourceLocation')]",
+      "location": "[resourceGroup().location]",
       "properties": {
-        "ApplicationId": "[parameters('applicationInsightsName')]"
+        "ApplicationId": "[variables('applicationInsightsName')]"
       }
     },
     {
       "type": "Microsoft.Storage/storageAccounts",
-      "name": "[parameters('storageAccountName')]",
+      "name": "[variables('storageAccountName')]",
       "apiVersion": "2016-01-01",
-      "location": "[parameters('defaultResourceLocation')]",
+      "location": "[resourceGroup().location]",
       "kind": "Storage",
       "sku": {
         "name": "[parameters('storageAccountType')]"
@@ -81,9 +51,9 @@
     },
     {
       "type": "Microsoft.Storage/storageAccounts",
-      "name": "[parameters('functionsLogsStorageAccountName')]",
+      "name": "[variables('functionsLogsStorageAccountName')]",
       "apiVersion": "2016-01-01",
-      "location": "[parameters('defaultResourceLocation')]",
+      "location": "[resourceGroup().location]",
       "kind": "Storage",
       "sku": {
         "name": "[parameters('storageAccountType')]"
@@ -92,10 +62,10 @@
     {
       "type": "Microsoft.Web/serverfarms",
       "apiVersion": "2015-04-01",
-      "name": "[parameters('functionsHostingPlanName')]",
-      "location": "[parameters('defaultResourceLocation')]",
+      "name": "[variables('functionsHostingPlanName')]",
+      "location": "[resourceGroup().location]",
       "properties": {
-        "name": "[parameters('functionsHostingPlanName')]",
+        "name": "[variables('functionsHostingPlanName')]",
         "computeMode": "Dynamic",
         "sku": "Dynamic"
       }
@@ -103,20 +73,20 @@
     {
       "apiVersion": "2015-08-01",
       "type": "Microsoft.Web/sites",
-      "name": "[parameters('functionsAppName')]",
-      "location": "[parameters('defaultResourceLocation')]",
+      "name": "[variables('functionsAppName')]",
+      "location": "[resourceGroup().location]",
       "kind": "functionapp",
       "identity": {
         "type": "SystemAssigned"
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Web/serverfarms', parameters('functionsHostingPlanName'))]",
-        "[resourceId('Microsoft.Storage/storageAccounts', parameters('functionsLogsStorageAccountName'))]",
-        "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]",
-        "[resourceId('Microsoft.Insights/components', parameters('applicationInsightsName'))]"
+        "[resourceId('Microsoft.Web/serverfarms', variables('functionsHostingPlanName'))]",
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('functionsLogsStorageAccountName'))]",
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]",
+        "[resourceId('Microsoft.Insights/components', variables('applicationInsightsName'))]"
       ],
       "properties": {
-        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', parameters('functionsHostingPlanName'))]",
+        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('functionsHostingPlanName'))]",
         "siteConfig": {
           "use32BitWorkerProcess": false,
           "siteAuthEnabled": true
@@ -128,23 +98,23 @@
           "type": "config",
           "name": "appsettings",
           "dependsOn": [
-            "[resourceId('Microsoft.Web/sites', parameters('functionsAppName'))]"
+            "[resourceId('Microsoft.Web/sites', variables('functionsAppName'))]"
           ],
           "tags": {
             "displayName": "appsettings"
           },
           "properties": {
-            "AzureWebJobsDashboard": "[concat('DefaultEndpointsProtocol=https;AccountName=', parameters('functionsLogsStorageAccountName'), ';AccountKey=', listKeys(variables('functionsLogsStorageAccountId'),'2015-05-01-preview').key1)]",
-            "AzureWebJobsStorage": "[concat('DefaultEndpointsProtocol=https;AccountName=', parameters('functionsLogsStorageAccountName'), ';AccountKey=', listKeys(variables('functionsLogsStorageAccountId'),'2015-05-01-preview').key1)]",
+            "AzureWebJobsDashboard": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('functionsLogsStorageAccountName'), ';AccountKey=', listKeys(variables('functionsLogsStorageAccountId'),'2015-05-01-preview').key1)]",
+            "AzureWebJobsStorage": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('functionsLogsStorageAccountName'), ';AccountKey=', listKeys(variables('functionsLogsStorageAccountId'),'2015-05-01-preview').key1)]",
             "FUNCTIONS_EXTENSION_VERSION": "~1",
-            "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING": "[concat('DefaultEndpointsProtocol=https;AccountName=', parameters('functionsLogsStorageAccountName'), ';AccountKey=', listKeys(variables('functionsLogsStorageAccountId'),'2015-05-01-preview').key1)]",
-            "WEBSITE_CONTENTSHARE": "[toLower(parameters('functionsAppName'))]",
+            "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('functionsLogsStorageAccountName'), ';AccountKey=', listKeys(variables('functionsLogsStorageAccountId'),'2015-05-01-preview').key1)]",
+            "WEBSITE_CONTENTSHARE": "[toLower(variables('functionsAppName'))]",
             "SendVerboseTracesToAI": "[parameters('logVerboseTraces')]",
-            "TelemetryInstrumentationKey": "[reference(resourceId('Microsoft.Insights/components', parameters('applicationInsightsName')), '2014-04-01').InstrumentationKey]",
+            "TelemetryInstrumentationKey": "[reference(resourceId('Microsoft.Insights/components', variables('applicationInsightsName')), '2014-04-01').InstrumentationKey]",
             "ResourceGroupName": "[variables('resourceGroupName')]",
             "SubscriptionId": "[subscription().subscriptionId]",
             "FunctionBaseUrl": "[variables('functionBaseUrl')]",
-            "StorageAccountName": "[parameters('storageAccountName')]",
+            "StorageAccountName": "[variables('storageAccountName')]",
             "AnalyticsQueryTimeoutInMinutes": "15",
             "GlobalSmartSignalContainerUri": "https://globalsmartsignals.blob.core.windows.net/signals"
           }
@@ -154,15 +124,15 @@
           "type": "config",
           "name": "connectionstrings",
           "dependsOn": [
-            "[resourceId('Microsoft.Web/sites', parameters('functionsAppName'))]",
-            "[resourceId('Microsoft.Web/sites/config', parameters('functionsAppName'), 'appsettings')]"
+            "[resourceId('Microsoft.Web/sites', variables('functionsAppName'))]",
+            "[resourceId('Microsoft.Web/sites/config', variables('functionsAppName'), 'appsettings')]"
           ],
           "tags": {
             "displayName": "connectionstrings"
           },
           "properties": {
             "StorageConnectionString": {
-              "value": "[concat('DefaultEndpointsProtocol=https;AccountName=', parameters('storageAccountName'), ';AccountKey=', listKeys(variables('storageAccountId'),'2015-05-01-preview').key1)]",
+              "value": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('storageAccountName'), ';AccountKey=', listKeys(variables('storageAccountId'),'2015-05-01-preview').key1)]",
               "type": "Custom"
             }
           }
