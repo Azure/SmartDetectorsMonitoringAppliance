@@ -12,7 +12,6 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.FunctionApp
     using System.Net.Http;
     using System.Threading;
     using System.Threading.Tasks;
-    using Microsoft.Azure.Monitoring.SmartSignals.Analysis;
     using Microsoft.Azure.Monitoring.SmartSignals.ManagementApi;
     using Microsoft.Azure.Monitoring.SmartSignals.ManagementApi.EndpointsLogic;
     using Microsoft.Azure.Monitoring.SmartSignals.ManagementApi.Models;
@@ -66,8 +65,18 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.FunctionApp
                 {
                     // Extract the url parameters
                     NameValueCollection queryParameters = req.RequestUri.ParseQueryString();
-                    DateTime startTime = DateTime.Parse(queryParameters.Get("startTime"));
-                    DateTime endTime = DateTime.Parse(queryParameters.Get("endTime"));
+
+                    DateTime startTime;
+                    if (!DateTime.TryParse(queryParameters.Get("startTime"), out startTime))
+                    {
+                        return req.CreateErrorResponse(HttpStatusCode.BadRequest, "Given start time is not in valid format");
+                    }
+
+                    DateTime endTime;
+                    if (!DateTime.TryParse(queryParameters.Get("endTime"), out endTime))
+                    {
+                        return req.CreateErrorResponse(HttpStatusCode.BadRequest, "Given end time is not in valid format");
+                    }
 
                     ListSmartSignalsResultsResponse smartSignalsResultsResponse = await signalResultApi.GetAllSmartSignalResultsAsync(startTime, endTime, CancellationToken.None);
 

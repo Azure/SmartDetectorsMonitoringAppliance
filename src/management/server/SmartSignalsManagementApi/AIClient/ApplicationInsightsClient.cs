@@ -79,11 +79,11 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.ManagementApi.AIClient
                 }
                 else if (startTime.HasValue)
                 {
-                    appInsightsRelativeUrl += $"  AND timestamp ge {startTime}";
+                    appInsightsRelativeUrl += $" AND timestamp ge {startTime}";
                 }
                 else if (endTime.HasValue)
                 {
-                    appInsightsRelativeUrl += $"  AND timestamp le {endTime}";
+                    appInsightsRelativeUrl += $" AND timestamp le {endTime}";
                 }
 
                 // TODO - generate a token for talking with AI
