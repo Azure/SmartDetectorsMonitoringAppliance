@@ -6,8 +6,10 @@
 
 namespace Microsoft.Azure.Monitoring.SmartSignals.ManagementApi.EndpointsLogic
 {
-    using System.Collections.Generic;
+    using System;
+    using System.Threading;
     using System.Threading.Tasks;
+    using Microsoft.Azure.Monitoring.SmartSignals.ManagementApi.Responses;
 
     /// <summary>
     /// This class is the logic for the /signalResult endpoint.
@@ -15,9 +17,12 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.ManagementApi.EndpointsLogic
     public interface ISignalResultApi
     {
         /// <summary>
-        /// Gets all the Smart Signal results.
+        /// Gets all the Smart Signals results.
         /// </summary>
-        /// <returns>The Smart Signal results.</returns>
-        Task<IEnumerable<SmartSignalResult>> GetAllSmartSignalResultsAsync();
+        /// <param name="startTime">The query start time.</param>
+        /// <param name="endTime">The query end time.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>The Smart Signals results response.</returns>
+        Task<ListSmartSignalsResultsResponse> GetAllSmartSignalResultsAsync(DateTime startTime, DateTime endTime, CancellationToken cancellationToken);
     }
 }
