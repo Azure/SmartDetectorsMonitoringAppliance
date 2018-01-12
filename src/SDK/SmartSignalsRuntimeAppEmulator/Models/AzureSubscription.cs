@@ -23,13 +23,13 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Emulator.Models
         }
 
         /// <summary>
-        /// Gets or sets the subscription id.
+        /// Gets the subscription id.
         /// </summary>
-        public string Id { get; set; }
+        public string Id { get; }
 
         /// <summary>
-        /// Gets or sets the subscription display name.
+        /// Gets the subscription display name.
         /// </summary>
-        public string DisplayName { get; set; }
+        public string DisplayName { get; }
     }
 }

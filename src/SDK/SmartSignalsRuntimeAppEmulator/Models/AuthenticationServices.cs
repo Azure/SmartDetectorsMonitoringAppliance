@@ -63,7 +63,7 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Emulator.Models
         /// </summary>
         public void AuthenticateUser()
         {
-            this.AuthenticationResult = this.authenticationContext.AcquireToken(ResourceId, ClientId, RedirectUri, PromptBehavior.Auto); // TODO: handle exceptions here
+            this.AuthenticationResult = this.authenticationContext.AcquireToken(ResourceId, ClientId, RedirectUri, PromptBehavior.Auto);
         }
 
         #endregion

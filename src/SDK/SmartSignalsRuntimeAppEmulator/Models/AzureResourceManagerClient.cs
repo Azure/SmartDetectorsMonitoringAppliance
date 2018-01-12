@@ -53,14 +53,12 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Emulator.Models
         /// </summary>
         private static readonly Dictionary<string, ResourceType> MapStringToResourceType = MapResourceTypeToString.ToDictionary(x => x.Value, x => x.Key, StringComparer.CurrentCultureIgnoreCase);
 
-        private readonly ServiceClientCredentials credentials;
-
         /// <summary>
         /// Initializes a new instance of the <see cref="AzureResourceManagerClient"/> class
         /// </summary>
         public AzureResourceManagerClient()
         {
-            this.credentials = new AzureCredentialsFactory().FromMSI(AzureEnvironment.AzureGlobalCloud);
+            this.Credentials = new AzureCredentialsFactory().FromMSI(AzureEnvironment.AzureGlobalCloud);
         }
 
         /// <summary>
@@ -69,8 +67,13 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Emulator.Models
         /// <param name="credentials">The <see cref="ActiveDirectoryCredentials"/> of the logged in user</param>
         public AzureResourceManagerClient(ActiveDirectoryCredentials credentials)
         {
-            this.credentials = credentials;
+            this.Credentials = credentials;
         }
+
+        /// <summary>
+        /// Gets or sets the credentials.
+        /// </summary>
+        public ServiceClientCredentials Credentials { get; set; }
 
         /// <summary>
         /// Gets the resource ID that represents the resource identified by the specified <see cref="ResourceIdentifier"/> structure.
@@ -380,7 +383,7 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Emulator.Models
         /// <returns>The subscription client</returns>
         private SubscriptionClient GetSubscriptionClient()
         {
-            return new SubscriptionClient(this.credentials);
+            return new SubscriptionClient(this.Credentials);
         }
 
         /// <summary>
@@ -390,14 +393,14 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Emulator.Models
         /// <returns>The resource manager client</returns>
         private ResourceManagementClient GetResourceManagementClient(string subscriptionId)
         {
-            return new ResourceManagementClient(this.credentials) { SubscriptionId = subscriptionId };
+            return new ResourceManagementClient(this.Credentials) { SubscriptionId = subscriptionId };
         }
 
         /// <summary>
         /// Enumerate all results, using the specified paging functions.
         /// </summary>
         /// <typeparam name="T">The type of item returned in the paged results</typeparam>
-        /// <exception cref="TooManyResourcesException">Thrown when too many items are found</exception>
+        /// <exception cref="Exception">Thrown when too many items are found</exception>
         /// <param name="firstPage">A function that returns the first results page</param>
         /// <param name="nextPage">A function that returns the next results page, given the next page link</param>
         /// <param name="enumerationDescription">The enumeration description, to include in the exception error message</param>
@@ -416,7 +419,7 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Emulator.Models
                 // Check limit
                 if (items.Count >= MaxResourcesToEnumerate)
                 {
-                    throw new Exception($"Could not enumerate {enumerationDescription} - over {MaxResourcesToEnumerate} items found"); // TODO: should me TooManyResourcesException
+                    throw new Exception($"Could not enumerate {enumerationDescription} - over {MaxResourcesToEnumerate} items found"); // TODO: should be TooManyResourcesException
                 }
 
                 // If this is the last page, we are done

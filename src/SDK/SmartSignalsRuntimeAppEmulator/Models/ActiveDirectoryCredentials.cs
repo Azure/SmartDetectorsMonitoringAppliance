@@ -17,7 +17,7 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Emulator.Models
     /// </summary>
     public class ActiveDirectoryCredentials : ServiceClientCredentials
     {
-        private string token;
+        private readonly string token;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ActiveDirectoryCredentials"/> class.

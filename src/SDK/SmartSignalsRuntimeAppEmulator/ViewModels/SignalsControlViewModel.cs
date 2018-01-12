@@ -8,8 +8,10 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Emulator.ViewModels
 {
     using System;
     using System.Collections.Generic;
+    using System.Collections.ObjectModel;
     using System.Linq;
     using System.Threading;
+    using System.Threading.Tasks;
     using Microsoft.Azure.Monitoring.SmartSignals.Emulator.Controls;
     using Microsoft.Azure.Monitoring.SmartSignals.Emulator.Models;
     using Microsoft.IdentityModel.Clients.ActiveDirectory;
@@ -22,24 +24,21 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Emulator.ViewModels
     {
         private readonly AzureResourceManagerClient azureResourceManagerClient;
 
-        private List<AzureSubscription> subscriptions;
+        private ObservableTask<ObservableCollection<AzureSubscription>> subscriptionsTask;
 
         private AzureSubscription selectedSubscription;
 
-        private List<string> resourceGroups;
+        private ObservableTask<ObservableCollection<string>> resourceGroupsTask;
 
         private string selectedResourceGroup;
 
-        private List<string> resourceTypes;
+        private ObservableTask<ObservableCollection<string>> resourceTypesTask;
 
         private string selectedResourceType;
 
-        private List<string> resources;
+        private ObservableTask<ObservableCollection<string>> resourcesTask;
 
         private string selectedResource;
-
-        // Holds all user's azure resources identifiers according to selected subscription & resource group
-        private List<ResourceIdentifier> resourcesIndentifiers;
 
         #region Ctros
 
@@ -48,40 +47,56 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Emulator.ViewModels
         /// </summary>
         public SignalsControlViewModel()
         {
-            this.Subscriptions = new List<AzureSubscription>() { new AzureSubscription("subscription_1_id", "subscription_1_displayName") };
-            this.ResourceGroups = new List<string>() { "resourceGroups_1", "resourceGroups_2" };
-            this.ResourcesTypes = new List<string>() { "resourceType_1", "resourceType_2" };
         }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SignalsControlViewModel"/> class.
         /// </summary>
         /// <param name="authenticationServices">The authentication services that were used to log in</param>
+        /// <param name="azureResourceManagerClient">The Azure resources manager client</param>
         [InjectionConstructor]
-        public SignalsControlViewModel(AuthenticationServices authenticationServices)
+        public SignalsControlViewModel(AuthenticationServices authenticationServices, AzureResourceManagerClient azureResourceManagerClient)
         {
+            // Init Azure resources manager client with authentocated user's credentials
             AuthenticationResult authResult = authenticationServices.AuthenticationResult;
             var activeDirectoryCredentials = new ActiveDirectoryCredentials(authResult.AccessToken);
-            this.azureResourceManagerClient = new AzureResourceManagerClient(activeDirectoryCredentials);
-            this.GetSubscriptionsAsync();
+            azureResourceManagerClient.Credentials = activeDirectoryCredentials;
+            this.azureResourceManagerClient = azureResourceManagerClient;
+
+            SubscriptionsTask = new ObservableTask<ObservableCollection<AzureSubscription>>(
+                this.GetSubscriptionsAsync()
+            );
+
+            ResourceGroupsTask = new ObservableTask<ObservableCollection<string>>(
+                Task.FromResult(new ObservableCollection<string>())
+            );
+
+            ResourceTypesTask = new ObservableTask<ObservableCollection<string>>(
+                Task.FromResult(new ObservableCollection<string>())
+            );
+
+            ResourcesTask = new ObservableTask<ObservableCollection<string>>(
+                Task.FromResult(new ObservableCollection<string>())
+            );
         }
 
         #endregion
 
         #region Binded Properties
+
         /// <summary>
-        /// Gets the user's subscriptions.
+        /// Gets a task that returns the user's subscriptions.
         /// </summary>
-        public List<AzureSubscription> Subscriptions
+        public ObservableTask<ObservableCollection<AzureSubscription>> SubscriptionsTask
         {
             get
             {
-                return this.subscriptions;
+                return this.subscriptionsTask;
             }
 
             private set
             {
-                this.subscriptions = value;
+                this.subscriptionsTask = value;
                 this.OnPropertyChanged();
             }
         }
@@ -99,27 +114,27 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Emulator.ViewModels
             set
             {
                 this.selectedSubscription = value;
-                this.SelectedResourceGroup = null;
-                this.SelectedResourceType = null;
-                this.SelectedResource = null;
                 this.OnPropertyChanged();
-                this.GetResourceGroupsAsync();
+
+                ResourceGroupsTask = new ObservableTask<ObservableCollection<string>>(
+                    this.GetResourceGroupsAsync()
+                );
             }
         }
 
         /// <summary>
-        /// Gets the user's resources groups.
+        /// Gets a task that returns the user's resource groups.
         /// </summary>
-        public List<string> ResourceGroups
+        public ObservableTask<ObservableCollection<string>> ResourceGroupsTask
         {
             get
             {
-                return this.resourceGroups;
+                return this.resourceGroupsTask;
             }
 
             private set
             {
-                this.resourceGroups = value;
+                this.resourceGroupsTask = value;
                 this.OnPropertyChanged();
             }
         }
@@ -138,29 +153,30 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Emulator.ViewModels
             {
                 this.selectedResourceGroup = value;
                 this.OnPropertyChanged();
-                this.SelectedResourceType = null;
-                this.SelectedResource = null;
 
-                if (value != null)
-                {
-                    this.GetResourcesTypesAsync();
-                }
+                ResourceTypesTask = new ObservableTask<ObservableCollection<string>>(
+                    this.GetResourceTypesAsync()
+                );
+
+                ResourcesTask = new ObservableTask<ObservableCollection<string>>(
+                    Task.FromResult(new ObservableCollection<string>())
+                );
             }
         }
 
         /// <summary>
-        /// Gets the user's resources types.
+        /// Gets a task that returns the user's resource types.
         /// </summary>
-        public List<string> ResourcesTypes
+        public ObservableTask<ObservableCollection<string>> ResourceTypesTask
         {
             get
             {
-                return this.resourceTypes;
+                return this.resourceTypesTask;
             }
 
             private set
             {
-                this.resourceTypes = value;
+                this.resourceTypesTask = value;
                 this.OnPropertyChanged();
             }
         }
@@ -179,37 +195,26 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Emulator.ViewModels
             {
                 this.selectedResourceType = value;
                 this.OnPropertyChanged();
-                this.SelectedResource = null;
 
-                if (value != null)
-                {
-                    try
-                    {
-                        ResourceType selectedResourceType = (ResourceType)Enum.Parse(typeof(ResourceType), this.SelectedResourceType);
-                        this.Resources = this.resourcesIndentifiers.Where(resourceIndentifier => resourceIndentifier.ResourceType == selectedResourceType)
-                                            .Select(resourceIndentifier => resourceIndentifier.ResourceName).ToList();
-                    }
-                    catch (Exception e)
-                    {
-                        Console.Write(e);
-                    } 
-                }
+                ResourcesTask = new ObservableTask<ObservableCollection<string>>(
+                    this.GetResourcesAsync()
+                );
             }
         }
 
         /// <summary>
-        /// Gets the user's resources.
+        /// Gets a task that returns the user's resource types.
         /// </summary>
-        public List<string> Resources
+        public ObservableTask<ObservableCollection<string>> ResourcesTask
         {
             get
             {
-                return this.resources;
+                return this.resourcesTask;
             }
 
             private set
             {
-                this.resources = value;
+                this.resourcesTask = value;
                 this.OnPropertyChanged();
             }
         }
@@ -234,53 +239,59 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Emulator.ViewModels
         #endregion
 
         /// <summary>
-        /// Gets or sets the subscriptions.
+        /// Gets Azure subscriptions.
         /// </summary>
-        private async void GetSubscriptionsAsync()
+        /// <returns>A task that returns the subscriptions</returns>
+        private async Task<ObservableCollection<AzureSubscription>> GetSubscriptionsAsync()
         {
-            try
-            {
-                var subscriptions = (await this.azureResourceManagerClient.GetAllSubscriptionsAsync()).ToList();
-                this.Subscriptions = subscriptions.Select(sub => new AzureSubscription(sub.Id, sub.DisplayName)).ToList();
-            }
-            catch (Exception e)
-            {
-                Console.Write(e);
-            }
+            var subscriptionsList = (await this.azureResourceManagerClient.GetAllSubscriptionsAsync()).ToList()
+                .Select(sub => new AzureSubscription(sub.SubscriptionId, sub.DisplayName)).ToList();
+
+            return new ObservableCollection<AzureSubscription>(subscriptionsList);
         }
 
         /// <summary>
-        /// Gets or sets the resource groups.
+        /// Gets Azure resource groups.
         /// </summary>
-        private async void GetResourceGroupsAsync()
+        /// <returns>A task that returns the resource groups</returns>
+        private async Task<ObservableCollection<string>> GetResourceGroupsAsync()
         {
-            try
-            {
-                var groupsIndentifiers = (await this.azureResourceManagerClient.GetAllResourceGroupsInSubscriptionAsync(this.SelectedSubscription.Id, CancellationToken.None)).ToList();
-                this.ResourceGroups = groupsIndentifiers.Select(ri => ri.ResourceGroupName).ToList();
-            }
-            catch (Exception e)
-            {
-                Console.Write(e);
-            }
+            var resourceGroups = (await this.azureResourceManagerClient.GetAllResourceGroupsInSubscriptionAsync(this.SelectedSubscription.Id, CancellationToken.None)).ToList()
+                .Select(ri => ri.ResourceGroupName).ToList();
+
+            return new ObservableCollection<string>(resourceGroups);
         }
 
         /// <summary>
-        /// Gets or sets the resources types.
+        /// Gets Azure resource types.
         /// </summary>
-        private async void GetResourcesTypesAsync()
+        /// <returns>A task that returns the resource types</returns>
+        private async Task<ObservableCollection<string>> GetResourceTypesAsync()
         {
-            try
-            {
-                var supportedResourceTypes = new List<ResourceType>() { ResourceType.ApplicationInsights, ResourceType.LogAnalytics, ResourceType.VirtualMachine };
-                this.resourcesIndentifiers = (await this.azureResourceManagerClient.GetAllResourcesInResourceGroupAsync(this.SelectedSubscription.Id, this.SelectedResourceGroup, supportedResourceTypes, CancellationToken.None)).ToList();
-                var resourcesTypesGrouping = this.resourcesIndentifiers.GroupBy(resourceIndentifier => resourceIndentifier.ResourceType);
-                this.ResourcesTypes = resourcesTypesGrouping.Select(group => group.Key.ToString()).ToList();
-            }
-            catch (Exception e)
-            {
-                Console.Write(e);
-            }
+            var supportedResourceTypes = new List<ResourceType>() { ResourceType.ApplicationInsights, ResourceType.LogAnalytics, ResourceType.VirtualMachine };
+            var groups = (await this.azureResourceManagerClient.GetAllResourcesInResourceGroupAsync(this.SelectedSubscription.Id, this.SelectedResourceGroup, supportedResourceTypes, CancellationToken.None)).ToList()
+                .GroupBy(resourceIndentifier => resourceIndentifier.ResourceType)
+                .Select(group => group.Key.ToString()).ToList();
+
+            return new ObservableCollection<string>(groups);
+        }
+
+        /// <summary>
+        /// Gets Azure resources.
+        /// </summary>
+        /// <returns>A task that returns the resources</returns>
+        private async Task<ObservableCollection<string>> GetResourcesAsync()
+        {
+            ResourceType selectedResourceType = (ResourceType)Enum.Parse(typeof(ResourceType), this.SelectedResourceType);
+            var resources = (await this.azureResourceManagerClient.GetAllResourcesInResourceGroupAsync(
+                    this.SelectedSubscription.Id,
+                    this.SelectedResourceGroup,
+                    new List<ResourceType>() { selectedResourceType },
+                    CancellationToken.None)).ToList()
+                .Where(resourceIndentifier => resourceIndentifier.ResourceType == selectedResourceType)
+                .Select(resourceIndentifier => resourceIndentifier.ResourceName).ToList();
+
+            return new ObservableCollection<string>(resources);
         }
     }
 }

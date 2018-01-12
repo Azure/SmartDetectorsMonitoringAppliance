@@ -30,7 +30,8 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Emulator
             Container = new UnityContainer();
             Container
                 .RegisterInstance(new SignalsResultsRepository())
-                .RegisterInstance(new AuthenticationServices());
+                .RegisterInstance(new AuthenticationServices())
+                .RegisterInstance(new AzureResourceManagerClient());
 
             // Authenticate the user to AAD
             Container.Resolve<AuthenticationServices>().AuthenticateUser();
