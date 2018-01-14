@@ -10,6 +10,7 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Package
     using System.Collections.Generic;
     using System.IO;
     using System.IO.Compression;
+    using System.Linq;
     using System.Text;
     using Newtonsoft.Json;
 
@@ -54,7 +55,7 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Package
         /// Gets the signal's package content represented by a dictionary mapping a file name to the file content bytes.
         /// </summary>
         public IReadOnlyDictionary<string, byte[]> Content { get; }
-
+      
         /// <summary>
         /// Creates a <see cref="SmartSignalPackage"/> from a zipped package stream
         /// </summary>
@@ -91,6 +92,82 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Package
             SmartSignalManifest signalManifest = JsonConvert.DeserializeObject<SmartSignalManifest>(manifest);
 
             return new SmartSignalPackage(signalManifest, packageContent);
+        }
+
+        /// <summary>
+        /// Creates a <see cref="SmartSignalPackage"/> from a folder
+        /// </summary>
+        /// <param name="sourceFolder">The folder of the package</param>
+        /// <returns>A <see cref="SmartSignalPackage"/></returns>
+        public static SmartSignalPackage CreateFromFolder(string sourceFolder)
+        {
+            string[] fileEntries = Directory.GetFiles(sourceFolder);
+            var packageContent = new Dictionary<string, byte[]>(StringComparer.OrdinalIgnoreCase);
+            
+            // for each file in the package get the file name and content and add it to the result dictionary 
+            foreach (string fileNamePath in fileEntries)
+            {
+                packageContent.Add(Path.GetFileName(fileNamePath), File.ReadAllBytes(fileNamePath));
+            }
+            
+            bool manifestFileExists = packageContent.TryGetValue(ManifestFileName, out byte[] manifestBytes);
+            if (!manifestFileExists)
+            {
+                throw new InvalidSmartSignalPackageException("Failed to create Smart Signal Package - no manifest file found in the smart signal package");
+            }
+
+            try
+            {
+                // Validates the manifest
+                SmartSignalManifest signalManifest = JsonConvert.DeserializeObject<SmartSignalManifest>(Encoding.UTF8.GetString(manifestBytes));
+                if (!packageContent.ContainsKey(signalManifest.AssemblyName))
+                {
+                    throw new InvalidSmartSignalPackageException("Failed to create Smart Signal Package - the manifest file is invalid: Assembly name must be a file in the smart signal package.");
+                }
+
+                if (!signalManifest.SupportedResourceTypes.Any())
+                {
+                    throw new InvalidSmartSignalPackageException("Failed to create Smart Signal Package - the manifest file is invalid: Must specify at least one supported resource type.");
+                }
+
+                if (!signalManifest.SupportedCadencesInMinutes.Any())
+                {
+                    throw new InvalidSmartSignalPackageException("Failed to create Smart Signal Package - the manifest file is invalid: Must specify at least one supported cadence.");
+                }
+
+                return new SmartSignalPackage(signalManifest, packageContent);
+            }
+            catch (ArgumentException argumentException)
+            {
+                throw new InvalidSmartSignalPackageException($"Failed to create Smart Signal Package - the manifest file is invalid: {argumentException.Message}");
+            }
+            catch (JsonException jsonException)
+            {
+                throw new InvalidSmartSignalPackageException($"Failed to create Smart Signal Package - the manifest file is invalid: {jsonException.Message}");
+            }    
+        }
+
+        /// <summary>
+        /// Saves a <see cref="SmartSignalPackage"/> object to a file.
+        /// </summary>
+        /// <param name="targetPath">The path to save the package to.</param>
+        public void SaveToFile(string targetPath)
+        {
+            using (var fileStream = new FileStream(targetPath, FileMode.Create))
+            {
+                using (var zipArchive = new ZipArchive(fileStream, ZipArchiveMode.Create, true))
+                {                    
+                    foreach (KeyValuePair<string, byte[]> attachment in this.Content)
+                    {
+                        var zipEntry = zipArchive.CreateEntry(attachment.Key);
+                        using (var entryStream = zipEntry.Open())
+                        using (var streamWriter = new BinaryWriter(entryStream))
+                        {
+                            streamWriter.Write(attachment.Value);
+                        }
+                    }
+                }
+            }
         }
     }
 }

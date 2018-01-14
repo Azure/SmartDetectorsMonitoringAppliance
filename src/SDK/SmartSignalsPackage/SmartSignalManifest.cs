@@ -16,7 +16,7 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Package
     /// Represents the manifest of a Smart Signal, stored in the smart signals repository
     /// </summary>
     public sealed class SmartSignalManifest
-    {
+    {    
         /// <summary>
         /// Initializes a new instance of the <see cref="SmartSignalManifest"/> class.
         /// </summary>
@@ -93,50 +93,50 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Package
         /// <summary>
         /// Gets the signal's id.
         /// </summary>
-        [JsonProperty("id")]
+        [JsonProperty("id", Required = Required.Always)]
         public string Id { get; }
 
         /// <summary>
         /// Gets the signal's name.
         /// </summary>
-        [JsonProperty("name")]
+        [JsonProperty("name", Required = Required.Always)]
         public string Name { get; }
 
         /// <summary>
         /// Gets the signal's description.
         /// </summary>
-        [JsonProperty("description")]
+        [JsonProperty("description", Required = Required.Always)]
         public string Description { get; }
 
         /// <summary>
         /// Gets the signal's version.
         /// </summary>
+        [JsonProperty("version", Required = Required.Always)]
         [JsonConverter(typeof(VersionConverter))]
-        [JsonProperty("version")]
         public Version Version { get; }
 
         /// <summary>
         /// Gets the name of the signal's assembly file.
         /// </summary>
-        [JsonProperty("assemblyName")]
+        [JsonProperty("assemblyName", Required = Required.Always)]
         public string AssemblyName { get; }
 
         /// <summary>
         /// Gets the (fully qualified) name for the signal's class.
         /// </summary>
-        [JsonProperty("className")]
+        [JsonProperty("className", Required = Required.Always)]
         public string ClassName { get; }
 
         /// <summary>
         /// Gets the types of resources that this signal supports
         /// </summary>
-        [JsonProperty("supportedResourceTypes")]
+        [JsonProperty("supportedResourceTypes", Required = Required.Always)]
         public IReadOnlyList<ResourceType> SupportedResourceTypes { get; }
 
         /// <summary>
         /// Gets the signal supported cadences in minutes.
         /// </summary>
-        [JsonProperty("supportedCadencesInMinutes")]
+        [JsonProperty("supportedCadencesInMinutes", Required = Required.Always)]
         public IReadOnlyList<int> SupportedCadencesInMinutes { get; }
 
         #region Overrides of Object

@@ -11,6 +11,9 @@
   </PropertyGroup>
   <UsingTask TaskName="Microsoft.Azure.Monitoring.SmartSignals.Build.PackageSmartSignal" AssemblyFile="$(Dir)\Microsoft.Azure.Monitoring.SmartSignals.Build.dll"/>
   <Target Name="PackageSmartSignalAfterBuild" AfterTargets="AfterBuild">
-    <PackageSmartSignal/>
+    <PackageSmartSignal PackagePath="$(ProjectDir)$(OutDir)" PackageName="$(ProjectName).package"/>
+  </Target>
+  <Target Name="RemovePackage" BeforeTargets="Clean">
+    <Delete Files="$(ProjectDir)$(OutDir)$(ProjectName).package" />
   </Target>
 </Project>
