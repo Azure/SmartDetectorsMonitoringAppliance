@@ -10,6 +10,6 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\SmartSignalsShared\SmartSignalsShared.csproj" />
-    <ProjectReference Include="..\SmartSignalsAnalysisShared\SmartSignalsAnalysis.csproj" />
+    <ProjectReference Include="..\SmartSignalsAnalysis\SmartSignalsAnalysis.csproj" />
   </ItemGroup>
 </Project>

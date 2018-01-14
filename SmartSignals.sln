@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.27130.2003
+VisualStudioVersion = 15.0.26730.12
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{114AB921-11E0-472F-B30D-73850169098D}"
 EndProject
@@ -41,7 +41,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SmartSignalsSDKTests", "tes
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SmartSignalScheduler", "src\scheduler\SmartSignalsScheduler\SmartSignalScheduler.csproj", "{28AEC5A1-2050-4166-A025-694F4445C804}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SmartSignalsAnalysis", "src\analysis\SmartSignalsAnalysisShared\SmartSignalsAnalysis.csproj", "{B3955795-6CBB-4E4E-907B-7C541E1DFFC2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SmartSignalsAnalysis", "src\analysis\SmartSignalsAnalysis\SmartSignalsAnalysis.csproj", "{B3955795-6CBB-4E4E-907B-7C541E1DFFC2}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SmartSignalSharedTests", "test\SmartSignalSharedTests\SmartSignalSharedTests.csproj", "{01EA0E0C-2EC2-4CAC-A1F9-5F53778F7D00}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -55,7 +55,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestSignalLibrary", "test\a
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestChildProcess", "test\TestChildProcess\TestChildProcess.csproj", "{3D2899D6-EEB1-434F-8148-A5CBEB9D4E23}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SmartSignalsAnalysisSharedTests", "test\analysis\SmartSignalsAnalysisSharedTests\SmartSignalsAnalysisSharedTests.csproj", "{E5305BE4-01BD-4986-9DBE-16331E6873CB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SmartSignalsAnalysisTests", "test\analysis\SmartSignalsAnalysisTests\SmartSignalsAnalysisTests.csproj", "{E5305BE4-01BD-4986-9DBE-16331E6873CB}"
 	ProjectSection(ProjectDependencies) = postProject
 		{A84DBB4A-265B-4ADA-9916-2DDD70022411} = {A84DBB4A-265B-4ADA-9916-2DDD70022411}
 		{39FADBA7-6B24-4755-A3F4-F9E7FF5E7ACA} = {39FADBA7-6B24-4755-A3F4-F9E7FF5E7ACA}

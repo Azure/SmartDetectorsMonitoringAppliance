@@ -37,9 +37,7 @@ namespace SmartSignalRunnerChildProcess
             {
                 // Inject dependencies
                 container = DependenciesInjector.GetContainer()
-                    .RegisterType<IAnalysisServicesFactory, AnalysisServicesFactory>()
-                    .RegisterType<ISmartSignalLoader, SmartSignalLoader>()
-                    .RegisterType<ISmartSignalRunner, SmartSignalRunner>()
+                    .InjectAnalysisDependencies(withChildProcessRunner: false)
                     .WithChildProcessTracer(args);
 
                 // Trace

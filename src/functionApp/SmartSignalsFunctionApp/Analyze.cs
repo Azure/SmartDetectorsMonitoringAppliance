@@ -40,9 +40,7 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.FunctionApp
             ThreadPool.SetMinThreads(100, 100);
 
             Container = DependenciesInjector.GetContainer()
-                .RegisterType<IAnalysisServicesFactory, AnalysisServicesFactory>()
-                .RegisterType<ISmartSignalLoader, SmartSignalLoader>()
-                .RegisterType<ISmartSignalRunner, SmartSignalRunnerInChildProcess>();
+                    .InjectAnalysisDependencies(withChildProcessRunner: true);
         }
 
         /// <summary>

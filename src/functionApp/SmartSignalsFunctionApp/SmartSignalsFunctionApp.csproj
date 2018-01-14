@@ -14,7 +14,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\analysis\SmartSignalRunnerChildProcess\SmartSignalRunnerChildProcess.csproj" />
-    <ProjectReference Include="..\..\analysis\SmartSignalsAnalysisShared\SmartSignalsAnalysis.csproj" />
+    <ProjectReference Include="..\..\analysis\SmartSignalsAnalysis\SmartSignalsAnalysis.csproj" />
     <ProjectReference Include="..\..\management\server\SmartSignalsManagementApi\SmartSignalsManagementApi.csproj" />
     <ProjectReference Include="..\..\scheduler\SmartSignalsScheduler\SmartSignalScheduler.csproj" />
     <ProjectReference Include="..\..\SmartSignalsShared\SmartSignalsShared.csproj" />

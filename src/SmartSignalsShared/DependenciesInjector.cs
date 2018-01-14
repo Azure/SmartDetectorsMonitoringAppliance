@@ -49,29 +49,5 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Shared
             ITracer tracer = TracerFactory.Create(null, logger, traceToConsole);
             return container.RegisterInstance(tracer);
         }
-
-        /// <summary>
-        /// Registers a tracer instance for the child process, based on the arguments received from the parent process.
-        /// </summary>
-        /// <param name="container">The unity container</param>
-        /// <param name="args">The command line arguments</param>
-        /// <returns>The unity container, after registering the tracer instance</returns>
-        public static IUnityContainer WithChildProcessTracer(this IUnityContainer container, string[] args)
-        {
-            // We need to use an instance of IChildProcessManager, just to create the tracer.
-            // To overcome the "chicken and egg" problem, we use a child container.
-            ITracer tracer;
-            using (IUnityContainer childContainer = container.CreateChildContainer())
-            {
-                ITracer childTracer = new ConsoleTracer(string.Empty);
-                childContainer.RegisterInstance(childTracer);
-                IChildProcessManager childProcessManager = childContainer.Resolve<IChildProcessManager>();
-                tracer = childProcessManager.CreateTracerForChildProcess(args);
-            }
-
-            // Now register the instance with the parent container
-            container.RegisterInstance(tracer);
-            return container;
-        }
     }
 }
