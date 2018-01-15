@@ -15,7 +15,7 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Shared.HttpClient
     /// An class that implements the <see cref="IHttpClientWrapper"/> interface.
     /// We are wrapping the HttpClient class in order to make it testable.
     /// </summary>
-    public class HttpClientWrapper : IHttpClientWrapper
+    public class HttpClientWrapper : IHttpClientWrapper, IDisposable
     {
         private readonly HttpClient httpClient;
 
@@ -32,8 +32,8 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Shared.HttpClient
         /// </summary>
         public TimeSpan Timeout
         {
-            get { return this.httpClient.Timeout; }
-            set { this.httpClient.Timeout = value; }
+            get => this.httpClient.Timeout;
+            set => this.httpClient.Timeout = value;
         }
 
         /// <summary>
@@ -45,6 +45,14 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Shared.HttpClient
         public async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
             return await this.httpClient.SendAsync(request, cancellationToken);
+        }
+
+        /// <summary>
+        /// Dispose of the HTTP client.
+        /// </summary>
+        public void Dispose()
+        {
+            this.httpClient?.Dispose();
         }
     }
 }

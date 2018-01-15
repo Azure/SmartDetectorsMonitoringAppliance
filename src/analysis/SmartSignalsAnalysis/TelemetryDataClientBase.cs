@@ -16,9 +16,11 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Analysis
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.Azure.Monitoring.SmartSignals.Shared;
+    using Microsoft.Azure.Monitoring.SmartSignals.Shared.Extensions;
     using Microsoft.Azure.Monitoring.SmartSignals.Shared.HttpClient;
     using Microsoft.Rest;
     using Newtonsoft.Json.Linq;
+    using Polly;
 
     /// <summary>
     /// A base class for implementations of <see cref="ITelemetryDataClient"/>.
@@ -29,6 +31,8 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Analysis
         private readonly IHttpClientWrapper httpClientWrapper;
         private readonly ServiceClientCredentials credentials;
         private readonly Uri queryUri;
+        private readonly string dependencyName;
+        private readonly Policy retryPolicy;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TelemetryDataClientBase"/> class.
@@ -37,13 +41,16 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Analysis
         /// <param name="httpClientWrapper">The HTTP client wrapper</param>
         /// <param name="credentialsFactory">The credentials factory</param>
         /// <param name="queryUri">The query URI</param>
-        /// <param name="queryTimeout">The query timeout.</param>
-        protected TelemetryDataClientBase(ITracer tracer, IHttpClientWrapper httpClientWrapper, ICredentialsFactory credentialsFactory, Uri queryUri, TimeSpan queryTimeout)
+        /// <param name="queryTimeout">The query timeout</param>
+        /// <param name="dependencyName">The dependency name (for telemetry)</param>
+        protected TelemetryDataClientBase(ITracer tracer, IHttpClientWrapper httpClientWrapper, ICredentialsFactory credentialsFactory, Uri queryUri, TimeSpan queryTimeout, string dependencyName)
         {
             this.tracer = Diagnostics.EnsureArgumentNotNull(() => tracer);
             this.httpClientWrapper = Diagnostics.EnsureArgumentNotNull(() => httpClientWrapper);
             this.Timeout = Diagnostics.EnsureArgumentInRange(() => queryTimeout, TimeSpan.FromMinutes(0), TimeSpan.FromHours(2));
             this.queryUri = queryUri;
+            this.dependencyName = dependencyName;
+            this.retryPolicy = PolicyExtensions.CreateDefaultPolicy(this.tracer, dependencyName);
 
             // Extract the host part of the URI as the credentials resource
             UriBuilder builder = new UriBuilder()
@@ -94,7 +101,7 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Analysis
 
             // Send request and get the response as JSON
             Stopwatch queryStopwatch = Stopwatch.StartNew();
-            HttpResponseMessage response = await this.httpClientWrapper.SendAsync(request, cancellationToken);
+            HttpResponseMessage response = await this.retryPolicy.RunAndTrackDependencyAsync(this.tracer, this.dependencyName, "RunQuery", () => this.httpClientWrapper.SendAsync(request, cancellationToken));
             queryStopwatch.Stop();
             this.tracer.TraceInformation($"Query completed in {queryStopwatch.ElapsedMilliseconds}ms");
             string responseContent = await response.Content.ReadAsStringAsync();

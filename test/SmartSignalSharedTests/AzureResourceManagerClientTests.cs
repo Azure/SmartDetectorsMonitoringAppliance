@@ -40,7 +40,7 @@ namespace SmartSignalSharedTests
 
         private void VerifyConversion(string testResourceId, ResourceIdentifier testResourceIdentifier)
         {
-            IAzureResourceManagerClient client = new AzureResourceManagerClient(new Mock<ICredentialsFactory>().Object);
+            IAzureResourceManagerClient client = new AzureResourceManagerClient(new Mock<ICredentialsFactory>().Object, new Mock<ITracer>().Object);
 
             var resourceIdentifier = client.GetResourceIdentifier(testResourceId);
             var resourceId = client.GetResourceId(resourceIdentifier);

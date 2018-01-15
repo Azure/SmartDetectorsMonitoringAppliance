@@ -15,14 +15,17 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Shared
     public class MsiCredentialsFactory : ICredentialsFactory
     {
         private readonly IHttpClientWrapper httpClientWrapper;
+        private readonly ITracer tracer;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="MsiCredentialsFactory"/> class
         /// </summary>
         /// <param name="httpClientWrapper">The HTTP client wrapper</param>
-        public MsiCredentialsFactory(IHttpClientWrapper httpClientWrapper)
+        /// <param name="tracer">The tracer</param>
+        public MsiCredentialsFactory(IHttpClientWrapper httpClientWrapper, ITracer tracer)
         {
             this.httpClientWrapper = httpClientWrapper;
+            this.tracer = tracer;
         }
 
         /// <summary>
@@ -32,7 +35,7 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Shared
         /// <returns>The credentials</returns>
         public ServiceClientCredentials Create(string resource)
         {
-            return new MsiCredentials(this.httpClientWrapper, resource);
+            return new MsiCredentials(this.httpClientWrapper, resource, this.tracer);
         }
     }
 }

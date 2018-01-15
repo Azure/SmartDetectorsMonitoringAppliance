@@ -9,34 +9,51 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Shared
     using System;
     using System.Net.Http;
     using System.Net.Http.Headers;
+    using System.Runtime.Caching;
     using System.Threading;
     using System.Threading.Tasks;
     using System.Web;
+    using Microsoft.Azure.Monitoring.SmartSignals.Shared.Extensions;
     using Microsoft.Azure.Monitoring.SmartSignals.Shared.HttpClient;
     using Microsoft.Rest;
     using Newtonsoft.Json;
+    using Polly;
 
     /// <summary>
     /// A class that represents managed service identity credentials
     /// </summary>
     public class MsiCredentials : ServiceClientCredentials
     {
-        private readonly SemaphoreSlim semaphore = new SemaphoreSlim(1, 1);
+        /// <summary>
+        /// The dependency name, for telemetry
+        /// </summary>
+        private const string DependencyName = "MSI";
+
+        /// <summary>
+        /// The token expiry time, in minutes
+        /// </summary>
+        private const int TokenExpiryInMinutes = 30;
+
+        private static readonly SemaphoreSlim TokensCacheSemaphore = new SemaphoreSlim(1, 1);
+        private static readonly MemoryCache TokensCache = new MemoryCache("MsiTokens");
+
         private readonly IHttpClientWrapper httpClientWrapper;
         private readonly string resource;
-
-        private string token;
+        private readonly Policy retryPolicy;
+        private readonly ITracer tracer;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="MsiCredentials"/> class.
         /// </summary>
         /// <param name="httpClientWrapper">The HTTP client wrapper</param>
         /// <param name="resource">The resource name - the URL for which these credentials will be used</param>
-        public MsiCredentials(IHttpClientWrapper httpClientWrapper, string resource)
+        /// <param name="tracer">The tracer</param>
+        public MsiCredentials(IHttpClientWrapper httpClientWrapper, string resource, ITracer tracer)
         {
             this.resource = resource;
             this.httpClientWrapper = httpClientWrapper;
-            this.token = null;
+            this.tracer = tracer;
+            this.retryPolicy = PolicyExtensions.CreateDefaultPolicy(this.tracer, DependencyName);
         }
 
         /// <summary>
@@ -48,25 +65,28 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Shared
         public override async Task ProcessHttpRequestAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
             // Get the access token
-            if (this.token == null)
+            string token = (string)TokensCache.Get(this.resource);
+            if (token == null)
             {
                 // Use a semaphore to lock (can't use "await" inside a "lock")
-                await this.semaphore.WaitAsync(cancellationToken);
+                await TokensCacheSemaphore.WaitAsync(cancellationToken);
                 try
                 {
-                    if (this.token == null)
+                    token = (string)TokensCache.Get(this.resource);
+                    if (token == null)
                     {
-                        this.token = await this.GetTokenAsync(cancellationToken);
+                        token = await this.GetTokenAsync(cancellationToken);
+                        TokensCache.Set(this.resource, token, new CacheItemPolicy() { AbsoluteExpiration = DateTimeOffset.Now.AddMinutes(TokenExpiryInMinutes) });
                     }
                 }
                 finally
                 {
-                    this.semaphore.Release();
+                    TokensCacheSemaphore.Release();
                 }
             }
 
             // Add the authentication header
-            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", this.token);
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
             await base.ProcessHttpRequestAsync(request, cancellationToken);
         }
 
@@ -93,7 +113,7 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Shared
             // Call the MSI endpoint
             HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, $"{endpoint}/?resource={HttpUtility.UrlEncode(this.resource)}&api-version=2017-09-01");
             request.Headers.Add("Secret", secret);
-            var response = await this.httpClientWrapper.SendAsync(request, cancellationToken);
+            var response = await this.retryPolicy.RunAndTrackDependencyAsync(this.tracer, DependencyName, string.Empty, () => this.httpClientWrapper.SendAsync(request, cancellationToken));
 
             // Extract the token from the response
             string responseContent = await response.Content.ReadAsStringAsync();

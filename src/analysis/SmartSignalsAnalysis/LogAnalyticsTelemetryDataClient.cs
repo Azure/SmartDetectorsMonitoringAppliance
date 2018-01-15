@@ -37,7 +37,7 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Analysis
         /// </param>
         /// <param name="queryTimeout">The query timeout.</param>
         public LogAnalyticsTelemetryDataClient(ITracer tracer, IHttpClientWrapper httpClientWrapper, ICredentialsFactory credentialsFactory, string workspaceId, IEnumerable<string> workspacesResourceIds, TimeSpan queryTimeout)
-            : base(tracer, httpClientWrapper, credentialsFactory, new Uri(string.Format(UriFormat, workspaceId)), queryTimeout)
+            : base(tracer, httpClientWrapper, credentialsFactory, new Uri(string.Format(UriFormat, workspaceId)), queryTimeout, "LogAnalytics")
         {
             this.workspaceId = Diagnostics.EnsureStringNotNullOrWhiteSpace(() => workspaceId);
             this.workspacesResourceIds = workspacesResourceIds?.ToList() ?? new List<string>();

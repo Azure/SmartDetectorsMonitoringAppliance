@@ -6,32 +6,45 @@
 
 namespace Microsoft.Azure.Monitoring.SmartSignals.Scheduler
 {
-    using System;
     using System.Collections.Generic;
     using System.Net.Http;
     using System.Text;
+    using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.Azure.Monitoring.SmartSignals;
     using Microsoft.Azure.Monitoring.SmartSignals.Scheduler.Exceptions;
     using Microsoft.Azure.Monitoring.SmartSignals.Shared;
+    using Microsoft.Azure.Monitoring.SmartSignals.Shared.Extensions;
+    using Microsoft.Azure.Monitoring.SmartSignals.Shared.HttpClient;
     using Microsoft.Azure.Monitoring.SmartSignals.Shared.SignalResultPresentation;
     using Newtonsoft.Json;
+    using Polly;
 
     /// <summary>
     /// This class is responsible for executing signals via the analysis flow
     /// </summary>
     public class AnalysisExecuter : IAnalysisExecuter
     {
+        /// <summary>
+        /// The dependency name, for telemetry
+        /// </summary>
+        private const string DependencyName = "Analysis";
+
+        private readonly IHttpClientWrapper httpClientWrapper;
         private readonly ITracer tracer;
         private readonly string analysisUrl;
+        private readonly Policy retryPolicy;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AnalysisExecuter"/> class.
         /// </summary>
+        /// <param name="httpClientWrapper">The HTTP client wrapper</param>
         /// <param name="tracer">Log wrapper</param>
-        public AnalysisExecuter(ITracer tracer)
+        public AnalysisExecuter(IHttpClientWrapper httpClientWrapper, ITracer tracer)
         {
             this.tracer = Diagnostics.EnsureArgumentNotNull(() => tracer);
+            this.httpClientWrapper = Diagnostics.EnsureArgumentNotNull(() => httpClientWrapper);
+            this.retryPolicy = PolicyExtensions.CreateDefaultPolicy(this.tracer, DependencyName);
 
             var functionAppBaseUrl = ConfigurationReader.ReadConfig("FunctionBaseUrl", true);
             this.analysisUrl = $"{functionAppBaseUrl}/api/Analyze";
@@ -62,20 +75,17 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Scheduler
             this.tracer.TraceVerbose($"Sending analysis request {requestBody}");
 
             // Send the request
-            using (var httpClient = new HttpClient())
+            var response = await this.retryPolicy.RunAndTrackDependencyAsync(this.tracer, DependencyName, analysisRequest.SignalId, () => this.httpClientWrapper.SendAsync(requestMessage, default(CancellationToken)));
+
+            if (!response.IsSuccessStatusCode)
             {
-                var response = await httpClient.SendAsync(requestMessage);
-
-                if (!response.IsSuccessStatusCode)
-                {
-                    string content = response.Content != null ? await response.Content.ReadAsStringAsync() : string.Empty;
-                    var message = $"Failed to execute signal {analysisRequest.SignalId}. Fail StatusCode: {response.StatusCode}. Reason: {response.ReasonPhrase}. Content: {content}.";
-                    throw new AnalysisExecutionException(message);
-                }
-
-                var httpAnalysisResult = await response.Content.ReadAsStringAsync();
-                return JsonConvert.DeserializeObject<IList<SmartSignalResultItemPresentation>>(httpAnalysisResult);
+                string content = response.Content != null ? await response.Content.ReadAsStringAsync() : string.Empty;
+                var message = $"Failed to execute signal {analysisRequest.SignalId}. Fail StatusCode: {response.StatusCode}. Reason: {response.ReasonPhrase}. Content: {content}.";
+                throw new AnalysisExecutionException(message);
             }
+
+            var httpAnalysisResult = await response.Content.ReadAsStringAsync();
+            return JsonConvert.DeserializeObject<IList<SmartSignalResultItemPresentation>>(httpAnalysisResult);
         }
     }
 }
