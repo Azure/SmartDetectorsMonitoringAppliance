@@ -107,8 +107,8 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="Converters\CountToBooleanConverter.cs" />
     <Compile Include="Converters\CountToVisibilityConverter.cs" />
+    <Compile Include="Converters\EmptyListToBooleanConverter.cs" />
     <Compile Include="Models\ActiveDirectoryCredentials.cs" />
     <Compile Include="Models\AuthenticationServices.cs" />
     <Compile Include="Models\AzureResourceManagerClient.cs" />

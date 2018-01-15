@@ -14,7 +14,7 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Emulator
     /// </summary>
     /// <typeparam name="TResult">The type of the result being returned from the task. This type should have default constructor, 
     /// so it can be used as the task result as long as the task has not finished running</typeparam>
-    public class ObservableTask<TResult> : ObservableObject where TResult : new()
+    public class ObservableTask<TResult> : ObservableObject
     {
         private Task<TResult> task;
 
@@ -27,31 +27,11 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Emulator
         public ObservableTask(Task<TResult> task)
         {
             this.Task = task;
-            this.Result = new TResult();
+            this.Result = default(TResult);
             if (!task.IsCompleted)
             {
-                var _ = RunTaskAsync();
+                var taskResult = this.RunTaskAsync();
             }
-        }
-
-        /// <summary>
-        /// Runs the task asynchronously.
-        /// </summary>
-        /// <returns>The observed task</returns>
-        private async Task RunTaskAsync()
-        {
-            try
-            {
-                await task;
-            }
-            catch (Exception e)
-            {
-                Console.Write(e);
-            }
-
-            this.Result = this.Task.Status == TaskStatus.RanToCompletion ?
-                Task.Result :
-                new TResult();
         }
 
         /// <summary>
@@ -86,6 +66,26 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Emulator
                 this.result = value;
                 this.OnPropertyChanged();
             }
+        }
+
+        /// <summary>
+        /// Runs the task asynchronously.
+        /// </summary>
+        /// <returns>The observed task</returns>
+        private async Task RunTaskAsync()
+        {
+            try
+            {
+                await this.Task;
+            }
+            catch (Exception e)
+            {
+                Console.Write(e);
+            }
+
+            this.Result = this.Task.Status == TaskStatus.RanToCompletion ?
+                this.Task.Result :
+                default(TResult);
         }
     }
 }

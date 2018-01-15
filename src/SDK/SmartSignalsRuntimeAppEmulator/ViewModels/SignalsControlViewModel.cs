@@ -18,25 +18,25 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Emulator.ViewModels
     using Unity.Attributes;
 
     /// <summary>
-    /// The view model class for the <see cref="SignalsControl"/> control.
+    /// An <see cref="ObservableObject"/> which encapsulates an asynchronous task.
     /// </summary>
     public class SignalsControlViewModel : ObservableObject
     {
         private readonly AzureResourceManagerClient azureResourceManagerClient;
 
-        private ObservableTask<ObservableCollection<AzureSubscription>> subscriptionsTask;
+        private ObservableTask<ObservableCollection<AzureSubscription>> readSubscriptionsTask;
 
         private AzureSubscription selectedSubscription;
 
-        private ObservableTask<ObservableCollection<string>> resourceGroupsTask;
+        private ObservableTask<ObservableCollection<string>> readResourceGroupsTask;
 
         private string selectedResourceGroup;
 
-        private ObservableTask<ObservableCollection<string>> resourceTypesTask;
+        private ObservableTask<ObservableCollection<string>> readResourceTypesTask;
 
         private string selectedResourceType;
 
-        private ObservableTask<ObservableCollection<string>> resourcesTask;
+        private ObservableTask<ObservableCollection<string>> readResourcesTask;
 
         private string selectedResource;
 
@@ -63,21 +63,17 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Emulator.ViewModels
             azureResourceManagerClient.Credentials = activeDirectoryCredentials;
             this.azureResourceManagerClient = azureResourceManagerClient;
 
-            SubscriptionsTask = new ObservableTask<ObservableCollection<AzureSubscription>>(
-                this.GetSubscriptionsAsync()
-            );
+            this.ReadSubscriptionsTask = new ObservableTask<ObservableCollection<AzureSubscription>>(
+                this.GetSubscriptionsAsync());
 
-            ResourceGroupsTask = new ObservableTask<ObservableCollection<string>>(
-                Task.FromResult(new ObservableCollection<string>())
-            );
+            this.ReadResourceGroupsTask = new ObservableTask<ObservableCollection<string>>(
+                Task.FromResult(new ObservableCollection<string>()));
 
-            ResourceTypesTask = new ObservableTask<ObservableCollection<string>>(
-                Task.FromResult(new ObservableCollection<string>())
-            );
+            this.ReadResourceTypesTask = new ObservableTask<ObservableCollection<string>>(
+                Task.FromResult(new ObservableCollection<string>()));
 
-            ResourcesTask = new ObservableTask<ObservableCollection<string>>(
-                Task.FromResult(new ObservableCollection<string>())
-            );
+            this.ReadResourcesTask = new ObservableTask<ObservableCollection<string>>(
+                Task.FromResult(new ObservableCollection<string>()));
         }
 
         #endregion
@@ -87,16 +83,16 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Emulator.ViewModels
         /// <summary>
         /// Gets a task that returns the user's subscriptions.
         /// </summary>
-        public ObservableTask<ObservableCollection<AzureSubscription>> SubscriptionsTask
+        public ObservableTask<ObservableCollection<AzureSubscription>> ReadSubscriptionsTask
         {
             get
             {
-                return this.subscriptionsTask;
+                return this.readSubscriptionsTask;
             }
 
             private set
             {
-                this.subscriptionsTask = value;
+                this.readSubscriptionsTask = value;
                 this.OnPropertyChanged();
             }
         }
@@ -116,25 +112,24 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Emulator.ViewModels
                 this.selectedSubscription = value;
                 this.OnPropertyChanged();
 
-                ResourceGroupsTask = new ObservableTask<ObservableCollection<string>>(
-                    this.GetResourceGroupsAsync()
-                );
+                this.ReadResourceGroupsTask = new ObservableTask<ObservableCollection<string>>(
+                    this.GetResourceGroupsAsync());
             }
         }
 
         /// <summary>
         /// Gets a task that returns the user's resource groups.
         /// </summary>
-        public ObservableTask<ObservableCollection<string>> ResourceGroupsTask
+        public ObservableTask<ObservableCollection<string>> ReadResourceGroupsTask
         {
             get
             {
-                return this.resourceGroupsTask;
+                return this.readResourceGroupsTask;
             }
 
             private set
             {
-                this.resourceGroupsTask = value;
+                this.readResourceGroupsTask = value;
                 this.OnPropertyChanged();
             }
         }
@@ -154,29 +149,27 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Emulator.ViewModels
                 this.selectedResourceGroup = value;
                 this.OnPropertyChanged();
 
-                ResourceTypesTask = new ObservableTask<ObservableCollection<string>>(
-                    this.GetResourceTypesAsync()
-                );
+                this.ReadResourceTypesTask = new ObservableTask<ObservableCollection<string>>(
+                    this.GetResourceTypesAsync());
 
-                ResourcesTask = new ObservableTask<ObservableCollection<string>>(
-                    Task.FromResult(new ObservableCollection<string>())
-                );
+                this.ReadResourcesTask = new ObservableTask<ObservableCollection<string>>(
+                    Task.FromResult(new ObservableCollection<string>()));
             }
         }
 
         /// <summary>
         /// Gets a task that returns the user's resource types.
         /// </summary>
-        public ObservableTask<ObservableCollection<string>> ResourceTypesTask
+        public ObservableTask<ObservableCollection<string>> ReadResourceTypesTask
         {
             get
             {
-                return this.resourceTypesTask;
+                return this.readResourceTypesTask;
             }
 
             private set
             {
-                this.resourceTypesTask = value;
+                this.readResourceTypesTask = value;
                 this.OnPropertyChanged();
             }
         }
@@ -196,25 +189,24 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Emulator.ViewModels
                 this.selectedResourceType = value;
                 this.OnPropertyChanged();
 
-                ResourcesTask = new ObservableTask<ObservableCollection<string>>(
-                    this.GetResourcesAsync()
-                );
+                this.ReadResourcesTask = new ObservableTask<ObservableCollection<string>>(
+                    this.GetResourcesAsync());
             }
         }
 
         /// <summary>
         /// Gets a task that returns the user's resource types.
         /// </summary>
-        public ObservableTask<ObservableCollection<string>> ResourcesTask
+        public ObservableTask<ObservableCollection<string>> ReadResourcesTask
         {
             get
             {
-                return this.resourcesTask;
+                return this.readResourcesTask;
             }
 
             private set
             {
-                this.resourcesTask = value;
+                this.readResourcesTask = value;
                 this.OnPropertyChanged();
             }
         }

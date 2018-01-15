@@ -1,5 +1,5 @@
 ﻿//-----------------------------------------------------------------------
-// <copyright file="CountToBooleanConverter.cs" company="Microsoft Corporation">
+// <copyright file="EmptyListToBooleanConverter.cs" company="Microsoft Corporation">
 //        Copyright (c) Microsoft Corporation.  All rights reserved.
 // </copyright>
 //-----------------------------------------------------------------------
@@ -7,14 +7,16 @@
 namespace Microsoft.Azure.Monitoring.SmartSignals.Emulator.Converters
 {
     using System;
+    using System.Collections;
     using System.Globalization;
+    using System.Linq;
     using System.Windows.Data;
 
     /// <summary>
     /// Implementation of <see cref="IValueConverter"/> for converting from an <see cref="int"/> value to <see cref="bool"/>.
     /// Returns true if the given value is larger than zero, otherwise false.
     /// </summary>
-    internal class CountToBooleanConverter : IValueConverter
+    internal class EmptyListToBooleanConverter : IValueConverter
     {
         #region Implementation of IValueConverter
 
@@ -30,7 +32,9 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Emulator.Converters
         /// <param name="culture">The culture to use in the converter.</param>
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            return value as int? > 0;
+            var enumerable = value as IEnumerable;
+
+            return enumerable != null && !this.IsEmpty(enumerable);
         }
 
         /// <summary>
@@ -46,6 +50,16 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Emulator.Converters
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
             throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Checks whether an <see cref="IEnumerable"/> collection is empty.
+        /// </summary>
+        /// <param name="enumerable">An enumerable collection</param>
+        /// <returns>True if empty, otherwise false</returns>
+        private bool IsEmpty(IEnumerable enumerable)
+        {
+            return enumerable.Cast<object>().Any();
         }
 
         #endregion
