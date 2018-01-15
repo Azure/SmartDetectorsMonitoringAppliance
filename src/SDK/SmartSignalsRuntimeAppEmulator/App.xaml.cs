@@ -16,23 +16,25 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Emulator
     public partial class App : Application
     {
         /// <summary>
+        /// Gets the unity container.
+        /// </summary>
+        public static IUnityContainer Container { get; private set; }
+
+        /// <summary>
         /// Raises the <see cref="E:System.Windows.Application.Startup" /> event.
         /// </summary>
         /// <param name="e">A <see cref="T:System.Windows.StartupEventArgs" /> that contains the event data.</param>
         protected override void OnStartup(StartupEventArgs e)
         {
             // Create a Unity container with all the required models and view models registrations
-            IUnityContainer container = new UnityContainer();
-            container
+            Container = new UnityContainer();
+            Container
                 .RegisterInstance(new SignalsResultsRepository())
-                .RegisterInstance(new AuthenticationServices());
+                .RegisterInstance(new AuthenticationServices())
+                .RegisterInstance(new AzureResourceManagerClient());
 
             // Authenticate the user to AAD
-            container.Resolve<AuthenticationServices>().AuthenticateUserAsync();
-
-            // Create and show the main window
-            MainWindow mainWindow = container.Resolve<MainWindow>();
-            mainWindow.Show();
+            Container.Resolve<AuthenticationServices>().AuthenticateUser();
         }
     }
 }

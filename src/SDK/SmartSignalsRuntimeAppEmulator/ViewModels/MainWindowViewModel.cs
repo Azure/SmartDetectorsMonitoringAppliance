@@ -7,6 +7,8 @@
 namespace Microsoft.Azure.Monitoring.SmartSignals.Emulator.ViewModels
 {
     using Microsoft.Azure.Monitoring.SmartSignals.Emulator.Models;
+    using Unity.Attributes;
+    using Unity.Injection;
 
     /// <summary>
     /// The view model class for the <see cref="MainWindow"/> control.
@@ -17,20 +19,27 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Emulator.ViewModels
         private string userName;
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="MainWindowViewModel"/> class for design time only.
+        /// </summary>
+        public MainWindowViewModel()
+        {
+            this.UserName = "Lionel";
+            this.NumberOfResultsFound = 20;
+        }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="MainWindowViewModel"/> class.
         /// </summary>
         /// <param name="signalsResultsRepository">The signal results repository model.</param>
         /// <param name="authenticationServices">The authentication services to use.</param>
+        [InjectionConstructor]
         public MainWindowViewModel(SignalsResultsRepository signalsResultsRepository, AuthenticationServices authenticationServices)
         {
             this.NumberOfResultsFound = 0;
             signalsResultsRepository.Results.CollectionChanged +=
                 (sender, args) => { this.NumberOfResultsFound = args.NewItems.Count; };
 
-            authenticationServices.UserAuthenticated += (sender, args) =>
-            {
-                this.UserName = args.UserInfo?.GivenName;
-            };
+            this.UserName = authenticationServices.AuthenticationResult.UserInfo.GivenName;
         }
 
         /// <summary>
@@ -38,10 +47,7 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Emulator.ViewModels
         /// </summary>
         public int NumberOfResultsFound
         {
-            get
-            {
-                return this.numberOfResultsFound;
-            }
+            get => this.numberOfResultsFound;
 
             private set
             {
@@ -55,10 +61,7 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Emulator.ViewModels
         /// </summary>
         public string UserName
         {
-            get
-            {
-                return this.userName;
-            }
+            get => this.userName;
 
             private set
             {

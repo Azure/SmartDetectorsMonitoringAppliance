@@ -1,6 +1,7 @@
 ﻿<Application x:Class="Microsoft.Azure.Monitoring.SmartSignals.Emulator.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             StartupUri="MainWindow.xaml">
     <Application.Resources>
         <Style TargetType="Grid" x:Key="WindowHeader">
             <Setter Property="Background" Value="#FF465C72"/>

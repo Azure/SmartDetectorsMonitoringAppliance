@@ -8,10 +8,8 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Emulator
 {
     using System;
     using System.Windows;
-
     using Microsoft.Azure.Monitoring.SmartSignals.Emulator.ViewModels;
-
-    using Unity.Attributes;
+    using Unity;
 
     /// <summary>
     /// Interaction logic for MainWindow.xaml
@@ -21,11 +19,10 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Emulator
         /// <summary>
         /// Initializes a new instance of the <see cref="MainWindow"/> class.
         /// </summary>
-        /// <param name="viewModel">The view model for this control.</param>
-        public MainWindow(MainWindowViewModel viewModel)
+        public MainWindow()
         {
             this.InitializeComponent();
-            this.DataContext = viewModel;
+            this.DataContext = App.Container.Resolve<MainWindowViewModel>();
         }
 
         #region Overrides of Window

@@ -19,7 +19,7 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Emulator.Models
         private const string CommonAuthority = "https://login.microsoftonline.com/common";
 
         // The resource ID used for authentication requests.
-        private const string ResourceId = "https://graph.windows.net/";
+        private const string ResourceId = "https://management.azure.com/";
 
         // The client ID for the emulator's application - this is registered with Azure, so changing it will break all
         // authentications.
@@ -31,11 +31,6 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Emulator.Models
 
         // The authentication context used to authenticate with AAD
         private readonly AuthenticationContext authenticationContext;
-
-        /// <summary>
-        /// Occurs when a property value changes.
-        /// </summary>
-        public event UserAuthenticatedEventHandler UserAuthenticated;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AuthenticationServices"/> class.
@@ -56,16 +51,19 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Emulator.Models
             }
         }
 
+        /// <summary>
+        /// Gets or sets the authentication result
+        /// </summary>
+        public AuthenticationResult AuthenticationResult { get; set; }
+
         #region Implementation of IAuthenticationServices
 
         /// <summary>
         /// Authenticates the user with their organization's AAD.
         /// </summary>
-        public async void AuthenticateUserAsync()
+        public void AuthenticateUser()
         {
-            // Get a token for the web API and in so doing present the user with the consent experience
-            AuthenticationResult ar = await this.authenticationContext.AcquireTokenAsync(ResourceId, ClientId, RedirectUri, new PlatformParameters(PromptBehavior.Auto, null));
-            this.UserAuthenticated?.Invoke(this, new UserAuthenticatedEventArgs(ar.UserInfo));
+            this.AuthenticationResult = this.authenticationContext.AcquireToken(ResourceId, ClientId, RedirectUri, PromptBehavior.Auto);
         }
 
         #endregion
