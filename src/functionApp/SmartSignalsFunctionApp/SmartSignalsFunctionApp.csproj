@@ -13,7 +13,8 @@
     <PackageReference Include="WindowsAzure.Storage" Version="8.6.0" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\analysis\SmartSignalsAnalysisShared\SmartSignalsAnalysisShared.csproj" />
+    <ProjectReference Include="..\..\analysis\SmartSignalRunnerChildProcess\SmartSignalRunnerChildProcess.csproj" />
+    <ProjectReference Include="..\..\analysis\SmartSignalsAnalysis\SmartSignalsAnalysis.csproj" />
     <ProjectReference Include="..\..\management\server\SmartSignalsManagementApi\SmartSignalsManagementApi.csproj" />
     <ProjectReference Include="..\..\scheduler\SmartSignalsScheduler\SmartSignalScheduler.csproj" />
     <ProjectReference Include="..\..\SmartSignalsShared\SmartSignalsShared.csproj" />
@@ -23,6 +24,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Update="host.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="local.settings.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

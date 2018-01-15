@@ -9,12 +9,14 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Package
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using Newtonsoft.Json;
+    using Newtonsoft.Json.Converters;
 
     /// <summary>
     /// Represents the manifest of a Smart Signal, stored in the smart signals repository
     /// </summary>
     public sealed class SmartSignalManifest
-    {
+    {    
         /// <summary>
         /// Initializes a new instance of the <see cref="SmartSignalManifest"/> class.
         /// </summary>
@@ -25,7 +27,8 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Package
         /// <param name="assemblyName">The name of the signal's assembly file.</param>
         /// <param name="className">The (fully qualified) name for the signal's class.</param>
         /// <param name="supportedResourceTypes">The types of resources that this signal supports</param>
-        public SmartSignalManifest(string id, string name, string description, Version version, string assemblyName, string className, IReadOnlyList<ResourceType> supportedResourceTypes)
+        /// <param name="supportedCadencesInMinutes">The cadences that this signal can be executed</param>
+        public SmartSignalManifest(string id, string name, string description, Version version, string assemblyName, string className, IReadOnlyList<ResourceType> supportedResourceTypes, IReadOnlyList<int> supportedCadencesInMinutes)
         {
             if (string.IsNullOrWhiteSpace(id))
             {
@@ -61,11 +64,22 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Package
             {
                 throw new ArgumentNullException(nameof(supportedResourceTypes));
             }
-            else if (supportedResourceTypes.Count == 0)
+
+            if (supportedResourceTypes.Count == 0)
             {                
                 throw new ArgumentException("A signal must support at least one resource type", nameof(supportedResourceTypes));
             }
-            
+
+            if (supportedCadencesInMinutes == null)
+            {
+                throw new ArgumentNullException(nameof(supportedCadencesInMinutes));
+            }
+
+            if (supportedCadencesInMinutes.Count == 0)
+            {
+                throw new ArgumentException("A signal must support at least one cadence", nameof(supportedCadencesInMinutes));
+            }
+
             this.Id = id;
             this.Name = name;
             this.Description = description;
@@ -73,42 +87,57 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Package
             this.AssemblyName = assemblyName;
             this.ClassName = className;
             this.SupportedResourceTypes = supportedResourceTypes;
+            this.SupportedCadencesInMinutes = supportedCadencesInMinutes;
         }
 
         /// <summary>
         /// Gets the signal's id.
         /// </summary>
+        [JsonProperty("id", Required = Required.Always)]
         public string Id { get; }
 
         /// <summary>
         /// Gets the signal's name.
         /// </summary>
+        [JsonProperty("name", Required = Required.Always)]
         public string Name { get; }
 
         /// <summary>
         /// Gets the signal's description.
         /// </summary>
+        [JsonProperty("description", Required = Required.Always)]
         public string Description { get; }
 
         /// <summary>
         /// Gets the signal's version.
         /// </summary>
+        [JsonProperty("version", Required = Required.Always)]
+        [JsonConverter(typeof(VersionConverter))]
         public Version Version { get; }
 
         /// <summary>
         /// Gets the name of the signal's assembly file.
         /// </summary>
+        [JsonProperty("assemblyName", Required = Required.Always)]
         public string AssemblyName { get; }
 
         /// <summary>
         /// Gets the (fully qualified) name for the signal's class.
         /// </summary>
+        [JsonProperty("className", Required = Required.Always)]
         public string ClassName { get; }
 
         /// <summary>
         /// Gets the types of resources that this signal supports
         /// </summary>
+        [JsonProperty("supportedResourceTypes", Required = Required.Always)]
         public IReadOnlyList<ResourceType> SupportedResourceTypes { get; }
+
+        /// <summary>
+        /// Gets the signal supported cadences in minutes.
+        /// </summary>
+        [JsonProperty("supportedCadencesInMinutes", Required = Required.Always)]
+        public IReadOnlyList<int> SupportedCadencesInMinutes { get; }
 
         #region Overrides of Object
 
@@ -134,7 +163,8 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Package
                 this.Version.Equals(other.Version) &&
                 this.AssemblyName.Equals(other.AssemblyName) &&
                 this.ClassName.Equals(other.ClassName) &&
-                this.SupportedResourceTypes.SequenceEqual(other.SupportedResourceTypes);
+                this.SupportedResourceTypes.SequenceEqual(other.SupportedResourceTypes) &&
+                this.SupportedCadencesInMinutes.SequenceEqual(other.SupportedCadencesInMinutes);
         }
 
         /// <summary>
@@ -156,6 +186,11 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Package
                     hash = (31 * hash) + resourceType.GetHashCode();
                 }
 
+                foreach (int supportedCadence in this.SupportedCadencesInMinutes)
+                {
+                    hash = (31 * hash) + supportedCadence.GetHashCode();
+                }
+
                 return hash;
             }
         }
@@ -166,7 +201,7 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Package
         /// <returns>A string that represents the current object.</returns>
         public override string ToString()
         {
-            return $"Id={this.Id}, Name={this.Name}, Description={this.Description}, Version={this.Version}, SupportedResourceTypes={string.Join("|", this.SupportedResourceTypes)}";
+            return $"Id={this.Id}, Name={this.Name}, Description={this.Description}, Version={this.Version}, SupportedResourceTypes={string.Join("|", this.SupportedResourceTypes)}, SupportedCadencesInMinutes={string.Join("|", this.SupportedCadencesInMinutes)}";
         }
 
         #endregion

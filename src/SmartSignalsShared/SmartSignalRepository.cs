@@ -16,6 +16,7 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Shared
     using Microsoft.Azure.Monitoring.SmartSignals.Shared.Exceptions;
     using Microsoft.WindowsAzure.Storage;
     using Microsoft.WindowsAzure.Storage.Blob;
+    using Newtonsoft.Json.Linq;
 
     /// <summary>
     /// Implementation of the <see cref="ISmartSignalRepository"/> interface over Azure Blob Storage.
@@ -49,9 +50,9 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Shared
             try
             {
                 var allSignalsManifests = new List<SmartSignalManifest>();
-                IEnumerable<CloudBlob> blobs = (await this.containerClient.ListBlobsAsync(string.Empty, true, BlobListingDetails.Metadata)).Cast<CloudBlob>();
+                IEnumerable<CloudBlob> blobs = (await this.containerClient.ListBlobsAsync(string.Empty, true, BlobListingDetails.Metadata)).Cast<CloudBlob>().Where(blob => blob.Metadata.ContainsKey("id"));
 
-                ILookup<string, CloudBlob> signalIdToAllVersionsLookup = blobs.ToLookup(x => x.Metadata["id"], x => x);
+                ILookup<string, CloudBlob> signalIdToAllVersionsLookup = blobs.ToLookup(blob => blob.Metadata["id"], blob => blob);
                 foreach (IGrouping<string, CloudBlob> signalVersionsGroup in signalIdToAllVersionsLookup)
                 {
                     string signalId = signalVersionsGroup.Key;
@@ -90,12 +91,13 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Shared
             try
             {
                 CloudBlob latestVersionSignalBlob = await this.GetLatestSignalBlobVersionAsync(signalId);
+                this.tracer.TraceInformation($"Last version signal BLOB is {latestVersionSignalBlob.Name}");
 
                 using (var blobMemoryStream = new MemoryStream())
                 {
                     // Download the blob to a stream and generate the signal package from it
                     await latestVersionSignalBlob.DownloadToStreamAsync(blobMemoryStream);
-                    return SmartSignalPackage.CreateFromStream(blobMemoryStream);
+                    return SmartSignalPackage.CreateFromStream(blobMemoryStream, this.tracer);
                 }
             }
             catch (StorageException e)
@@ -111,12 +113,16 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Shared
         /// <returns>A <see cref="CloudBlob"/> representing the signal package blob</returns>
         private async Task<CloudBlob> GetLatestSignalBlobVersionAsync(string signalId)
         {
-            IEnumerable<CloudBlob> blobs = (await this.containerClient.ListBlobsAsync($"{signalId}/", true, BlobListingDetails.Metadata)).Cast<CloudBlob>();
-            CloudBlob latestVersionSignalBlob = this.GetLatestVersionSignalBlob(blobs);
-
-            if (latestVersionSignalBlob == null)
+            List<CloudBlob> blobs = (await this.containerClient.ListBlobsAsync($"{signalId}/", true, BlobListingDetails.Metadata)).Cast<CloudBlob>().ToList();
+            if (!blobs.Any())
             {
                 throw new SmartSignalRepositoryException($"No Signal package exists for signal {signalId}");
+            }
+
+            CloudBlob latestVersionSignalBlob = this.GetLatestVersionSignalBlob(blobs);
+            if (latestVersionSignalBlob == null)
+            {
+                throw new SmartSignalRepositoryException($"No Signal package with a valid version exists for signal {signalId}");
             }
 
             return latestVersionSignalBlob;
@@ -129,22 +135,24 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Shared
         /// <returns>the latest version signal blob</returns>
         private CloudBlob GetLatestVersionSignalBlob(IEnumerable<CloudBlob> blobs)
         {
-            var latestVersionBlob = blobs.Aggregate((blob1, blob2) =>
-            {
-                Version.TryParse(blob1.Metadata["version"], out Version signalVersion1);
-                Version.TryParse(blob2.Metadata["version"], out Version signalVersion2);
-                if (signalVersion1 == null)
-                {
-                    return blob2;
-                }
+            var latestVersionBlob =
+                blobs.Where(blob => blob.Metadata.ContainsKey("version"))
+                    .Aggregate((blob1, blob2) =>
+                    {
+                        Version.TryParse(blob1.Metadata["version"], out Version signalVersion1);
+                        Version.TryParse(blob2.Metadata["version"], out Version signalVersion2);
+                        if (signalVersion1 == null)
+                        {
+                            return blob2;
+                        }
 
-                if (signalVersion2 == null)
-                {
-                    return blob1;
-                }
+                        if (signalVersion2 == null)
+                        {
+                            return blob1;
+                        }
 
-                return signalVersion1 > signalVersion2 ? blob1 : blob2;
-            });
+                        return signalVersion1 > signalVersion2 ? blob1 : blob2;
+                    });
 
             if (Version.TryParse(latestVersionBlob.Metadata["version"], out var _))
             {
@@ -162,9 +170,12 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Shared
         /// <returns>A <see cref="SmartSignalManifest"/> representing the signal's manifest</returns>
         private SmartSignalManifest GenerateSmartSignalManifest(IDictionary<string, string> signalMetadata)
         {
-            var supportedResourceTypes = signalMetadata["supportedresourcetypes"]
-                .Split(',')
-                .Select(resourceTypeString => (ResourceType)Enum.Parse(typeof(ResourceType), resourceTypeString, true))
+            var supportedResourceTypes = JArray.Parse(signalMetadata["supportedResourceTypes"])
+                .Select(jtoken => (ResourceType)Enum.Parse(typeof(ResourceType), jtoken.ToString(), true))
+                .ToList();
+
+            var supportedCadencesInMinutes = JArray.Parse(signalMetadata["supportedCadencesInMinutes"])
+                .Select(jToken => int.Parse(jToken.ToString()))
                 .ToList();
 
              return new SmartSignalManifest(
@@ -172,9 +183,10 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Shared
                  signalMetadata["name"],
                  signalMetadata["description"],
                  Version.Parse(signalMetadata["version"]), 
-                 signalMetadata["assemblyname"],
-                 signalMetadata["classname"],
-                 supportedResourceTypes);
+                 signalMetadata["assemblyName"],
+                 signalMetadata["className"],
+                 supportedResourceTypes,
+                 supportedCadencesInMinutes);
         }
     }
 }

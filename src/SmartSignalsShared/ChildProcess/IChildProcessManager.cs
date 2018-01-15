@@ -57,8 +57,16 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Shared.ChildProcess
         /// <typeparam name="TOutput">The child process output type</typeparam>
         /// <param name="args">The command line arguments</param>
         /// <param name="function">The function to run</param>
+        /// <param name="waitAfterFlush">Whether to wait after flushing the telemetry, to allow all traces to be sent.</param>
         /// <exception cref="ArgumentException">The wrong number of arguments was provided</exception>
         /// <returns>A <see cref="Task"/>, running the specified function and listening to the parent</returns>
-        Task RunAndListenToParentAsync<TInput, TOutput>(string[] args, Func<TInput, CancellationToken, Task<TOutput>> function) where TOutput : class;
+        Task RunAndListenToParentAsync<TInput, TOutput>(string[] args, Func<TInput, CancellationToken, Task<TOutput>> function, bool waitAfterFlush = true) where TOutput : class;
+
+        /// <summary>
+        /// Creates a tracer object for the child process, based on the command line arguments received from the parent process.
+        /// </summary>
+        /// <param name="args">The command line arguments.</param>
+        /// <returns>The tracer instance</returns>
+        ITracer CreateTracerForChildProcess(string[] args);
     }
 }

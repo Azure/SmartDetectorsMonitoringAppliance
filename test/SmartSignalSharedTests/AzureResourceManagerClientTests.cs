@@ -9,6 +9,7 @@ namespace SmartSignalSharedTests
     using Microsoft.Azure.Monitoring.SmartSignals;
     using Microsoft.Azure.Monitoring.SmartSignals.Shared;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using Moq;
 
     [TestClass]
     public class AzureResourceManagerClientTests
@@ -39,7 +40,7 @@ namespace SmartSignalSharedTests
 
         private void VerifyConversion(string testResourceId, ResourceIdentifier testResourceIdentifier)
         {
-            IAzureResourceManagerClient client = new AzureResourceManagerClient();
+            IAzureResourceManagerClient client = new AzureResourceManagerClient(new Mock<ICredentialsFactory>().Object, new Mock<ITracer>().Object);
 
             var resourceIdentifier = client.GetResourceIdentifier(testResourceId);
             var resourceId = client.GetResourceId(resourceIdentifier);

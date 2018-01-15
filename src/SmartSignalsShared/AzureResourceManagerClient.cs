@@ -10,16 +10,19 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Shared
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Runtime.CompilerServices;
     using System.Text.RegularExpressions;
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.Azure.Management.ResourceManager.Fluent;
-    using Microsoft.Azure.Management.ResourceManager.Fluent.Authentication;
     using Microsoft.Azure.Management.ResourceManager.Fluent.Models;
     using Microsoft.Azure.Monitoring.SmartSignals.Shared.Exceptions;
+    using Microsoft.Azure.Monitoring.SmartSignals.Shared.Extensions;
+    using Microsoft.Rest;
     using Microsoft.Rest.Azure;
     using Microsoft.Rest.Azure.OData;
     using Newtonsoft.Json.Linq;
+    using Polly;
 
     /// <summary>
     /// Implementation of the <see cref="IAzureResourceManagerClient"/> interface
@@ -30,6 +33,11 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Shared
         /// The maximal number of allowed resources to enumerate
         /// </summary>
         private const int MaxResourcesToEnumerate = 100;
+
+        /// <summary>
+        /// The dependency name, for telemetry
+        /// </summary>
+        private const string DependencyName = "ARM";
 
         private const string SubscriptionRegexPattern = "/subscriptions/(?<subscriptionId>[^/]*)";
         private const string ResourceGroupRegexPattern = SubscriptionRegexPattern + "/resourceGroups/(?<resourceGroupName>[^/]*)";
@@ -52,21 +60,27 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Shared
         /// </summary>
         private static readonly Dictionary<string, ResourceType> MapStringToResourceType = MapResourceTypeToString.ToDictionary(x => x.Value, x => x.Key, StringComparer.CurrentCultureIgnoreCase);
 
-        private readonly AzureCredentials credentials;
+        private readonly ServiceClientCredentials credentials;
+        private readonly ITracer tracer;
+        private readonly Policy retryPolicy;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="AzureResourceManagerClient"/> class
+        /// Initializes a new instance of the <see cref="AzureResourceManagerClient"/> class 
         /// </summary>
-        public AzureResourceManagerClient()
+        /// <param name="credentialsFactory">The credentials factory</param>
+        /// <param name="tracer">The tracer</param>
+        public AzureResourceManagerClient(ICredentialsFactory credentialsFactory, ITracer tracer)
         {
-            this.credentials = new AzureCredentialsFactory().FromMSI(AzureEnvironment.AzureGlobalCloud);
+            this.credentials = credentialsFactory.Create("https://management.azure.com/");
+            this.tracer = tracer;
+            this.retryPolicy = PolicyExtensions.CreateDefaultPolicy(this.tracer, DependencyName);
         }
 
         /// <summary>
         /// Gets the resource ID that represents the resource identified by the specified <see cref="ResourceIdentifier"/> structure.
         /// The resource ID is a string in the ARM resource ID format, for example:
         /// <example>
-        /// subscriptions/7904b7bd-5e6b-4415-99a8-355657b7da19/resourceGroups/MyResourceGroupName/providers/Microsoft.Compute/virtualMachines/MyVirtualMachineName
+        /// /subscriptions/7904b7bd-5e6b-4415-99a8-355657b7da19/resourceGroups/MyResourceGroupName/providers/Microsoft.Compute/virtualMachines/MyVirtualMachineName
         /// </example>
         /// </summary>
         /// <param name="resourceIdentifier">The <see cref="ResourceIdentifier"/> structure.</param>
@@ -113,7 +127,7 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Shared
         /// Gets the <see cref="ResourceIdentifier"/> structure that represents the resource identified by the specified resource ID.
         /// The resource ID is a string in the ARM resource ID format, for example:
         /// <example>
-        /// subscriptions/7904b7bd-5e6b-4415-99a8-355657b7da19/resourceGroups/MyResourceGroupName/providers/Microsoft.Compute/virtualMachines/MyVirtualMachineName
+        /// /subscriptions/7904b7bd-5e6b-4415-99a8-355657b7da19/resourceGroups/MyResourceGroupName/providers/Microsoft.Compute/virtualMachines/MyVirtualMachineName
         /// </example>
         /// </summary>
         /// <param name="resourceId">The resource ID</param>
@@ -162,7 +176,7 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Shared
             ResourceManagementClient resourceManagementClient = this.GetResourceManagementClient(subscriptionId);
             Task<IPage<ResourceGroupInner>> FirstPage() => resourceManagementClient.ResourceGroups.ListAsync(cancellationToken: cancellationToken);
             Task<IPage<ResourceGroupInner>> NextPage(string nextPageLink) => resourceManagementClient.ResourceGroups.ListNextAsync(nextPageLink, cancellationToken);
-            return (await this.ReadAllPages(FirstPage, NextPage, "resource groups in subscription"))
+            return (await this.RunAndTrack(() => this.ReadAllPages(FirstPage, NextPage, "resource groups in subscription")))
                 .Select(resourceGroup => this.GetResourceIdentifier(resourceGroup.Id))
                 .ToList();
         }
@@ -180,7 +194,7 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Shared
             ODataQuery<GenericResourceFilterInner> query = this.GetResourcesByTypeQuery(resourceTypes);
             Task<IPage<GenericResourceInner>> FirstPage() => resourceManagementClient.Resources.ListAsync(query, cancellationToken);
             Task<IPage<GenericResourceInner>> NextPage(string nextPageLink) => resourceManagementClient.Resources.ListNextAsync(nextPageLink, cancellationToken);
-            return (await this.ReadAllPages(FirstPage, NextPage, "virtual machines in subscription"))
+            return (await this.RunAndTrack(() => this.ReadAllPages(FirstPage, NextPage, "resources in subscription")))
                 .Select(resource => this.GetResourceIdentifier(resource.Id))
                 .ToList();
         }
@@ -199,7 +213,7 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Shared
             ODataQuery<GenericResourceFilterInner> query = this.GetResourcesByTypeQuery(resourceTypes);
             Task<IPage<GenericResourceInner>> FirstPage() => resourceManagementClient.ResourceGroups.ListResourcesAsync(resourceGroupName, query, cancellationToken);
             Task<IPage<GenericResourceInner>> NextPage(string nextPageLink) => resourceManagementClient.ResourceGroups.ListResourcesNextAsync(nextPageLink, cancellationToken);
-            return (await this.ReadAllPages(FirstPage, NextPage, "virtual machines in resource group"))
+            return (await this.RunAndTrack(() => this.ReadAllPages(FirstPage, NextPage, "resources in resource group")))
                 .Select(resource => this.GetResourceIdentifier(resource.Id))
                 .ToList();
         }
@@ -211,7 +225,7 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Shared
         /// <returns>A <see cref="Task{TResult}"/>, returning the subscription IDs</returns>
         public async Task<IList<string>> GetAllSubscriptionIdsAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
-            var subscriptions = await this.GetSubscriptionClient().Subscriptions.ListAsync(cancellationToken);
+            var subscriptions = await this.RunAndTrack(() => this.GetSubscriptionClient().Subscriptions.ListAsync(cancellationToken));
             return subscriptions.Select(subscription => subscription.SubscriptionId).ToList();
         }
 
@@ -232,21 +246,20 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Shared
             }
 
             // Extract the provider and resource type
-            string provider, type;
-            ParseResourceTypeString(resourceTypeString, out provider, out type);
+            ParseResourceTypeString(resourceTypeString, out string provider, out string type);
 
             // Get the API version that should be used for this resource type
-            string apiVersion = await GetApiVersionAsync(client, provider, type, cancellationToken);
+            string apiVersion = await this.GetApiVersionAsync(client, provider, type, cancellationToken);
 
             // Get the resource
-            var resource = await client.Resources.GetAsync(
+            var resource = await this.RunAndTrack(() => client.Resources.GetAsync(
                 resourceIdentifier.ResourceGroupName,
                 provider,
                 string.Empty,
                 type,
                 resourceIdentifier.ResourceName,
                 apiVersion,
-                cancellationToken);
+                cancellationToken));
 
             // Get the resource properties as a JObject
             return resource.Properties as JObject;
@@ -326,11 +339,11 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Shared
         /// <param name="provider">The provider name.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A <see cref="Task{TResult}"/>, returning the provider information.</returns>
-        private static async Task<ProviderInner> GetProviderInformationAsync(ResourceManagementClient client, string provider, CancellationToken cancellationToken)
+        private async Task<ProviderInner> GetProviderInformationAsync(ResourceManagementClient client, string provider, CancellationToken cancellationToken)
         {
             return ProvidersCache.GetOrAdd(
                 provider,
-                await client.Providers.GetAsync(provider, null, cancellationToken));
+                await this.RunAndTrack(() => client.Providers.GetAsync(provider, null, cancellationToken)));
         }
 
         /// <summary>
@@ -342,9 +355,9 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Shared
         /// <param name="type">The resource type.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A <see cref="Task{TResult}"/>, returning the API version.</returns>
-        private static async Task<string> GetApiVersionAsync(ResourceManagementClient client, string provider, string type, CancellationToken cancellationToken)
+        private async Task<string> GetApiVersionAsync(ResourceManagementClient client, string provider, string type, CancellationToken cancellationToken)
         {
-            ProviderInner providerInformation = await GetProviderInformationAsync(client, provider, cancellationToken);
+            ProviderInner providerInformation = await this.GetProviderInformationAsync(client, provider, cancellationToken);
             ProviderResourceType providerResourceType = providerInformation.ResourceTypes.FirstOrDefault(resourceType => resourceType.ResourceType.Equals(type, StringComparison.CurrentCultureIgnoreCase));
             if (providerResourceType == null)
             {
@@ -410,6 +423,18 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Shared
             }
 
             return items;
+        }
+
+        /// <summary>
+        /// Runs the async ARM operation, tracking dependency and applying retry policy
+        /// </summary>
+        /// <typeparam name="T">The operation result type</typeparam>
+        /// <param name="dependencyCall">The operation</param>
+        /// <param name="commandName">The command name</param>
+        /// <returns>The operation result</returns>
+        private Task<T> RunAndTrack<T>(Func<Task<T>> dependencyCall, [CallerMemberName] string commandName = null)
+        {
+            return this.retryPolicy.RunAndTrackDependencyAsync(this.tracer, DependencyName, commandName, dependencyCall);
         }
 
         /// <summary>

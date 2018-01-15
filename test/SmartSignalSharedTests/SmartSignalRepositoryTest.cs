@@ -20,6 +20,7 @@ namespace SmartSignalSharedTests
     using Microsoft.WindowsAzure.Storage;
     using Microsoft.WindowsAzure.Storage.Blob;
     using Moq;
+    using Newtonsoft.Json.Linq;
 
     [TestClass]
     public class SmartSignalRepositoryTest
@@ -138,30 +139,40 @@ namespace SmartSignalSharedTests
                 { "name", "signalName" },
                 { "version", version },
                 { "description", "signal description" },
-                { "assemblyname", "assembly" },
-                { "classname", "class" },
-                { "supportedresourcetypes", string.Join(",", supportedresourcetypes) }
+                { "assemblyName", "assembly" },
+                { "className", "class" },
+                { "supportedCadencesInMinutes", "[5,60]" },
+                { "supportedResourceTypes", $"[\"{string.Join("\",\"", supportedresourcetypes)}\"]" }
             };
         }
 
         private void AssertMetadata(SmartSignalManifest signalManifest, Dictionary<string, string> expectedMetadata)
         {
-            var supportedResourceTypes = expectedMetadata["supportedresourcetypes"]
-                .Split(',')
-                .Select(resourceTypeString => (ResourceType)Enum.Parse(typeof(ResourceType), resourceTypeString, true))
+            var supportedResourceTypes = JArray.Parse(expectedMetadata["supportedResourceTypes"])
+                .Select(jtoken => (ResourceType)Enum.Parse(typeof(ResourceType), jtoken.ToString(), true))
+                .ToList();
+
+            var supportedCadencesInMinutes = JArray.Parse(expectedMetadata["supportedCadencesInMinutes"])
+                .Select(jToken => int.Parse(jToken.ToString()))
                 .ToList();
 
             Assert.AreEqual(expectedMetadata["id"], signalManifest.Id);
             Assert.AreEqual(expectedMetadata["name"], signalManifest.Name);
             Assert.AreEqual(expectedMetadata["version"], signalManifest.Version.ToString());
             Assert.AreEqual(expectedMetadata["description"], signalManifest.Description);
-            Assert.AreEqual(expectedMetadata["assemblyname"], signalManifest.AssemblyName);
-            Assert.AreEqual(expectedMetadata["classname"], signalManifest.ClassName);
-            Assert.AreEqual(supportedResourceTypes.Count, signalManifest.SupportedResourceTypes.Count);
+            Assert.AreEqual(expectedMetadata["assemblyName"], signalManifest.AssemblyName);
+            Assert.AreEqual(expectedMetadata["className"], signalManifest.ClassName);
 
+            Assert.AreEqual(supportedResourceTypes.Count, signalManifest.SupportedResourceTypes.Count);
             foreach (var supportedResourceType in supportedResourceTypes)
             {
                 Assert.IsTrue(signalManifest.SupportedResourceTypes.Contains(supportedResourceType));
+            }
+
+            Assert.AreEqual(supportedCadencesInMinutes.Count, signalManifest.SupportedCadencesInMinutes.Count);
+            foreach (var supportedCadence in supportedCadencesInMinutes)
+            {
+                Assert.IsTrue(signalManifest.SupportedCadencesInMinutes.Contains(supportedCadence));
             }
         }
     }

@@ -19,11 +19,13 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.ManagementApi.AIClient
         /// <summary>
         /// Gets all the custom events from Application Insights for the configured application by the given filtering.
         /// </summary>
+        /// <param name="eventName">The custom event name.</param>
         /// <param name="startTime">(optional) filtering by start time.</param>
         /// <param name="endTime">(optional) filtering by end time.</param>
         /// <param name="cancellationToken">(optional) The cancellation token.</param>
         /// <returns>The Application Insights events.</returns>
         Task<IEnumerable<ApplicationInsightsEvent>> GetCustomEventsAsync(
+            string eventName,
             DateTime? startTime = null,
             DateTime? endTime = null,
             CancellationToken cancellationToken = default(CancellationToken));

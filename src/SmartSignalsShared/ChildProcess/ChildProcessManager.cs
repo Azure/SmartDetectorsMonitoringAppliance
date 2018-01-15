@@ -12,9 +12,11 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Shared.ChildProcess
     using System.IO;
     using System.IO.Pipes;
     using System.Linq;
+    using System.Runtime.Serialization.Formatters;
     using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
+    using Microsoft.Azure.Monitoring.SmartSignals.Shared.Trace;
     using Newtonsoft.Json;
 
     /// <summary>
@@ -31,7 +33,11 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Shared.ChildProcess
 
         private const string CancellationString = "CANCEL";
 
-        private static readonly JsonSerializerSettings Settings = new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.All };
+        private static readonly JsonSerializerSettings Settings = new JsonSerializerSettings()
+        {
+            TypeNameHandling = TypeNameHandling.Auto,
+            TypeNameAssemblyFormat = FormatterAssemblyStyle.Full
+        };
 
         private readonly ITracer tracer;
 
@@ -62,6 +68,17 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Shared.ChildProcess
         #endregion
 
         #region Public methods
+
+        /// <summary>
+        /// Creates a tracer object for the child process, based on the command line arguments received from the parent process.
+        /// </summary>
+        /// <param name="args">The command line arguments.</param>
+        /// <returns>The tracer instance</returns>
+        public ITracer CreateTracerForChildProcess(string[] args)
+        {
+            string sessionId = args.Length >= 3 ? args[2] : null;
+            return TracerFactory.Create(sessionId, null, true);
+        }
 
         /// <summary>
         /// Runs a child process, synchronously, with the specified input. 
@@ -122,7 +139,7 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Shared.ChildProcess
                     using (AnonymousPipeServerStream pipeChildToParent = new AnonymousPipeServerStream(PipeDirection.In, HandleInheritability.Inheritable))
                     {
                         // Write the output to the pipe
-                        await WriteToStream(input, pipeParentToChild, cancellationToken);
+                        await this.WriteToStream(input, pipeParentToChild, cancellationToken);
 
                         // Get pipe handles
                         string pipeParentToChildHandle = pipeParentToChild.GetClientHandleAsString();
@@ -133,9 +150,10 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Shared.ChildProcess
                         {
                             StartInfo = new ProcessStartInfo(exePath)
                             {
-                                Arguments = pipeParentToChildHandle + " " + pipeChildToParentHandle,
+                                Arguments = pipeParentToChildHandle + " " + pipeChildToParentHandle + " " + this.tracer.SessionId,
                                 CreateNoWindow = true,
-                                UseShellExecute = false
+                                UseShellExecute = false,
+                                RedirectStandardError = true
                             }
                         };
 
@@ -152,14 +170,20 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Shared.ChildProcess
 
                         // Wait for the child process to finish
                         bool wasChildTerminatedByParent = false;
+                        MemoryStream outputStream = new MemoryStream();
                         using (cancellationToken.Register(() => { this.CancelChildProcess(childProcess, pipeParentToChild, ref wasChildTerminatedByParent); }))
                         {
+                            // Read the child's output
+                            // We do not use the cancellation token here - we want to wait for the child to gracefully cancel
+                            await pipeChildToParent.CopyToAsync(outputStream, 2048, default(CancellationToken));
+
+                            // Ensure the child existed
                             childProcess.WaitForExit();
                         }
 
                         this.CurrentStatus = RunChildProcessStatus.Finalizing;
                         sw.Stop();
-                        this.tracer.TraceInformation($"Process {exePath} completed, duration {sw.ElapsedMilliseconds / 1000}s");
+                        this.tracer.TraceInformation($"Process {exePath} completed, duration {sw.ElapsedMilliseconds / 1000}s, exit code {childProcess.ExitCode}");
 
                         // If the child process was terminated by the parent, throw appropriate exception
                         if (wasChildTerminatedByParent)
@@ -167,9 +191,10 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Shared.ChildProcess
                             throw new ChildProcessTerminatedByParentException();
                         }
 
-                        // Read the process result from pipe
-                        // This read ignores the cancellation token, since we want to get the real process output, regardless of cancellation
-                        ChildProcessResult<TOutput> processResult = await ReadFromStream<ChildProcessResult<TOutput>>(pipeChildToParent, default(CancellationToken));
+                        // Read the process result from the stream
+                        // This read ignores the cancellation token - if there was a cancellation, the process output will contain the appropriate exception
+                        outputStream.Seek(0, SeekOrigin.Begin);
+                        ChildProcessResult<TOutput> processResult = await this.ReadFromStream<ChildProcessResult<TOutput>>(outputStream, default(CancellationToken));
 
                         // Return process result
                         if (processResult == null)
@@ -178,7 +203,7 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Shared.ChildProcess
                         }
                         else if (processResult.Exception != null)
                         {
-                            throw new ChildProcessException("The child process threw an exception", processResult.Exception);
+                            throw new ChildProcessException("The child process threw an exception: " + processResult.Exception.Message, processResult.Exception);
                         }
 
                         this.CurrentStatus = RunChildProcessStatus.Completed;
@@ -203,14 +228,15 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Shared.ChildProcess
         /// <typeparam name="TOutput">The child process output type</typeparam>
         /// <param name="args">The command line arguments</param>
         /// <param name="function">The function to run</param>
+        /// <param name="waitAfterFlush">Whether to wait after flushing the telemetry, to allow all traces to be sent.</param>
         /// <exception cref="ArgumentException">The wrong number of arguments was provided</exception>
         /// <returns>A <see cref="Task"/>, running the specified function and listening to the parent</returns>
-        public async Task RunAndListenToParentAsync<TInput, TOutput>(string[] args, Func<TInput, CancellationToken, Task<TOutput>> function) where TOutput : class
+        public async Task RunAndListenToParentAsync<TInput, TOutput>(string[] args, Func<TInput, CancellationToken, Task<TOutput>> function, bool waitAfterFlush = true) where TOutput : class
         {
             // Verify arguments
-            if (args == null || args.Length != 2)
+            if (args == null || args.Length < 2)
             {
-                throw new ArgumentException($"Invalid number of arguments - expected 2, actual {args?.Length}");
+                throw new ArgumentException($"Invalid number of arguments - expected at least 2, actual {args?.Length}");
             }
 
             string pipeParentToChildHandle = args[0];
@@ -222,51 +248,53 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Shared.ChildProcess
                 {
                     CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
 
-                    // Read the input
-                    var input = await ReadFromStream<TInput>(pipe, cancellationTokenSource.Token);
+                    try
+                    {
+                        // Read the input
+                        var input = await this.ReadFromStream<TInput>(pipe, cancellationTokenSource.Token);
 
-                    // Start listening to parent process - run the listeners in separate tasks
-                    // We should not wait on these tasks, since:
-                    // * If any of these tasks fail, it will requests cancellation, and it is enough to wait on the main method and
-                    //   let it handle cancellation gracefully
-                    // * The cancellation listener is blocking, and cannot be canceled (anonymous pipes do not support cancellation).
-                    //   Waiting on it will block the current thread.
+                        // Start listening to parent process - run the listeners in separate tasks
+                        // We should not wait on these tasks, since:
+                        // * If any of these tasks fail, it will requests cancellation, and it is enough to wait on the main method and
+                        //   let it handle cancellation gracefully
+                        // * The cancellation listener is blocking, and cannot be canceled (anonymous pipes do not support cancellation).
+                        //   Waiting on it will block the current thread.
 #pragma warning disable 4014
-                    this.ParentLiveListenerAsync(pipe, cancellationTokenSource);
-                    this.ParentCancellationListenerAsync(pipe, cancellationTokenSource);
+                        this.ParentLiveListenerAsync(pipe, cancellationTokenSource);
+                        this.ParentCancellationListenerAsync(pipe, cancellationTokenSource);
 #pragma warning restore 4014
 
-                    // Run the main function
-                    TOutput output = await function(input, cancellationTokenSource.Token);
+                        // Run the main function
+                        TOutput output = await function(input, cancellationTokenSource.Token);
 
-                    // Cancel the token to stop the listener tasks
-                    cancellationTokenSource.Cancel();
-
-                    // Write the output back to the parent
-                    await WriteChildProcessResult(pipeChildToParentHandle, output, null);
+                        // Write the output back to the parent
+                        await this.WriteChildProcessResult(pipeChildToParentHandle, output, null);
+                    }
+                    catch (Exception e)
+                    {
+                        await this.HandleChildProcessException<TOutput>(e, pipeChildToParentHandle);
+                    }
+                    finally
+                    {
+                        // Cancel the token to stop the listener tasks
+                        cancellationTokenSource.Cancel();
+                    }
                 }
             }
             catch (Exception e)
             {
-                // Flatten an AggregateException to make it easier to process, and simplify if possible
-                if (e is AggregateException aggregateException)
-                {
-                    aggregateException = aggregateException.Flatten();
-                    if (aggregateException.InnerExceptions.Count == 1)
-                    {
-                        e = aggregateException.InnerExceptions.Single();
-                    }
-                }
-
-                // Trace and write the result
-                this.tracer.TraceError($"Exception in child process: {e?.Message}");
-                this.tracer.TraceVerbose($"Child process exception details: {e}");
-                await WriteChildProcessResult(pipeChildToParentHandle, (TOutput)null, e);
+                await this.HandleChildProcessException<TOutput>(e, pipeChildToParentHandle);
             }
             finally
             {
                 this.tracer.Flush();
+                if (waitAfterFlush)
+                { 
+                    await Task.Delay(1000 * 5);
+                }
             }
+
+            Environment.Exit(0);
         }
 
         #endregion
@@ -281,12 +309,13 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Shared.ChildProcess
         /// <param name="stream">The stream to write to</param>
         /// <param name="cancellationToken">The cancellation token</param>
         /// <returns>A <see cref="Task"/>, writing the object to the stream</returns>
-        private static async Task WriteToStream<T>(T obj, Stream stream, CancellationToken cancellationToken)
+        private async Task WriteToStream<T>(T obj, Stream stream, CancellationToken cancellationToken)
         {
             // Note: we cannot use JsonWriter here, since it does not support async write with cancellation
 
             // Serialize the data
             byte[] inputBytes = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(obj, Settings));
+            this.tracer.TraceInformation($"Writing {inputBytes.Length} bytes to stream");
 
             // Write the number of bytes
             await stream.WriteAsync(BitConverter.GetBytes(inputBytes.Length), 0, sizeof(int), cancellationToken);
@@ -303,7 +332,7 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Shared.ChildProcess
         /// <param name="stream">The stream to read from</param>
         /// <param name="cancellationToken">The cancellation token</param>
         /// <returns>A <see cref="Task{TResult}"/>, reading the object from the stream and returning it</returns>
-        private static async Task<T> ReadFromStream<T>(Stream stream, CancellationToken cancellationToken)
+        private async Task<T> ReadFromStream<T>(Stream stream, CancellationToken cancellationToken)
         {
             // Note: we cannot use JsonReader here, since it does not support async read with cancellation
 
@@ -312,6 +341,7 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Shared.ChildProcess
             await stream.ReadAsync(buffer, 0, buffer.Length, cancellationToken);
             int inputLength = BitConverter.ToInt32(buffer, 0);
             buffer = new byte[inputLength];
+            this.tracer.TraceInformation($"Reading {inputLength} bytes from stream");
 
             // Read the bytes
             int read = 0;
@@ -322,7 +352,9 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Shared.ChildProcess
             }
 
             // Deserialize the data
-            return JsonConvert.DeserializeObject<T>(Encoding.UTF8.GetString(buffer), Settings);
+            string bufferAsString = Encoding.UTF8.GetString(buffer);
+            this.tracer.TraceVerbose($"Read object of type {typeof(T)} from stream: {bufferAsString}");
+            return JsonConvert.DeserializeObject<T>(bufferAsString, Settings);
         }
 
         /// <summary>
@@ -333,7 +365,7 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Shared.ChildProcess
         /// <param name="output">The output</param>
         /// <param name="e">The exception</param>
         /// <returns>A <see cref="Task"/>, writing the result to the pipe</returns>
-        private static async Task WriteChildProcessResult<TOutput>(string pipeChildToParentHandle, TOutput output, Exception e)
+        private async Task WriteChildProcessResult<TOutput>(string pipeChildToParentHandle, TOutput output, Exception e)
         {
             ChildProcessResult<TOutput> result = new ChildProcessResult<TOutput>(output, e);
             using (PipeStream pipe = new AnonymousPipeClientStream(PipeDirection.Out, pipeChildToParentHandle))
@@ -341,9 +373,34 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Shared.ChildProcess
                 if (pipe.IsConnected)
                 {
                     // When writing process output, we do not support cancellation since we always want to write the output to the stream
-                    await WriteToStream(result, pipe, default(CancellationToken));
+                    await this.WriteToStream(result, pipe, default(CancellationToken));
                 }
             }
+        }
+
+        /// <summary>
+        /// Handles an exception thrown in the child process.
+        /// </summary>
+        /// <typeparam name="TOutput">The child process output type.</typeparam>
+        /// <param name="e">The exception thrown.</param>
+        /// <param name="pipeChildToParentHandle">The pipe handle, used to send the result to the parent process.</param>
+        /// <returns>A <see cref="Task"/>, running the current operation.</returns>
+        private async Task HandleChildProcessException<TOutput>(Exception e, string pipeChildToParentHandle) where TOutput : class
+        {
+            // Flatten an AggregateException to make it easier to process, and simplify if possible
+            if (e is AggregateException aggregateException)
+            {
+                aggregateException = aggregateException.Flatten();
+                if (aggregateException.InnerExceptions.Count == 1)
+                {
+                    e = aggregateException.InnerExceptions.Single();
+                }
+            }
+
+            // Trace and write the result
+            this.tracer.TraceError($"Exception in child process: {e?.Message}");
+            this.tracer.TraceVerbose($"Child process exception details: {e}");
+            await this.WriteChildProcessResult(pipeChildToParentHandle, (TOutput)null, e);
         }
 
         /// <summary>
@@ -356,10 +413,22 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Shared.ChildProcess
         {
             try
             {
+                int notConnectedCount = 0;
                 while (!cancellationTokenSource.IsCancellationRequested)
                 {
-                    // As long as the pipe is connected, the parent process is alive
+                    // If the pipe is not connected, it means that either:
+                    // 1. The parent process is dead.
+                    // 2. The child process completed, but we have a race condition
+                    //    and the cancellation request was not received yet.
+                    // If the parent process is dead, we need to kill the child process.
+                    // We check that the pipe is not connected for a long period of time,
+                    // to avoid killing the process unnecessarily in case of a race condition.
                     if (!pipe.IsConnected)
+                    {
+                        notConnectedCount++;
+                    }
+
+                    if (notConnectedCount >= 20)
                     {
                         // Parent process terminated - terminate the child
                         string message = "Terminating the child process because the parent process was terminated";
@@ -400,7 +469,7 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Shared.ChildProcess
                 while (!cancellationTokenSource.IsCancellationRequested)
                 {
                     // Read bytes from the pipe
-                    string s = await ReadFromStream<string>(pipe, cancellationTokenSource.Token);
+                    string s = await this.ReadFromStream<string>(pipe, cancellationTokenSource.Token);
 
                     // Check if we got a cancellation instruction
                     if (s == CancellationString)
@@ -443,7 +512,7 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Shared.ChildProcess
         private void CancelChildProcess(Process childProcess, PipeStream pipe, ref bool wasChildTerminatedByParent)
         {
             // Send a cancellation instruction down the pipe
-            WriteToStream(CancellationString, pipe, default(CancellationToken)).Wait();
+            this.WriteToStream(CancellationString, pipe, default(CancellationToken)).Wait();
             this.tracer.TraceInformation($"Cancellation instruction sent to child process, process ID {childProcess.Id}");
 
             // Give the process some time to gracefully exit (by default 4 minutes) - if it doesn't exit, kill it

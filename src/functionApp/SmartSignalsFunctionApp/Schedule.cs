@@ -10,17 +10,13 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.FunctionApp
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.Azure.Monitoring.SmartSignals;
-    using Microsoft.Azure.Monitoring.SmartSignals.Analysis;
     using Microsoft.Azure.Monitoring.SmartSignals.Scheduler;
     using Microsoft.Azure.Monitoring.SmartSignals.Scheduler.Publisher;
     using Microsoft.Azure.Monitoring.SmartSignals.Scheduler.SignalRunTracker;
     using Microsoft.Azure.Monitoring.SmartSignals.Shared;
     using Microsoft.Azure.Monitoring.SmartSignals.Shared.AlertRules;
-    using Microsoft.Azure.Monitoring.SmartSignals.Shared.AzureStorage;
     using Microsoft.Azure.WebJobs;
     using Microsoft.Azure.WebJobs.Host;
-    using Microsoft.WindowsAzure.Storage;
-    using Microsoft.WindowsAzure.Storage.Table;
     using Unity;
 
     /// <summary>
@@ -39,13 +35,12 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.FunctionApp
             System.Net.ServicePointManager.DefaultConnectionLimit = 100;
             ThreadPool.SetMinThreads(100, 100);
 
-            Container = new UnityContainer()
-                .RegisterType<ICloudStorageProviderFactory, CloudStorageProviderFactory>()
+            Container = DependenciesInjector.GetContainer()
                 .RegisterType<IAlertRuleStore, AlertRuleStore>()
                 .RegisterType<ISignalRunsTracker, SignalRunsTracker>()
                 .RegisterType<IAnalysisExecuter, AnalysisExecuter>()
                 .RegisterType<ISmartSignalResultPublisher, SmartSignalResultPublisher>()
-                .RegisterType<IAzureResourceManagerClient, AzureResourceManagerClient>();
+                .RegisterType<IEmailSender, EmailSender>();
         }
 
         /// <summary>

@@ -42,7 +42,7 @@ namespace ManagementApiTests.EndpointsLogic
             this.smartSignalsRepository.Setup(repository => repository.ReadAllSignalsManifestsAsync())
                                        .ReturnsAsync(() => new List<SmartSignalManifest>()
                 {
-                    new SmartSignalManifest("someId", "someName", "someDescription", Version.Parse("1.0"), "someAssemblyName", "someClassName", new List<ResourceType> { ResourceType.ResourceGroup })
+                    new SmartSignalManifest("someId", "someName", "someDescription", Version.Parse("1.0"), "someAssemblyName", "someClassName", new List<ResourceType> { ResourceType.ResourceGroup }, new List<int> { 60 })
                 });
 
             ListSmartSignalsResponse response = await this.signalsLogic.GetAllSmartSignalsAsync();

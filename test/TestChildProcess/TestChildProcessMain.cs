@@ -11,6 +11,7 @@ namespace TestChildProcess
     using System.Threading.Tasks;
     using Microsoft.Azure.Monitoring.SmartSignals;
     using Microsoft.Azure.Monitoring.SmartSignals.Shared.ChildProcess;
+    using Microsoft.Azure.Monitoring.SmartSignals.Shared.Exceptions;
     using Moq;
 
     public static class TestChildProcessMain
@@ -19,7 +20,7 @@ namespace TestChildProcess
         {
             var tracerMock = new Mock<ITracer>();
             IChildProcessManager childProcessManager = new ChildProcessManager(tracerMock.Object);
-            childProcessManager.RunAndListenToParentAsync<TestChildProcessInput, TestChildProcessOutput>(args, MainTask).Wait();
+            childProcessManager.RunAndListenToParentAsync<TestChildProcessInput, TestChildProcessOutput>(args, MainTask, false).Wait();
         }
 
         private static async Task<TestChildProcessOutput> MainTask(TestChildProcessInput input, CancellationToken cancellationToken)
@@ -42,12 +43,16 @@ namespace TestChildProcess
                 case RunMode.Null:
                     return null;
                 case RunMode.Exception:
-                    throw new DivideByZeroException();
+                    throw new SmartSignalRepositoryException("abc");
                 case RunMode.Cancellation:
                     await Task.Delay(int.MaxValue, cancellationToken);
                     break;
                 case RunMode.Stuck:
                     await Task.Delay(int.MaxValue, default(CancellationToken));
+                    break;
+                case RunMode.Crash:
+                    await Task.Delay(100, default(CancellationToken));
+                    Environment.FailFast(string.Empty);
                     break;
             }
 

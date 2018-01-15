@@ -9,42 +9,64 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Analysis
     using System;
     using System.Collections.Generic;
     using System.Data;
+    using System.Diagnostics;
     using System.Linq;
     using System.Net.Http;
     using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.Azure.Monitoring.SmartSignals.Shared;
+    using Microsoft.Azure.Monitoring.SmartSignals.Shared.Extensions;
     using Microsoft.Azure.Monitoring.SmartSignals.Shared.HttpClient;
+    using Microsoft.Rest;
     using Newtonsoft.Json.Linq;
+    using Polly;
 
     /// <summary>
     /// A base class for implementations of <see cref="ITelemetryDataClient"/>.
     /// </summary>
     public abstract class TelemetryDataClientBase : ITelemetryDataClient
     {
+        private readonly ITracer tracer;
         private readonly IHttpClientWrapper httpClientWrapper;
+        private readonly ServiceClientCredentials credentials;
+        private readonly Uri queryUri;
+        private readonly string dependencyName;
+        private readonly Policy retryPolicy;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TelemetryDataClientBase"/> class.
         /// </summary>
+        /// <param name="tracer">The tracer</param>
         /// <param name="httpClientWrapper">The HTTP client wrapper</param>
-        /// <param name="queryTimeout">The query timeout.</param>
-        protected TelemetryDataClientBase(IHttpClientWrapper httpClientWrapper, TimeSpan queryTimeout)
+        /// <param name="credentialsFactory">The credentials factory</param>
+        /// <param name="queryUri">The query URI</param>
+        /// <param name="queryTimeout">The query timeout</param>
+        /// <param name="dependencyName">The dependency name (for telemetry)</param>
+        protected TelemetryDataClientBase(ITracer tracer, IHttpClientWrapper httpClientWrapper, ICredentialsFactory credentialsFactory, Uri queryUri, TimeSpan queryTimeout, string dependencyName)
         {
+            this.tracer = Diagnostics.EnsureArgumentNotNull(() => tracer);
             this.httpClientWrapper = Diagnostics.EnsureArgumentNotNull(() => httpClientWrapper);
             this.Timeout = Diagnostics.EnsureArgumentInRange(() => queryTimeout, TimeSpan.FromMinutes(0), TimeSpan.FromHours(2));
+            this.queryUri = queryUri;
+            this.dependencyName = dependencyName;
+            this.retryPolicy = PolicyExtensions.CreateDefaultPolicy(this.tracer, dependencyName);
+
+            // Extract the host part of the URI as the credentials resource
+            UriBuilder builder = new UriBuilder()
+            {
+                Scheme = this.queryUri.Scheme,
+                Host = this.queryUri.Host
+            };
+
+            Diagnostics.EnsureArgumentNotNull(() => credentialsFactory);
+            this.credentials = credentialsFactory.Create(builder.Uri.ToString());
         }
 
         /// <summary>
         /// Gets or sets the query timeout.
         /// </summary>
         public TimeSpan Timeout { get; set; }
-
-        /// <summary>
-        /// Gets the URI for REST API calls
-        /// </summary>
-        protected abstract Uri QueryUri { get; }
 
         /// <summary>
         /// Run a query against the relevant telemetry database. 
@@ -54,7 +76,10 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Analysis
         /// <returns>A <see cref="Task{TResult}"/>, returning the query result.</returns>
         public async Task<IList<DataTable>> RunQueryAsync(string query, CancellationToken cancellationToken)
         {
-            HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, this.QueryUri);
+            this.tracer.TraceInformation($"Running query with an instance of {this.GetType().Name}");
+            this.tracer.TraceVerbose($"Query: {query}");
+
+            HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, this.queryUri);
 
             // Prepare request headers
             request.Headers.Add("Prefer", $"wait={this.Timeout.TotalSeconds}");
@@ -67,9 +92,18 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Analysis
 
             this.UpdateRequestContent(requestContent);
             request.Content = new StringContent(requestContent.ToString(), Encoding.UTF8, "application/json");
-            
+
+            // Set the credentials
+            if (this.credentials != null)
+            {
+                await this.credentials.ProcessHttpRequestAsync(request, cancellationToken);
+            }
+
             // Send request and get the response as JSON
-            HttpResponseMessage response = await this.httpClientWrapper.SendAsync(request, cancellationToken);
+            Stopwatch queryStopwatch = Stopwatch.StartNew();
+            HttpResponseMessage response = await this.retryPolicy.RunAndTrackDependencyAsync(this.tracer, this.dependencyName, "RunQuery", () => this.httpClientWrapper.SendAsync(request, cancellationToken));
+            queryStopwatch.Stop();
+            this.tracer.TraceInformation($"Query completed in {queryStopwatch.ElapsedMilliseconds}ms");
             string responseContent = await response.Content.ReadAsStringAsync();
             JObject responseObject = JObject.Parse(responseContent);
 
@@ -77,11 +111,14 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Analysis
             {
                 // Parse the error and throw
                 JObject errorObject = (JObject)responseObject["error"];
+                this.tracer.TraceInformation($"Query returned an error: {errorObject}");
                 throw new TelemetryDataClientException(errorObject, query);
             }
             else
             {
-                return this.ReadTables(responseObject);
+                IList<DataTable> dataTables = this.ReadTables(responseObject);
+                this.tracer.TraceInformation($"Query returned {dataTables.Count} table{(dataTables.Count == 1 ? "" : "s")}, containing [{string.Join(",", dataTables.Select(dataTable => dataTable.Rows.Count.ToString()))}] rows");
+                return dataTables;
             }
         }
 

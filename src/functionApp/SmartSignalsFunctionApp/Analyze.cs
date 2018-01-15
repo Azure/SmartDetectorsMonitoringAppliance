@@ -35,8 +35,12 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.FunctionApp
         /// </summary>
         static Analyze()
         {
-            Container = AnalysisDependenciesInjector.GetContainer()
-                .WithSmartSignalRunner<SmartSignalRunnerInChildProcess>();
+            // To increase Azure calls performance we increase default connection limit (default is 2) and ThreadPool minimum threads to allow more open connections
+            ServicePointManager.DefaultConnectionLimit = 100;
+            ThreadPool.SetMinThreads(100, 100);
+
+            Container = DependenciesInjector.GetContainer()
+                    .InjectAnalysisDependencies(withChildProcessRunner: true);
         }
 
         /// <summary>
@@ -49,7 +53,7 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.FunctionApp
         /// <returns>The analysis response.</returns>
         [FunctionName("Analyze")]
         public static async Task<HttpResponseMessage> RunAsync(
-            [HttpTrigger(AuthorizationLevel.Function, "post", Route = "signals")]HttpRequestMessage request,
+            [HttpTrigger(AuthorizationLevel.Anonymous, "post")]HttpRequestMessage request,
             TraceWriter log,
             ExecutionContext context,
             CancellationToken cancellationToken)
@@ -72,6 +76,7 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.FunctionApp
                     // Process the request
                     ISmartSignalRunner runner = childContainer.Resolve<ISmartSignalRunner>();
                     List<SmartSignalResultItemPresentation> resultPresentations = await runner.RunAsync(smartSignalRequest, cancellationToken);
+                    tracer.TraceInformation($"Analyze completed, returning {resultPresentations.Count} results");
 
                     // Return the generated presentations
                     return request.CreateResponse(HttpStatusCode.OK, resultPresentations);

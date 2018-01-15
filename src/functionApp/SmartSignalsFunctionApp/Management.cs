@@ -7,15 +7,17 @@
 namespace Microsoft.Azure.Monitoring.SmartSignals.FunctionApp
 {
     using System;
+    using System.Collections.Specialized;
     using System.Net;
     using System.Net.Http;
     using System.Threading;
     using System.Threading.Tasks;
-    using Microsoft.Azure.Monitoring.SmartSignals.Analysis;
     using Microsoft.Azure.Monitoring.SmartSignals.ManagementApi;
     using Microsoft.Azure.Monitoring.SmartSignals.ManagementApi.EndpointsLogic;
     using Microsoft.Azure.Monitoring.SmartSignals.ManagementApi.Models;
     using Microsoft.Azure.Monitoring.SmartSignals.ManagementApi.Responses;
+    using Microsoft.Azure.Monitoring.SmartSignals.Shared;
+    using Microsoft.Azure.Monitoring.SmartSignals.Shared.AzureStorage;
     using Microsoft.Azure.WebJobs;
     using Microsoft.Azure.WebJobs.Extensions.Http;
     using Microsoft.Azure.WebJobs.Host;
@@ -38,8 +40,11 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.FunctionApp
             ThreadPool.SetMinThreads(100, 100);
 
             Container = new UnityContainer()
+                .RegisterType<ICloudStorageProviderFactory, CloudStorageProviderFactory>()
+                .RegisterType<ISmartSignalRepository, SmartSignalRepository>()
                 .RegisterType<ISignalApi, SignalApi>()
-                .RegisterType<IAlertRuleApi, AlertRuleApi>();
+                .RegisterType<IAlertRuleApi, AlertRuleApi>()
+                .RegisterType<ISignalResultApi, SignalResultApi>();
         }
 
         /// <summary>
@@ -49,12 +54,47 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.FunctionApp
         /// <param name="log">The logger.</param>
         /// <returns>The signal results.</returns>
         [FunctionName("signalResult")]
-        public static async Task<HttpResponseMessage> GetAllSmartSignalResults([HttpTrigger(AuthorizationLevel.Function, "get")]HttpRequestMessage req, TraceWriter log)
+        public static async Task<HttpResponseMessage> GetAllSmartSignalResults([HttpTrigger(AuthorizationLevel.Anonymous, "get")]HttpRequestMessage req, TraceWriter log)
         {
-            // TODO - complete the logic
-            await Task.CompletedTask;
+            using (IUnityContainer childContainer = Container.CreateChildContainer().WithTracer(log, true))
+            {
+                ITracer tracer = childContainer.Resolve<ITracer>();
+                var signalResultApi = childContainer.Resolve<SignalResultApi>();
 
-            return req.CreateResponse();
+                try
+                {
+                    // Extract the url parameters
+                    NameValueCollection queryParameters = req.RequestUri.ParseQueryString();
+
+                    DateTime startTime;
+                    if (!DateTime.TryParse(queryParameters.Get("startTime"), out startTime))
+                    {
+                        return req.CreateErrorResponse(HttpStatusCode.BadRequest, "Given start time is not in valid format");
+                    }
+
+                    DateTime endTime;
+                    if (!DateTime.TryParse(queryParameters.Get("endTime"), out endTime))
+                    {
+                        return req.CreateErrorResponse(HttpStatusCode.BadRequest, "Given end time is not in valid format");
+                    }
+
+                    ListSmartSignalsResultsResponse smartSignalsResultsResponse = await signalResultApi.GetAllSmartSignalResultsAsync(startTime, endTime, CancellationToken.None);
+
+                    return req.CreateResponse(smartSignalsResultsResponse);
+                }
+                catch (SmartSignalsManagementApiException e)
+                {
+                    tracer.TraceError($"Failed to get smart signals results due to managed exception: {e}");
+
+                    return req.CreateErrorResponse(e.StatusCode, "Failed to get smart signals", e);
+                }
+                catch (Exception e)
+                {
+                    tracer.TraceError($"Failed to get smart signals results due to un-managed exception: {e}");
+
+                    return req.CreateErrorResponse(HttpStatusCode.InternalServerError, "Failed to get smart signals", e);
+                }
+            }
         }
 
         /// <summary>

@@ -4,8 +4,10 @@
     <TargetFramework>net461</TargetFramework>
 	<StyleCopTreatErrorsAsWarnings>False</StyleCopTreatErrorsAsWarnings>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <AssemblyName>SmartSignalsAnalysis</AssemblyName>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="Polly" Version="5.7.0" />
     <PackageReference Include="StyleCop.MSBuild" Version="5.0.0" />
     <PackageReference Include="Unity" Version="5.3.2" />
   </ItemGroup>
@@ -20,6 +22,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\SDK\SmartSignalsPackage\SmartSignalsPackage.csproj" />
     <ProjectReference Include="..\..\SDK\SmartSignalsSDK\SmartSignalsSDK.csproj" />
     <ProjectReference Include="..\..\SmartSignalsShared\SmartSignalsShared.csproj" />
   </ItemGroup>
