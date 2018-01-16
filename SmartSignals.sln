@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26730.12
+VisualStudioVersion = 15.0.27130.2010
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{114AB921-11E0-472F-B30D-73850169098D}"
 EndProject
@@ -90,6 +90,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BuildTask", "build\buildTas
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SmartSignalsPackage", "src\SDK\SmartSignalsPackage\SmartSignalsPackage.csproj", "{5DD1F9BF-48E5-46AD-BF7E-36C9602E0D15}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common", "src\Common\Common.csproj", "{47068C5A-9C65-41F6-B8D4-318C11FB9F42}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -176,6 +178,10 @@ Global
 		{5DD1F9BF-48E5-46AD-BF7E-36C9602E0D15}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5DD1F9BF-48E5-46AD-BF7E-36C9602E0D15}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5DD1F9BF-48E5-46AD-BF7E-36C9602E0D15}.Release|Any CPU.Build.0 = Release|Any CPU
+		{47068C5A-9C65-41F6-B8D4-318C11FB9F42}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{47068C5A-9C65-41F6-B8D4-318C11FB9F42}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{47068C5A-9C65-41F6-B8D4-318C11FB9F42}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{47068C5A-9C65-41F6-B8D4-318C11FB9F42}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -216,6 +222,7 @@ Global
 		{04E5BEF7-CA4E-44C4-85C8-B9F7477FD205} = {114AB921-11E0-472F-B30D-73850169098D}
 		{AFECE1D3-21A5-4850-8536-7903901685A8} = {BFAA36B9-8426-4C44-AD67-BB905F6472E3}
 		{5DD1F9BF-48E5-46AD-BF7E-36C9602E0D15} = {8EB82F44-C8BC-49D7-8E86-285C7C846211}
+		{47068C5A-9C65-41F6-B8D4-318C11FB9F42} = {114AB921-11E0-472F-B30D-73850169098D}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {07D047F4-DA5D-48AA-82EA-55DA2452F3C3}
