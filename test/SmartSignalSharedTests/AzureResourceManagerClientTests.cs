@@ -7,6 +7,7 @@
 namespace SmartSignalSharedTests
 {
     using Microsoft.Azure.Monitoring.SmartSignals;
+    using Microsoft.Azure.Monitoring.SmartSignals.Common;
     using Microsoft.Azure.Monitoring.SmartSignals.Shared;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Moq;

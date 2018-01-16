@@ -6,6 +6,7 @@
 
 namespace Microsoft.Azure.Monitoring.SmartSignals.Shared
 {
+    using Microsoft.Azure.Monitoring.SmartSignals.Common;
     using Microsoft.Azure.Monitoring.SmartSignals.Shared.AzureStorage;
     using Microsoft.Azure.Monitoring.SmartSignals.Shared.ChildProcess;
     using Microsoft.Azure.Monitoring.SmartSignals.Shared.HttpClient;

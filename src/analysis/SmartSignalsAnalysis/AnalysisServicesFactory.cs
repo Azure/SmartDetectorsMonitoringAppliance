@@ -11,6 +11,7 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Analysis
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
+    using Microsoft.Azure.Monitoring.SmartSignals.Common;
     using Microsoft.Azure.Monitoring.SmartSignals.Shared;
     using Microsoft.Azure.Monitoring.SmartSignals.Shared.HttpClient;
 

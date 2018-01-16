@@ -4,7 +4,7 @@
 // </copyright>
 //-----------------------------------------------------------------------
 
-namespace Microsoft.Azure.Monitoring.SmartSignals.Shared.Extensions
+namespace Microsoft.Azure.Monitoring.SmartSignals.Common.Extensions
 {
     using System;
     using System.Collections.Generic;

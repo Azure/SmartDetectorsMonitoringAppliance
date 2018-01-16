@@ -10,7 +10,7 @@
              d:DataContext="{d:DesignInstance Type=viewModels:SignalsControlViewModel, IsDesignTimeCreatable=True}"
              d:DesignHeight="600" d:DesignWidth="1500">
     <UserControl.Resources>
-        <converters:EmptyListToBooleanConverter x:Key="CountToBooleanConverter"/>
+        <converters:EmptyListToBooleanConverter x:Key="EmptyListToBooleanConverter"/>
     </UserControl.Resources>
     <Grid Background="#FFECF0F1" >
         <Grid.ColumnDefinitions>
@@ -33,22 +33,22 @@
                 <ComboBox Margin="0,0,0,20" HorizontalAlignment="Left" MinWidth="200"
                           ItemsSource="{Binding Path=ReadSubscriptionsTask.Result}"  SelectedItem="{Binding Path=SelectedSubscription}"
                           DisplayMemberPath="DisplayName" 
-                          IsEnabled="{Binding Path=ReadSubscriptionsTask.Result, Converter={StaticResource CountToBooleanConverter}}" />
+                          IsEnabled="{Binding Path=ReadSubscriptionsTask.Result, Converter={StaticResource EmptyListToBooleanConverter}}" />
 
                 <TextBlock Style="{StaticResource ControlText}" Text="Resource group" Margin="0,0,0,10"/>
                 <ComboBox Margin="0,0,558,20" HorizontalAlignment="Right" MinWidth="125"
                           ItemsSource="{Binding Path=ReadResourceGroupsTask.Result}" SelectedItem="{Binding Path=SelectedResourceGroup}" 
-                          IsEnabled="{Binding Path=ReadResourceGroupsTask.Result, Converter={StaticResource CountToBooleanConverter}}" />
+                          IsEnabled="{Binding Path=ReadResourceGroupsTask.Result, Converter={StaticResource EmptyListToBooleanConverter}}" />
 
                 <TextBlock Style="{StaticResource ControlText}" Text="Resource type" Margin="0,0,0,10"/>
                 <ComboBox Margin="0,0,0,20" HorizontalAlignment="Left" MinWidth="130"
                           ItemsSource="{Binding Path=ReadResourceTypesTask.Result}" SelectedItem="{Binding Path=SelectedResourceType}"
-                          IsEnabled="{Binding Path=ReadResourceTypesTask.Result, Converter={StaticResource CountToBooleanConverter}}" />
+                          IsEnabled="{Binding Path=ReadResourceTypesTask.Result, Converter={StaticResource EmptyListToBooleanConverter}}" />
 
                 <TextBlock Style="{StaticResource ControlText}" Text="Resource" Margin="0,0,0,10"/>
                 <ComboBox Margin="0,0,0,20" HorizontalAlignment="Left" MinWidth="130"
                           ItemsSource="{Binding Path=ReadResourcesTask.Result}" SelectedItem="{Binding Path=SelectedResource}"
-                          IsEnabled="{Binding Path=ReadResourcesTask.Result, Converter={StaticResource CountToBooleanConverter}}" />
+                          IsEnabled="{Binding Path=ReadResourcesTask.Result, Converter={StaticResource EmptyListToBooleanConverter}}" />
 
                 <Separator Margin="0,0,0,20"/>
 

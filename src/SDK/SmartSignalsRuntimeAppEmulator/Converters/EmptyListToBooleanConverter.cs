@@ -34,7 +34,7 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Emulator.Converters
         {
             var enumerable = value as IEnumerable;
 
-            return enumerable != null && !this.IsEmpty(enumerable);
+            return enumerable != null && this.IsNotEmpty(enumerable);
         }
 
         /// <summary>
@@ -53,11 +53,11 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Emulator.Converters
         }
 
         /// <summary>
-        /// Checks whether an <see cref="IEnumerable"/> collection is empty.
+        /// Checks whether an <see cref="IEnumerable"/> collection is not empty.
         /// </summary>
         /// <param name="enumerable">An enumerable collection</param>
-        /// <returns>True if empty, otherwise false</returns>
-        private bool IsEmpty(IEnumerable enumerable)
+        /// <returns>True if not empty, otherwise false</returns>
+        private bool IsNotEmpty(IEnumerable enumerable)
         {
             return enumerable.Cast<object>().Any();
         }

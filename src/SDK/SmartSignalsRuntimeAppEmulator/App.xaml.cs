@@ -6,7 +6,10 @@
 
 namespace Microsoft.Azure.Monitoring.SmartSignals.Emulator
 {
+    using System;
     using System.Windows;
+    using Microsoft.Azure.Monitoring.SmartSignals.Common;
+    using Microsoft.Azure.Monitoring.SmartSignals.Common.Trace;
     using Microsoft.Azure.Monitoring.SmartSignals.Emulator.Models;
     using Unity;
 
@@ -28,13 +31,17 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Emulator
         {
             // Create a Unity container with all the required models and view models registrations
             Container = new UnityContainer();
-            Container
-                .RegisterInstance(new SignalsResultsRepository())
-                .RegisterInstance(new AuthenticationServices())
-                .RegisterInstance(new AzureResourceManagerClient());
 
             // Authenticate the user to AAD
-            Container.Resolve<AuthenticationServices>().AuthenticateUser();
+            var authenticationServices = new AuthenticationServices();
+            authenticationServices.AuthenticateUser();
+            var credentialsFactory = new ActiveDirectoryCredentialsFactory(authenticationServices.AuthenticationResult.AccessToken);
+            var tracer = new ConsoleTracer(string.Empty);
+
+            Container
+                .RegisterInstance(new SignalsResultsRepository())
+                .RegisterInstance(authenticationServices)
+                .RegisterInstance(new AzureResourceManagerClient(credentialsFactory, tracer));
         }
     }
 }

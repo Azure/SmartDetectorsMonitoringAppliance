@@ -13,6 +13,7 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Shared
     using System.Threading;
     using System.Threading.Tasks;
     using System.Web;
+    using Microsoft.Azure.Monitoring.SmartSignals.Common.Extensions;
     using Microsoft.Azure.Monitoring.SmartSignals.Shared.Extensions;
     using Microsoft.Azure.Monitoring.SmartSignals.Shared.HttpClient;
     using Microsoft.Rest;

@@ -11,6 +11,7 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Shared.Trace
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel;
     using Microsoft.Azure.Monitoring.SmartSignals;
+    using Microsoft.Azure.Monitoring.SmartSignals.Common.Trace;
     using Microsoft.Azure.WebJobs.Host;
 
     /// <summary>

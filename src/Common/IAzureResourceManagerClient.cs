@@ -4,11 +4,12 @@
 // </copyright>
 //-----------------------------------------------------------------------
 
-namespace Microsoft.Azure.Monitoring.SmartSignals.Shared
+namespace Microsoft.Azure.Monitoring.SmartSignals.Common
 {
     using System.Collections.Generic;
     using System.Threading;
     using System.Threading.Tasks;
+    using Microsoft.Azure.Management.ResourceManager.Fluent.Models;
     using Newtonsoft.Json.Linq;
 
     /// <summary>
@@ -90,6 +91,13 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Shared
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A <see cref="Task{TResult}"/>, returning the app ID.</returns>
         Task<string> GetApplicationInsightsAppIdAsync(ResourceIdentifier resourceIdentifier, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Enumerates all the accessible subscriptions.
+        /// </summary>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A <see cref="Task{TResult}"/>, returning the subscription IDs</returns>
+        Task<IList<SubscriptionInner>> GetAllSubscriptionsAsync(CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Returns the log analytics workspace ID.

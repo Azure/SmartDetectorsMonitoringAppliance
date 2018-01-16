@@ -10,6 +10,7 @@ namespace SmartSignalsAnalysisSharedTests
     using System.Collections.Generic;
     using System.Linq;
     using Microsoft.Azure.Monitoring.SmartSignals;
+    using Microsoft.Azure.Monitoring.SmartSignals.Common;
     using Microsoft.Azure.Monitoring.SmartSignals.Shared;
     using Microsoft.Azure.Monitoring.SmartSignals.Shared.Exceptions;
     using Microsoft.Azure.Monitoring.SmartSignals.Shared.SignalResultPresentation;
