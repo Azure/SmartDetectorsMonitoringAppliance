@@ -32,7 +32,7 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Shared
         /// <summary>
         /// The token expiry time, in minutes
         /// </summary>
-        private const int TokenExpiryInMinutes = 30;
+        private const int TokenExpiryInMinutes = 10;
 
         private static readonly SemaphoreSlim TokensCacheSemaphore = new SemaphoreSlim(1, 1);
         private static readonly MemoryCache TokensCache = new MemoryCache("MsiTokens");
