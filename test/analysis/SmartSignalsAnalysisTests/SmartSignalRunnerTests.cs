@@ -17,7 +17,7 @@ namespace SmartSignalsAnalysisSharedTests
     using Microsoft.Azure.Monitoring.SmartSignals.Infrastructure.Exceptions;
     using Microsoft.Azure.Monitoring.SmartSignals.Infrastructure.SignalResultPresentation;
     using Microsoft.Azure.Monitoring.SmartSignals.Package;
-    using Microsoft.Azure.Monitoring.SmartSignals.Shared;
+    using Microsoft.Azure.Monitoring.SmartSignals.Shared.AzureResourceManagerClient;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Moq;
 

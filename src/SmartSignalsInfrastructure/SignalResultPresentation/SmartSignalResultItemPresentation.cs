@@ -12,7 +12,7 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Infrastructure.SignalResultPre
     using System.Reflection;
     using Microsoft.Azure.Monitoring.SmartSignals.Infrastructure.Exceptions;
     using Microsoft.Azure.Monitoring.SmartSignals.Infrastructure.Extensions;
-    using Microsoft.Azure.Monitoring.SmartSignals.Shared;
+    using Microsoft.Azure.Monitoring.SmartSignals.Shared.AzureResourceManagerClient;
     using Newtonsoft.Json;
     using SmartFormat;
 

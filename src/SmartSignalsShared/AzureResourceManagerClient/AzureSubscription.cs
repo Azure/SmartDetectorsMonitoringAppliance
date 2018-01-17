@@ -4,7 +4,7 @@
 // </copyright>
 //-----------------------------------------------------------------------
 
-namespace Microsoft.Azure.Monitoring.SmartSignals.Emulator.Models
+namespace Microsoft.Azure.Monitoring.SmartSignals.Shared.AzureResourceManagerClient
 {
     /// <summary>
     /// Represents an Azure subscription.

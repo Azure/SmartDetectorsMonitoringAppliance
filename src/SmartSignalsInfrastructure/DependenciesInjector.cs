@@ -11,6 +11,7 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Infrastructure
     using Microsoft.Azure.Monitoring.SmartSignals.Infrastructure.HttpClient;
     using Microsoft.Azure.Monitoring.SmartSignals.Infrastructure.Trace;
     using Microsoft.Azure.Monitoring.SmartSignals.Shared;
+    using Microsoft.Azure.Monitoring.SmartSignals.Shared.AzureResourceManagerClient;
     using Microsoft.Azure.WebJobs.Host;
     using Unity;
 

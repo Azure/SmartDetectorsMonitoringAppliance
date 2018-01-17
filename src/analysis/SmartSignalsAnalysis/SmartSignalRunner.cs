@@ -16,7 +16,7 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Analysis
     using Microsoft.Azure.Monitoring.SmartSignals.Infrastructure.Exceptions;
     using Microsoft.Azure.Monitoring.SmartSignals.Infrastructure.SignalResultPresentation;
     using Microsoft.Azure.Monitoring.SmartSignals.Package;
-    using Microsoft.Azure.Monitoring.SmartSignals.Shared;
+    using Microsoft.Azure.Monitoring.SmartSignals.Shared.AzureResourceManagerClient;
 
     /// <summary>
     /// An implementation of <see cref="ISmartSignalRunner"/>, that loads the signal and runs it

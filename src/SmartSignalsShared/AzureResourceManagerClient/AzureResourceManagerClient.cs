@@ -4,7 +4,7 @@
 // </copyright>
 //-----------------------------------------------------------------------
 
-namespace Microsoft.Azure.Monitoring.SmartSignals.Shared
+namespace Microsoft.Azure.Monitoring.SmartSignals.Shared.AzureResourceManagerClient
 {
     using System;
     using System.Collections.Concurrent;
@@ -234,9 +234,10 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Shared
         /// </summary>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A <see cref="Task{TResult}"/>, returning the subscription IDs</returns>
-        public async Task<IList<SubscriptionInner>> GetAllSubscriptionsAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<IList<AzureSubscription>> GetAllSubscriptionsAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
-            return (await this.GetSubscriptionClient().Subscriptions.ListAsync(cancellationToken)).ToList();
+            return (await this.GetSubscriptionClient().Subscriptions.ListAsync(cancellationToken))
+                .Select(sub => new AzureSubscription(sub.SubscriptionId, sub.DisplayName)).ToList();
         }
 
         /// <summary>

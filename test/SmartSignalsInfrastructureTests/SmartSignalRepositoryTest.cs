@@ -16,7 +16,6 @@ namespace SmartSignalsInfrastructureTests
     using Microsoft.Azure.Monitoring.SmartSignals.Infrastructure.AzureStorage;
     using Microsoft.Azure.Monitoring.SmartSignals.Infrastructure.Exceptions;
     using Microsoft.Azure.Monitoring.SmartSignals.Package;
-    using Microsoft.Azure.Monitoring.SmartSignals.Shared;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Microsoft.WindowsAzure.Storage;
     using Microsoft.WindowsAzure.Storage.Blob;

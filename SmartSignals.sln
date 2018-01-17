@@ -92,6 +92,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SmartSignalsPackage", "src\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SmartSignalsShared", "src\SmartSignalsShared\SmartSignalsShared.csproj", "{47068C5A-9C65-41F6-B8D4-318C11FB9F42}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SmartSignalsSharedTests", "test\SmartSignalsSharedTests\SmartSignalsSharedTests.csproj", "{2EEC00B8-9B32-486A-B4EB-781492FFCD8D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -182,6 +184,10 @@ Global
 		{47068C5A-9C65-41F6-B8D4-318C11FB9F42}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{47068C5A-9C65-41F6-B8D4-318C11FB9F42}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{47068C5A-9C65-41F6-B8D4-318C11FB9F42}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2EEC00B8-9B32-486A-B4EB-781492FFCD8D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2EEC00B8-9B32-486A-B4EB-781492FFCD8D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2EEC00B8-9B32-486A-B4EB-781492FFCD8D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2EEC00B8-9B32-486A-B4EB-781492FFCD8D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -223,6 +229,7 @@ Global
 		{AFECE1D3-21A5-4850-8536-7903901685A8} = {BFAA36B9-8426-4C44-AD67-BB905F6472E3}
 		{5DD1F9BF-48E5-46AD-BF7E-36C9602E0D15} = {8EB82F44-C8BC-49D7-8E86-285C7C846211}
 		{47068C5A-9C65-41F6-B8D4-318C11FB9F42} = {114AB921-11E0-472F-B30D-73850169098D}
+		{2EEC00B8-9B32-486A-B4EB-781492FFCD8D} = {9E37DBE4-994A-47EC-892E-92743D64769E}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {07D047F4-DA5D-48AA-82EA-55DA2452F3C3}

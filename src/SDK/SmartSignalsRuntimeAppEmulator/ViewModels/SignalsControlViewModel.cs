@@ -13,9 +13,7 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Emulator.ViewModels
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.Azure.Monitoring.SmartSignals.Emulator.Controls;
-    using Microsoft.Azure.Monitoring.SmartSignals.Emulator.Models;
-    using Microsoft.Azure.Monitoring.SmartSignals.Shared;
-    using Microsoft.IdentityModel.Clients.ActiveDirectory;
+    using Microsoft.Azure.Monitoring.SmartSignals.Shared.AzureResourceManagerClient;
     using Unity.Attributes;
 
     /// <summary>
@@ -232,8 +230,7 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Emulator.ViewModels
         /// <returns>A task that returns the subscriptions</returns>
         private async Task<ObservableCollection<AzureSubscription>> GetSubscriptionsAsync()
         {
-            var subscriptionsList = (await this.azureResourceManagerClient.GetAllSubscriptionsAsync()).ToList()
-                .Select(sub => new AzureSubscription(sub.SubscriptionId, sub.DisplayName)).ToList();
+            var subscriptionsList = (await this.azureResourceManagerClient.GetAllSubscriptionsAsync()).ToList();
 
             return new ObservableCollection<AzureSubscription>(subscriptionsList);
         }

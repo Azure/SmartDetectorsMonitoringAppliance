@@ -115,7 +115,6 @@
     <Compile Include="Models\ActiveDirectoryCredentials.cs" />
     <Compile Include="Models\ActiveDirectoryCredentialsFactory.cs" />
     <Compile Include="Models\AuthenticationServices.cs" />
-    <Compile Include="Models\AzureSubscription.cs" />
     <Compile Include="ObservableTask.cs" />
     <Compile Include="ViewModels\CommandHandler.cs" />
     <Compile Include="ViewModels\MainWindowViewModel.cs" />

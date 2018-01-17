@@ -4,7 +4,7 @@
 // </copyright>
 //-----------------------------------------------------------------------
 
-namespace Microsoft.Azure.Monitoring.SmartSignals.Shared
+namespace Microsoft.Azure.Monitoring.SmartSignals.Shared.AzureResourceManagerClient
 {
     using System.Collections.Generic;
     using System.Threading;
@@ -97,7 +97,7 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Shared
         /// </summary>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A <see cref="Task{TResult}"/>, returning the subscription IDs</returns>
-        Task<IList<SubscriptionInner>> GetAllSubscriptionsAsync(CancellationToken cancellationToken = default(CancellationToken));
+        Task<IList<AzureSubscription>> GetAllSubscriptionsAsync(CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Returns the log analytics workspace ID.
