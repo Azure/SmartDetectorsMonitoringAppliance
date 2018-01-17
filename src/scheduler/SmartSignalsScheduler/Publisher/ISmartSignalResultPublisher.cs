@@ -7,6 +7,7 @@
 namespace Microsoft.Azure.Monitoring.SmartSignals.Scheduler.Publisher
 {
     using System.Collections.Generic;
+    using System.Threading.Tasks;
     using Microsoft.Azure.Monitoring.SmartSignals.Shared.SignalResultPresentation;
 
     /// <summary>
@@ -19,6 +20,7 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Scheduler.Publisher
         /// </summary>
         /// <param name="signalId">The signal ID</param>
         /// <param name="smartSignalResultItems">The Smart Signal result items to publish</param>
-        void PublishSignalResultItems(string signalId, IList<SmartSignalResultItemPresentation> smartSignalResultItems);
+        /// <returns>A <see cref="Task"/> object, running the current operation</returns>
+        Task PublishSignalResultItemsAsync(string signalId, IList<SmartSignalResultItemPresentation> smartSignalResultItems);
     }
 }

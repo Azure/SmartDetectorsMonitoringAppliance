@@ -47,5 +47,18 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Shared.AzureStorage
 
             return blobs;
         }
+
+        /// <summary>
+        /// Uploads a string of text to a blob. If the blob already exists, it will be overwritten.
+        /// </summary>
+        /// <param name="blobName">The blob name.</param>
+        /// <param name="blobContent">The content to upload.</param>
+        /// <returns>A <see cref="ICloudBlob"/> reference to the blob in the container</returns>
+        public async Task<ICloudBlob> UploadBlobAsync(string blobName, string blobContent)
+        {
+            CloudBlockBlob blob = this.cloudBlobContainer.GetBlockBlobReference(blobName);
+            await blob.UploadTextAsync(blobContent);
+            return blob;
+        }
     }
 }

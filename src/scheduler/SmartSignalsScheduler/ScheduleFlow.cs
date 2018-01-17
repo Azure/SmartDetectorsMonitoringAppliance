@@ -77,7 +77,7 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Scheduler
                 {
                     IList<SmartSignalResultItemPresentation> signalResultItems = await this.analysisExecuter.ExecuteSignalAsync(signalExecution, resourceIds);
                     this.tracer.TraceInformation($"Found {signalResultItems.Count} signal result items");
-                    this.smartSignalResultPublisher.PublishSignalResultItems(signalExecution.SignalId, signalResultItems);
+                    await this.smartSignalResultPublisher.PublishSignalResultItemsAsync(signalExecution.SignalId, signalResultItems);
                     await this.signalRunsTracker.UpdateSignalRunAsync(signalExecution);
 
                     // We send the mail after we mark the run as successful so if it will fail then the signal will not run again
