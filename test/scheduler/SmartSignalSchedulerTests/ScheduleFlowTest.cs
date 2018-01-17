@@ -87,7 +87,7 @@ namespace SmartSignalSchedulerTests
             this.alertRuleStoreMock.Verify(m => m.GetAllAlertRulesAsync(), Times.Once);
             
             // Verify that these were called only once since the first signal execution throwed exception
-            this.publisherMock.Verify(m => m.PublishSignalResultItems("s2", It.Is<IList<SmartSignalResultItemPresentation>>(items => items.Count == 1 && items.First().Title == ResultItemTitle)), Times.Once);
+            this.publisherMock.Verify(m => m.PublishSignalResultItemsAsync("s2", It.Is<IList<SmartSignalResultItemPresentation>>(items => items.Count == 1 && items.First().Title == ResultItemTitle)), Times.Once);
             this.emailSenderMock.Verify(m => m.SendSignalResultEmailAsync("s2", It.Is<IList<SmartSignalResultItemPresentation>>(items => items.Count == 1 && items.First().Title == ResultItemTitle)), Times.Once);
             this.signalRunTrackerMock.Verify(m => m.UpdateSignalRunAsync(It.IsAny<SignalExecutionInfo>()), Times.Once());
             this.signalRunTrackerMock.Verify(m => m.UpdateSignalRunAsync(signalExecution2));
@@ -123,7 +123,7 @@ namespace SmartSignalSchedulerTests
 
             // Verify result items were published and signal tracker was updated for each signal execution
             this.alertRuleStoreMock.Verify(m => m.GetAllAlertRulesAsync(), Times.Once);
-            this.publisherMock.Verify(m => m.PublishSignalResultItems(It.IsAny<string>(), It.IsAny<IList<SmartSignalResultItemPresentation>>()), Times.Exactly(2));
+            this.publisherMock.Verify(m => m.PublishSignalResultItemsAsync(It.IsAny<string>(), It.IsAny<IList<SmartSignalResultItemPresentation>>()), Times.Exactly(2));
             this.emailSenderMock.Verify(m => m.SendSignalResultEmailAsync(It.IsAny<string>(), It.IsAny<IList<SmartSignalResultItemPresentation>>()), Times.Exactly(2));
             this.signalRunTrackerMock.Verify(m => m.UpdateSignalRunAsync(It.IsAny<SignalExecutionInfo>()), Times.Exactly(2));
         }

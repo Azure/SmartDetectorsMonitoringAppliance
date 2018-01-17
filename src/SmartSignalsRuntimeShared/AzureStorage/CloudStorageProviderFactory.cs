@@ -29,6 +29,20 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.RuntimeShared.AzureStorage
         }
 
         /// <summary>
+        /// Creates an Azure Storage container client for the signal result storage container
+        /// </summary>
+        /// <returns>A <see cref="ICloudBlobContainerWrapper"/> for the Smart Signal result storage container</returns>
+        public ICloudBlobContainerWrapper GetSmartSignalResultStorageContainer()
+        {
+            var storageConnectionString = ConfigurationReader.ReadConfigConnectionString("StorageConnectionString", true);
+            CloudBlobClient cloudBlobClient = CloudStorageAccount.Parse(storageConnectionString).CreateCloudBlobClient();
+            CloudBlobContainer cloudBlobContainer = cloudBlobClient.GetContainerReference("signalresult");
+            cloudBlobContainer.CreateIfNotExists();
+
+            return new CloudBlobContainerWrapper(cloudBlobContainer);
+        }
+
+        /// <summary>
         /// Creates an Azure Storage container client for the global Smart Signal storage container
         /// </summary>
         /// <returns>A <see cref="ICloudBlobContainerWrapper"/> for the Smart Signal storage container</returns>

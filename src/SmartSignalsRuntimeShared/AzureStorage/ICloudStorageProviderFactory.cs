@@ -18,6 +18,12 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.RuntimeShared.AzureStorage
         ICloudTableClientWrapper GetSmartSignalStorageTableClient();
 
         /// <summary>
+        /// Creates an Azure Storage container client for the signal result storage container
+        /// </summary>
+        /// <returns>A <see cref="ICloudBlobContainerWrapper"/> for the Smart Signal result storage container</returns>
+        ICloudBlobContainerWrapper GetSmartSignalResultStorageContainer();
+
+        /// <summary>
         /// Creates an Azure Storage container client for the global Smart Signal storage container
         /// </summary>
         /// <returns>A <see cref="ICloudBlobContainerWrapper"/> for the Smart Signal storage container</returns>
