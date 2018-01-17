@@ -9,7 +9,6 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Shared.AzureResourceManagerCli
     using System.Collections.Generic;
     using System.Threading;
     using System.Threading.Tasks;
-    using Microsoft.Azure.Management.ResourceManager.Fluent.Models;
     using Newtonsoft.Json.Linq;
 
     /// <summary>

@@ -9,7 +9,6 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Emulator
     using System;
     using System.Windows;
     using Microsoft.Azure.Monitoring.SmartSignals.Emulator.Models;
-    using Microsoft.Azure.Monitoring.SmartSignals.Shared;
     using Microsoft.Azure.Monitoring.SmartSignals.Shared.AzureResourceManagerClient;
     using Microsoft.Azure.Monitoring.SmartSignals.Shared.Trace;
     using Unity;
