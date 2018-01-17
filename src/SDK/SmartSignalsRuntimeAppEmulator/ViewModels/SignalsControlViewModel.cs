@@ -12,9 +12,9 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Emulator.ViewModels
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
-    using Microsoft.Azure.Monitoring.SmartSignals.Common;
     using Microsoft.Azure.Monitoring.SmartSignals.Emulator.Controls;
     using Microsoft.Azure.Monitoring.SmartSignals.Emulator.Models;
+    using Microsoft.Azure.Monitoring.SmartSignals.Shared;
     using Microsoft.IdentityModel.Clients.ActiveDirectory;
     using Unity.Attributes;
 

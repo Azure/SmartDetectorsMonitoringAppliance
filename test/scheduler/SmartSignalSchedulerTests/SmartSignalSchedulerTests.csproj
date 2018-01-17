@@ -19,6 +19,6 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\src\scheduler\SmartSignalsScheduler\SmartSignalScheduler.csproj" />
-    <ProjectReference Include="..\..\..\src\SmartSignalsShared\SmartSignalsShared.csproj" />
+    <ProjectReference Include="..\..\..\src\SmartSignalsInfrastructure\SmartSignalsInfrastructure.csproj" />
   </ItemGroup>
 </Project>

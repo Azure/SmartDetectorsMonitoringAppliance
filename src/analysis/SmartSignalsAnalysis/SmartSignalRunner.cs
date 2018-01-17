@@ -12,11 +12,11 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Analysis
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.Azure.Monitoring.SmartSignals;
-    using Microsoft.Azure.Monitoring.SmartSignals.Common;
+    using Microsoft.Azure.Monitoring.SmartSignals.Infrastructure;
+    using Microsoft.Azure.Monitoring.SmartSignals.Infrastructure.Exceptions;
+    using Microsoft.Azure.Monitoring.SmartSignals.Infrastructure.SignalResultPresentation;
     using Microsoft.Azure.Monitoring.SmartSignals.Package;
     using Microsoft.Azure.Monitoring.SmartSignals.Shared;
-    using Microsoft.Azure.Monitoring.SmartSignals.Shared.Exceptions;
-    using Microsoft.Azure.Monitoring.SmartSignals.Shared.SignalResultPresentation;
 
     /// <summary>
     /// An implementation of <see cref="ISmartSignalRunner"/>, that loads the signal and runs it

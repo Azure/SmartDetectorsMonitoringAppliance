@@ -11,9 +11,10 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Analysis
     using System.IO;
     using System.Threading;
     using System.Threading.Tasks;
+    using Microsoft.Azure.Monitoring.SmartSignals.Infrastructure;
+    using Microsoft.Azure.Monitoring.SmartSignals.Infrastructure.ChildProcess;
+    using Microsoft.Azure.Monitoring.SmartSignals.Infrastructure.SignalResultPresentation;
     using Microsoft.Azure.Monitoring.SmartSignals.Shared;
-    using Microsoft.Azure.Monitoring.SmartSignals.Shared.ChildProcess;
-    using Microsoft.Azure.Monitoring.SmartSignals.Shared.SignalResultPresentation;
 
     /// <summary>
     /// An implementation of <see cref="ISmartSignalRunner"/>, that runs the analysis in a separate process

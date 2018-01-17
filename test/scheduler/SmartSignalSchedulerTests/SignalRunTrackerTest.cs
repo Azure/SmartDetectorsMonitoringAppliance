@@ -11,10 +11,10 @@ namespace SmartSignalSchedulerTests
     using System.Linq;
     using System.Threading.Tasks;
     using Microsoft.Azure.Monitoring.SmartSignals;
+    using Microsoft.Azure.Monitoring.SmartSignals.Infrastructure.AlertRules;
+    using Microsoft.Azure.Monitoring.SmartSignals.Infrastructure.AzureStorage;
     using Microsoft.Azure.Monitoring.SmartSignals.Scheduler;
     using Microsoft.Azure.Monitoring.SmartSignals.Scheduler.SignalRunTracker;
-    using Microsoft.Azure.Monitoring.SmartSignals.Shared.AlertRules;
-    using Microsoft.Azure.Monitoring.SmartSignals.Shared.AzureStorage;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Microsoft.WindowsAzure.Storage.Table;
     using Moq;

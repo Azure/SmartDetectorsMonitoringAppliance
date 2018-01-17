@@ -11,6 +11,6 @@
     <PackageReference Include="Unity" Version="5.3.2" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\src\SmartSignalsShared\SmartSignalsShared.csproj" />
+    <ProjectReference Include="..\..\src\SmartSignalsInfrastructure\SmartSignalsInfrastructure.csproj" />
   </ItemGroup>
 </Project>

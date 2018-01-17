@@ -10,8 +10,8 @@ namespace TestChildProcess
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.Azure.Monitoring.SmartSignals;
-    using Microsoft.Azure.Monitoring.SmartSignals.Shared.ChildProcess;
-    using Microsoft.Azure.Monitoring.SmartSignals.Shared.Exceptions;
+    using Microsoft.Azure.Monitoring.SmartSignals.Infrastructure.ChildProcess;
+    using Microsoft.Azure.Monitoring.SmartSignals.Infrastructure.Exceptions;
     using Moq;
 
     public static class TestChildProcessMain

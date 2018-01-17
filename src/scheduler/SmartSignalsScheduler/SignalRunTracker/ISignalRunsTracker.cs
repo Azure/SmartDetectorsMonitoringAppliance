@@ -8,8 +8,8 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Scheduler.SignalRunTracker
 {
     using System.Collections.Generic;
     using System.Threading.Tasks;
+    using Microsoft.Azure.Monitoring.SmartSignals.Infrastructure.AlertRules;
     using Microsoft.Azure.Monitoring.SmartSignals.Scheduler;
-    using Microsoft.Azure.Monitoring.SmartSignals.Shared.AlertRules;
 
     /// <summary>
     /// Tracking the signal job runs - Responsible to determine whether the signal job should run.

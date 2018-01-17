@@ -12,10 +12,11 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.ManagementApi.AIClient
     using System.Net.Http.Headers;
     using System.Threading;
     using System.Threading.Tasks;
+    using Microsoft.Azure.Monitoring.SmartSignals.Infrastructure;
+    using Microsoft.Azure.Monitoring.SmartSignals.Infrastructure.HttpClient;
     using Newtonsoft.Json;
     using Newtonsoft.Json.Linq;
     using Shared;
-    using Shared.HttpClient;
 
     /// <summary>
     /// This class is responsible for querying Application Insights via Rest API

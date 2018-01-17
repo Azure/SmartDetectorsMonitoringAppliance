@@ -14,7 +14,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\SDK\SmartSignalsSDK\SmartSignalsSDK.csproj" />
-    <ProjectReference Include="..\..\..\SmartSignalsShared\SmartSignalsShared.csproj" />
+    <ProjectReference Include="..\..\..\SmartSignalsInfrastructure\SmartSignalsInfrastructure.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Microsoft.CSharp" />

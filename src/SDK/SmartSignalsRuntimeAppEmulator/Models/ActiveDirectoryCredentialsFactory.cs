@@ -6,7 +6,7 @@
 
 namespace Microsoft.Azure.Monitoring.SmartSignals.Emulator.Models
 {
-    using Microsoft.Azure.Monitoring.SmartSignals.Common;
+    using Microsoft.Azure.Monitoring.SmartSignals.Shared;
     using Microsoft.Rest;
 
     /// <summary>

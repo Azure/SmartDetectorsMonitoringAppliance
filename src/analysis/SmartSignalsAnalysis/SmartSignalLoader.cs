@@ -9,6 +9,7 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Analysis
     using System;
     using System.Collections.Generic;
     using System.Reflection;
+    using Microsoft.Azure.Monitoring.SmartSignals.Infrastructure;
     using Microsoft.Azure.Monitoring.SmartSignals.Package;
     using Microsoft.Azure.Monitoring.SmartSignals.Shared;
 
