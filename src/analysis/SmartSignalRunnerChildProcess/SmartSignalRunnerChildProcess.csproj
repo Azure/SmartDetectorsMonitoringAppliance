@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net461</TargetFramework>
+    <StyleCopTreatErrorsAsWarnings>False</StyleCopTreatErrorsAsWarnings>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="StyleCop.MSBuild" Version="5.0.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\SmartSignalsRuntimeShared\SmartSignalsRuntimeShared.csproj" />
+    <ProjectReference Include="..\SmartSignalsAnalysis\SmartSignalsAnalysis.csproj" />
+  </ItemGroup>
+</Project>

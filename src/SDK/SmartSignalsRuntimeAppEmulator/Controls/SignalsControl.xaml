@@ -1,0 +1,67 @@
+﻿<UserControl x:Class="Microsoft.Azure.Monitoring.SmartSignals.Emulator.Controls.SignalsControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:Microsoft.Azure.Monitoring.SmartSignals.Emulator.Controls"
+             xmlns:viewModels="clr-namespace:Microsoft.Azure.Monitoring.SmartSignals.Emulator.ViewModels"
+             xmlns:converters="clr-namespace:Microsoft.Azure.Monitoring.SmartSignals.Emulator.Converters"
+             mc:Ignorable="d" 
+             d:DataContext="{d:DesignInstance Type=viewModels:SignalsControlViewModel, IsDesignTimeCreatable=True}"
+             d:DesignHeight="600" d:DesignWidth="1500">
+    <UserControl.Resources>
+        <converters:EmptyListToBooleanConverter x:Key="EmptyListToBooleanConverter"/>
+    </UserControl.Resources>
+    <Grid Background="#FFECF0F1" >
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" MinWidth="0.5"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <Border Grid.Column="0" BorderBrush="#FFA5A5A5" BorderThickness="0,0,0.5,0" Padding="20,20,20,0">
+            <StackPanel Orientation="Vertical">
+                <TextBlock Style="{StaticResource SectionHeader}" Text="EMULATION SETTINGS - My Signal 1"/>
+                <TextBlock Style="{StaticResource ControlText}" Text="Start date" Margin="0,0,0,10"/>
+                <DatePicker Margin="0,0,0,20" HorizontalAlignment="Left"/>
+                <TextBlock Style="{StaticResource ControlText}" Text="Analysis period" Margin="0,0,0,10"/>
+                <ComboBox Margin="0,0,0,20" HorizontalAlignment="Left">
+                    <ComboBoxItem IsSelected="True">1 hour</ComboBoxItem>
+                    <ComboBoxItem>1 day</ComboBoxItem>
+                </ComboBox>
+
+                <TextBlock Style="{StaticResource ControlText}" Text="Subscription" Margin="0,0,0,10" />
+                <ComboBox Margin="0,0,0,20" HorizontalAlignment="Left" MinWidth="200"
+                          ItemsSource="{Binding Path=ReadSubscriptionsTask.Result}"  SelectedItem="{Binding Path=SelectedSubscription}"
+                          DisplayMemberPath="DisplayName" 
+                          IsEnabled="{Binding Path=ReadSubscriptionsTask.Result, Converter={StaticResource EmptyListToBooleanConverter}}" />
+
+                <TextBlock Style="{StaticResource ControlText}" Text="Resource group" Margin="0,0,0,10"/>
+                <ComboBox Margin="0,0,558,20" HorizontalAlignment="Right" MinWidth="125"
+                          ItemsSource="{Binding Path=ReadResourceGroupsTask.Result}" SelectedItem="{Binding Path=SelectedResourceGroup}" 
+                          IsEnabled="{Binding Path=ReadResourceGroupsTask.Result, Converter={StaticResource EmptyListToBooleanConverter}}" />
+
+                <TextBlock Style="{StaticResource ControlText}" Text="Resource type" Margin="0,0,0,10"/>
+                <ComboBox Margin="0,0,0,20" HorizontalAlignment="Left" MinWidth="130"
+                          ItemsSource="{Binding Path=ReadResourceTypesTask.Result}" SelectedItem="{Binding Path=SelectedResourceType}"
+                          IsEnabled="{Binding Path=ReadResourceTypesTask.Result, Converter={StaticResource EmptyListToBooleanConverter}}" />
+
+                <TextBlock Style="{StaticResource ControlText}" Text="Resource" Margin="0,0,0,10"/>
+                <ComboBox Margin="0,0,0,20" HorizontalAlignment="Left" MinWidth="130"
+                          ItemsSource="{Binding Path=ReadResourcesTask.Result}" SelectedItem="{Binding Path=SelectedResource}"
+                          IsEnabled="{Binding Path=ReadResourcesTask.Result, Converter={StaticResource EmptyListToBooleanConverter}}" />
+
+                <Separator Margin="0,0,0,20"/>
+
+                <Button Style="{StaticResource RoundedButton}" HorizontalAlignment="Left" Content="Start analysis" Click="ButtonBase_OnClick"/>
+            </StackPanel>
+        </Border>
+
+        <Border Grid.Column="1" BorderThickness="0" Padding="20,20,20,0">
+            <StackPanel Orientation="Vertical">
+                <TextBlock Style="{StaticResource SectionHeader}" Text="EMULATION STATUS"/>
+                <TextBlock x:Name="BeforeStartMessage" Text="Click 'Start analysis' to begin the emulation." Foreground="#FF767171" FontSize="16" Margin="0,80,0,0" HorizontalAlignment="Center"/>
+                <local:EmulationStatusControl x:Name="EmulationStatusControl" Visibility="Collapsed"/>
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>
