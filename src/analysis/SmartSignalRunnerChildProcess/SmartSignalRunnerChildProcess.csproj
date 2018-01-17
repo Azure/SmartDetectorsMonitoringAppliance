@@ -9,7 +9,7 @@
     <PackageReference Include="StyleCop.MSBuild" Version="5.0.0" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\SmartSignalsInfrastructure\SmartSignalsInfrastructure.csproj" />
+    <ProjectReference Include="..\..\SmartSignalsRuntimeShared\SmartSignalsRuntimeShared.csproj" />
     <ProjectReference Include="..\SmartSignalsAnalysis\SmartSignalsAnalysis.csproj" />
   </ItemGroup>
 </Project>

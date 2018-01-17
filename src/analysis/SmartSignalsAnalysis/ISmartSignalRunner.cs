@@ -9,9 +9,8 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Analysis
     using System.Collections.Generic;
     using System.Threading;
     using System.Threading.Tasks;
-    using Microsoft.Azure.Monitoring.SmartSignals.Infrastructure;
-    using Microsoft.Azure.Monitoring.SmartSignals.Infrastructure.SignalResultPresentation;
-    using Microsoft.Azure.Monitoring.SmartSignals.Shared;
+    using Microsoft.Azure.Monitoring.SmartSignals.RuntimeShared;
+    using Microsoft.Azure.Monitoring.SmartSignals.RuntimeShared.SignalResultPresentation;
 
     /// <summary>
     /// An interface for running a smart signal

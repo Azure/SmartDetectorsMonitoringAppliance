@@ -31,7 +31,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "scheduler", "scheduler", "{
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SDK", "SDK", "{33F08307-4325-4557-9D0B-DE57DD7DE249}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SmartSignalsInfrastructure", "src\SmartSignalsInfrastructure\SmartSignalsInfrastructure.csproj", "{03628C28-B52D-4785-8F70-A5191F0AAA04}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SmartSignalsRuntimeShared", "src\SmartSignalsRuntimeShared\SmartSignalsRuntimeShared.csproj", "{03628C28-B52D-4785-8F70-A5191F0AAA04}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SmartSignalSchedulerTests", "test\scheduler\SmartSignalSchedulerTests\SmartSignalSchedulerTests.csproj", "{700FD1D5-A401-47F2-8C0A-50F64447B660}"
 EndProject
@@ -43,7 +43,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SmartSignalScheduler", "src
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SmartSignalsAnalysis", "src\analysis\SmartSignalsAnalysis\SmartSignalsAnalysis.csproj", "{B3955795-6CBB-4E4E-907B-7C541E1DFFC2}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SmartSignalsInfrastructureTests", "test\SmartSignalsInfrastructureTests\SmartSignalsInfrastructureTests.csproj", "{01EA0E0C-2EC2-4CAC-A1F9-5F53778F7D00}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SmartSignalsRuntimeSharedTests", "test\SmartSignalsRuntimeSharedTests\SmartSignalsRuntimeSharedTests.csproj", "{01EA0E0C-2EC2-4CAC-A1F9-5F53778F7D00}"
 	ProjectSection(ProjectDependencies) = postProject
 		{A84DBB4A-265B-4ADA-9916-2DDD70022411} = {A84DBB4A-265B-4ADA-9916-2DDD70022411}
 		{39FADBA7-6B24-4755-A3F4-F9E7FF5E7ACA} = {39FADBA7-6B24-4755-A3F4-F9E7FF5E7ACA}

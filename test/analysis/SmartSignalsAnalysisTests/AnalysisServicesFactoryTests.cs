@@ -15,7 +15,7 @@ namespace SmartSignalsAnalysisSharedTests
     using System.Threading.Tasks;
     using Microsoft.Azure.Monitoring.SmartSignals;
     using Microsoft.Azure.Monitoring.SmartSignals.Analysis;
-    using Microsoft.Azure.Monitoring.SmartSignals.Infrastructure.HttpClient;
+    using Microsoft.Azure.Monitoring.SmartSignals.RuntimeShared.HttpClient;
     using Microsoft.Azure.Monitoring.SmartSignals.Shared;
     using Microsoft.Azure.Monitoring.SmartSignals.Shared.AzureResourceManagerClient;
     using Microsoft.VisualStudio.TestTools.UnitTesting;

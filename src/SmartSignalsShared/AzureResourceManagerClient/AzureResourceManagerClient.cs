@@ -219,7 +219,7 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Shared.AzureResourceManagerCli
         }
 
         /// <summary>
-        /// Enumerates all the accessible subscriptions.
+        /// Enumerates all the accessible subscriptions IDs.
         /// </summary>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A <see cref="Task{TResult}"/>, returning the subscription IDs</returns>
@@ -236,7 +236,7 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Shared.AzureResourceManagerCli
         /// <returns>A <see cref="Task{TResult}"/>, returning the subscription IDs</returns>
         public async Task<IList<AzureSubscription>> GetAllSubscriptionsAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
-            return (await this.GetSubscriptionClient().Subscriptions.ListAsync(cancellationToken))
+            return (await this.RunAndTrack(() => this.GetSubscriptionClient().Subscriptions.ListAsync(cancellationToken)))
                 .Select(sub => new AzureSubscription(sub.SubscriptionId, sub.DisplayName)).ToList();
         }
 

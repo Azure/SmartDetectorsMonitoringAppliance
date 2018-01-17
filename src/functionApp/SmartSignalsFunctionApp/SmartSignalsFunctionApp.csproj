@@ -17,7 +17,7 @@
     <ProjectReference Include="..\..\analysis\SmartSignalsAnalysis\SmartSignalsAnalysis.csproj" />
     <ProjectReference Include="..\..\management\server\SmartSignalsManagementApi\SmartSignalsManagementApi.csproj" />
     <ProjectReference Include="..\..\scheduler\SmartSignalsScheduler\SmartSignalScheduler.csproj" />
-    <ProjectReference Include="..\..\SmartSignalsInfrastructure\SmartSignalsInfrastructure.csproj" />
+    <ProjectReference Include="..\..\SmartSignalsRuntimeShared\SmartSignalsRuntimeShared.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Microsoft.CSharp" />

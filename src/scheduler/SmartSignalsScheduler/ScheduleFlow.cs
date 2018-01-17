@@ -11,9 +11,9 @@ namespace Microsoft.Azure.Monitoring.SmartSignals.Scheduler
     using System.Linq;
     using System.Threading.Tasks;
     using Microsoft.Azure.Monitoring.SmartSignals;
-    using Microsoft.Azure.Monitoring.SmartSignals.Infrastructure;
-    using Microsoft.Azure.Monitoring.SmartSignals.Infrastructure.AlertRules;
-    using Microsoft.Azure.Monitoring.SmartSignals.Infrastructure.SignalResultPresentation;
+    using Microsoft.Azure.Monitoring.SmartSignals.RuntimeShared;
+    using Microsoft.Azure.Monitoring.SmartSignals.RuntimeShared.AlertRules;
+    using Microsoft.Azure.Monitoring.SmartSignals.RuntimeShared.SignalResultPresentation;
     using Microsoft.Azure.Monitoring.SmartSignals.Scheduler.Publisher;
     using Microsoft.Azure.Monitoring.SmartSignals.Scheduler.SignalRunTracker;
     using Microsoft.Azure.Monitoring.SmartSignals.Shared.AzureResourceManagerClient;

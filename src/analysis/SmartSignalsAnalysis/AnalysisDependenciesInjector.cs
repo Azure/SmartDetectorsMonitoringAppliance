@@ -6,7 +6,7 @@
 
 namespace Microsoft.Azure.Monitoring.SmartSignals.Analysis
 {
-    using Microsoft.Azure.Monitoring.SmartSignals.Infrastructure.ChildProcess;
+    using Microsoft.Azure.Monitoring.SmartSignals.RuntimeShared.ChildProcess;
     using Microsoft.Azure.Monitoring.SmartSignals.Shared.Trace;
     using Unity;
 

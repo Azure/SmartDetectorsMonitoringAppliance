@@ -7,7 +7,7 @@
 namespace Microsoft.Azure.Monitoring.SmartSignals.ManagementApi.Responses
 {
     using System.Collections.Generic;
-    using Microsoft.Azure.Monitoring.SmartSignals.Infrastructure.SignalResultPresentation;
+    using Microsoft.Azure.Monitoring.SmartSignals.RuntimeShared.SignalResultPresentation;
     using Newtonsoft.Json;
 
     /// <summary>
