@@ -9,6 +9,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
     using System;
     using System.Globalization;
     using System.Windows.Data;
+    using Microsoft.CodeAnalysis.Operations;
 
     /// <summary>
     /// Implementation of <see cref="IValueConverter"/> for inversing a boolean value.
@@ -31,7 +32,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
         {
             if (!(value is bool))
             {
-                throw new ArgumentException("The value parameter must be boolean");
+                throw new ArgumentException("The value parameter must be boolean", nameof(value));
             }
 
             return !(bool)value;

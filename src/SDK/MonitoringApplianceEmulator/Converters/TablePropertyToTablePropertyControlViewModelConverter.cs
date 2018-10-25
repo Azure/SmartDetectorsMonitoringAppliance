@@ -37,7 +37,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
                     "The value parameter can't be null" :
                     $"The value parameter must be of type {typeof(TablePropertyControlViewModel)}, but it is from type {value.GetType()}.";
 
-                throw new ArgumentException(exceptionMessage);
+                throw new ArgumentException(exceptionMessage, nameof(value));
             }
 
             return new TablePropertyControlViewModel(tableAlertProperty);

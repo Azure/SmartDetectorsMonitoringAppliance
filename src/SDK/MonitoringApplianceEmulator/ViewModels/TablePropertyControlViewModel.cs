@@ -37,7 +37,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
                 var newRow = table.NewRow();
                 foreach (var tableColumn in tableAlertProperty.Columns)
                 {
-                    newRow[tableColumn.DisplayName] = value.GetType().GetProperty(tableColumn.PropertyName)?.GetValue(value, null).ToString();
+                    newRow[tableColumn.DisplayName] = value.GetType().GetProperty(tableColumn.PropertyName)?.GetValue(value, null)?.ToString();
                 }
 
                 table.Rows.Add(newRow);
