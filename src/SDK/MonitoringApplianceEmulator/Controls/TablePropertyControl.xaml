@@ -1,0 +1,38 @@
+﻿<UserControl x:Class="Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.Controls.TablePropertyControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.Controls"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <DataGrid MaxWidth="580" 
+              ItemsSource="{Binding Table}"
+              ColumnWidth ="*"
+              CanUserAddRows="False"
+              VerticalScrollBarVisibility="Hidden"
+              CanUserSortColumns="False">
+        <DataGrid.Resources>
+            <Style TargetType="{x:Type DataGridCell}" BasedOn="{StaticResource MaterialDesignDataGridCell}">
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="{x:Type DataGridCell}"  >
+                            <TextBlock Text="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=Content.Text}" 
+                                       ToolTip="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=Content.Text}"
+                                       TextTrimming="CharacterEllipsis" Margin="12"/>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+        </DataGrid.Resources>
+        <DataGrid.ColumnHeaderStyle>
+            <Style TargetType="{x:Type DataGridColumnHeader}">
+                <Setter Property="FontWeight"  Value="Bold" />
+                <Setter Property="Height"  Value="18" />
+                <Setter Property="HorizontalAlignment" Value="Left" />
+                <Setter Property="Margin" Value="15, 5, 5, 10" />
+                <Setter Property="Background" Value="Transparent" />
+            </Style>
+        </DataGrid.ColumnHeaderStyle>
+    </DataGrid>
+</UserControl>

@@ -7,7 +7,7 @@
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
-        <StackPanel Width="260">
+        <StackPanel Width="275">
             <TextBlock Style="{StaticResource OtherDetailsPropertyTitle}"
                        Text="{Binding Path=TextAlertProperty.DisplayName, Mode=OneWay, RelativeSource={RelativeSource AncestorType=local:TextPropertyControl, AncestorLevel=1}}"  />
             <TextBlock Style="{StaticResource AlertDetailsTextPropertyValue}" TextTrimming="CharacterEllipsis"
