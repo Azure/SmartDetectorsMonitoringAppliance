@@ -1,0 +1,21 @@
+﻿<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <_SmartDetectorsFramework Condition=" '$(_SmartDetectorsFramework)' == ''">net461</_SmartDetectorsFramework>
+    <_SmartDetectorsTasksDir Condition=" '$(_SmartDetectorsTasksDir)'=='' ">$(MSBuildThisFileDirectory)..\..\tools\$(_SmartDetectorsFramework)\BuildTask\</_SmartDetectorsTasksDir>
+    <_SmartDetectorsTaskAssemblyFullPath Condition=" '$(_SmartDetectorsTaskAssemblyFullPath)'=='' ">$(_SmartDetectorsTasksDir)\Microsoft.Azure.Monitoring.SmartDetectors.Build.exe</_SmartDetectorsTaskAssemblyFullPath>
+    <_SmartDetectorsEmulatorDir Condition=" '$(_SmartDetectorsEmulatorDir)'=='' ">$(MSBuildThisFileDirectory)..\..\tools\$(_SmartDetectorsFramework)\AppEmulator\</_SmartDetectorsEmulatorDir>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectCapability Include="SmartDetectors" />
+  </ItemGroup>
+
+  <!--
+  ***********************************************************************************************
+  Import the Build target
+  ***********************************************************************************************
+ -->
+  <Import Project="$(MSBuildThisFileDirectory)Microsoft.Azure.Monitoring.SmartDetectors.Build.targets"
+          Condition="Exists('$(MSBuildThisFileDirectory)Microsoft.Azure.Monitoring.SmartDetectors.Build.targets')" />
+
+</Project>

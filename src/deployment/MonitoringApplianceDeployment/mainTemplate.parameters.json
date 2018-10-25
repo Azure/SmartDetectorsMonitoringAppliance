@@ -1,0 +1,10 @@
+﻿{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "monitoringAppliacnceName": { "value": "" },
+    "ruleEngineClientId": { "value": "62c7f910-f075-4421-b6a0-47dee29bf7ef" },
+    "globalSmartDetectorContainerUri": { "value": "https://globalsmartdetectors.blob.core.windows.net/detectors" },
+    "deployFunctionApp": { "value": false }
+  }
+}

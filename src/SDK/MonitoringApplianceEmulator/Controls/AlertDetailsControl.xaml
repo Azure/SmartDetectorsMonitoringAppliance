@@ -1,0 +1,85 @@
+﻿<UserControl x:Class="Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.Controls.AlertDetailsControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.Controls"
+             xmlns:converters="clr-namespace:Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.Converters"
+             mc:Ignorable="d" 
+             d:DesignHeight="300" d:DesignWidth="300">
+    <UserControl.Resources>
+        <converters:EmptyStringToVisibilityConverter x:Key="EmptyStringToVisibilityConverter" />
+    </UserControl.Resources>
+    <StackPanel Background="#FFECF0F1">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="20"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Column="0" Style="{StaticResource SectionHeader}" Text="DETAILS"/>
+            <StackPanel Grid.Column="1">
+                <Button Style="{StaticResource CloseControlBottonStyle}" Command="{Binding CloseControlCommand}" Margin="0,0,5,0"/>
+            </StackPanel>
+        </Grid>
+        <StackPanel>
+            <Expander Style="{StaticResource AlertDetailsExpander}">
+                <Expander.Header>
+                    <TextBlock Style="{StaticResource AlertDetailsSectionHeader}" Text="ESSENTIALS"/>
+                </Expander.Header>
+                <ListView ItemsSource="{Binding EssentialsSectionProperties}" SelectionMode="Single" BorderThickness="0" 
+                           Background="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Control}}, Path=Background}">
+                    <ListView.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel>
+                                <TextBlock Style="{StaticResource AlertDetailsPropertyTitle}" 
+                                           Text="{Binding ResourceType}" />
+                                <TextBlock Style="{StaticResource AlertDetailsPropertyValue}" 
+                                           Text="{Binding ResourceName}" />
+                            </StackPanel>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
+            </Expander>
+            <Expander IsExpanded="True" Style="{StaticResource AlertDetailsExpander}" >
+                <Expander.Header>
+                    <TextBlock Style="{StaticResource AlertDetailsSectionHeader}" Text="OTHER DETAILS"/>
+                </Expander.Header>
+                <ListView ItemsSource="{Binding DisplayableProperties}" BorderThickness="0" 
+                          Background="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Control}}, Path=Background}">
+                    <ListView.Resources>
+                        <DataTemplate x:Key="TextProperty">
+                            <local:TextPropertyControl TextAlertProperty="{Binding }"/>
+                        </DataTemplate>
+                        <DataTemplate x:Key="KeyValueProperty">
+                            <local:KeyValuePropertyControl KeyValueAlertProperty="{Binding }" />
+                        </DataTemplate>
+                    </ListView.Resources>
+                    <ListView.ItemTemplate>
+                        <DataTemplate>
+                            <ContentControl Content="{Binding }" Margin="0,0,0,20">
+                                <ContentControl.Style>
+                                    <Style TargetType="ContentControl">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding Type}" Value="Text">
+                                                <Setter Property="ContentTemplate" Value="{StaticResource TextProperty}"/>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding Type}" Value="KeyValue">
+                                                <Setter Property="ContentTemplate" Value="{StaticResource KeyValueProperty}"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </ContentControl.Style>
+                            </ContentControl>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                    <ListView.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <WrapPanel Orientation="Horizontal" Width="600"></WrapPanel>
+                        </ItemsPanelTemplate>
+                    </ListView.ItemsPanel>
+                </ListView>
+            </Expander>
+        </StackPanel>
+    </StackPanel>
+</UserControl>

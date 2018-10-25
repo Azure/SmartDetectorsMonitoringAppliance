@@ -1,0 +1,10 @@
+﻿{
+  "id": "$safeprojectname$",
+  "name": "$safeprojectname$",
+  "description": "Smart Detector description",
+  "version": "1.0",
+  "assemblyName": "$safeprojectname$.dll",
+  "className": "$safeprojectname$.$detectorName$",
+  "supportedResourceTypes": [ "$resourceType$" ],
+  "supportedCadencesInMinutes": [ 5 ]
+}

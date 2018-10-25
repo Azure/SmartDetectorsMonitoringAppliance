@@ -1,0 +1,66 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+  </PropertyGroup>
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|AnyCPU">
+      <Configuration>Debug</Configuration>
+      <Platform>AnyCPU</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|AnyCPU">
+      <Configuration>Release</Configuration>
+      <Platform>AnyCPU</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>8fdc59d4-895c-41c3-b171-9cb75347ab88</ProjectGuid>
+  </PropertyGroup>
+  <PropertyGroup>
+    <NuProjPath Condition=" '$(NuProjPath)' == '' ">$(HOMEDRIVE)$(HOMEPATH)\.nuget\packages\NuProj\0.11.30\tools</NuProjPath>
+  </PropertyGroup>
+  <Import Project="$(NuProjPath)\NuProj.props" Condition="Exists('$(NuProjPath)\NuProj.props')" />
+  <PropertyGroup Label="Configuration">
+    <Id>Microsoft.Azure.Monitoring.SmartDetectors</Id>
+    <Version>0.9.4.0</Version>
+    <Title>Azure Smart Detectors</Title>
+    <Authors>Microsoft</Authors>
+    <Owners>Microsoft Corporation</Owners>
+    <Summary>Azure Smart Detectors</Summary>
+    <Description>This client library provides an SDK, emulator and package builder for authoring Azure Smart Detectors hosted on the Azure Smart Alerts Monitoring Appliance.</Description>
+    <ReleaseNotes>
+    </ReleaseNotes>
+    <ProjectUrl>https://github.com/Azure/Smart-Alerts</ProjectUrl>
+    <LicenseUrl>https://www.microsoft.com/web/webpi/eula/net_library_eula_enu.htm</LicenseUrl>
+    <Copyright>© Microsoft Corporation. All rights reserved.</Copyright>
+    <Tags>Microsoft</Tags>
+    <RequireLicenseAcceptance>true</RequireLicenseAcceptance>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\SmartDetectorsSDK\SmartDetectorsSDK.csproj">
+      <PackageDirectory>lib</PackageDirectory>
+    </ProjectReference>
+    <ProjectReference Include="..\SmartDetectorsBuildTask\SmartDetectorsBuildTask.csproj">
+      <ExcludeFromNuPkg>true</ExcludeFromNuPkg>
+    </ProjectReference>
+    <File Include="..\SmartDetectorsBuildTask\build\**.*">
+      <TargetPath>build\</TargetPath>
+    </File>
+    <File Include="..\SmartDetectorsBuildTask\$(Outdir)\net461\**.*">
+      <TargetPath>tools\net461\BuildTask</TargetPath>
+    </File>
+    <ProjectReference Include="..\MonitoringApplianceEmulator\MonitoringApplianceEmulator.csproj">
+      <ExcludeFromNuPkg>true</ExcludeFromNuPkg>
+    </ProjectReference>
+    <File Include="..\MonitoringApplianceEmulator\$(Outdir)\net461\**.*">
+      <TargetPath>tools\net461\AppEmulator</TargetPath>
+    </File>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="build\net461\Microsoft.Azure.Monitoring.SmartDetectors.targets" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="build\net461\Microsoft.Azure.Monitoring.SmartDetectors.props" />
+  </ItemGroup>
+  <Import Project="$(NuProjPath)\NuProj.targets" />
+</Project>

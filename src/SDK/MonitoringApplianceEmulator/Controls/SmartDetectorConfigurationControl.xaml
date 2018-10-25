@@ -1,0 +1,232 @@
+﻿<UserControl x:Class="Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.Controls.SmartDetectorConfigurationControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.Controls"
+             xmlns:models="clr-namespace:Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.Models"
+             xmlns:viewModels="clr-namespace:Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.ViewModels"
+             xmlns:converters="clr-namespace:Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.Converters"
+             xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
+             mc:Ignorable="d" 
+             d:DataContext="{d:DesignInstance Type=viewModels:SmartDetectorConfigurationControlViewModel, IsDesignTimeCreatable=True}"
+             d:DesignHeight="600" d:DesignWidth="1500">
+    <UserControl.Resources>
+        <converters:EmptyListToBooleanConverter x:Key="EmptyListToBooleanConverter"/>
+        <converters:InverseBooleanConverter x:Key="InverseBooleanConverter"/>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+        <converters:NullToBooleanConverter x:Key="NullToBooleanConverter"/>
+        <converters:ResourceTypeToIconConverter x:Key="ResourceTypeToIconConverter"/>
+        <converters:BooleanAndConverter x:Key="BooleanAndConverter"/>
+        <converters:EmptyStringToBooleanConverter x:Key="EmptyStringToBooleanConverter" />
+        <converters:ConverterChain x:Key="InverseBooleanToVisibilityConverter">
+            <converters:InverseBooleanConverter/>
+            <BooleanToVisibilityConverter/>
+        </converters:ConverterChain>
+    </UserControl.Resources>
+    <Grid Background="{StaticResource TabBackgroundColor}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="50"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="500" MinWidth="0.5"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <Border Grid.Column="0" BorderBrush="#FFA5A5A5" BorderThickness="0,0,0.5,0" Padding="20,20,0,0">
+            <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                <StackPanel Orientation="Vertical" Margin="0,0,5,0">
+
+                    <StackPanel Orientation="Horizontal" Margin="0,0,5,0">
+                        <TextBlock Style="{StaticResource SectionHeader}" Text="SETTINGS" />
+                        <StackPanel Orientation="Horizontal" Margin="-40,5,0,0"
+                                    Visibility="{Binding Path=ShouldSelectResourcesAccordingToUserSettings, Converter={StaticResource BooleanToVisibilityConverter}}">
+                            <ProgressBar Grid.Row="0" Grid.Column="1" Margin="0,0,20,0" VerticalAlignment="Top"
+                                         Style="{StaticResource MaterialDesignCircularProgressBar}" Value="0" IsIndeterminate="True" />
+                            <TextBlock Grid.Row="0" Grid.Column="0" Style="{StaticResource ControlText}" Text="Loading settings from previous run..."/>
+                        </StackPanel>
+                    </StackPanel>
+
+                    <Grid IsEnabled="{Binding Path=ShouldSelectResourcesAccordingToUserSettings, Converter={StaticResource InverseBooleanConverter}}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="170"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*" />
+                            <RowDefinition Height="*" />
+                            <RowDefinition Height="*" />
+                            <RowDefinition Height="*" />
+                            <RowDefinition Height="*" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Grid.Row="0" Grid.Column="0" Style="{StaticResource ControlText}" Text="Detector name"/>
+                        <TextBlock Grid.Row="0" Grid.Column="1" Style="{StaticResource DetectorName}" Text="{Binding SmartDetectorName}" />
+
+                        <TextBlock Grid.Row="1" Grid.Column="0" Style="{StaticResource ControlText}" Text="Filter by subcription" Margin="0,5,0,0" />
+                        <ComboBox Grid.Row="1" Grid.Column="1" Margin="0,0,0,20"  
+                            HorizontalAlignment="Left" MinWidth="130"
+                            ItemsSource="{Binding Path=ReadSubscriptionsTask.Result, NotifyOnTargetUpdated=True}"  
+                            SelectedItem="{Binding Path=SelectedSubscription, Mode=TwoWay}"
+                            DisplayMemberPath="Name" 
+                            IsEnabled="{Binding Path=ReadSubscriptionsTask.Result, Converter={StaticResource EmptyListToBooleanConverter}}" />
+                        <ProgressBar  Grid.Row="1" Grid.Column="1" Margin="115,0,0,20"
+                            Style="{StaticResource MaterialDesignCircularProgressBar}" Value="0" IsIndeterminate="True" 
+                            Visibility="{Binding Path=ReadSubscriptionsTask.IsRunning, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+
+                        <TextBlock Grid.Row="2" Grid.Column="0" Style="{StaticResource ControlText}" Text="Filter by resource type" Margin="0,5,0,0"/>
+                        <ComboBox Grid.Row="2" Grid.Column="1" Margin="0,0,0,20" HorizontalAlignment="Left" MinWidth="130"
+                            ItemsSource="{Binding Path=SupportedResourceTypes}" 
+                            SelectedItem="{Binding Path=SelectedResourceType, Mode=TwoWay}" />
+
+
+                        <Grid Grid.Row="3" Grid.Column="0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="120"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="*" />
+                            </Grid.RowDefinitions>
+
+                            <TextBlock Grid.Row="0" Grid.Column="0" Style="{StaticResource ControlText}" Text="Target resource" Margin="0,0,0,0" />
+                            <ProgressBar Grid.Row="0" Grid.Column="1" Margin="0,0,20,0" VerticalAlignment="Top"
+                                Style="{StaticResource MaterialDesignCircularProgressBar}" Value="0" IsIndeterminate="True"  
+                                Visibility="{Binding Path=ReadResourcesTask.IsRunning, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                        </Grid>
+                        
+                        <StackPanel Orientation="Horizontal" Grid.Row="3" Grid.Column="1"
+                            Visibility="{Binding Path=SelectedResource, Converter={StaticResource NullToBooleanConverter}}">
+                            <Image Source="{Binding SelectedResource.ResourceIdentifier.ResourceType, Converter={StaticResource ResourceTypeToIconConverter}}" 
+                                   Stretch="Uniform" Height="23" VerticalAlignment="Center" Margin="0,0,0,20" />
+                            <TextBlock Text="{Binding Path=SelectedResource.Name}" Style="{StaticResource ResourceName}" />
+                        </StackPanel>
+
+                        <Expander Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="2" Margin="0,0,15,20" 
+                                  IsExpanded="False" HorizontalAlignment="Stretch" Header="Resources">
+                            <ScrollViewer MaxHeight="300" Margin="0,0,0,20" VerticalScrollBarVisibility="Auto">
+                                <TreeView x:Name="ResourcesTreeView" 
+                                          ItemsSource="{Binding Path=ResourcesHierarchicalCollection.ContainedResources.FilteredCollection}">
+                                    <TreeView.Resources>
+                                        <HierarchicalDataTemplate DataType="{x:Type models:HierarchicalResource}" ItemsSource="{Binding ContainedResources.FilteredCollection}">
+                                            <StackPanel Orientation="Horizontal">
+                                                <Image Source="{Binding ResourceIdentifier.ResourceType, Converter={StaticResource ResourceTypeToIconConverter}}" 
+                                                       Stretch="Uniform" Height="23" VerticalAlignment="Center"/>
+                                                <TextBlock Text="{Binding Path=Name}" Style="{StaticResource ResourceName}" VerticalAlignment="Center"/>
+                                            </StackPanel>
+                                        </HierarchicalDataTemplate>
+                                        <LinearGradientBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" EndPoint="0,1" StartPoint="0,0">
+                                            <GradientStop Color="#FFD9F4FF" Offset="0"/>
+                                            <GradientStop Color="#FF9BDDFB" Offset="1"/>
+                                        </LinearGradientBrush>
+                                        <LinearGradientBrush x:Key="{x:Static SystemColors.ControlBrushKey}" EndPoint="0,1" StartPoint="0,0">
+                                            <GradientStop Color="#FFEEEDED" Offset="0"/>
+                                            <GradientStop Color="#FFDDDDDD" Offset="1"/>
+                                        </LinearGradientBrush>
+                                        <SolidColorBrush x:Key="{x:Static SystemColors.HighlightTextBrushKey}" Color="Black" />
+                                        <SolidColorBrush x:Key="{x:Static SystemColors.ControlTextBrushKey}" Color="Black" />
+                                    </TreeView.Resources>
+                                    <TreeView.ItemContainerStyle>
+                                        <Style TargetType="{x:Type TreeViewItem}">
+                                            <Setter Property="IsExpanded" Value="True" />
+                                            <Setter Property="Margin" Value="0,2,0,0" />
+                                            <Setter Property="BorderThickness" Value="1.5"/>
+                                            <Style.Triggers>
+                                                <Trigger Property="IsSelected" Value="True">
+                                                    <Setter Property="BorderBrush" Value="#adc6e5"/>
+                                                </Trigger>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter Property="Cursor" Value="Hand"/>
+                                                    <Setter Property="Background" Value="#E5E7E9"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                            <Style.Resources>
+                                                <Style TargetType="Border">
+                                                    <Setter Property="CornerRadius" Value="2"/>
+                                                </Style>
+                                            </Style.Resources>
+                                        </Style>
+                                    </TreeView.ItemContainerStyle>
+                                    <i:Interaction.Triggers>
+                                        <i:EventTrigger EventName="SelectedItemChanged">
+                                            <i:InvokeCommandAction Command="{Binding OnSelectedResourceChangedCommand}"
+                                                CommandParameter="{Binding ElementName=ResourcesTreeView, Path=SelectedItem}" />
+                                        </i:EventTrigger>
+                                    </i:Interaction.Triggers>
+                                </TreeView>
+                            </ScrollViewer>
+                        </Expander>
+                        <TextBlock Grid.Row="6" Grid.Column="0" Style="{StaticResource ControlText}" Text="Iterative run mode"/>
+                        <ToggleButton Grid.Row="6" Grid.Column="1"
+                                  x:Name="IterativeRunModeButton"
+                                  IsChecked="{Binding IterativeRunModeEnabled}"
+                                  HorizontalAlignment="Left"/>
+                    </Grid>
+
+                    <!-- collapsible container for iterative run mode -->
+                    <Border Padding="10" Background="#f2f2f2" Margin="0,10,15,10" CornerRadius="8"
+                        Visibility="{Binding Path=IsChecked, Mode=OneWay, ElementName=IterativeRunModeButton, Converter={StaticResource BooleanToVisibilityConverter}}">
+                        <Grid Margin="0,0,0,10"
+                                Background="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=Control}, Path=Background}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="105"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="*" />
+                                <RowDefinition Height="*" />
+                            </Grid.RowDefinitions>
+
+                            <TextBlock Grid.Row="0" Grid.Column="0" Style="{StaticResource ControlText}" Text="Cadence" Margin="4,8,0,10"/>
+                            <ComboBox Grid.Row="0" Grid.Column="1" Margin="4,0,0,25" HorizontalAlignment="Left" MinWidth="100"
+                                  ItemsSource="{Binding Path=Cadences}" SelectedItem="{Binding Path=SelectedCadence}"
+                                  DisplayMemberPath="DisplayName" IsEnabled="{Binding Path=Cadences, Converter={StaticResource EmptyListToBooleanConverter}}" />
+                            <local:TimeRangePickerControl Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
+                                FullSelectedStartDateTime="{Binding Path=IterativeStartTime, Mode=TwoWay}"
+                                FullSelectedEndDateTime="{Binding Path=IterativeEndTime, Mode=TwoWay}" />
+
+                        </Grid>
+                    </Border>
+                </StackPanel>
+            </ScrollViewer>
+        </Border>
+
+        <Border Grid.Row="0" Grid.Column="1" BorderThickness="0" Padding="20,20,20,0">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <TextBlock Grid.Row="0" Style="{StaticResource SectionHeader}" Text="STATUS" />
+                <TextBlock Grid.Row="1" Text="Click 'Run' to begin the emulation." Foreground="#FF767171" FontSize="16" 
+                           Margin="0,80,0,0" HorizontalAlignment="Center"
+                           Visibility="{Binding Path=ShouldShowStatusControl, Mode=OneWay, Converter={StaticResource InverseBooleanToVisibilityConverter}}" />
+                <DockPanel Grid.Row="1" Visibility="{Binding Path=ShouldShowStatusControl, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}">
+                    <local:EmulationStatusControl/>
+                </DockPanel>
+            </Grid>
+        </Border>
+
+        <Border  Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Background="#e8eae9" Padding="8">
+            <StackPanel Orientation="Horizontal">
+                <Button HorizontalAlignment="Left" Style="{StaticResource MaterialDesignRaisedButton}"
+                        Content="Run" Command="{Binding RunSmartDetectorCommand}" 
+                        Width="80" ToolTip="Click to run the detector">
+                    <Button.IsEnabled>
+                        <MultiBinding Converter="{StaticResource BooleanAndConverter}">
+                            <Binding Path="SmartDetectorRunner.IsSmartDetectorRunning" Converter="{StaticResource InverseBooleanConverter}"/>
+                            <Binding Path="SelectedResource" Converter="{StaticResource NullToBooleanConverter}"/>
+                        </MultiBinding>
+                    </Button.IsEnabled>
+                </Button>
+
+                <Button Style="{StaticResource MaterialDesignRaisedButton}" Width="80"
+                        HorizontalAlignment="Left" Content="Cancel" Margin="20,0,0,0"
+                        IsEnabled="{Binding Path=SmartDetectorRunner.IsSmartDetectorRunning, Mode=OneWay}" 
+                        Command="{Binding CancelSmartDetectorRunCommand}" />
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>

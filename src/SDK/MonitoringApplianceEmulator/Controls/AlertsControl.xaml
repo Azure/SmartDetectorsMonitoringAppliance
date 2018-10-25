@@ -1,0 +1,107 @@
+﻿<UserControl x:Class="Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.Controls.AlertsControl"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:viewModels="clr-namespace:Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.ViewModels"
+             xmlns:converters="clr-namespace:Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.Converters"
+             xmlns:local="clr-namespace:Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.Controls"
+             mc:Ignorable="d" 
+             d:DataContext="{d:DesignInstance Type=viewModels:AlertsControlViewModel, IsDesignTimeCreatable=True}"
+             d:DesignHeight="600" d:DesignWidth="1500">
+    <UserControl.Resources>
+        <converters:ConverterChain x:Key="NullToVisibilityConverter">
+            <converters:NullToBooleanConverter/>
+            <BooleanToVisibilityConverter/>
+        </converters:ConverterChain>
+    </UserControl.Resources>
+    <Grid Background="{StaticResource TabBackgroundColor}" >
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" MinWidth="0.5"/>
+            <ColumnDefinition Width="650" MinWidth="0.5"/>
+        </Grid.ColumnDefinitions>
+
+        <Border Grid.Column="0" Grid.ColumnSpan="2" BorderBrush="#FFA5A5A5" BorderThickness="0,0,0.5,0" Padding="20,20,20,0">
+            <StackPanel>
+                <TextBlock Style="{StaticResource SectionHeader}" Text="{Binding SmartDetectorRunner.Alerts.Count, StringFormat=ALERTS : {0}}"/>
+                <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" Height="450" Width="Auto">
+                    <DataGrid
+                        ItemsSource="{Binding SmartDetectorRunner.Alerts}"
+                        SelectedItem="{Binding SelectedAlert}"
+                        CanUserSortColumns="True"
+                        CanUserAddRows="False"
+                        AutoGenerateColumns="False"
+                        materialDesign:DataGridAssist.CellPadding="13 8 8 8"
+                        materialDesign:DataGridAssist.ColumnHeaderPadding="8">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn
+                            Binding="{Binding EmulationIterationDate, StringFormat='g', Mode=OneWay}"
+                            Header="EMULATION ITERATION"
+                            EditingElementStyle="{StaticResource MaterialDesignDataGridTextColumnEditingStyle}" />
+                            <DataGridTextColumn
+                            Binding="{Binding ContractsAlert.SmartDetectorName, Mode=OneWay}"
+                            Header="NAME"
+                            EditingElementStyle="{StaticResource MaterialDesignDataGridTextColumnEditingStyle}" />
+                            <DataGridTextColumn
+                            Binding="{Binding Severity, Mode=OneWay}"
+                            Header="SEVERITY"
+                            EditingElementStyle="{StaticResource MaterialDesignDataGridTextColumnEditingStyle}" />
+                            <DataGridTextColumn
+                            Binding="{Binding Type, Mode=OneWay}"
+                            Header="ALERT TYPE"
+                            EditingElementStyle="{StaticResource MaterialDesignDataGridTextColumnEditingStyle}" />
+                            <DataGridTextColumn
+                            Binding="{Binding Status, Mode=OneWay}"
+                            Header="STATUS"
+                            EditingElementStyle="{StaticResource MaterialDesignDataGridTextColumnEditingStyle}" />
+                            <DataGridTextColumn
+                            Binding="{Binding ResourceIdentifier.ResourceName, Mode=OneWay}"
+                            Header="TARGET RESOURCE"
+                            EditingElementStyle="{StaticResource MaterialDesignDataGridTextColumnEditingStyle}" />
+                            <DataGridTextColumn
+                            Binding="{Binding MonitorService, Mode=OneWay}"
+                            Header="MONITOR SERVICE"
+                            EditingElementStyle="{StaticResource MaterialDesignDataGridTextColumnEditingStyle}" />
+                            <DataGridTextColumn
+                            Binding="{Binding ResourceIdentifier.ResourceType, Mode=OneWay}"
+                            Header="RESOURCE TYPE"
+                            EditingElementStyle="{StaticResource MaterialDesignDataGridTextColumnEditingStyle}" />
+                            <DataGridTextColumn
+                            Binding="{Binding ContractsAlert.Title, Mode=OneWay}"
+                            Header="ALERT CRITERIA"
+                            EditingElementStyle="{StaticResource MaterialDesignDataGridTextColumnEditingStyle}" />
+                        </DataGrid.Columns>
+                        <DataGrid.RowStyle>
+                            <Style TargetType="DataGridRow">
+                                <Style.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Background" Value="{StaticResource SelectableRowHoverColor}" />
+                                        <Setter Property="Cursor" Value="Hand" />
+                                    </Trigger>
+                                    <Trigger Property="IsSelected" Value="True">
+                                        <Setter Property="Background" Value="{StaticResource SelectableRowHoverColor}" />
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </DataGrid.RowStyle>
+                    </DataGrid>
+                </ScrollViewer>
+            </StackPanel>
+        </Border>
+
+        <Border Grid.Column="1" BorderThickness="0.5,0,0,0" Padding="20,20,20,20" Background="#FFECF0F1" BorderBrush="#FFA5A5A5"
+                Visibility="{Binding Path=SelectedAlert, Mode=OneWay, Converter={StaticResource NullToVisibilityConverter}}" >
+            <Border.Effect>
+                <DropShadowEffect ShadowDepth="0" BlurRadius="10"/>
+            </Border.Effect>
+
+            <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+                <StackPanel Orientation="Vertical">
+                    <local:AlertDetailsControl
+                        DataContext="{Binding AlertDetailsControlViewModel}" />
+                </StackPanel>
+            </ScrollViewer>
+        </Border>
+    </Grid>
+</UserControl>

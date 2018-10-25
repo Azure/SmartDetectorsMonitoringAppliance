@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<VSTemplate Version="3.0.0" Type="Project" xmlns="http://schemas.microsoft.com/developer/vstemplate/2005" xmlns:sdk="http://schemas.microsoft.com/developer/vstemplate-sdkextension/2010">
+  <TemplateData>
+    <Name>Smart Detector Project</Name>
+    <Description>A template for creating a Smart Detector project.</Description>
+    <Icon>SmartDetectors.ico</Icon>
+    <ProjectType>SmartDetector</ProjectType>
+    <RequiredFrameworkVersion>2.0</RequiredFrameworkVersion>
+    <SortOrder>1</SortOrder>
+    <TemplateID>{cda0b4bd-45a5-49de-aedf-d67f551ca288}</TemplateID>
+    <CreateNewFolder>true</CreateNewFolder>
+    <DefaultName>SmartDetector</DefaultName>
+    <ProvideDefaultName>true</ProvideDefaultName>
+    <CreateInPlace>true</CreateInPlace>
+  </TemplateData>
+  <TemplateContent>
+    <Project File="SmartDetectors.csproj" ReplaceParameters="true">
+      <!-- 
+      These are the items which will show up when a new project is created using the custom project system.
+      Items referenced in here must also be referenced in the project file.
+      -->
+      <ProjectItem ReplaceParameters="true" OpenInEditor="true" TargetFileName="$detectorName$.cs">LogSearchSmartDetector.cs</ProjectItem>
+      <ProjectItem ReplaceParameters="true" OpenInEditor="true" TargetFileName="$alertName$.cs">LogSearchAlert.cs</ProjectItem>
+      <ProjectItem ReplaceParameters="true" OpenInEditor="true" TargetFileName="$detectorName$.cs">MetricSmartDetector.cs</ProjectItem>
+      <ProjectItem ReplaceParameters="true" OpenInEditor="true" TargetFileName="$detectorName$.cs">EmptySmartDetector.cs</ProjectItem>
+      <ProjectItem ReplaceParameters="true" OpenInEditor="true" TargetFileName="$alertName$.cs">EmptyAlert.cs</ProjectItem>      
+      <ProjectItem ReplaceParameters="true" OpenInEditor="false">Manifest.json</ProjectItem>
+    </Project>
+  </TemplateContent>
+  <WizardExtension>
+    <Assembly>SmartDetector, Version=1.0.0.0, Culture=Neutral, PublicKeyToken=9be6e469bc4921f1</Assembly>
+    <FullClassName>Microsoft.Azure.Monitoring.SmartDetectors.ProjectType.SmartDetectorWizard</FullClassName>
+  </WizardExtension>
+</VSTemplate>

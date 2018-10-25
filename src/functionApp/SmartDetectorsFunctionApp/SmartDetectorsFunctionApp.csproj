@@ -1,0 +1,40 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net461</TargetFramework>
+	<RootNamespace>Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.FunctionApp</RootNamespace>
+    <AssemblyName>Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.FunctionApp</AssemblyName>
+    <NoWarn>NU1608</NoWarn><!-- Azure functions bound to lower version of NewtonSoft -->
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <StyleCopTreatErrorsAsWarnings>False</StyleCopTreatErrorsAsWarnings>
+    <CodeAnalysisRuleSet>$(SolutionDir)SmartDetectorsMonitoringAppliance.ruleset</CodeAnalysisRuleSet>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.6.2" />
+    <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="1.0.9" />
+    <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
+    <PackageReference Include="StyleCop.Analyzers" Version="1.0.2" />
+    <PackageReference Include="Unity" Version="5.3.2" />
+    <PackageReference Include="WindowsAzure.Storage" Version="8.6.0" />
+  </ItemGroup>
+  <ItemGroup>
+	<AdditionalFiles Include="$(SolutionDir)stylecop.json" Link="stylecop.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\analysis\SmartDetectorRunnerChildProcess\SmartDetectorRunnerChildProcess.csproj" />
+    <ProjectReference Include="..\..\analysis\SmartDetectorsAnalysis\SmartDetectorsAnalysis.csproj" />
+    <ProjectReference Include="..\..\management\server\SmartDetectorsManagementApi\SmartDetectorsManagementApi.csproj" />
+    <ProjectReference Include="..\..\SmartDetectorsApplianceShared\SmartDetectorsApplianceShared.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="Microsoft.CSharp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="host.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="local.settings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+</Project>

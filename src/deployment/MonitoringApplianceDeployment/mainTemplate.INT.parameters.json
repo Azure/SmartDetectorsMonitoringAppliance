@@ -1,0 +1,11 @@
+﻿{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "monitoringAppliacnceName": { "value": "" },
+    "ruleEngineClientId": { "value": "5c65d3e4-3e6d-4422-bae3-5957e7c5aa47" },
+    "globalSmartDetectorContainerUri": { "value": "https://globalsmartdetectorsint.blob.core.windows.net/detectors" },
+    "deployFunctionApp": { "value": false },
+    "audiencePrefix": { "value": "https://microsoft.com/dogfood/runtimeenvironment/" }
+  }
+}

@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <RunPostBuildEvent>Always</RunPostBuildEvent>
+  </PropertyGroup>
+  <UsingTask TaskName="Microsoft.Azure.Monitoring.SmartDetectors.Build.PackageSmartDetector" AssemblyFile="$(_SmartDetectorsTaskAssemblyFullPath)"/>
+  <Target Name="PackageSmartDetectorAfterBuild" AfterTargets="AfterBuild" Condition="$(BuildingInsideVisualStudio)!=''">
+    <PackageSmartDetector PackagePath="$(ProjectDir)$(OutDir)" PackageName="$(ProjectName).package"/>
+  </Target>
+  <Target Name="RemovePackage" BeforeTargets="Clean">
+    <Delete Files="$(ProjectDir)$(OutDir)$(ProjectName).package" />
+  </Target>
+</Project>

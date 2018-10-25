@@ -1,0 +1,112 @@
+﻿<Window x:Class="Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        xmlns:controls="clr-namespace:Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.Controls"
+        xmlns:converters="clr-namespace:Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.Converters"
+        xmlns:viewModels="clr-namespace:Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.ViewModels"
+        mc:Ignorable="d"
+        d:DataContext="{d:DesignInstance Type=viewModels:MainWindowViewModel, IsDesignTimeCreatable=True}"
+        Title="" Height="680" Width="1250" MinHeight="580" MinWidth="1000">
+    <Window.Resources>
+        <converters:CountToVisibilityConverter x:Key="CountToVisibilityConverter"/>
+        <converters:EnumToIntConverter x:Key="EnumToIntConverter"/>
+    </Window.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <Grid Grid.Row="0" Grid.Column="0" Style="{StaticResource WindowHeader}">
+            <Image Source="Media/Azure.png" Stretch="None"/>
+        </Grid>
+
+        <Grid Grid.Row="0" Grid.Column="1" HorizontalAlignment="Stretch" Style="{StaticResource WindowHeader}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <TextBlock Grid.Column="0" VerticalAlignment="Center" Style="{StaticResource EmulatorHeader}" Margin="20,0,0,0">
+                <Run Text="Azure Smart Detectors - Emulator" />
+                <Separator Width="5" Visibility="Hidden"/>
+                <Run Text="PREVIEW" FontSize="9" />
+            </TextBlock>
+
+            <StackPanel Grid.Column="2" Orientation="Horizontal" Margin="0,0,10,0" >
+                <TextBlock Text="{Binding AuthenticationServices.AuthenticatedUserName, StringFormat=Hello\, {0}}" 
+                           Style="{StaticResource EmulatorHeader}" VerticalAlignment="Center" />
+            </StackPanel>
+            
+        </Grid>
+
+        <!--This Canvas is needed as a filler for the TabControl's strip-->
+        <Canvas Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" VerticalAlignment="Stretch" Background="{StaticResource MidBackgroundColor}" />
+        <TabControl Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" TabStripPlacement="Left" VerticalAlignment="Stretch" Padding="0"
+                    SelectedIndex="{Binding SelectedTab, Mode = TwoWay,  Converter={StaticResource EnumToIntConverter}}">
+            <TabControl.Resources>
+                <Style TargetType="TabItem">
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="TabItem">
+                                <Grid Name="Panel" Margin="0,20,0,50">
+                                    <ContentPresenter x:Name="ContentSite"
+                                        VerticalAlignment="Center"
+                                        HorizontalAlignment="Center"
+                                        ContentSource="Header"
+                                        Margin="2,2"/>
+                                </Grid>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsSelected" Value="True">
+                                        <Setter TargetName="Panel" Property="Background" Value="{StaticResource LightBackgroundColor}" />
+                                    </Trigger>
+                                    <Trigger Property="IsSelected" Value="False">
+                                        <Setter TargetName="Panel" Property="Background" Value="{StaticResource MidBackgroundColor}" />
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </TabControl.Resources>
+
+            <TabItem Margin="0,43,0,0">
+                <TabItem.Header>
+                    <Image Source="Media/ic_settings_white_48dp_1x.png" Height="40" />
+                </TabItem.Header>
+                <controls:SmartDetectorConfigurationControl/>
+            </TabItem>
+            <TabItem HorizontalAlignment="Left" Width="44">
+                <TabItem.Header>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Image Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" Grid.ColumnSpan="2" Source="Media/ic_lightbulb_outline_white_48dp_1x.png" Height="40"/>
+                        <Canvas Grid.Row="0" Grid.Column="1" Margin="6,0,0,0" Visibility="{Binding Path=SmartDetectorRunner.Alerts.Count, Converter={StaticResource CountToVisibilityConverter}}">
+                            <Border CornerRadius="50" Width="15" Height="15" Background="Red" BorderBrush="White" BorderThickness="1" >
+                                <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="White" Text="{Binding Path=SmartDetectorRunner.Alerts.Count}" FontSize="10" FontWeight="Bold" Margin="-0.5,-0.5,0,0" />
+                            </Border>
+                        </Canvas>
+                    </Grid>
+                </TabItem.Header>
+                <controls:AlertsControl/>
+            </TabItem>
+        </TabControl>
+
+
+    </Grid>
+</Window>
