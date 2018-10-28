@@ -10,6 +10,7 @@
              d:DesignHeight="300" d:DesignWidth="300">
     <UserControl.Resources>
         <converters:EmptyStringToVisibilityConverter x:Key="EmptyStringToVisibilityConverter" />
+        <converters:TablePropertyToTablePropertyControlViewModelConverter x:Key="TablePropertyToTablePropertyControlViewModelConverter" />
     </UserControl.Resources>
     <StackPanel Background="#FFECF0F1">
         <Grid>
@@ -54,10 +55,13 @@
                         <DataTemplate x:Key="KeyValueProperty">
                             <local:KeyValuePropertyControl KeyValueAlertProperty="{Binding }" />
                         </DataTemplate>
+                        <DataTemplate x:Key="TableProperty">
+                            <local:TablePropertyControl DataContext="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ContentControl}}, Path=Content, Converter={StaticResource TablePropertyToTablePropertyControlViewModelConverter}}" />
+                        </DataTemplate>
                     </ListView.Resources>
                     <ListView.ItemTemplate>
                         <DataTemplate>
-                            <ContentControl Content="{Binding }" Margin="0,0,0,20">
+                            <ContentControl Content="{Binding }" Margin="0,10,0,10">
                                 <ContentControl.Style>
                                     <Style TargetType="ContentControl">
                                         <Style.Triggers>
@@ -66,6 +70,9 @@
                                             </DataTrigger>
                                             <DataTrigger Binding="{Binding Type}" Value="KeyValue">
                                                 <Setter Property="ContentTemplate" Value="{StaticResource KeyValueProperty}"/>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding Type}" Value="Table">
+                                                <Setter Property="ContentTemplate" Value="{StaticResource TableProperty}"/>
                                             </DataTrigger>
                                         </Style.Triggers>
                                     </Style>
