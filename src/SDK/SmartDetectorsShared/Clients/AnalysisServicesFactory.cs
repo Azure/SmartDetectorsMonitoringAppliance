@@ -139,7 +139,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Clients
         public Task<IActivityLogClient> CreateActivityLogClientAsync(CancellationToken cancellationToken)
         {
             // Create the client
-            return Task.FromResult<IActivityLogClient>(new ActivityLogClient(this.azureResourceManagerClient, this.credentialsFactory, this.tracer));
+            return Task.FromResult<IActivityLogClient>(new ActivityLogClient(this.credentialsFactory, this.httpClientWrapper, this.tracer));
         }
 
         /// <summary>
