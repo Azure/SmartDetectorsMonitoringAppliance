@@ -46,10 +46,13 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
             // This handles scenarios of a previous crash that prevented the folder from being deleted
             // All deletion errors are ignored - if the folder is in use, it should not be deleted
             DirectoryInfo parentFolder = new DirectoryInfo(GetUserTempFolder(subFolderName));
-            parentFolder.GetDirectories()
-                .Where(subFolder => (DateTime.UtcNow - subFolder.CreationTimeUtc).TotalHours > maximalFolderAgeInHours)
-                .ToList()
-                .ForEach(subFolder => TryDeleteFolder(subFolder.FullName, tracer));
+            if (parentFolder.Exists)
+            {
+                parentFolder.GetDirectories()
+                    .Where(subFolder => (DateTime.UtcNow - subFolder.CreationTimeUtc).TotalHours > maximalFolderAgeInHours)
+                    .ToList()
+                    .ForEach(subFolder => TryDeleteFolder(subFolder.FullName, tracer));
+            }
         }
 
         /// <summary>

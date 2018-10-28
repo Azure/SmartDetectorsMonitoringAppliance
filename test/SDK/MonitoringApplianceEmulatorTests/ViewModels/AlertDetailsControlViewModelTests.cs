@@ -24,15 +24,6 @@ namespace MonitoringApplianceEmulatorTests.ViewModels
     public class AlertDetailsControlViewModelTests
     {
         private readonly ResourceIdentifier virtualMachineResourceIdentifier = new ResourceIdentifier(ResourceType.VirtualMachine, "someSubscription", "someGroup", "someVM");
-        private readonly ResourceIdentifier appInsightsResourceIdentifier = new ResourceIdentifier(ResourceType.ApplicationInsights, "someSubscription", "someGroup", "someApp");
-
-        private Mock<ISystemProcessClient> systemProcessClientMock;
-
-        [TestInitialize]
-        public void Setup()
-        {
-            this.systemProcessClientMock = new Mock<ISystemProcessClient>();
-        }
 
         [TestMethod]
         public void WhenCreatingNewViewModelThenItWasInitializedCorrectly()
@@ -45,8 +36,7 @@ namespace MonitoringApplianceEmulatorTests.ViewModels
                 () =>
                 {
                     wasCloseEventHandlerFired = true;
-                },
-                this.systemProcessClientMock.Object);
+                });
 
             // Verify "Essentials" properties
             Assert.AreEqual("Subscription id", alertDetailsControlViewModel.EssentialsSectionProperties[0].ResourceType, "Unexpected essential property 'Subscription id'");
@@ -94,42 +84,6 @@ namespace MonitoringApplianceEmulatorTests.ViewModels
             Assert.IsFalse(wasCloseEventHandlerFired);
             alertDetailsControlViewModel.CloseControlCommand.Execute(parameter: null);
             Assert.IsTrue(wasCloseEventHandlerFired);
-        }
-
-        [TestMethod]
-        public void WhenExecutingOpenAnalyticsQueryCommandForNonAppInsightsResourceThenQueryWasExecutedAsExpected()
-        {
-            EmulationAlert emulationAlert = EmulationAlertHelper.CreateEmulationAlert(new TestAlert(this.virtualMachineResourceIdentifier));
-
-            var alertDetailsControlViewModel = new AlertDetailsControlViewModel(
-                emulationAlert,
-                () => { },
-                this.systemProcessClientMock.Object);
-
-            alertDetailsControlViewModel.OpenAnalyticsQueryCommand.Execute(parameter: "<query>");
-
-            string expectedAbsoluteUri = "https://portal.loganalytics.io/subscriptions/7904b7bd-5e6b-4415-99a8-355657b7da19/resourcegroups/MyResourceGroupName/workspaces/MyVirtualMachineName?q=H4sIAAAAAAAEALMpLE0tqrQDAJjF8mcHAAAA";
-
-            // Verify that the query was composed and executed as expected
-            this.systemProcessClientMock.Verify(m => m.StartWebBrowserProcess(It.Is<Uri>(u => u.AbsoluteUri == expectedAbsoluteUri)), Times.Once());
-        }
-
-        [TestMethod]
-        public void WhenExecutingOpenAnalyticsQueryCommandForAppInsightsResourceThenQueryWasExecutedAsExpected()
-        {
-            EmulationAlert emulationAlert = EmulationAlertHelper.CreateEmulationAlert(new TestAlert(this.appInsightsResourceIdentifier));
-
-            var alertDetailsControlViewModel = new AlertDetailsControlViewModel(
-                emulationAlert,
-                () => { },
-                this.systemProcessClientMock.Object);
-
-            alertDetailsControlViewModel.OpenAnalyticsQueryCommand.Execute(parameter: "<query>");
-
-            string expectedAbsoluteUri = "https://analytics.applicationinsights.io/subscriptions/7904b7bd-5e6b-4415-99a8-355657b7da19/resourcegroups/MyResourceGroupName/components/someApp?q=H4sIAAAAAAAEALMpLE0tqrQDAJjF8mcHAAAA";
-
-            // Verify that the query was composed and executed as expected
-            this.systemProcessClientMock.Verify(m => m.StartWebBrowserProcess(It.Is<Uri>(u => u.AbsoluteUri == expectedAbsoluteUri)), Times.Once());
         }
 
         private static void VerifyAlertProperty(DisplayableAlertProperty expected, DisplayableAlertProperty actual)

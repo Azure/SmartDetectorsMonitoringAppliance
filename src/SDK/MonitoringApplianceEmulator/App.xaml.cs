@@ -8,7 +8,6 @@
 namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator
 {
     using System;
-    using System.Diagnostics;
     using System.IO;
     using System.Windows;
     using Microsoft.Azure.Monitoring.SmartDetectors;
@@ -17,6 +16,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator
     using Microsoft.Azure.Monitoring.SmartDetectors.Loader;
     using Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.Models;
     using Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.State;
+    using Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.Trace;
     using Microsoft.Azure.Monitoring.SmartDetectors.Package;
     using Microsoft.Azure.Monitoring.SmartDetectors.State;
     using Microsoft.Azure.Monitoring.SmartDetectors.Tools;
@@ -59,7 +59,6 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator
             tempFolder = FileSystemExtensions.CreateTempFolder(TempSubFolderName);
 
             NotificationService notificationService = new NotificationService();
-            IObservableTracer stringTracer = new StringTracer(string.Empty);
             IExtendedTracer consoleTracer = new ConsoleTracer(string.Empty);
             var smartDetectorLoader = new SmartDetectorLoader(tempFolder, consoleTracer);
 
@@ -94,12 +93,10 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator
                 // Create state repository factory
                 IStateRepositoryFactory stateRepositoryFactory = new EmulationStateRepositoryFactory();
 
-                // Create a system process client
-                ISystemProcessClient systemProcessClient = new SystemProcessClient();
-
                 // Load user settings
                 var userSettings = UserSettings.LoadUserSettings();
 
+                // Create the detector runner
                 IEmulationSmartDetectorRunner smartDetectorRunner = new SmartDetectorRunner(
                     detector,
                     analysisServicesFactory,
@@ -107,13 +104,13 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator
                     smartDetectorManifest,
                     stateRepositoryFactory,
                     azureResourceManagerClient,
-                    stringTracer);
+                    new PageableLogArchiveFactory());
 
                 // Create a Unity container with all the required models and view models registrations
                 Container = new UnityContainer();
                 Container
                     .RegisterInstance(notificationService)
-                    .RegisterInstance(stringTracer)
+                    .RegisterInstance(consoleTracer)
                     .RegisterInstance(new AlertsRepository())
                     .RegisterInstance(authenticationServices)
                     .RegisterInstance(azureResourceManagerClient)
@@ -122,14 +119,13 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator
                     .RegisterInstance(analysisServicesFactory)
                     .RegisterInstance(smartDetectorRunner)
                     .RegisterInstance(stateRepositoryFactory)
-                    .RegisterInstance(systemProcessClient)
                     .RegisterInstance(userSettings);
             }
             catch (Exception exception)
             {
                 var message = $"{exception.Message}. {Environment.NewLine}{exception.InnerException?.Message}";
                 MessageBox.Show(message);
-                Trace.WriteLine(message);
+                System.Diagnostics.Trace.WriteLine(message);
                 Environment.Exit(1);
             }
         }

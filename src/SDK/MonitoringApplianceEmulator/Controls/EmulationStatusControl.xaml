@@ -38,8 +38,7 @@
         <StackPanel Grid.Row="2">
             <Button Style="{StaticResource MaterialDesignRaisedButton}" Width ="100"
                     HorizontalAlignment="Left" Content="Clear" Margin="7,10,0,15"  
-                    IsEnabled="{Binding Path=SmartDetectorRunner.IsSmartDetectorRunning, Converter={StaticResource InverseBooleanConverter}}" 
-                    Command="{Binding ClearTracerBoxCommand}"/>
+                    IsEnabled="{Binding Path=SmartDetectorRunner.IsSmartDetectorRunning, Converter={StaticResource InverseBooleanConverter}}" />
         </StackPanel>
     </Grid>
 
