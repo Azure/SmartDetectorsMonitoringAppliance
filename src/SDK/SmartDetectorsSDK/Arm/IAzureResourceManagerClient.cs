@@ -48,14 +48,6 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Arm
         Task<ResourceProperties> GetResourcePropertiesAsync(ResourceIdentifier resource, string apiVersion, CancellationToken cancellationToken);
 
         /// <summary>
-        /// Creates a REST API call to the request path supplied and enumerates the results
-        /// </summary>
-        /// <param name="requestPath">The request path to query.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>>A <see cref="Task{TResult}"/>, running the current operation, and a list of all items returned.</returns>
-        Task<List<JObject>> ExecuteArmRequestAsync(string requestPath, CancellationToken cancellationToken);
-
-        /// <summary>
         /// Enumerates all the resource groups in the specified subscription.
         /// </summary>
         /// <param name="subscriptionId">The subscription ID.</param>

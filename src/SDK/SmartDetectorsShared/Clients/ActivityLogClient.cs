@@ -8,6 +8,9 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Clients
 {
     using System;
     using System.Collections.Generic;
+    using System.Configuration;
+    using System.Linq;
+    using System.Net.Http;
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.Azure.Monitoring.SmartDetectors.ActivityLog;
@@ -15,6 +18,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Clients
     using Microsoft.Azure.Monitoring.SmartDetectors.Extensions;
     using Microsoft.Azure.Monitoring.SmartDetectors.Tools;
     using Microsoft.Azure.Monitoring.SmartDetectors.Trace;
+    using Microsoft.Rest;
     using Newtonsoft.Json.Linq;
     using Polly;
 
@@ -28,23 +32,32 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Clients
         /// </summary>
         private const string DependencyName = "ARM";
 
+        /// <summary>
+        /// The HTTP request timeout for ARM calls, in minutes
+        /// </summary>
+        private const int HttpRequestTimeoutInMinutes = 5;
+
+        private readonly ServiceClientCredentials credentials;
         private readonly IExtendedTracer tracer;
-        private readonly Policy retryPolicy;
-        private readonly IAzureResourceManagerClient azureResourceManagerClient;
+        private readonly Policy<HttpResponseMessage> httpRetryPolicy;
+        private readonly Uri baseUri;
+        private readonly IHttpClientWrapper httpClientWrapper;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ActivityLogClient"/> class.
         /// </summary>
-        /// <param name="azureResourceManagerClient">The Azure Resource Manager client</param>
         /// <param name="credentialsFactory">The credentials factory</param>
+        /// <param name="httpClientWrapper">The HTTP client wrapper</param>
         /// <param name="tracer">The tracer</param>
-        public ActivityLogClient(IAzureResourceManagerClient azureResourceManagerClient, ICredentialsFactory credentialsFactory, IExtendedTracer tracer)
+        public ActivityLogClient(ICredentialsFactory credentialsFactory, IHttpClientWrapper httpClientWrapper, IExtendedTracer tracer)
         {
+            this.httpClientWrapper = Diagnostics.EnsureArgumentNotNull(() => httpClientWrapper);
             this.tracer = Diagnostics.EnsureArgumentNotNull(() => tracer);
-
+            this.baseUri = new Uri(ConfigurationManager.AppSettings["ResourceManagerBaseUri"] ?? "https://management.azure.com/");
             Diagnostics.EnsureArgumentNotNull(() => credentialsFactory);
-            this.retryPolicy = PolicyExtensions.CreateDefaultPolicy(this.tracer, DependencyName);
-            this.azureResourceManagerClient = azureResourceManagerClient;
+            this.credentials = credentialsFactory.Create(ConfigurationManager.AppSettings["ResourceManagerCredentialsResource"] ?? "https://management.azure.com/");
+
+            this.httpRetryPolicy = PolicyExtensions.CreateTransientHttpErrorPolicy(this.tracer, DependencyName);
         }
 
         /// <summary>
@@ -60,11 +73,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Clients
             this.tracer.TraceInformation($"Running Activity Log query on resource Id {resourceIdentifier.ToResourceId()}, start time {startTime:u}, end time  {endTime:u}.");
 
             // Send the request iteratively using paging, and return the response as JObject
-            List<JObject> allItems = await this.retryPolicy.RunAndTrackDependencyAsync(
-                this.tracer,
-                DependencyName,
-                "GetActivityLogAsync",
-                () => this.ReadAllActivityLogPagesAsync(resourceIdentifier, startTime, endTime, cancellationToken));
+            List<JObject> allItems = await this.ReadAllActivityLogPagesAsync(resourceIdentifier, startTime, endTime, cancellationToken);
 
             this.tracer.TraceInformation($"Query completed with {allItems.Count} items");
             return allItems;
@@ -104,7 +113,47 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Clients
         private async Task<List<JObject>> ReadAllActivityLogPagesAsync(ResourceIdentifier resourceIdentifier, DateTime startTime, DateTime endTime, CancellationToken cancellationToken)
         {
             string requestPath = BuildRequestPath(resourceIdentifier, startTime, endTime);
-            return await this.azureResourceManagerClient.ExecuteArmRequestAsync(requestPath, cancellationToken);
+
+            // Create the URI according to the resource type
+            Uri nextLink = new Uri(this.baseUri, requestPath);
+            List<JObject> allItems = new List<JObject>();
+
+            while (nextLink != null)
+            {
+                this.tracer.TraceVerbose($"Sending a request to {nextLink}");
+                HttpResponseMessage response = await this.httpRetryPolicy.RunAndTrackDependencyAsync(
+                    this.tracer,
+                    DependencyName,
+                    "ReadAllActivityLogPagesAsync",
+                    async () =>
+                    {
+                        var request = new HttpRequestMessage(HttpMethod.Get, nextLink);
+
+                        // Set the credentials
+                        await this.credentials.ProcessHttpRequestAsync(request, cancellationToken);
+
+                        // Send request and get the response as JObject
+                        return await this.httpClientWrapper.SendAsync(request, TimeSpan.FromMinutes(HttpRequestTimeoutInMinutes), cancellationToken);
+                    });
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    this.tracer.TraceError($"Query returned an error; Status code: {response.StatusCode}");
+                    throw new HttpRequestException($"Query returned an error code {response.StatusCode}");
+                }
+
+                string responseContent = await response.Content.ReadAsStringAsync();
+                JObject responseObject = JObject.Parse(responseContent);
+
+                var returnedObjects = responseObject["value"].ToObject<List<JObject>>();
+                allItems.AddRange(returnedObjects);
+
+                // Link to next page
+                string nextLinkToken = responseObject.GetValue("nextLink", StringComparison.InvariantCulture)?.ToString();
+                nextLink = (nextLinkToken == null || !returnedObjects.Any()) ? null : new Uri(nextLinkToken);
+            }
+
+            return allItems;
         }
     }
 }
