@@ -1,5 +1,5 @@
 ﻿//-----------------------------------------------------------------------
-// <copyright file="InverseBooleanConverter.cs" company="Microsoft Corporation">
+// <copyright file="TablePropertyToTablePropertyControlViewModelConverter.cs" company="Microsoft Corporation">
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // </copyright>
 //-----------------------------------------------------------------------
@@ -9,12 +9,13 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
     using System;
     using System.Globalization;
     using System.Windows.Data;
-    using Microsoft.CodeAnalysis.Operations;
+    using Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.ViewModels;
+    using Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts;
 
     /// <summary>
-    /// Implementation of <see cref="IValueConverter"/> for inversing a boolean value.
+    /// Implementation of <see cref="IValueConverter"/> for converting from a <see cref="TableAlertProperty"/> value to <see cref="TablePropertyControlViewModel"/>.
     /// </summary>
-    public class InverseBooleanConverter : IValueConverter
+    public class TablePropertyToTablePropertyControlViewModelConverter : IValueConverter
     {
         #region Implementation of IValueConverter
 
@@ -30,12 +31,16 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
         /// <param name="culture">The culture to use in the converter.</param>
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (!(value is bool))
+            if (!(value is TableAlertProperty tableAlertProperty))
             {
-                throw new ArgumentException("The value parameter must be boolean", nameof(value));
+                string exceptionMessage = value == null ?
+                    "The value parameter can't be null" :
+                    $"The value parameter must be of type {typeof(TablePropertyControlViewModel)}, but it is from type {value.GetType()}.";
+
+                throw new ArgumentException(exceptionMessage, nameof(value));
             }
 
-            return !(bool)value;
+            return new TablePropertyControlViewModel(tableAlertProperty);
         }
 
         /// <summary>
@@ -50,7 +55,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
         /// <param name="culture">The culture to use in the converter.</param>
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            return this.Convert(value, targetType, parameter, culture);
+            throw new NotImplementedException();
         }
 
         #endregion
