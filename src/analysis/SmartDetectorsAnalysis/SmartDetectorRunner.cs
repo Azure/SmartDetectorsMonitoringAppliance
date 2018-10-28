@@ -107,7 +107,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.Analysis
             }
             catch (Exception e)
             {
-                this.tracer.TraceError($"Failed running Smart Detector ID {smartDetectorManifest.Id}, Name {smartDetectorManifest.Name}: {e.Message}");
+                this.tracer.TraceError($"Failed running Smart Detector ID {smartDetectorManifest.Id}, Name {smartDetectorManifest.Name}: {e}");
                 throw new FailedToRunSmartDetectorException($"Calling Smart Detector '{smartDetectorManifest.Name}' failed with exception of type {e.GetType()} and message: {e.Message}", e);
             }
 
