@@ -39,7 +39,6 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Clients
 
         private readonly ServiceClientCredentials credentials;
         private readonly IExtendedTracer tracer;
-        private readonly Policy retryPolicy;
         private readonly Policy<HttpResponseMessage> httpRetryPolicy;
         private readonly Uri baseUri;
         private readonly IHttpClientWrapper httpClientWrapper;
@@ -58,7 +57,6 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Clients
             Diagnostics.EnsureArgumentNotNull(() => credentialsFactory);
             this.credentials = credentialsFactory.Create(ConfigurationManager.AppSettings["ResourceManagerCredentialsResource"] ?? "https://management.azure.com/");
 
-            this.retryPolicy = PolicyExtensions.CreateDefaultPolicy(this.tracer, DependencyName);
             this.httpRetryPolicy = PolicyExtensions.CreateTransientHttpErrorPolicy(this.tracer, DependencyName);
         }
 
@@ -75,11 +73,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Clients
             this.tracer.TraceInformation($"Running Activity Log query on resource Id {resourceIdentifier.ToResourceId()}, start time {startTime:u}, end time  {endTime:u}.");
 
             // Send the request iteratively using paging, and return the response as JObject
-            List<JObject> allItems = await this.retryPolicy.RunAndTrackDependencyAsync(
-                this.tracer,
-                DependencyName,
-                "GetActivityLogAsync",
-                () => this.ReadAllActivityLogPagesAsync(resourceIdentifier, startTime, endTime, cancellationToken));
+            List<JObject> allItems = await this.ReadAllActivityLogPagesAsync(resourceIdentifier, startTime, endTime, cancellationToken);
 
             this.tracer.TraceInformation($"Query completed with {allItems.Count} items");
             return allItems;
@@ -119,17 +113,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Clients
         private async Task<List<JObject>> ReadAllActivityLogPagesAsync(ResourceIdentifier resourceIdentifier, DateTime startTime, DateTime endTime, CancellationToken cancellationToken)
         {
             string requestPath = BuildRequestPath(resourceIdentifier, startTime, endTime);
-            return await this.ExecuteArmRequestAsync(requestPath, cancellationToken);
-        }
 
-        /// <summary>
-        /// Creates a REST API call to the request path supplied and enumerates the results
-        /// </summary>
-        /// <param name="requestPath">The request path to query.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>A <see cref="Task{TResult}"/>, running the current operation, and a list of all items returned.</returns>
-        private async Task<List<JObject>> ExecuteArmRequestAsync(string requestPath, CancellationToken cancellationToken)
-        {
             // Create the URI according to the resource type
             Uri nextLink = new Uri(this.baseUri, requestPath);
             List<JObject> allItems = new List<JObject>();
@@ -140,7 +124,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Clients
                 HttpResponseMessage response = await this.httpRetryPolicy.RunAndTrackDependencyAsync(
                     this.tracer,
                     DependencyName,
-                    "ExecuteArmRequestAsync",
+                    "ReadAllActivityLogPagesAsync",
                     async () =>
                     {
                         var request = new HttpRequestMessage(HttpMethod.Get, nextLink);

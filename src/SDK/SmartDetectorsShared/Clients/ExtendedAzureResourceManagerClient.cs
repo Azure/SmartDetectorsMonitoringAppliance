@@ -54,8 +54,8 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Clients
         /// <param name="tracer">The tracer</param>
         public ExtendedAzureResourceManagerClient(ICredentialsFactory credentialsFactory, IExtendedTracer tracer)
         {
-            this.baseUri = new Uri(ConfigurationManager.AppSettings["ResourceManagerBaseUri"] ?? "https://management.azure.com/");
             Diagnostics.EnsureArgumentNotNull(() => credentialsFactory);
+            this.baseUri = new Uri(ConfigurationManager.AppSettings["ResourceManagerBaseUri"] ?? "https://management.azure.com/");
             this.credentials = credentialsFactory.Create(ConfigurationManager.AppSettings["ResourceManagerCredentialsResource"] ?? "https://management.azure.com/");
             this.tracer = Diagnostics.EnsureArgumentNotNull(() => tracer);
             this.tracer = tracer;
