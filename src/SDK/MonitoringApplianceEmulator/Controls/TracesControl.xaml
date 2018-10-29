@@ -3,10 +3,63 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              xmlns:local="clr-namespace:Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.Controls"
+             xmlns:viewModels="clr-namespace:Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.ViewModels"
+             xmlns:converters="clr-namespace:Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.Converters"
+             d:DataContext="{d:DesignInstance Type=viewModels:TracesControlViewModel, IsDesignTimeCreatable=True}"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
-    <Grid>
-            
+    <UserControl.Resources>
+        <converters:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+        <converters:InverseBooleanConverter x:Key="InverseBooleanConverter" />
+        <converters:ConverterChain x:Key="NullToVisibilityConverter">
+            <converters:NullToBooleanConverter/>
+            <BooleanToVisibilityConverter/>
+        </converters:ConverterChain>
+    </UserControl.Resources>
+    <Grid Visibility="{Binding PageableTracer, Converter={StaticResource NullToVisibilityConverter}, ConverterParameter='Visible,Hidden'}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>
+        </Grid.ColumnDefinitions>
+        <ListView Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2">
+
+        </ListView>
+        <ProgressBar IsIndeterminate="True" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Visibility="{Binding UpdatePageTask.IsRunning, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter='Visible,Hidden'}"/>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2">
+            <Button Style="{StaticResource TracesControlButton}" Command="{Binding FirstPageCommand}" IsEnabled="{Binding IsFirstPage, Converter={StaticResource InverseBooleanConverter}}">
+                <materialDesign:PackIcon Kind="ArrowCollapseLeft" VerticalAlignment="Center"/>
+            </Button>
+            <Button Style="{StaticResource TracesControlButton}" Command="{Binding PrevPageCommand}" IsEnabled="{Binding IsFirstPage, Converter={StaticResource InverseBooleanConverter}}">
+                <materialDesign:PackIcon Kind="ArrowLeft" VerticalAlignment="Center"/>
+            </Button>
+            <TextBlock Text="Page" VerticalAlignment="Center"/>
+            <TextBox 
+                Width="20" VerticalAlignment="Center" Margin="5,0"
+                Text="{Binding CurrentPageIndex}" IsEnabled="{Binding UpdatePageTask.IsRunning, Converter={StaticResource InverseBooleanConverter}}"/>
+            <TextBlock Text="{Binding NumberOfPages, StringFormat='of {0}'}" VerticalAlignment="Center"/>
+            <Button Style="{StaticResource TracesControlButton}" Command="{Binding NextPageCommand}" IsEnabled="{Binding IsLastPage, Converter={StaticResource InverseBooleanConverter}}">
+                <materialDesign:PackIcon Kind="ArrowRight" VerticalAlignment="Center"/>
+            </Button>
+            <Button Style="{StaticResource TracesControlButton}" Command="{Binding LastPageCommand}" IsEnabled="{Binding IsLastPage, Converter={StaticResource InverseBooleanConverter}}">
+                <materialDesign:PackIcon Kind="ArrowCollapseRight" VerticalAlignment="Center"/>
+            </Button>
+            <ComboBox 
+                Margin="20 8 5 8" VerticalAlignment="Center" ItemsSource="{Binding SupportedPageSizes}" 
+                SelectedIndex="0" SelectedItem="{Binding PageableTracer.PageSize}" IsEnabled="{Binding UpdatePageTask.IsRunning, Converter={StaticResource InverseBooleanConverter}}"/>
+            <TextBlock Text="trace lines per page"  VerticalAlignment="Center"/>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Grid.Row="2" Grid.Column="1">
+            <TextBlock Text="{Binding CurrentPageStart}"/>
+            <TextBlock Text=" - "/>
+            <TextBlock Text="{Binding CurrentPageEnd}"/>
+            <TextBlock Text="{Binding NumberOfTraceLines, StringFormat=' of {0} items'}"/>
+        </StackPanel>
     </Grid>
 </UserControl>

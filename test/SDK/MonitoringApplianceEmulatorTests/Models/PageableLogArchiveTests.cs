@@ -122,6 +122,8 @@ namespace MonitoringApplianceEmulatorTests.Models
         {
             Assert.AreEqual(TestPageSize, logTracer.PageSize, $"Mismatch on the tracer's page size for '{logName}'");
             Assert.AreEqual(0, logTracer.CurrentPageIndex, $"Mismatch on the tracer's current page for '{logName}'");
+            Assert.AreEqual(0, logTracer.CurrentPageStart, $"Mismatch on the tracer's current page start for '{logName}'");
+            Assert.AreEqual(0, logTracer.CurrentPageEnd, $"Mismatch on the tracer's current page end for '{logName}'");
             Assert.AreEqual(0, logTracer.NumberOfPages, $"Mismatch on the tracer's number of pages for '{logName}'");
             Assert.AreEqual(0, logTracer.NumberOfTraceLines, $"Mismatch on the tracer's number of trace lines for '{logName}'");
             Assert.AreEqual(logName, logTracer.SessionId, $"Mismatch on the tracer's session ID for '{logName}'");

@@ -44,6 +44,8 @@ namespace MonitoringApplianceEmulatorTests.Models
 
                     Assert.AreEqual(TestPageSize, logTracer.PageSize, "Mismatch on the tracer's page size");
                     Assert.AreEqual(0, logTracer.CurrentPageIndex, "Mismatch on the tracer's current page");
+                    Assert.AreEqual(0, logTracer.CurrentPageStart, "Mismatch on the tracer's current page start");
+                    Assert.AreEqual(3, logTracer.CurrentPageEnd, "Mismatch on the tracer's current page end");
                     Assert.AreEqual(1, logTracer.NumberOfPages, "Mismatch on the tracer's number of pages");
                     Assert.AreEqual(4, logTracer.NumberOfTraceLines, "Mismatch on the tracer's number of trace lines");
                     Assert.AreEqual("mylog", logTracer.SessionId, "Mismatch on the tracer's session ID");
@@ -62,6 +64,8 @@ namespace MonitoringApplianceEmulatorTests.Models
                 {
                     Assert.AreEqual(TestPageSize, logTracer.PageSize, "Mismatch on the tracer's page size");
                     Assert.AreEqual(0, logTracer.CurrentPageIndex, "Mismatch on the tracer's current page");
+                    Assert.AreEqual(0, logTracer.CurrentPageStart, "Mismatch on the tracer's current page start");
+                    Assert.AreEqual(3, logTracer.CurrentPageEnd, "Mismatch on the tracer's current page end");
                     Assert.AreEqual(1, logTracer.NumberOfPages, "Mismatch on the tracer's number of pages");
                     Assert.AreEqual(4, logTracer.NumberOfTraceLines, "Mismatch on the tracer's number of trace lines");
                     Assert.AreEqual("mylog", logTracer.SessionId, "Mismatch on the tracer's session ID");
@@ -89,6 +93,8 @@ namespace MonitoringApplianceEmulatorTests.Models
 
                     Assert.AreEqual(TestPageSize, logTracer.PageSize, "Mismatch on the tracer's page size");
                     Assert.AreEqual(0, logTracer.CurrentPageIndex, "Mismatch on the tracer's current page");
+                    Assert.AreEqual(0, logTracer.CurrentPageStart, "Mismatch on the tracer's current page start");
+                    Assert.AreEqual(9, logTracer.CurrentPageEnd, "Mismatch on the tracer's current page end");
                     Assert.AreEqual(10, logTracer.NumberOfPages, "Mismatch on the tracer's number of pages");
                     Assert.AreEqual(TestPageSize * 10, logTracer.NumberOfTraceLines, "Mismatch on the tracer's number of trace lines");
                     Assert.AreEqual("mylog", logTracer.SessionId, "Mismatch on the tracer's session ID");
@@ -111,6 +117,8 @@ namespace MonitoringApplianceEmulatorTests.Models
                 {
                     Assert.AreEqual(TestPageSize, logTracer.PageSize, "Mismatch on the tracer's page size");
                     Assert.AreEqual(0, logTracer.CurrentPageIndex, "Mismatch on the tracer's current page");
+                    Assert.AreEqual(0, logTracer.CurrentPageStart, "Mismatch on the tracer's current page start");
+                    Assert.AreEqual(9, logTracer.CurrentPageEnd, "Mismatch on the tracer's current page end");
                     Assert.AreEqual(10, logTracer.NumberOfPages, "Mismatch on the tracer's number of pages");
                     Assert.AreEqual(TestPageSize * 10, logTracer.NumberOfTraceLines, "Mismatch on the tracer's number of trace lines");
                     Assert.AreEqual("mylog", logTracer.SessionId, "Mismatch on the tracer's session ID");
@@ -128,6 +136,8 @@ namespace MonitoringApplianceEmulatorTests.Models
 
                     Assert.AreEqual(TestPageSize, logTracer.PageSize, "Mismatch on the tracer's page size");
                     Assert.AreEqual(9, logTracer.CurrentPageIndex, "Mismatch on the tracer's current page");
+                    Assert.AreEqual(90, logTracer.CurrentPageStart, "Mismatch on the tracer's current page start");
+                    Assert.AreEqual(99, logTracer.CurrentPageEnd, "Mismatch on the tracer's current page end");
                     Assert.AreEqual(11, logTracer.NumberOfPages, "Mismatch on the tracer's number of pages");
                     Assert.AreEqual(TestPageSize * 11, logTracer.NumberOfTraceLines, "Mismatch on the tracer's number of trace lines");
                     Assert.AreEqual("mylog", logTracer.SessionId, "Mismatch on the tracer's session ID");
@@ -138,13 +148,6 @@ namespace MonitoringApplianceEmulatorTests.Models
                         await logTracer.SetCurrentPageIndexAsync(i);
                         AssertPageTraces(logTracer, i);
                     }
-
-                    // Now move forward and backward
-                    await logTracer.PrevPageAsync();
-                    await logTracer.PrevPageAsync();
-                    AssertPageTraces(logTracer, 8);
-                    await logTracer.NextPageAsync();
-                    AssertPageTraces(logTracer, 9);
                 }
             }
         }
@@ -164,6 +167,8 @@ namespace MonitoringApplianceEmulatorTests.Models
 
                     Assert.AreEqual(TestPageSize, logTracer.PageSize, "Mismatch on the tracer's page size");
                     Assert.AreEqual(0, logTracer.CurrentPageIndex, "Mismatch on the tracer's current page");
+                    Assert.AreEqual(0, logTracer.CurrentPageStart, "Mismatch on the tracer's current page start");
+                    Assert.AreEqual(9, logTracer.CurrentPageEnd, "Mismatch on the tracer's current page end");
                     Assert.AreEqual(10, logTracer.NumberOfPages, "Mismatch on the tracer's number of pages");
                     Assert.AreEqual(TestPageSize * 10, logTracer.NumberOfTraceLines, "Mismatch on the tracer's number of trace lines");
                     Assert.AreEqual("mylog", logTracer.SessionId, "Mismatch on the tracer's session ID");
@@ -179,6 +184,8 @@ namespace MonitoringApplianceEmulatorTests.Models
                     await logTracer.SetPageSizeAsync(7);
 
                     Assert.AreEqual(4, logTracer.CurrentPageIndex, "Mismatch on the tracer's current page");
+                    Assert.AreEqual(28, logTracer.CurrentPageStart, "Mismatch on the tracer's current page start");
+                    Assert.AreEqual(34, logTracer.CurrentPageEnd, "Mismatch on the tracer's current page end");
                     for (int i = 0; i < 7; i++)
                     {
                         AssertTraceLine(logTracer, i, TraceLevel.Info, $"{(4 * 7) + i}");

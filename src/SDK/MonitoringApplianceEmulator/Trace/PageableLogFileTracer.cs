@@ -81,6 +81,16 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
         public int CurrentPageIndex { get; private set; }
 
         /// <summary>
+        /// Gets the index of the current page's first trace line.
+        /// </summary>
+        public int CurrentPageStart => this.CurrentPageIndex * this.PageSize;
+
+        /// <summary>
+        /// Gets the index of the current page's last trace line.
+        /// </summary>
+        public int CurrentPageEnd => this.CurrentPageTraces.Count == 0 ? 0 : this.CurrentPageStart + this.CurrentPageTraces.Count - 1;
+
+        /// <summary>
         /// Gets the traces of the current page
         /// </summary>
         public ObservableCollection<TraceLine> CurrentPageTraces { get; }
@@ -166,26 +176,6 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
             // And load the new page (we set CurrentPageIndex to -1 to force loading of the page)
             this.CurrentPageIndex = -1;
             await this.SetCurrentPageIndexAsync(newCurrentPageIndex);
-        }
-
-        /// <summary>
-        /// Moves <see cref="CurrentPageIndex"/> to be the next page. If <see cref="CurrentPageIndex"/> already points
-        /// to the log's last page, calling this method will not have any affect.
-        /// </summary>
-        /// <returns>A <see cref="Task"/> running the asynchronous operation.</returns>
-        public async Task NextPageAsync()
-        {
-            await this.SetCurrentPageIndexAsync(this.CurrentPageIndex + 1);
-        }
-
-        /// <summary>
-        /// Moves <see cref="CurrentPageIndex"/> to be the previous page. If <see cref="CurrentPageIndex"/> already points
-        /// to the log's first page, calling this method will not have any affect.
-        /// </summary>
-        /// <returns>A <see cref="Task"/> running the asynchronous operation.</returns>
-        public async Task PrevPageAsync()
-        {
-            await this.SetCurrentPageIndexAsync(this.CurrentPageIndex - 1);
         }
 
         /// <summary>

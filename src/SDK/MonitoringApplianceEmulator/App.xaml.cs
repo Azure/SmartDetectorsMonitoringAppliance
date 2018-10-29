@@ -110,7 +110,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator
                 Container = new UnityContainer();
                 Container
                     .RegisterInstance(notificationService)
-                    .RegisterInstance(consoleTracer)
+                    .RegisterInstance<ITracer>(consoleTracer)
                     .RegisterInstance(new AlertsRepository())
                     .RegisterInstance(authenticationServices)
                     .RegisterInstance(azureResourceManagerClient)

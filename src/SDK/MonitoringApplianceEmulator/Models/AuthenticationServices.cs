@@ -84,9 +84,9 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
                 this.resourceId,
                 this.clientId,
                 this.redirectUri,
-                PromptBehavior.Auto,
+                PromptBehavior.Auto); /*,
                 UserIdentifier.AnyUser,
-                "prompt=consent");
+                "prompt=consent");*/
 
             this.AuthenticatedUserName = this.authenticationResult.UserInfo.GivenName;
         }

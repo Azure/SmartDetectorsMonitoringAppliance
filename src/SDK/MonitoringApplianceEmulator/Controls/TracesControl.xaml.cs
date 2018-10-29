@@ -1,28 +1,24 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+﻿//-----------------------------------------------------------------------
+// <copyright file="TracesControl.xaml.cs" company="Microsoft Corporation">
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// </copyright>
+//-----------------------------------------------------------------------
 
 namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.Controls
 {
+    using System.Windows.Controls;
+
     /// <summary>
     /// Interaction logic for TracesControl.xaml
     /// </summary>
     public partial class TracesControl : UserControl
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TracesControl"/> class.
+        /// </summary>
         public TracesControl()
         {
-            InitializeComponent();
+            this.InitializeComponent();
         }
     }
 }

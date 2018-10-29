@@ -30,11 +30,12 @@
             <ProgressBar IsIndeterminate="{Binding Path=SmartDetectorRunner.IsSmartDetectorRunning, Mode=OneWay}" />
             <TextBlock Style="{StaticResource ControlText}" Text="Traces" Margin="0,10,0,10"/>
         </StackPanel>
-        <TextBox Grid.Row="1" x:Name="TracerBox" MinHeight="210" Margin="0,0,0,15" AcceptsReturn="True" 
+        <!--<TextBox Grid.Row="1" x:Name="TracerBox" MinHeight="210" Margin="0,0,0,15" AcceptsReturn="True" 
                  Background="White" BorderBrush="#FF7F7F7F" BorderThickness="1"
                  Text="{Binding Tracer.Traces, Mode=OneWay}"
                  IsReadOnly="True" IsTabStop="False" HorizontalScrollBarVisibility="Visible" VerticalScrollBarVisibility="Auto"
-                 TextChanged ="TracerBoxTextChanged"/>
+                 TextChanged ="TracerBoxTextChanged"/>-->
+        <local:TracesControl Grid.Row="1" MinHeight="210" Margin="0,0,0,15" />
         <StackPanel Grid.Row="2">
             <Button Style="{StaticResource MaterialDesignRaisedButton}" Width ="100"
                     HorizontalAlignment="Left" Content="Clear" Margin="7,10,0,15"  

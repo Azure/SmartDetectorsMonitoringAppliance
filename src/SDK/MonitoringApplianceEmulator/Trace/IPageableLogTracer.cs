@@ -37,6 +37,16 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
         int CurrentPageIndex { get; }
 
         /// <summary>
+        /// Gets the index of the current page's first trace line.
+        /// </summary>
+        int CurrentPageStart { get; }
+
+        /// <summary>
+        /// Gets the index of the current page's last trace line.
+        /// </summary>
+        int CurrentPageEnd { get; }
+
+        /// <summary>
         /// Gets the traces of the current page
         /// </summary>
         ObservableCollection<TraceLine> CurrentPageTraces { get; }
@@ -48,20 +58,6 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
         /// <param name="pageSize">The updated page size.</param>
         /// <returns>A <see cref="Task"/> running the asynchronous operation.</returns>
         Task SetPageSizeAsync(int pageSize);
-
-        /// <summary>
-        /// Moves <see cref="CurrentPageIndex"/> to be the next page. If <see cref="CurrentPageIndex"/> already points
-        /// to the log's last page, calling this method will not have any affect.
-        /// </summary>
-        /// <returns>A <see cref="Task"/> running the asynchronous operation.</returns>
-        Task NextPageAsync();
-
-        /// <summary>
-        /// Moves <see cref="CurrentPageIndex"/> to be the previous page. If <see cref="CurrentPageIndex"/> already points
-        /// to the log's first page, calling this method will not have any affect.
-        /// </summary>
-        /// <returns>A <see cref="Task"/> running the asynchronous operation.</returns>
-        Task PrevPageAsync();
 
         /// <summary>
         /// Moves <see cref="CurrentPageIndex"/> to be <paramref name="pageIndex"/>. If <paramref name="pageIndex"/> is outside
