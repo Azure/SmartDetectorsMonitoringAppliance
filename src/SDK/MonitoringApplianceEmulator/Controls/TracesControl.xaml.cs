@@ -7,6 +7,8 @@
 namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.Controls
 {
     using System.Windows.Controls;
+    using Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.ViewModels;
+    using Unity;
 
     /// <summary>
     /// Interaction logic for TracesControl.xaml
@@ -19,6 +21,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
         public TracesControl()
         {
             this.InitializeComponent();
+            this.DataContext = App.Container.Resolve<TracesControlViewModel>();
         }
     }
 }

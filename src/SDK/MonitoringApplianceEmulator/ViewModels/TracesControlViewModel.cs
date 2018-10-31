@@ -7,9 +7,11 @@
 namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.ViewModels
 {
     using System.Collections.Generic;
+    using System.ComponentModel;
     using System.Threading.Tasks;
     using Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.Models;
     using Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.Trace;
+    using Unity.Attributes;
 
     /// <summary>
     /// The view model for the traces control.
@@ -35,12 +37,21 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
         /// <summary>
         /// Initializes a new instance of the <see cref="TracesControlViewModel"/> class.
         /// </summary>
+        /// <param name="smartDetectorRunner">The Smart Detector runner to get the tracer from.</param>
         /// <param name="tracer">The tracer to use.</param>
-        public TracesControlViewModel(ITracer tracer)
+        [InjectionConstructor]
+        public TracesControlViewModel(IEmulationSmartDetectorRunner smartDetectorRunner, ITracer tracer)
             : this()
         {
             this.tracer = tracer;
             this.UpdatePageTask = new ObservableTask(Task.FromResult(true), this.tracer);
+            smartDetectorRunner.PropertyChanged += (sender, args) =>
+            {
+                if (args.PropertyName == nameof(smartDetectorRunner.PageableLogTracer))
+                {
+                    this.PageableTracer = smartDetectorRunner.PageableLogTracer;
+                }
+            };
         }
 
         /// <summary>
@@ -56,8 +67,20 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
             get => this.pageableTracer;
             set
             {
+                // Unregister from the old tracer
+                if (this.pageableTracer != null)
+                {
+                    this.pageableTracer.PropertyChanged -= this.PageableTracerOnPropertyChanged;
+                }
+
                 // Set the tracer, and re-apply the page size
                 this.pageableTracer = value;
+                if (this.pageableTracer != null)
+                {
+                    this.pageableTracer.PropertyChanged += this.PageableTracerOnPropertyChanged;
+                }
+
+                this.OnPropertyChanged();
                 this.PageSize = this.pageSize;
             }
         }
@@ -73,7 +96,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
                 this.pageSize = value;
                 if (this.PageableTracer != null)
                 {
-                    this.UpdatePageTask = new ObservableTask(this.PageableTracer.SetPageSizeAsync(value), this.tracer);
+                    this.UpdatePageTask = new ObservableTask(this.PageableTracer.SetPageSizeAsync(value), this.tracer, this.OnPageUpdated);
                 }
                 else
                 {
@@ -104,7 +127,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
                     }
                     else
                     {
-                        this.UpdatePageTask = new ObservableTask(this.PageableTracer.SetCurrentPageIndexAsync(value - 1), this.tracer);
+                        this.UpdatePageTask = new ObservableTask(this.PageableTracer.SetCurrentPageIndexAsync(value - 1), this.tracer, this.OnPageUpdated);
                     }
                 }
             }
@@ -177,5 +200,30 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
         /// </summary>
         public CommandHandler LastPageCommand => new CommandHandler(
             () => this.updatePageTask = new ObservableTask(this.PageableTracer.SetCurrentPageIndexAsync(this.NumberOfPages - 1), this.tracer));
+
+        /// <summary>
+        /// Callback for handling the completion of the page update. Basically notifies that everything has changed.
+        /// </summary>
+        private void OnPageUpdated()
+        {
+            this.OnPropertyChanged(nameof(this.PageSize));
+            this.OnPropertyChanged(nameof(this.CurrentPageIndex));
+            this.OnPropertyChanged(nameof(this.CurrentPageStart));
+            this.OnPropertyChanged(nameof(this.CurrentPageEnd));
+            this.OnPropertyChanged(nameof(this.NumberOfPages));
+            this.OnPropertyChanged(nameof(this.IsFirstPage));
+            this.OnPropertyChanged(nameof(this.IsLastPage));
+        }
+
+        /// <summary>
+        /// Handler for property changed events on <see cref="PageableTracer"/>.
+        /// </summary>
+        /// <param name="sender">The sender of the event.</param>
+        /// <param name="e">The event arguments</param>
+        private void PageableTracerOnPropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            // Send the notification as if this object has changed - we match the property names, so it should work
+            this.OnPropertyChanged(e.PropertyName);
+        }
     }
 }

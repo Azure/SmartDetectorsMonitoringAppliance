@@ -9,12 +9,14 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
     using System;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
+    using System.ComponentModel;
     using System.Threading.Tasks;
+    using Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.Trace;
 
     /// <summary>
     /// An interface for running a Smart Detector within the emulator.
     /// </summary>
-    public interface IEmulationSmartDetectorRunner
+    public interface IEmulationSmartDetectorRunner : INotifyPropertyChanged
     {
         /// <summary>
         /// Gets the Smart Detector run's alerts.
@@ -22,9 +24,14 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
         ObservableCollection<EmulationAlert> Alerts { get; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether the Smart Detector is running.
+        /// Gets a value indicating whether the Smart Detector is running.
         /// </summary>
-        bool IsSmartDetectorRunning { get; set; }
+        bool IsSmartDetectorRunning { get; }
+
+        /// <summary>
+        /// Gets the log tracer used for this run.
+        /// </summary>
+        IPageableLogTracer PageableLogTracer { get; }
 
         /// <summary>
         /// Runs the Smart Detector asynchronously.

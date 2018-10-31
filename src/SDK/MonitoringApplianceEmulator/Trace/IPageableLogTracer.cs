@@ -8,12 +8,13 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
 {
     using System;
     using System.Collections.ObjectModel;
+    using System.ComponentModel;
     using System.Threading.Tasks;
 
     /// <summary>
     /// An interface for a pageable log tracer
     /// </summary>
-    public interface IPageableLogTracer : ITracer, IDisposable
+    public interface IPageableLogTracer : ITracer, INotifyPropertyChanged, IDisposable
     {
         /// <summary>
         /// Gets the total number of trace lines in the log.

@@ -47,6 +47,8 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
 
         private bool isSmartDetectorRunning;
 
+        private IPageableLogTracer pageableLogTracer;
+
         private Action cancelSmartDetectorRunAction = null;
 
         /// <summary>
@@ -96,15 +98,29 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
         }
 
         /// <summary>
-        /// Gets or sets a value indicating whether the Smart Detector is running.
+        /// Gets a value indicating whether the Smart Detector is running.
         /// </summary>
         public bool IsSmartDetectorRunning
         {
             get => this.isSmartDetectorRunning;
 
-            set
+            private set
             {
                 this.isSmartDetectorRunning = value;
+                this.OnPropertyChanged();
+            }
+        }
+
+        /// <summary>
+        /// Gets the log tracer used for this run
+        /// </summary>
+        public IPageableLogTracer PageableLogTracer
+        {
+            get => this.pageableLogTracer;
+
+            private set
+            {
+                this.pageableLogTracer = value;
                 this.OnPropertyChanged();
             }
         }
@@ -145,49 +161,62 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
                         int currentRunNumber = 1;
                         for (var currentTime = startTimeRange; currentTime <= endTimeRange; currentTime = currentTime.Add(analysisCadence))
                         {
-                            using (IPageableLogTracer tracer = await logArchive.GetLogAsync(Guid.NewGuid().ToString(), 50))
+                            try
                             {
-                                tracer.TraceInformation($"Start analysis, with session ID = '{tracer.SessionId}' end of time range: {currentTime}");
+                                this.PageableLogTracer = await logArchive.GetLogAsync(Guid.NewGuid().ToString(), 50);
+                                this.PageableLogTracer.TraceInformation($"Start analysis, with session ID = '{this.PageableLogTracer.SessionId}' end of time range: {currentTime}");
 
-                                try
-                                {
-                                    ExtendedDateTime.SetEmulatedUtcNow(currentTime);
-                                    var analysisRequest = new AnalysisRequest(targetResourcesForDetector, analysisCadence, null, this.analysisServicesFactory, stateRepository);
+                                ExtendedDateTime.SetEmulatedUtcNow(currentTime);
+                                var analysisRequest = new AnalysisRequest(targetResourcesForDetector, analysisCadence, null, this.analysisServicesFactory, stateRepository);
 
-                                    // Run the detector in a different context by using "Task.Run()". This will prevent the detector execution from blocking the UI
-                                    List<SmartDetectors.Alert> newAlerts = await Task.Run(() => this.smartDetector.AnalyzeResourcesAsync(
+                                // Run the detector in a different context by using "Task.Run()". This will prevent the detector execution from blocking the UI
+                                List<SmartDetectors.Alert> newAlerts = await Task.Run(() =>
+                                    this.smartDetector.AnalyzeResourcesAsync(
                                         analysisRequest,
-                                        tracer,
+                                        this.PageableLogTracer,
                                         cancellationToken));
 
-                                    var smartDetectorExecutionRequest = new SmartDetectorExecutionRequest
-                                    {
-                                        ResourceIds = targetResourcesIds,
-                                        SmartDetectorId = this.smartDetectorManifest.Id,
-                                        Cadence = analysisCadence,
-                                    };
-
-                                    var lazyResourceToWorkspaceResourceIdMapping = new Lazy<Task<Dictionary<ResourceIdentifier, ResourceIdentifier>>>(() => this.GetResourceToWorkspaceResourceIdMappingAsync(targetResourcesForDetector, cancellationToken));
-
-                                    foreach (var newAlert in newAlerts)
-                                    {
-                                        QueryRunInfo queryRunInfo = await this.CreateQueryRunInfoForAlertAsync(newAlert, lazyResourceToWorkspaceResourceIdMapping, cancellationToken);
-                                        ContractsAlert contractsAlert = newAlert.CreateContractsAlert(smartDetectorExecutionRequest, this.smartDetectorManifest.Name, queryRunInfo, this.analysisServicesFactory.UsedLogAnalysisClient, this.analysisServicesFactory.UsedMetricClient);
-                                        this.Alerts.Add(new EmulationAlert(contractsAlert, currentTime));
-                                    }
-
-                                    tracer.TraceInformation($"Completed {currentRunNumber} of {totalRunsAmount} runs - found {newAlerts.Count} new alerts");
-                                    currentRunNumber++;
-                                }
-                                catch (OperationCanceledException)
+                                var smartDetectorExecutionRequest = new SmartDetectorExecutionRequest
                                 {
-                                    tracer.TraceError("Smart Detector run was canceled.");
-                                    break;
-                                }
-                                catch (Exception e)
+                                    ResourceIds = targetResourcesIds,
+                                    SmartDetectorId = this.smartDetectorManifest.Id,
+                                    Cadence = analysisCadence,
+                                };
+
+                                var lazyResourceToWorkspaceResourceIdMapping =
+                                    new Lazy<Task<Dictionary<ResourceIdentifier, ResourceIdentifier>>>(() =>
+                                        this.GetResourceToWorkspaceResourceIdMappingAsync(
+                                            targetResourcesForDetector, cancellationToken));
+
+                                foreach (var newAlert in newAlerts)
                                 {
-                                    tracer.TraceError($"Got exception while running detector: {e}");
+                                    QueryRunInfo queryRunInfo = await this.CreateQueryRunInfoForAlertAsync(newAlert, lazyResourceToWorkspaceResourceIdMapping, cancellationToken);
+                                    ContractsAlert contractsAlert = newAlert.CreateContractsAlert(
+                                        smartDetectorExecutionRequest,
+                                        this.smartDetectorManifest.Name,
+                                        queryRunInfo,
+                                        this.analysisServicesFactory.UsedLogAnalysisClient,
+                                        this.analysisServicesFactory.UsedMetricClient);
+                                    this.Alerts.Add(new EmulationAlert(contractsAlert, currentTime));
                                 }
+
+                                this.PageableLogTracer.TraceInformation($"Completed {currentRunNumber} of {totalRunsAmount} runs - found {newAlerts.Count} new alerts");
+                                currentRunNumber++;
+                            }
+                            catch (OperationCanceledException)
+                            {
+                                this.PageableLogTracer?.TraceError("Smart Detector run was canceled.");
+                                break;
+                            }
+                            catch (Exception e)
+                            {
+                                this.PageableLogTracer?.TraceError($"Got exception while running detector: {e}");
+                            }
+                            finally
+                            {
+                                IPageableLogTracer tracer = this.PageableLogTracer;
+                                this.PageableLogTracer = null;
+                                tracer?.Dispose();
                             }
                         }
                     }

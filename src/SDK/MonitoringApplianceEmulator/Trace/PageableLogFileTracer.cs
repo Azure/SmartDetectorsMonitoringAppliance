@@ -224,6 +224,10 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
                     }
                 }
 
+                // Update the page start and end
+                this.OnPropertyChanged(nameof(this.CurrentPageStart));
+                this.OnPropertyChanged(nameof(this.CurrentPageEnd));
+
                 // Move back to the end of the file so we won't override traces
                 this.logFileStream.Seek(0, SeekOrigin.End);
             }
@@ -368,6 +372,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
                 if (this.CurrentPageTraces.Count < this.PageSize)
                 {
                     this.CurrentPageTraces.Add(new TraceLine(level, timestamp, message));
+                    this.OnPropertyChanged(nameof(this.CurrentPageEnd));
                 }
             }
             finally

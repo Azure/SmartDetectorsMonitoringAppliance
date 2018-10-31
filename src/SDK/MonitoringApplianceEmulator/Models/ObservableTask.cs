@@ -10,6 +10,11 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
     using System.Threading.Tasks;
 
     /// <summary>
+    /// Occurs when the observable task was completed.
+    /// </summary>
+    public delegate void OnTaskCompletedEventHandler();
+
+    /// <summary>
     /// An Observable Task with no return value.
     /// </summary>
     public class ObservableTask : ObservableTask<bool>
@@ -21,8 +26,8 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
         /// <param name="tracer">The tracer.</param>
         /// <param name="onTaskCompletedCallbabk">Method that should be executed after the task was completed.</param>
         [SuppressMessage("Microsoft.Design", "CA1061:DoNotHideBaseClassMethods", Justification = "This is a misfire of the rule, as it shouldn't be applied to constructors (see issue #1691)")]
-        public ObservableTask(Task taskToRun, ITracer tracer, OnTaskCompletedEventHandler<bool> onTaskCompletedCallbabk = null)
-            : base(TaskToRunWrapper(taskToRun), tracer, onTaskCompletedCallbabk)
+        public ObservableTask(Task taskToRun, ITracer tracer, OnTaskCompletedEventHandler onTaskCompletedCallbabk = null)
+            : base(TaskToRunWrapper(taskToRun), tracer, val => onTaskCompletedCallbabk?.Invoke())
         {
         }
 

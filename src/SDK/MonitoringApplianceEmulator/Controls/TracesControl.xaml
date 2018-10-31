@@ -13,12 +13,12 @@
     <UserControl.Resources>
         <converters:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
         <converters:InverseBooleanConverter x:Key="InverseBooleanConverter" />
-        <converters:ConverterChain x:Key="NullToVisibilityConverter">
+        <converters:ConverterChain x:Key="InverseNullToVisibilityConverter">
             <converters:NullToBooleanConverter/>
-            <BooleanToVisibilityConverter/>
+            <converters:BooleanToVisibilityConverter/>
         </converters:ConverterChain>
     </UserControl.Resources>
-    <Grid Visibility="{Binding PageableTracer, Converter={StaticResource NullToVisibilityConverter}, ConverterParameter='Visible,Hidden'}">
+    <Grid Visibility="{Binding PageableTracer, Converter={StaticResource InverseNullToVisibilityConverter}, ConverterParameter='Visible,Hidden'}">
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
@@ -52,7 +52,7 @@
             </Button>
             <ComboBox 
                 Margin="20 8 5 8" VerticalAlignment="Center" ItemsSource="{Binding SupportedPageSizes}" 
-                SelectedIndex="0" SelectedItem="{Binding PageableTracer.PageSize}" IsEnabled="{Binding UpdatePageTask.IsRunning, Converter={StaticResource InverseBooleanConverter}}"/>
+                SelectedIndex="0" SelectedItem="{Binding PageSize}" IsEnabled="{Binding UpdatePageTask.IsRunning, Converter={StaticResource InverseBooleanConverter}}"/>
             <TextBlock Text="trace lines per page"  VerticalAlignment="Center"/>
         </StackPanel>
         <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Grid.Row="2" Grid.Column="1">

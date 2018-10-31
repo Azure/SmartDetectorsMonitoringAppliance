@@ -23,15 +23,5 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
             this.InitializeComponent();
             this.DataContext = App.Container.Resolve<EmulationStatusControlViewModel>();
         }
-
-        /// <summary>
-        /// Automatically scrolls to the end of the Tracer Box. The event occurs when content changes in the Tracer Box.
-        /// </summary>
-        /// <param name="sender">The sender.</param>
-        /// <param name="args">The arguments.</param>
-        public void TracerBoxTextChanged(object sender, TextChangedEventArgs args)
-        {
-            ((TextBox)sender).ScrollToEnd();
-        }
     }
 }
