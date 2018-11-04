@@ -1,0 +1,35 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net461</TargetFramework>
+    <RootNamespace>Microsoft.Azure.Monitoring.SmartDetectors</RootNamespace>
+    <AssemblyName>Microsoft.Azure.Monitoring.SmartDetectors.Extensions</AssemblyName>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <StyleCopTreatErrorsAsWarnings>False</StyleCopTreatErrorsAsWarnings>
+    <CodeAnalysisRuleSet>$(SolutionDir)SmartDetectorsMonitoringAppliance.ruleset</CodeAnalysisRuleSet>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Version>0.1.0</Version>
+    <Authors>Microsoft</Authors>
+    <Company>Microsoft Corporation</Company>
+    <Product>Azure Smart Detectors Extensions</Product>
+    <Description>This client library provides extension methods to the smart detectors SDK.
+This package can be used to create a runtime environment for smart detectors.</Description>
+    <Copyright>© Microsoft Corporation. All rights reserved.</Copyright>
+    <PackageLicenseUrl>https://www.microsoft.com/web/webpi/eula/net_library_eula_enu.htm</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/Azure/Smart-Alerts</PackageProjectUrl>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <AssemblyVersion>0.1.0.0</AssemblyVersion>
+    <FileVersion>0.1.0.0</FileVersion>
+  </PropertyGroup>  
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Azure.Monitoring.SmartDetectors" Version="0.10.0">
+      <ExcludeAssets>Build</ExcludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts" Version="0.9.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Scripting" Version="2.8.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
+  </ItemGroup>
+  <ItemGroup>
+	<AdditionalFiles Include="$(SolutionDir)stylecop.json" Link="stylecop.json" />
+  </ItemGroup>
+</Project>

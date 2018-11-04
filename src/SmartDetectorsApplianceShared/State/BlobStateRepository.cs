@@ -285,12 +285,12 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.State
         /// <returns>The name of the blob</returns>
         private string GenerateBlobName(string key)
         {
-            string smartDetectorIdHash = this.smartDetectorId.Hash();
+            string smartDetectorIdHash = this.smartDetectorId.ToSha256Hash();
             string safeSmartDetectorId = new string(this.smartDetectorId.Where(char.IsLetterOrDigit).ToArray());
 
-            string alertRuleResourceIdHash = this.alertRuleResourceId.Hash();
+            string alertRuleResourceIdHash = this.alertRuleResourceId.ToSha256Hash();
 
-            string keyHash = key.Hash();
+            string keyHash = key.ToSha256Hash();
 
             string blobName = $"{safeSmartDetectorId}_{smartDetectorIdHash}/{alertRuleResourceIdHash}/{keyHash}";
 
