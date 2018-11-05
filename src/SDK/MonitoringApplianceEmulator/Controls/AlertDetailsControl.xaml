@@ -11,6 +11,18 @@
     <UserControl.Resources>
         <converters:EmptyStringToVisibilityConverter x:Key="EmptyStringToVisibilityConverter" />
         <converters:TablePropertyToTablePropertyControlViewModelConverter x:Key="TablePropertyToTablePropertyControlViewModelConverter" />
+        <converters:ChartPropertyToChartPropertyControlViewModelConverter x:Key="ChartPropertyToChartPropertyControlViewModelConverter" />
+        <Style TargetType="{x:Type ListViewItem}">
+            <!-- This style is used in order to get rid of the default hovering/selecting experience of a list view item -->
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type ListViewItem}">
+                        <ContentPresenter />
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </UserControl.Resources>
     <StackPanel Background="#FFECF0F1">
         <Grid>
@@ -28,11 +40,11 @@
                 <Expander.Header>
                     <TextBlock Style="{StaticResource AlertDetailsSectionHeader}" Text="ESSENTIALS"/>
                 </Expander.Header>
-                <ListView ItemsSource="{Binding EssentialsSectionProperties}" SelectionMode="Single" BorderThickness="0" 
+                <ListView ItemsSource="{Binding EssentialsSectionProperties}" SelectionMode="Single" BorderThickness="0" Padding="20,0,20,0"
                            Background="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Control}}, Path=Background}">
                     <ListView.ItemTemplate>
                         <DataTemplate>
-                            <StackPanel>
+                            <StackPanel Margin="0,0,0,20">
                                 <TextBlock Style="{StaticResource AlertDetailsPropertyTitle}" 
                                            Text="{Binding ResourceType}" />
                                 <TextBlock Style="{StaticResource AlertDetailsPropertyValue}" 
@@ -58,10 +70,13 @@
                         <DataTemplate x:Key="TableProperty">
                             <local:TablePropertyControl DataContext="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ContentControl}}, Path=Content, Converter={StaticResource TablePropertyToTablePropertyControlViewModelConverter}}" />
                         </DataTemplate>
+                        <DataTemplate x:Key="ChartProperty">
+                            <local:ChartPropertyControl DataContext="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ContentControl}}, Path=Content, Converter={StaticResource ChartPropertyToChartPropertyControlViewModelConverter}}" />
+                        </DataTemplate>
                     </ListView.Resources>
                     <ListView.ItemTemplate>
                         <DataTemplate>
-                            <ContentControl Content="{Binding }" Margin="0,10,0,10">
+                            <ContentControl Content="{Binding }" Margin="0,0,0,20" Background="Transparent">
                                 <ContentControl.Style>
                                     <Style TargetType="ContentControl">
                                         <Style.Triggers>
@@ -73,6 +88,9 @@
                                             </DataTrigger>
                                             <DataTrigger Binding="{Binding Type}" Value="Table">
                                                 <Setter Property="ContentTemplate" Value="{StaticResource TableProperty}"/>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding Type}" Value="Chart">
+                                                <Setter Property="ContentTemplate" Value="{StaticResource ChartProperty}"/>
                                             </DataTrigger>
                                         </Style.Triggers>
                                     </Style>
