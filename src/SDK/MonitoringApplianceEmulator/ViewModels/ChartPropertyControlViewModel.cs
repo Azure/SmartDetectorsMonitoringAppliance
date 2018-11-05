@@ -29,7 +29,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
         /// <summary>
         /// Initializes a new instance of the <see cref="ChartPropertyControlViewModel"/> class.
         /// </summary>
-        /// <param name="chartAlertProperty">The table alert property that should be displayed.</param>
+        /// <param name="chartAlertProperty">The chart alert property that should be displayed.</param>
         public ChartPropertyControlViewModel(ChartAlertProperty chartAlertProperty)
         {
             var chartValues = new ChartValues<DateTimeDataPoint>();
@@ -43,7 +43,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
                 }
                 catch (Exception e) when (e is FormatException || e is InvalidCastException)
                 {
-                    throw new InvalidCastException($"The data point Y value '{dataPoint.X}' is not of DateTime type", e);
+                    throw new InvalidCastException($"The data point's Y value '{dataPoint.X}' is not of DateTime type", e);
                 }
 
                 double value;
@@ -53,7 +53,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
                 }
                 catch (Exception e) when (e is FormatException || e is InvalidCastException || e is OverflowException)
                 {
-                    throw new InvalidCastException($"The data point X value '{dataPoint.X}' is not of a numeric type", e);
+                    throw new InvalidCastException($"The data point's X value '{dataPoint.X}' is not of a numeric type", e);
                 }
 
                 chartValues.Add(new DateTimeDataPoint(dateTime, value));
@@ -63,7 +63,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
              * Relevant for Column Series:
              * Since we are using DateTime.Ticks as X, the width of the bar is 1 tick and 1 tick is 1 millisecond.
              * In order to make our bars visible we need to change the unit of the chart. For the initial view are going to use hours.
-             * There is a future task to create this scale dynamically according to the X values range size.
+             * There is a future task (#1380564) to create this scale dynamically according to the X values range size.
              */
             CartesianMapper<DateTimeDataPoint> pointMapperConfig = Mappers.Xy<DateTimeDataPoint>()
                 .X(dateTimeDataPoint => (double)dateTimeDataPoint.DateTime.Ticks / TimeSpan.FromHours(1).Ticks)

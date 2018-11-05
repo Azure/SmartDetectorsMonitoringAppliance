@@ -121,9 +121,4 @@
     <ProjectReference Include="..\SmartDetectorsSDK\SmartDetectorsSDK.csproj" />
     <ProjectReference Include="..\SmartDetectorsShared\SmartDetectorsShared.csproj" />
   </ItemGroup>
-  <ItemGroup>
-    <None Update="Controls\ChartPropertyControl.xaml">
-      <Generator>MSBuild:Compile</Generator>
-    </None>
-  </ItemGroup>
 </Project>
