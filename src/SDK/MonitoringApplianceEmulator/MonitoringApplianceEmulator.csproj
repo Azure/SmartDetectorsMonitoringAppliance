@@ -113,6 +113,7 @@
     <Resource Include="Media\subscription.png" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\SmartDetectors.Extensions\SmartDetectors.Extensions.csproj" />
     <ProjectReference Include="..\SmartDetectorsSDK\SmartDetectorsSDK.csproj" />
     <ProjectReference Include="..\SmartDetectorsShared\SmartDetectorsShared.csproj" />
   </ItemGroup>
