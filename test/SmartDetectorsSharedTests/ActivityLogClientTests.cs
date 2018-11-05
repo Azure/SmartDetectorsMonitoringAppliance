@@ -36,7 +36,7 @@ namespace SmartDetectorsSharedTests
             this.credentialsFactoryMock = new Mock<ICredentialsFactory>();
             this.credentialsFactoryMock.Setup(x => x.Create(It.IsAny<string>())).Returns(() => new EmptyCredentials());
             this.httpClientWrapperMock = new Mock<IHttpClientWrapper>();
-            this.azureResourceManagerClient = new ExtendedAzureResourceManagerClient(this.httpClientWrapperMock.Object, this.credentialsFactoryMock.Object, this.tracerMock.Object);
+            this.azureResourceManagerClient = new ExtendedAzureResourceManagerClient(this.credentialsFactoryMock.Object, this.tracerMock.Object);
             this.queryRunInfoProviderMock = new Mock<IQueryRunInfoProvider>();
         }
 
