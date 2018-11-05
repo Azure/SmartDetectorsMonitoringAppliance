@@ -7,7 +7,7 @@
 namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.Trace
 {
     using System;
-    using System.Collections.Generic;
+    using System.Collections.ObjectModel;
     using System.IO;
     using System.IO.Compression;
     using System.Linq;
@@ -19,7 +19,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
     /// </summary>
     public sealed class PageableLogArchive : IPageableLogArchive
     {
-        private ZipArchive logZipArchive;
+        private readonly string archiveFileName;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PageableLogArchive"/> class.
@@ -40,29 +40,22 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
                 Directory.CreateDirectory(archiveFolderName);
             }
 
-            // Set the archive file name, and make sure it exists
-            string archiveFileName = Path.Combine(archiveFolderName, "logs.zip");
-            if (!File.Exists(archiveFileName))
-            {
-                using (ZipFile.Open(archiveFileName, ZipArchiveMode.Create))
-                {
-                }
-            }
+            // Set the archive file name
+            this.archiveFileName = Path.Combine(archiveFolderName, "logs.zip");
 
-            // And open it for update
-            this.logZipArchive = ZipFile.Open(archiveFileName, ZipArchiveMode.Update);
+            // And read the current log names
+            using (ZipArchive logZipArchive = ZipFile.OpenRead(this.archiveFileName))
+            {
+                this.LogNames = new ObservableCollection<string>(logZipArchive.Entries.Select(entry => entry.Name));
+            }
         }
 
         #region Implementation of IPageableLogArchive
 
         /// <summary>
-        /// Returns the names of log files in the archive.
+        /// Gets the names of logs in this archive
         /// </summary>
-        /// <returns>A <see cref="Task"/> running the asynchronous operation, returning the names of log files in the archive.</returns>
-        public Task<List<string>> GetLogNamesAsync()
-        {
-            return Task.FromResult(this.logZipArchive.Entries.Select(entry => entry.Name).ToList());
-        }
+        public ObservableCollection<string> LogNames { get; }
 
         /// <summary>
         /// Returns the requested log from the archive. If the log does not exist, a new empty log will be created and returned.
@@ -70,31 +63,15 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
         /// <param name="logName">The name of the requested log.</param>
         /// <param name="initialPageSize">The log's initial page size</param>
         /// <returns>A <see cref="Task"/> running the asynchronous operation, returning the requested log.</returns>
-        public async Task<IPageableLogTracer> GetLogAsync(string logName, int initialPageSize)
+        public async Task<IPageableLog> GetLogAsync(string logName, int initialPageSize)
         {
-            ZipArchiveEntry archiveEntry = await Task.Run(() =>
+            IPageableLog log = await PageableLog.LoadLogFileAsync(this.archiveFileName, logName, initialPageSize);
+            if (!this.LogNames.Contains(log.Name))
             {
-                ZipArchiveEntry requestedEntry = this.logZipArchive.Entries.FirstOrDefault(entry => entry.Name == logName) ??
-                                                 this.logZipArchive.CreateEntry(logName, CompressionLevel.Optimal);
+                this.LogNames.Add(log.Name);
+            }
 
-                return requestedEntry;
-            });
-
-            return await PageableLogFileTracer.LoadLogFileAsync(archiveEntry, initialPageSize);
-        }
-
-        #endregion
-
-        #region IDisposable
-
-        /// <summary>
-        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        /// There's no need to implement the full disposable pattern here since the class is <c>sealed</c>.
-        /// </summary>
-        public void Dispose()
-        {
-            this.logZipArchive?.Dispose();
-            this.logZipArchive = null;
+            return log;
         }
 
         #endregion

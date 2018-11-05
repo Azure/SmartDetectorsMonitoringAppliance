@@ -27,7 +27,7 @@
                 <Expander.Header>
                     <TextBlock Style="{StaticResource AlertDetailsSectionHeader}" Text="ESSENTIALS"/>
                 </Expander.Header>
-                <ListView ItemsSource="{Binding EssentialsSectionProperties}" SelectionMode="Single" BorderThickness="0" 
+                <ListView ItemsSource="{Binding EssentialsSectionProperties}" SelectionMode="Single" BorderThickness="0" Style="{StaticResource AlertPropertiesListViewStyle}"
                            Background="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Control}}, Path=Background}">
                     <ListView.ItemTemplate>
                         <DataTemplate>
@@ -45,7 +45,7 @@
                 <Expander.Header>
                     <TextBlock Style="{StaticResource AlertDetailsSectionHeader}" Text="OTHER DETAILS"/>
                 </Expander.Header>
-                <ListView ItemsSource="{Binding DisplayableProperties}" BorderThickness="0" 
+                <ListView ItemsSource="{Binding DisplayableProperties}" BorderThickness="0"  Style="{StaticResource AlertPropertiesListViewStyle}"
                           Background="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Control}}, Path=Background}">
                     <ListView.Resources>
                         <DataTemplate x:Key="TextProperty">

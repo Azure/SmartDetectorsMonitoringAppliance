@@ -34,7 +34,7 @@ namespace MonitoringApplianceEmulatorTests.ViewModels
                 null,
                 new Mock<IStateRepositoryFactory>().Object,
                 azureResourceManagerClientMock.Object,
-                new Mock<IPageableLogArchiveFactory>().Object);
+                new Mock<IPageableLogArchive>().Object);
         }
 
         [TestMethod]

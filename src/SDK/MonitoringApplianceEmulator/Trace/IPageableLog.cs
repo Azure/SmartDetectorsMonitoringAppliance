@@ -1,30 +1,33 @@
 ﻿//-----------------------------------------------------------------------
-// <copyright file="IPageableLogTracer.cs" company="Microsoft Corporation">
+// <copyright file="IPageableLog.cs" company="Microsoft Corporation">
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // </copyright>
 //-----------------------------------------------------------------------
 
 namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.Trace
 {
-    using System;
     using System.Collections.ObjectModel;
     using System.ComponentModel;
-    using System.Threading.Tasks;
 
     /// <summary>
-    /// An interface for a pageable log tracer
+    /// An interface for a pageable log
     /// </summary>
-    public interface IPageableLogTracer : ITracer, INotifyPropertyChanged, IDisposable
+    public interface IPageableLog : INotifyPropertyChanged
     {
+        /// <summary>
+        /// Gets the log name
+        /// </summary>
+        string Name { get; }
+
         /// <summary>
         /// Gets the total number of trace lines in the log.
         /// </summary>
         int NumberOfTraceLines { get; }
 
         /// <summary>
-        /// Gets the page size (number of lines in a single page).
+        /// Gets or sets the page size (number of lines in a single page).
         /// </summary>
-        int PageSize { get; }
+        int PageSize { get; set; }
 
         /// <summary>
         /// Gets the total number of pages in the log - this can change when new trace
@@ -33,9 +36,9 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
         int NumberOfPages { get; }
 
         /// <summary>
-        /// Gets the current page index.
+        /// Gets or sets the current page index.
         /// </summary>
-        int CurrentPageIndex { get; }
+        int CurrentPageIndex { get; set; }
 
         /// <summary>
         /// Gets the index of the current page's first trace line.
@@ -53,19 +56,9 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
         ObservableCollection<TraceLine> CurrentPageTraces { get; }
 
         /// <summary>
-        /// Sets the log's page size to be <paramref name="pageSize"/>. Calling this method will
-        /// have the effect of an update to <see cref="CurrentPageTraces"/> and possibly to <see cref="CurrentPageIndex"/>.
+        /// Creates a tracer that sends trace lines to the log.
         /// </summary>
-        /// <param name="pageSize">The updated page size.</param>
-        /// <returns>A <see cref="Task"/> running the asynchronous operation.</returns>
-        Task SetPageSizeAsync(int pageSize);
-
-        /// <summary>
-        /// Moves <see cref="CurrentPageIndex"/> to be <paramref name="pageIndex"/>. If <paramref name="pageIndex"/> is outside
-        /// of the log's page range, calling this method will not have any affect.
-        /// </summary>
-        /// <param name="pageIndex">The page index to set.</param>
-        /// <returns>A <see cref="Task"/> running the asynchronous operation.</returns>
-        Task SetCurrentPageIndexAsync(int pageIndex);
+        /// <returns>A tracer that sends trace lines to the log.</returns>
+        ILogArchiveTracer CreateTracer();
     }
 }

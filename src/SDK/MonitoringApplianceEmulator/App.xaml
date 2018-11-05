@@ -99,7 +99,7 @@
                 <Setter Property="Background" Value="White"/>
             </Style>
         
-            <Style TargetType="{x:Type ListView}">
+            <Style TargetType="{x:Type ListView}" x:Key="AlertPropertiesListViewStyle">
                 <Style.Resources>
                     <Style TargetType="{x:Type GridViewColumnHeader}" BasedOn="{StaticResource ResultsColumnHeaderStyle}" />
                 </Style.Resources>

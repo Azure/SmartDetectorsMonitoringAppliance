@@ -41,13 +41,13 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
 
         private readonly IExtendedAzureResourceManagerClient azureResourceManagerClient;
 
-        private readonly IPageableLogArchiveFactory logArchiveFactory;
+        private readonly IPageableLogArchive logArchive;
 
         private ObservableCollection<EmulationAlert> alerts;
 
         private bool isSmartDetectorRunning;
 
-        private IPageableLogTracer pageableLogTracer;
+        private IPageableLog pageableLogTracer;
 
         private Action cancelSmartDetectorRunAction = null;
 
@@ -60,7 +60,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
         /// <param name="smartDetectorManifes">The Smart Detector manifest.</param>
         /// <param name="stateRepositoryFactory">The state repository factory</param>
         /// <param name="azureResourceManagerClient">The Azure Resource Manager client</param>
-        /// <param name="logArchiveFactory">The log archive factory.</param>
+        /// <param name="logArchive">The log archive.</param>
         public SmartDetectorRunner(
             ISmartDetector smartDetector,
             IInternalAnalysisServicesFactory analysisServicesFactory,
@@ -68,13 +68,13 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
             SmartDetectorManifest smartDetectorManifes,
             IStateRepositoryFactory stateRepositoryFactory,
             IExtendedAzureResourceManagerClient azureResourceManagerClient,
-            IPageableLogArchiveFactory logArchiveFactory)
+            IPageableLogArchive logArchive)
         {
             this.smartDetector = smartDetector;
             this.analysisServicesFactory = analysisServicesFactory;
             this.queryRunInfoProvider = queryRunInfoProvider;
             this.smartDetectorManifest = smartDetectorManifes;
-            this.logArchiveFactory = logArchiveFactory;
+            this.logArchive = logArchive;
             this.IsSmartDetectorRunning = false;
             this.Alerts = new ObservableCollection<EmulationAlert>();
             this.stateRepositoryFactory = stateRepositoryFactory;
@@ -112,9 +112,9 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
         }
 
         /// <summary>
-        /// Gets the log tracer used for this run
+        /// Gets the log used for the last (or current) run.
         /// </summary>
-        public IPageableLogTracer PageableLogTracer
+        public IPageableLog PageableLog
         {
             get => this.pageableLogTracer;
 
@@ -149,22 +149,22 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
                 this.Alerts.Clear();
                 try
                 {
-                    using (IPageableLogArchive logArchive = this.logArchiveFactory.Create())
+                    // Run Smart Detector
+                    this.IsSmartDetectorRunning = true;
+
+                    List<ResourceIdentifier> targetResourcesForDetector = this.GetTargetResourcesForDetector(targetResource, allResources);
+                    List<string> targetResourcesIds = targetResourcesForDetector.Select(resource => resource.ToResourceId()).ToList();
+
+                    int totalRunsAmount = (int)((endTimeRange.Subtract(startTimeRange).Ticks / analysisCadence.Ticks) + 1);
+                    int currentRunNumber = 1;
+                    for (var currentTime = startTimeRange; currentTime <= endTimeRange; currentTime = currentTime.Add(analysisCadence))
                     {
-                        // Run Smart Detector
-                        this.IsSmartDetectorRunning = true;
-
-                        List<ResourceIdentifier> targetResourcesForDetector = this.GetTargetResourcesForDetector(targetResource, allResources);
-                        List<string> targetResourcesIds = targetResourcesForDetector.Select(resource => resource.ToResourceId()).ToList();
-
-                        int totalRunsAmount = (int)((endTimeRange.Subtract(startTimeRange).Ticks / analysisCadence.Ticks) + 1);
-                        int currentRunNumber = 1;
-                        for (var currentTime = startTimeRange; currentTime <= endTimeRange; currentTime = currentTime.Add(analysisCadence))
+                        this.PageableLog = await this.logArchive.GetLogAsync(this.GetValidLogName(currentTime), 50);
+                        using (ILogArchiveTracer tracer = this.PageableLog.CreateTracer())
                         {
                             try
                             {
-                                this.PageableLogTracer = await logArchive.GetLogAsync(Guid.NewGuid().ToString(), 50);
-                                this.PageableLogTracer.TraceInformation($"Start analysis, with session ID = '{this.PageableLogTracer.SessionId}' end of time range: {currentTime}");
+                                tracer.TraceInformation($"Start analysis, with session ID = '{tracer.SessionId}' end of time range: {currentTime}");
 
                                 ExtendedDateTime.SetEmulatedUtcNow(currentTime);
                                 var analysisRequest = new AnalysisRequest(targetResourcesForDetector, analysisCadence, null, this.analysisServicesFactory, stateRepository);
@@ -173,7 +173,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
                                 List<SmartDetectors.Alert> newAlerts = await Task.Run(() =>
                                     this.smartDetector.AnalyzeResourcesAsync(
                                         analysisRequest,
-                                        this.PageableLogTracer,
+                                        tracer,
                                         cancellationToken));
 
                                 var smartDetectorExecutionRequest = new SmartDetectorExecutionRequest
@@ -200,23 +200,17 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
                                     this.Alerts.Add(new EmulationAlert(contractsAlert, currentTime));
                                 }
 
-                                this.PageableLogTracer.TraceInformation($"Completed {currentRunNumber} of {totalRunsAmount} runs - found {newAlerts.Count} new alerts");
+                                tracer.TraceInformation($"Completed {currentRunNumber} of {totalRunsAmount} runs - found {newAlerts.Count} new alerts");
                                 currentRunNumber++;
                             }
                             catch (OperationCanceledException)
                             {
-                                this.PageableLogTracer?.TraceError("Smart Detector run was canceled.");
+                                tracer.TraceError("Smart Detector run was canceled.");
                                 break;
                             }
                             catch (Exception e)
                             {
-                                this.PageableLogTracer?.TraceError($"Got exception while running detector: {e}");
-                            }
-                            finally
-                            {
-                                IPageableLogTracer tracer = this.PageableLogTracer;
-                                this.PageableLogTracer = null;
-                                tracer?.Dispose();
+                                tracer.TraceError($"Got exception while running detector: {e}");
                             }
                         }
                     }
@@ -402,6 +396,24 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
             }
 
             return workspaceIdToWorkspaceResourceIdMapping;
+        }
+
+        /// <summary>
+        /// Gets a valid log name for running the detector on the specified emulated time
+        /// </summary>
+        /// <param name="emulatedTime">The detector's run emulated time.</param>
+        /// <returns>The log name for the run.</returns>
+        private string GetValidLogName(DateTime emulatedTime)
+        {
+            string logName = $"{emulatedTime:yyyy-MM-dd HH-mm}";
+            int index = 0;
+            while (this.logArchive.LogNames.Contains(logName))
+            {
+                logName = $"{emulatedTime:yyyy-MM-dd HH-mm} ({index})";
+                index++;
+            }
+
+            return logName;
         }
     }
 }

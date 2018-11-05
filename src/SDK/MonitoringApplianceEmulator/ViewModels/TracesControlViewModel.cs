@@ -6,8 +6,11 @@
 
 namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.ViewModels
 {
+    using System;
     using System.Collections.Generic;
+    using System.Collections.ObjectModel;
     using System.ComponentModel;
+    using System.Linq;
     using System.Threading.Tasks;
     using Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.Models;
     using Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.Trace;
@@ -19,10 +22,11 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
     public class TracesControlViewModel : ObservableObject
     {
         private readonly ITracer tracer;
-
+        private readonly IPageableLogArchive logArchive;
         private int pageSize;
-        private IPageableLogTracer pageableTracer;
-        private ObservableTask updatePageTask;
+        private IPageableLog pageableLog;
+        private bool isSmartDetectorRunning;
+        private ObservableTask loadLogTask;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TracesControlViewModel"/> class.
@@ -31,25 +35,32 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
         {
             this.SupportedPageSizes = new List<int> { 50, 100, 150, 200 };
             this.pageSize = this.SupportedPageSizes[0];
-            this.UpdatePageTask = new ObservableTask(Task.FromResult(true), null);
+            this.isSmartDetectorRunning = false;
+            this.LoadLogTask = new ObservableTask(Task.FromResult(false), null);
         }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TracesControlViewModel"/> class.
         /// </summary>
-        /// <param name="smartDetectorRunner">The Smart Detector runner to get the tracer from.</param>
-        /// <param name="tracer">The tracer to use.</param>
+        /// <param name="smartDetectorRunner">The Smart Detector runner to get the log from.</param>
+        /// <param name="logArchive">The pageable log archive.</param>
+        /// <param name="tracer">The tracer to use for tracing observable tasks.</param>
         [InjectionConstructor]
-        public TracesControlViewModel(IEmulationSmartDetectorRunner smartDetectorRunner, ITracer tracer)
+        public TracesControlViewModel(IEmulationSmartDetectorRunner smartDetectorRunner, IPageableLogArchive logArchive, ITracer tracer)
             : this()
         {
             this.tracer = tracer;
-            this.UpdatePageTask = new ObservableTask(Task.FromResult(true), this.tracer);
+            this.logArchive = logArchive;
+
             smartDetectorRunner.PropertyChanged += (sender, args) =>
             {
-                if (args.PropertyName == nameof(smartDetectorRunner.PageableLogTracer))
+                if (args.PropertyName == nameof(smartDetectorRunner.PageableLog))
                 {
-                    this.PageableTracer = smartDetectorRunner.PageableLogTracer;
+                    this.PageableLog = smartDetectorRunner.PageableLog;
+                }
+                else if (args.PropertyName == nameof(smartDetectorRunner.IsSmartDetectorRunning))
+                {
+                    this.IsSmartDetectorRunning = smartDetectorRunner.IsSmartDetectorRunning;
                 }
             };
         }
@@ -60,30 +71,72 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
         public List<int> SupportedPageSizes { get; }
 
         /// <summary>
-        /// Gets or sets the pageable log tracer to display.
+        /// Gets or sets the pageable log to display.
         /// </summary>
-        public IPageableLogTracer PageableTracer
+        public IPageableLog PageableLog
         {
-            get => this.pageableTracer;
+            get => this.pageableLog;
             set
             {
-                // Unregister from the old tracer
-                if (this.pageableTracer != null)
+                // Unregister from the old log
+                if (this.pageableLog != null)
                 {
-                    this.pageableTracer.PropertyChanged -= this.PageableTracerOnPropertyChanged;
+                    this.pageableLog.PropertyChanged -= this.PageableLogOnPropertyChanged;
                 }
 
-                // Set the tracer, and re-apply the page size
-                this.pageableTracer = value;
-                if (this.pageableTracer != null)
+                // Set the log, and register for notifications
+                this.pageableLog = value;
+                if (this.pageableLog != null)
                 {
-                    this.pageableTracer.PropertyChanged += this.PageableTracerOnPropertyChanged;
+                    // Make sure the log's page size matches the last user selection
+                    value.PageSize = this.PageSize;
+                    this.pageableLog.PropertyChanged += this.PageableLogOnPropertyChanged;
                 }
 
-                this.OnPropertyChanged();
-                this.PageSize = this.pageSize;
+                // Finally - fire a property changed event with empty name, this will force refresh of all bindings in the model
+                this.OnPropertyChanged(string.Empty);
             }
         }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the detector is currently running.
+        /// </summary>
+        public bool IsSmartDetectorRunning
+        {
+            get => this.isSmartDetectorRunning;
+            set
+            {
+                this.isSmartDetectorRunning = value;
+                this.OnPropertyChanged();
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the name of the currently displayed log.
+        /// </summary>
+        public string CurrentLogName
+        {
+            get => this.PageableLog?.Name ?? string.Empty;
+            set => this.LoadLogTask = new ObservableTask(this.LoadLogAsync(value), this.tracer);
+        }
+
+        /// <summary>
+        /// Gets a task for tracking a log's load operation
+        /// </summary>
+        public ObservableTask LoadLogTask
+        {
+            get => this.loadLogTask;
+            private set
+            {
+                this.loadLogTask = value;
+                this.OnPropertyChanged();
+            }
+        }
+
+        /// <summary>
+        /// Gets the log names available in the log archive
+        /// </summary>
+        public ObservableCollection<string> LogNames => this.logArchive.LogNames;
 
         /// <summary>
         /// Gets or sets the current traces pages size.
@@ -94,13 +147,9 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
             set
             {
                 this.pageSize = value;
-                if (this.PageableTracer != null)
+                if (this.PageableLog != null)
                 {
-                    this.UpdatePageTask = new ObservableTask(this.PageableTracer.SetPageSizeAsync(value), this.tracer, this.OnPageUpdated);
-                }
-                else
-                {
-                    this.OnPropertyChanged();
+                    this.PageableLog.PageSize = value;
                 }
             }
         }
@@ -110,24 +159,27 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
         /// </summary>
         public int CurrentPageIndex
         {
-            get => (this.PageableTracer?.CurrentPageIndex + 1) ?? 0;
+            get => (this.PageableLog?.CurrentPageIndex + 1) ?? 0;
             set
             {
-                if (this.PageableTracer == null)
+                if (this.PageableLog == null)
                 {
                     // Don't allow any updates, so just ignore the value and notify so the UI will be updated
                     this.OnPropertyChanged();
                 }
                 else
                 {
-                    if (value <= 0 || value > this.pageableTracer.NumberOfPages)
+                    if (value <= 0 || value > this.pageableLog.NumberOfPages)
                     {
                         // Invalid value, so ignore the value and notify so the UI will be updated
                         this.OnPropertyChanged();
                     }
                     else
                     {
-                        this.UpdatePageTask = new ObservableTask(this.PageableTracer.SetCurrentPageIndexAsync(value - 1), this.tracer, this.OnPageUpdated);
+                        this.PageableLog.CurrentPageIndex = value - 1;
+
+                        this.OnPropertyChanged(nameof(this.IsFirstPage));
+                        this.OnPropertyChanged(nameof(this.IsLastPage));
                     }
                 }
             }
@@ -136,22 +188,22 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
         /// <summary>
         /// Gets the 1-based index of the current page's first trace line.
         /// </summary>
-        public int CurrentPageStart => (this.PageableTracer?.CurrentPageStart + 1) ?? 0;
+        public int CurrentPageStart => (this.PageableLog?.CurrentPageStart + 1) ?? 0;
 
         /// <summary>
         /// Gets the 1-based index of the current page's last trace line.
         /// </summary>
-        public int CurrentPageEnd => (this.PageableTracer?.CurrentPageEnd + 1) ?? 0;
+        public int CurrentPageEnd => (this.PageableLog?.CurrentPageEnd + 1) ?? 0;
 
         /// <summary>
         /// Gets the total number of trace pages.
         /// </summary>
-        public int NumberOfPages => this.PageableTracer?.NumberOfPages ?? 0;
+        public int NumberOfPages => this.PageableLog?.NumberOfPages ?? 0;
 
         /// <summary>
         /// Gets the total number of trace lines in the log.
         /// </summary>
-        public int NumberOfTraceLines => this.PageableTracer?.NumberOfTraceLines ?? 0;
+        public int NumberOfTraceLines => this.PageableLog?.NumberOfTraceLines ?? 0;
 
         /// <summary>
         /// Gets a value indicating whether we are currently showing the first page.
@@ -164,66 +216,57 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
         public bool IsLastPage => this.CurrentPageIndex == this.NumberOfPages;
 
         /// <summary>
-        /// Gets or sets the task for updating the traces page
-        /// </summary>
-        public ObservableTask UpdatePageTask
-        {
-            get => this.updatePageTask;
-
-            set
-            {
-                this.updatePageTask = value;
-                this.OnPropertyChanged();
-            }
-        }
-
-        /// <summary>
         /// Gets a command for moving to the first log page.
         /// </summary>
-        public CommandHandler FirstPageCommand => new CommandHandler(
-            () => this.updatePageTask = new ObservableTask(this.PageableTracer.SetCurrentPageIndexAsync(0), this.tracer));
+        public CommandHandler FirstPageCommand => new CommandHandler(() => this.CurrentPageIndex = 1);
 
         /// <summary>
         /// Gets a command for moving to the previous log page.
         /// </summary>
-        public CommandHandler PrevPageCommand => new CommandHandler(
-            () => this.updatePageTask = new ObservableTask(this.PageableTracer.SetCurrentPageIndexAsync(this.CurrentPageIndex - 1), this.tracer));
+        public CommandHandler PrevPageCommand => new CommandHandler(() => this.CurrentPageIndex--);
 
         /// <summary>
         /// Gets a command for moving to the next log page.
         /// </summary>
-        public CommandHandler NextPageCommand => new CommandHandler(
-            () => this.updatePageTask = new ObservableTask(this.PageableTracer.SetCurrentPageIndexAsync(this.CurrentPageIndex + 1), this.tracer));
+        public CommandHandler NextPageCommand => new CommandHandler(() => this.CurrentPageIndex++);
 
         /// <summary>
         /// Gets a command for moving to the last log page.
         /// </summary>
-        public CommandHandler LastPageCommand => new CommandHandler(
-            () => this.updatePageTask = new ObservableTask(this.PageableTracer.SetCurrentPageIndexAsync(this.NumberOfPages - 1), this.tracer));
+        public CommandHandler LastPageCommand => new CommandHandler(() => this.CurrentPageIndex = this.NumberOfPages);
 
         /// <summary>
-        /// Callback for handling the completion of the page update. Basically notifies that everything has changed.
-        /// </summary>
-        private void OnPageUpdated()
-        {
-            this.OnPropertyChanged(nameof(this.PageSize));
-            this.OnPropertyChanged(nameof(this.CurrentPageIndex));
-            this.OnPropertyChanged(nameof(this.CurrentPageStart));
-            this.OnPropertyChanged(nameof(this.CurrentPageEnd));
-            this.OnPropertyChanged(nameof(this.NumberOfPages));
-            this.OnPropertyChanged(nameof(this.IsFirstPage));
-            this.OnPropertyChanged(nameof(this.IsLastPage));
-        }
-
-        /// <summary>
-        /// Handler for property changed events on <see cref="PageableTracer"/>.
+        /// Handler for property changed events on <see cref="PageableLog"/>.
         /// </summary>
         /// <param name="sender">The sender of the event.</param>
         /// <param name="e">The event arguments</param>
-        private void PageableTracerOnPropertyChanged(object sender, PropertyChangedEventArgs e)
+        private void PageableLogOnPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             // Send the notification as if this object has changed - we match the property names, so it should work
             this.OnPropertyChanged(e.PropertyName);
+
+            switch (e.PropertyName)
+            {
+                case nameof(this.CurrentPageIndex):
+                    this.OnPropertyChanged(nameof(this.IsFirstPage));
+                    this.OnPropertyChanged(nameof(this.IsLastPage));
+                    break;
+
+                case nameof(this.NumberOfPages):
+                    this.OnPropertyChanged(nameof(this.IsLastPage));
+                    break;
+            }
+        }
+
+        /// <summary>
+        /// Loads the log with the specified name to the view model
+        /// </summary>
+        /// <param name="logName">The name of the log to load</param>
+        /// <returns>A <see cref="Task"/> running the asynchronous operation.</returns>
+        private async Task LoadLogAsync(string logName)
+        {
+            this.PageableLog = null;
+            this.PageableLog = await this.logArchive.GetLogAsync(logName, this.PageSize);
         }
     }
 }

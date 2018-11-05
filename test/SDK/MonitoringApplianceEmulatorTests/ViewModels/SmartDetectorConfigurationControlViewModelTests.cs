@@ -14,7 +14,6 @@ namespace MonitoringApplianceEmulatorTests.ViewModels
     using Microsoft.Azure.Monitoring.SmartDetectors;
     using Microsoft.Azure.Monitoring.SmartDetectors.Clients;
     using Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.Models;
-    using Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.Trace;
     using Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.ViewModels;
     using Microsoft.Azure.Monitoring.SmartDetectors.Package;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -25,7 +24,7 @@ namespace MonitoringApplianceEmulatorTests.ViewModels
     {
         private Mock<IEmulationSmartDetectorRunner> smartDetectorRunnerMock;
         private Mock<IExtendedAzureResourceManagerClient> azureResourceManagerClientMock;
-        private Mock<IPageableLogTracer> tracerMock;
+        private Mock<ITracer> tracerMock;
 
         private UserSettings userSettings;
         private SmartDetectorManifest smartDetectorManifest;
@@ -37,7 +36,7 @@ namespace MonitoringApplianceEmulatorTests.ViewModels
         {
             this.smartDetectorRunnerMock = new Mock<IEmulationSmartDetectorRunner>();
             this.azureResourceManagerClientMock = new Mock<IExtendedAzureResourceManagerClient>();
-            this.tracerMock = new Mock<IPageableLogTracer>();
+            this.tracerMock = new Mock<ITracer>();
 
             this.userSettings = new UserSettings();
 

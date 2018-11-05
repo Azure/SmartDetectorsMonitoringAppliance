@@ -21,7 +21,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
         public EmulationStatusControl()
         {
             this.InitializeComponent();
-            this.DataContext = App.Container.Resolve<EmulationStatusControlViewModel>();
+            this.DataContext = App.Container?.Resolve<EmulationStatusControlViewModel>() ?? new EmulationStatusControlViewModel();
         }
     }
 }

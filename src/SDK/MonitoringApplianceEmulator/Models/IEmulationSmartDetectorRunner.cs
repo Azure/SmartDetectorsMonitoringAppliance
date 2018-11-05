@@ -29,9 +29,9 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
         bool IsSmartDetectorRunning { get; }
 
         /// <summary>
-        /// Gets the log tracer used for this run.
+        /// Gets the log used for the last (or current) run.
         /// </summary>
-        IPageableLogTracer PageableLogTracer { get; }
+        IPageableLog PageableLog { get; }
 
         /// <summary>
         /// Runs the Smart Detector asynchronously.

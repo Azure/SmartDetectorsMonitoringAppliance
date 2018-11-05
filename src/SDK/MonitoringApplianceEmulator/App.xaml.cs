@@ -97,6 +97,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator
                 var userSettings = UserSettings.LoadUserSettings();
 
                 // Create the detector runner
+                IPageableLogArchive logArchive = new PageableLogArchive();
                 IEmulationSmartDetectorRunner smartDetectorRunner = new SmartDetectorRunner(
                     detector,
                     analysisServicesFactory,
@@ -104,7 +105,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator
                     smartDetectorManifest,
                     stateRepositoryFactory,
                     azureResourceManagerClient,
-                    new PageableLogArchiveFactory());
+                    logArchive);
 
                 // Create a Unity container with all the required models and view models registrations
                 Container = new UnityContainer();
@@ -117,6 +118,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator
                     .RegisterInstance(detector)
                     .RegisterInstance(smartDetectorManifest)
                     .RegisterInstance(analysisServicesFactory)
+                    .RegisterInstance(logArchive)
                     .RegisterInstance(smartDetectorRunner)
                     .RegisterInstance(stateRepositoryFactory)
                     .RegisterInstance(userSettings);

@@ -21,7 +21,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
         public TracesControl()
         {
             this.InitializeComponent();
-            this.DataContext = App.Container.Resolve<TracesControlViewModel>();
+            this.DataContext = App.Container?.Resolve<TracesControlViewModel>() ?? new TracesControlViewModel();
         }
     }
 }
