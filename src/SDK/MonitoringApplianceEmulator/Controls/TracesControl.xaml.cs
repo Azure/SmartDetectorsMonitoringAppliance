@@ -6,6 +6,9 @@
 
 namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.Controls
 {
+    using System;
+    using System.Collections.Specialized;
+    using System.Windows;
     using System.Windows.Controls;
     using Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.ViewModels;
     using Unity;
@@ -22,6 +25,13 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
         {
             this.InitializeComponent();
             this.DataContext = App.Container?.Resolve<TracesControlViewModel>() ?? new TracesControlViewModel();
+            ((INotifyCollectionChanged)this.TracesGrid.Items).CollectionChanged += (sender, args) =>
+            {
+                if (this.TracesGrid.Items.Count > 0)
+                {
+                    this.TracesGrid.ScrollIntoView(this.TracesGrid.Items[this.TracesGrid.Items.Count - 1]);
+                }
+            };
         }
     }
 }

@@ -220,7 +220,8 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
                     this.allTraces.Add(traceLine);
                     this.OnPropertyChanged(nameof(this.NumberOfTraceLines));
 
-                    // Check if we've just added a page to the log - and just notify on it
+                    // Check if we've just added a page to the log - if so, notify it and move
+                    // to show the last page
                     if (this.NumberOfTraceLines % this.PageSize == 1)
                     {
                         this.OnPropertyChanged(nameof(this.NumberOfPages));
@@ -231,6 +232,11 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
                     {
                         this.CurrentPageTraces.Add(traceLine);
                         this.OnPropertyChanged(nameof(this.CurrentPageEnd));
+                    }
+                    else
+                    {
+                        // We've filled the current page, so move on to the next
+                        this.CurrentPageIndex = this.NumberOfPages - 1;
                     }
                 }
             });
