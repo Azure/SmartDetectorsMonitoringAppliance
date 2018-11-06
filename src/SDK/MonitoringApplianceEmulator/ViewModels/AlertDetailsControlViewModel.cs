@@ -14,11 +14,13 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
     using System.IO.Compression;
     using System.Linq;
     using System.Text;
+    using System.Windows.Documents;
     using Controls;
     using Microsoft.Azure.Monitoring.SmartDetectors;
     using Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.Models;
     using Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts;
     using Unity.Attributes;
+    using Unity.Interception.Utilities;
     using ResourceType = Microsoft.Azure.Monitoring.SmartDetectors.ResourceType;
 
     /// <summary>
@@ -29,7 +31,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
         private readonly ISystemProcessClient systemProcessClient;
 
         // temporary, until all types will be supported
-        private readonly List<AlertPropertyType> supportedPropertiesTypes = new List<AlertPropertyType>() { AlertPropertyType.Text, AlertPropertyType.KeyValue, AlertPropertyType.Table, AlertPropertyType.Chart };
+        private readonly List<AlertPropertyType> supportedPropertiesTypes = new List<AlertPropertyType>() { AlertPropertyType.Text, AlertPropertyType.KeyValue, AlertPropertyType.Table };
 
         private EmulationAlert alert;
 
@@ -70,6 +72,36 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
 
             List<DisplayableAlertProperty> displayableAlertProperties = this.Alert.ContractsAlert.AlertProperties.OfType<DisplayableAlertProperty>()
                 .Where(prop => this.supportedPropertiesTypes.Contains(prop.Type))
+                ////.OrderBy(prop => prop.Order)
+                ////.ThenBy(prop => prop.PropertyName)
+                .ToList();
+
+            // Project chart displayable properties
+            List<ChartAlertProperty> chartAlertProperties = this.Alert.ContractsAlert.AlertProperties.OfType<ChartAlertProperty>().ToList();
+
+            // Group all chart properties by chart display name
+            Dictionary<string, List<ChartAlertProperty>> chartNamesToContainers = new Dictionary<string, List<ChartAlertProperty>>();
+
+            foreach (var chartProperty in chartAlertProperties)
+            {
+                char[] delimiterChars = { '_' };
+                string chartDisplayNamePrefix = chartProperty.DisplayName.Split(delimiterChars).First();
+                if (chartNamesToContainers.ContainsKey(chartDisplayNamePrefix))
+                {
+                    chartNamesToContainers[chartDisplayNamePrefix].Add(chartProperty);
+                }
+                else
+                {
+                    chartNamesToContainers.Add(chartDisplayNamePrefix, new List<ChartAlertProperty>() { chartProperty });
+                }
+            }
+
+            List<ChartAlertPropertiesContainer> chartsContainers = new List<ChartAlertPropertiesContainer>();
+            chartNamesToContainers.Values.ForEach(chartPropertiesList => chartsContainers.Add(new ChartAlertPropertiesContainer(chartPropertiesList)));
+
+            displayableAlertProperties.AddRange(chartsContainers);
+
+            displayableAlertProperties = displayableAlertProperties
                 .OrderBy(prop => prop.Order)
                 .ThenBy(prop => prop.PropertyName)
                 .ToList();
