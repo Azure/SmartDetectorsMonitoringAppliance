@@ -164,11 +164,12 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Presentation
         /// Creates an <see cref="AlertProperty"/> based on an alert presentation V2 property
         /// </summary>
         /// <param name="alert">The alert</param>
+        /// <param name="property">The property info of the property to create</param>
         /// <param name="presentationAttribute">The attribute defining the presentation V2 of the alert property</param>
         /// <param name="propertyDefaultName">The property default name</param>
         /// <param name="propertyValue">The property value</param>
         /// <returns>An <see cref="AlertProperty"/></returns>
-        private static AlertProperty CreateAlertProperty(Alert alert, AlertPresentationPropertyV2Attribute presentationAttribute, string propertyDefaultName, object propertyValue)
+        private static AlertProperty CreateAlertProperty(Alert alert, PropertyInfo property, AlertPresentationPropertyV2Attribute presentationAttribute, string propertyDefaultName, object propertyValue)
         {
             // Get the attribute display name
             string displayName = presentationAttribute.DisplayName.EvaluateInterpolatedString(alert);
@@ -199,20 +200,6 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Presentation
 
                 case AlertPresentationTextAttribute textAttribute:
                     return new TextAlertProperty(propertyName, displayName, presentationAttribute.Order, PropertyValueToString(propertyValue));
-
-                case AlertPresentationUrlAttribute urlAttribute:
-                    if (!(propertyValue is Uri uriValue))
-                    {
-                        throw new ArgumentException("An AlertPresentationUrlAttribute can only be applied to properties of type Uri");
-                    }
-
-                    if (!uriValue.IsAbsoluteUri)
-                    {
-                        throw new ArgumentException("The URI supplied must be absolute");
-                    }
-
-                    string linkText = urlAttribute.LinkText.EvaluateInterpolatedString(alert);
-                    return new TextAlertProperty(propertyName, displayName, presentationAttribute.Order, $"<a href=\"{uriValue.ToString()}\">{linkText}</a>");
 
                 case AlertPresentationKeyValueAttribute keyValueAttribute:
                     if (!(propertyValue is IDictionary<string, string> keyValuePropertyValue))
@@ -277,6 +264,37 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Presentation
         /// <summary>
         /// Converts a presentation property's value to a string
         /// </summary>
+        /// <param name="alert">The alert</param>
+        /// <param name="propertyInfo">The property's info</param>
+        /// <param name="propertyValue">The property value</param>
+        /// <returns>The string</returns>
+        private static string PropertyValueToString(Alert alert, PropertyInfo propertyInfo, object propertyValue)
+        {
+            // Check if there's a formatter attribute on the property
+            AlertPresentationUrlFormatterAttribute uriFormatterAttribute = propertyInfo.GetCustomAttribute<AlertPresentationUrlFormatterAttribute>();
+            if (uriFormatterAttribute != null && propertyValue != null)
+            {
+                if (!(propertyValue is Uri uriValue))
+                {
+                    throw new ArgumentException("An AlertPresentationUrlFormatterAttribute can only be applied to properties of type Uri");
+                }
+
+                if (!uriValue.IsAbsoluteUri)
+                {
+                    throw new ArgumentException("The URI supplied must be absolute");
+                }
+
+                string linkText = uriFormatterAttribute.LinkText.EvaluateInterpolatedString(alert);
+                return $"<a href=\"{uriValue.ToString()}\">{linkText}</a>";
+            }
+
+            // Otherwise - fall back to the regular conversion
+            return PropertyValueToString(propertyValue);
+        }
+
+        /// <summary>
+        /// Converts a presentation property's value to a string
+        /// </summary>
         /// <param name="propertyValue">The property value</param>
         /// <returns>The string</returns>
         private static string PropertyValueToString(object propertyValue)
@@ -286,10 +304,10 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Presentation
                 // null is an empty string
                 return string.Empty;
             }
-            else if (propertyValue is DateTime)
+            else if (propertyValue is DateTime dateProperty)
             {
                 // Convert to universal sortable time
-                return ((DateTime)propertyValue).ToString("u", CultureInfo.InvariantCulture);
+                return dateProperty.ToString("u", CultureInfo.InvariantCulture);
             }
             else
             {
