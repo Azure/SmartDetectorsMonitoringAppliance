@@ -6,13 +6,13 @@
 
 namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
 {
-    using System.Collections.Generic;
+    using System.Collections.Concurrent;
     using System.Globalization;
     using System.Security.Cryptography;
     using System.Text;
+    using Azure.Monitoring.SmartDetectors.Tools;
     using Microsoft.CodeAnalysis.CSharp.Scripting;
     using Microsoft.CodeAnalysis.Scripting;
-    using Tools;
 
     /// <summary>
     /// Extension methods for string objects
@@ -20,7 +20,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
     public static class StringExtensions
     {
         private static readonly ObjectPool<HashAlgorithm> HashAlgoPool = new ObjectPool<HashAlgorithm>(SHA256.Create);
-        private static readonly Dictionary<string, Script<string>> InterpolatedStringScripts = new Dictionary<string, Script<string>>();
+        private static readonly ConcurrentDictionary<string, Script<string>> InterpolatedStringScripts = new ConcurrentDictionary<string, Script<string>>();
 
         /// <summary>
         /// Gets the hash of the specified string
@@ -70,11 +70,9 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
             string code = "$\"" + interpolatedStringDefinition + "\"";
 
             // Get the script from cache (improves performance since the script is already compiled)
-            string key = source.GetType().FullName + "#" + code;
-            if (!InterpolatedStringScripts.TryGetValue(key, out Script<string> script))
-            {
-                script = InterpolatedStringScripts[key] = CSharpScript.Create<string>(code, globalsType: source.GetType());
-            }
+            Script<string> script = InterpolatedStringScripts.GetOrAdd(
+                source.GetType().FullName + "#" + code,
+                _ => CSharpScript.Create<string>(code, globalsType: source.GetType()));
 
             // Run the script and return its result
             ScriptState<string> state = script.RunAsync(globals: source).Result;
