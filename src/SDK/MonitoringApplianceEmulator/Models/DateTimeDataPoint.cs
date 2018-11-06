@@ -4,7 +4,7 @@
 // </copyright>
 //-----------------------------------------------------------------------
 
-namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.Models.Chart
+namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.Models
 {
     using System;
 

@@ -38,12 +38,12 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
                 return value;
             }
 
-            if (!(value is ChartAlertProperty tableAlertProperty))
+            if (!(value is ChartAlertProperty chartAlertProperty))
             {
-                throw new ArgumentException($"The value parameter must be of type {typeof(ChartPropertyControlViewModel)}, but it is from type {value.GetType()}.", nameof(value));
+                throw new ArgumentException($"The value parameter must be of type {typeof(ChartAlertProperty)}, but it is from type {value.GetType()}.", nameof(value));
             }
 
-            return new ChartPropertyControlViewModel(tableAlertProperty);
+            return new ChartPropertyControlViewModel(chartAlertProperty);
         }
 
         /// <summary>

@@ -39,7 +39,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
 
             if (!(value is TableAlertProperty tableAlertProperty))
             {
-                throw new ArgumentException($"The value parameter must be of type {typeof(TablePropertyControlViewModel)}, but it is from type {value.GetType()}.", nameof(value));
+                throw new ArgumentException($"The value parameter must be of type {typeof(TableAlertProperty)}, but it is from type {value.GetType()}.", nameof(value));
             }
 
             return new TablePropertyControlViewModel(tableAlertProperty);

@@ -8,11 +8,12 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
 {
     using System;
     using System.Globalization;
+    using System.Linq;
     using System.Windows.Media;
     using LiveCharts;
     using LiveCharts.Configurations;
     using LiveCharts.Wpf;
-    using Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.Models.Chart;
+    using Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.Models;
     using Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts;
 
     /// <summary>
@@ -23,8 +24,6 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
         private static readonly Brush SeriesColor = Brushes.DeepSkyBlue;
 
         private SeriesCollection seriesCollection;
-
-        private Func<double, string> xAxisFormatter;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ChartPropertyControlViewModel"/> class.
@@ -43,7 +42,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
                 }
                 catch (Exception e) when (e is FormatException || e is InvalidCastException)
                 {
-                    throw new InvalidCastException($"The data point's Y value '{dataPoint.X}' is not of DateTime type", e);
+                    throw new InvalidCastException($"The data point's X value '{dataPoint.X}' is not of DateTime type", e);
                 }
 
                 double value;
@@ -53,20 +52,21 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
                 }
                 catch (Exception e) when (e is FormatException || e is InvalidCastException || e is OverflowException)
                 {
-                    throw new InvalidCastException($"The data point's X value '{dataPoint.X}' is not of a numeric type", e);
+                    throw new InvalidCastException($"The data point's Y value '{dataPoint.Y}' is not of a numeric type", e);
                 }
 
                 chartValues.Add(new DateTimeDataPoint(dateTime, value));
             }
 
             /*
-             * Relevant for Column Series:
+             * In order to support
              * Since we are using DateTime.Ticks as X, the width of the bar is 1 tick and 1 tick is 1 millisecond.
              * In order to make our bars visible we need to change the unit of the chart. For the initial view are going to use hours.
-             * There is a future task (#1380564) to create this scale dynamically according to the X values range size.
              */
+            double xAxisFactor = chartValues.Skip(1).First().DateTime.Ticks - chartValues.First().DateTime.Ticks;
+
             CartesianMapper<DateTimeDataPoint> pointMapperConfig = Mappers.Xy<DateTimeDataPoint>()
-                .X(dateTimeDataPoint => (double)dateTimeDataPoint.DateTime.Ticks / TimeSpan.FromHours(1).Ticks)
+                .X(dateTimeDataPoint => dateTimeDataPoint.DateTime.Ticks / xAxisFactor)
                 .Y(dateTimeDataPoint => dateTimeDataPoint.Value);
 
             this.SeriesCollection = new SeriesCollection(pointMapperConfig);
@@ -90,7 +90,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
                 });
             }
 
-            this.XAxisFormatter = value => new DateTime((long)(value * TimeSpan.FromHours(1).Ticks)).ToString(CultureInfo.InvariantCulture);
+            this.XAxisFormatter = value => new DateTime((long)(value * xAxisFactor)).ToString(CultureInfo.InvariantCulture);
         }
 
         /// <summary>
@@ -113,18 +113,6 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
         /// <summary>
         /// Gets the series collection.
         /// </summary>
-        public Func<double, string> XAxisFormatter
-        {
-            get
-            {
-                return this.xAxisFormatter;
-            }
-
-            private set
-            {
-                this.xAxisFormatter = value;
-                this.OnPropertyChanged();
-            }
-        }
+        public Func<double, string> XAxisFormatter { get; }
     }
 }
