@@ -13,6 +13,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Presentation
     using System.Globalization;
     using System.Linq;
     using System.Reflection;
+    using Microsoft.Azure.Monitoring.SmartDetectors;
     using Microsoft.Azure.Monitoring.SmartDetectors.Extensions;
     using Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts;
     using Newtonsoft.Json;
@@ -97,9 +98,9 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Presentation
                 }
             }
 
-            string id = string.Join("##", alert.GetType().FullName, JsonConvert.SerializeObject(request), JsonConvert.SerializeObject(alert)).Hash();
+            string id = string.Join("##", alert.GetType().FullName, JsonConvert.SerializeObject(request), JsonConvert.SerializeObject(alert)).ToSha256Hash();
             string resourceId = alert.ResourceIdentifier.ToResourceId();
-            string correlationHash = string.Join("##", predicates.OrderBy(x => x.Key).Select(x => x.Key + "|" + x.Value)).Hash();
+            string correlationHash = string.Join("##", predicates.OrderBy(x => x.Key).Select(x => x.Key + "|" + x.Value)).ToSha256Hash();
 
             // Get the alert's signal type based on the clients used to create the alert
             SignalType signalType = GetSignalType(usedLogAnalysisClient, usedMetricClient);
@@ -144,8 +145,8 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Presentation
             }
 
             // Get the attribute title and information balloon - support interpolated strings
-            string attributeTitle = StringExtensions.EvaluateInterpolatedString(presentationAttribute.Title, alert);
-            string attributeInfoBalloon = StringExtensions.EvaluateInterpolatedString(presentationAttribute.InfoBalloon, alert);
+            string attributeTitle = presentationAttribute.Title.EvaluateInterpolatedString(alert);
+            string attributeInfoBalloon = presentationAttribute.InfoBalloon.EvaluateInterpolatedString(alert);
 
             // Add the presentation property
             return new AlertPropertyLegacy()
@@ -170,7 +171,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Presentation
         private static AlertProperty CreateAlertProperty(Alert alert, AlertPresentationPropertyV2Attribute presentationAttribute, string propertyDefaultName, object propertyValue)
         {
             // Get the attribute display name
-            string displayName = StringExtensions.EvaluateInterpolatedString(presentationAttribute.DisplayName, alert);
+            string displayName = presentationAttribute.DisplayName.EvaluateInterpolatedString(alert);
 
             // Get the property name
             string propertyName = string.IsNullOrWhiteSpace(presentationAttribute.PropertyName) ? propertyDefaultName : presentationAttribute.PropertyName;
@@ -210,7 +211,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Presentation
                         throw new ArgumentException("The URI supplied must be absolute");
                     }
 
-                    string linkText = StringExtensions.EvaluateInterpolatedString(urlAttribute.LinkText, alert);
+                    string linkText = urlAttribute.LinkText.EvaluateInterpolatedString(alert);
                     return new TextAlertProperty(propertyName, displayName, presentationAttribute.Order, $"<a href=\"{uriValue.ToString()}\">{linkText}</a>");
 
                 case AlertPresentationKeyValueAttribute keyValueAttribute:
@@ -221,8 +222,8 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Presentation
 
                     if (keyValueAttribute.ShowHeaders)
                     {
-                        string keyHeaderName = StringExtensions.EvaluateInterpolatedString(keyValueAttribute.KeyHeaderName, alert);
-                        string valueHeaderName = StringExtensions.EvaluateInterpolatedString(keyValueAttribute.ValueHeaderName, alert);
+                        string keyHeaderName = keyValueAttribute.KeyHeaderName.EvaluateInterpolatedString(alert);
+                        string valueHeaderName = keyValueAttribute.ValueHeaderName.EvaluateInterpolatedString(alert);
                         return new KeyValueAlertProperty(propertyName, displayName, presentationAttribute.Order, keyHeaderName, valueHeaderName, keyValuePropertyValue);
                     }
                     else

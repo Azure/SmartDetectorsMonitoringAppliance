@@ -9,8 +9,8 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
     using System.Globalization;
     using System.Security.Cryptography;
     using System.Text;
+    using Microsoft.Azure.Monitoring.SmartDetectors.Tools;
     using Microsoft.CodeAnalysis.CSharp.Scripting;
-    using Tools;
 
     /// <summary>
     /// Extension methods for string objects
@@ -24,7 +24,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
         /// </summary>
         /// <param name="s">The string</param>
         /// <returns>The 256 bit hash value, represented by a string of 64 characters</returns>
-        public static string Hash(this string s)
+        public static string ToSha256Hash(this string s)
         {
             // Get the hash bytes
             byte[] hashBytes;
@@ -55,7 +55,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
         /// <param name="interpolatedStringDefinition">The interpolated string definition.</param>
         /// <param name="source">The object, whose properties can appear in the interpolated string definition. The object type definition must be public.</param>
         /// <returns>The evaluated result string</returns>
-        public static string EvaluateInterpolatedString(string interpolatedStringDefinition, object source)
+        internal static string EvaluateInterpolatedString(this string interpolatedStringDefinition, object source)
         {
             if (!interpolatedStringDefinition.Contains("{"))
             {

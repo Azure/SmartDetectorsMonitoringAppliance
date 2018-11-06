@@ -20,7 +20,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
     public class AlertDetailsControlViewModel : ObservableObject
     {
         // temporary, until all types will be supported
-        private readonly List<AlertPropertyType> supportedPropertiesTypes = new List<AlertPropertyType>() { AlertPropertyType.Text, AlertPropertyType.KeyValue };
+        private readonly List<AlertPropertyType> supportedPropertiesTypes = new List<AlertPropertyType>() { AlertPropertyType.Text, AlertPropertyType.KeyValue, AlertPropertyType.Table };
 
         private EmulationAlert alert;
 

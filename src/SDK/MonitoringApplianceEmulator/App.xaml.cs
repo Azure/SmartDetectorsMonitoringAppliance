@@ -84,7 +84,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator
                 authenticationServices.AuthenticateUser();
                 ICredentialsFactory credentialsFactory = new ActiveDirectoryCredentialsFactory(authenticationServices);
                 IHttpClientWrapper httpClientWrapper = new HttpClientWrapper();
-                IExtendedAzureResourceManagerClient azureResourceManagerClient = new ExtendedAzureResourceManagerClient(httpClientWrapper, credentialsFactory, consoleTracer);
+                IExtendedAzureResourceManagerClient azureResourceManagerClient = new ExtendedAzureResourceManagerClient(credentialsFactory, consoleTracer);
 
                 // Create analysis service factory
                 var queryRunInfoProvider = new QueryRunInfoProvider(azureResourceManagerClient);
