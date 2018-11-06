@@ -265,7 +265,8 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
             Lazy<Task<Dictionary<ResourceIdentifier, ResourceIdentifier>>> lazyResourceToWorkspaceResourceIdMapping,
             CancellationToken cancellationToken)
         {
-            if (alert.ResourceIdentifier.ResourceType != ResourceType.ApplicationInsights)
+            // Get mapping from log analytics (valid only for VMs)
+            if (alert.ResourceIdentifier.ResourceType == ResourceType.VirtualMachine || alert.ResourceIdentifier.ResourceType == ResourceType.VirtualMachineScaleSet)
             {
                 Dictionary<ResourceIdentifier, ResourceIdentifier> resourceToWorkspaceResourceIdMapping = await lazyResourceToWorkspaceResourceIdMapping.Value;
                 if (resourceToWorkspaceResourceIdMapping.ContainsKey(alert.ResourceIdentifier))
@@ -278,6 +279,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
                 }
             }
 
+            // Get mapping from the provider
             return await this.queryRunInfoProvider.GetQueryRunInfoAsync(new List<ResourceIdentifier>() { alert.ResourceIdentifier }, cancellationToken);
         }
 
