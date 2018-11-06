@@ -6,11 +6,13 @@
 
 namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
 {
+    using System.Collections.Concurrent;
     using System.Globalization;
     using System.Security.Cryptography;
     using System.Text;
-    using Microsoft.Azure.Monitoring.SmartDetectors.Tools;
+    using Azure.Monitoring.SmartDetectors.Tools;
     using Microsoft.CodeAnalysis.CSharp.Scripting;
+    using Microsoft.CodeAnalysis.Scripting;
 
     /// <summary>
     /// Extension methods for string objects
@@ -18,6 +20,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
     public static class StringExtensions
     {
         private static readonly ObjectPool<HashAlgorithm> HashAlgoPool = new ObjectPool<HashAlgorithm>(SHA256.Create);
+        private static readonly ConcurrentDictionary<string, Script<string>> InterpolatedStringScripts = new ConcurrentDictionary<string, Script<string>>();
 
         /// <summary>
         /// Gets the hash of the specified string
@@ -57,13 +60,23 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
         /// <returns>The evaluated result string</returns>
         internal static string EvaluateInterpolatedString(this string interpolatedStringDefinition, object source)
         {
+            // If this is not an interpolated string - just return it as-is
             if (!interpolatedStringDefinition.Contains("{"))
             {
                 return interpolatedStringDefinition;
             }
 
+            // Code that interprets the string as an interpolated string
             string code = "$\"" + interpolatedStringDefinition + "\"";
-            return CSharpScript.EvaluateAsync<string>(code, globals: source, globalsType: source.GetType()).Result;
+
+            // Get the script from cache (improves performance since the script is already compiled)
+            Script<string> script = InterpolatedStringScripts.GetOrAdd(
+                source.GetType().FullName + "#" + code,
+                _ => CSharpScript.Create<string>(code, globalsType: source.GetType()));
+
+            // Run the script and return its result
+            ScriptState<string> state = script.RunAsync(globals: source).Result;
+            return state.ReturnValue;
         }
     }
 }
