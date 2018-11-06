@@ -203,7 +203,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
             string validId = Regex.Replace(smartDetectorId, invalidChars, string.Empty);
 
             // To avoid possible duplications, add the detector's id hash code if necessary
-            return validId == smartDetectorId ? $"{validId}" : $"{validId}_{smartDetectorId.Hash()}";
+            return validId == smartDetectorId ? $"{validId}" : $"{validId}_{smartDetectorId.ToSha256Hash()}";
         }
 
         /// <summary>
@@ -236,7 +236,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
         /// <returns>Safe file name</returns>
         private string GetStateFilePath(string key)
         {
-            return Path.Combine(this.repositoryDir, key.Hash());
+            return Path.Combine(this.repositoryDir, key.ToSha256Hash());
         }
     }
 }
