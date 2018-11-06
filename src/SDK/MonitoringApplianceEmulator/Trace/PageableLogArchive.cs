@@ -43,8 +43,8 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
             // Set the archive file name
             this.archiveFileName = Path.Combine(archiveFolderName, "logs.zip");
 
-            // And read the current log names
-            using (ZipArchive logZipArchive = ZipFile.OpenRead(this.archiveFileName))
+            // And read the current log names - we open for update so the file will always be created
+            using (ZipArchive logZipArchive = ZipFile.Open(this.archiveFileName, ZipArchiveMode.Update))
             {
                 this.LogNames = new ObservableCollection<string>(logZipArchive.Entries.Select(entry => entry.Name));
             }

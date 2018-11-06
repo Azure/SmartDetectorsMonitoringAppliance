@@ -19,8 +19,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
     /// <summary>
     /// An observable task, inherits from <see cref="ObservableObject"/>.
     /// </summary>
-    /// <typeparam name="TResult">The type of the result being returned from the task. This type should have default constructor,
-    /// so it can be used as the task result as long as the task has not finished running</typeparam>
+    /// <typeparam name="TResult">The type of the result being returned from the task.</typeparam>
     public class ObservableTask<TResult> : ObservableObject
     {
         private readonly ITracer tracer;

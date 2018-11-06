@@ -9,8 +9,6 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
     using System;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
-    using System.Diagnostics;
-    using System.Globalization;
     using System.IO;
     using System.IO.Compression;
     using System.Linq;
@@ -179,7 +177,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
                     while (!reader.EndOfStream)
                     {
                         string traceLine = await reader.ReadLineAsync();
-                        allTraces.Add(ParseTraceLine(traceLine));
+                        allTraces.Add(TraceLine.Parse(traceLine));
                     }
                 }
 
@@ -205,10 +203,8 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
         /// <summary>
         /// Adds a trace line to the log, and updates all relevant properties
         /// </summary>
-        /// <param name="level">The trace level.</param>
-        /// <param name="timestamp">The trace time stamp.</param>
-        /// <param name="message">The message to trace.</param>
-        public void AddTraceLine(TraceLevel level, DateTime timestamp, string message)
+        /// <param name="traceLine">The line to trace.</param>
+        public void AddTraceLine(TraceLine traceLine)
         {
             // Since traces are emitted from a thread which is not the UI thread, we must synchronize this
             // to the UI thread so things won't break
@@ -216,7 +212,6 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
             {
                 lock (this.tracesLock)
                 {
-                    var traceLine = new TraceLine(level, timestamp, message);
                     this.allTraces.Add(traceLine);
                     this.OnPropertyChanged(nameof(this.NumberOfTraceLines));
 
@@ -240,37 +235,6 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
                     }
                 }
             });
-        }
-
-        #endregion
-
-        #region Private helper methods
-
-        /// <summary>
-        /// Parses <paramref name="traceLine"/> to a <see cref="TraceLine"/> object. The trace line is assumed to be
-        /// of the same format we use to add trace lines to the log: {level}|{time stamp}|{message}
-        /// </summary>
-        /// <param name="traceLine">The trace line to parse.</param>
-        /// <returns>The parsed trace line.</returns>
-        private static TraceLine ParseTraceLine(string traceLine)
-        {
-            string[] lineParts = traceLine.Split('|');
-            if (lineParts.Length < 3)
-            {
-                throw new InvalidOperationException($"Unable to parse trace line '{traceLine}'");
-            }
-
-            if (!Enum.TryParse(lineParts[0], out TraceLevel traceLevel))
-            {
-                throw new InvalidOperationException($"Invalid trace level for trace line '{traceLine}'");
-            }
-
-            if (!DateTime.TryParseExact(lineParts[1], "yyyy-MM-dd HH:mm:ss.fffZ", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime traceTimestamp))
-            {
-                throw new InvalidOperationException($"Invalid trace time stamp for trace line '{traceLine}'");
-            }
-
-            return new TraceLine(traceLevel, traceTimestamp, string.Join("|", lineParts.Skip(2)));
         }
 
         #endregion

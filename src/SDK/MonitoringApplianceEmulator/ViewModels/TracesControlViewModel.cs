@@ -169,18 +169,19 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
                 }
                 else
                 {
-                    if (value <= 0 || value > this.pageableLog.NumberOfPages)
+                    // Make sure to stay in bounds
+                    if (value <= 0)
                     {
-                        // Invalid value, so ignore the value and notify so the UI will be updated
-                        this.OnPropertyChanged();
+                        value = 1;
                     }
-                    else
+                    else if (value > this.pageableLog.NumberOfPages)
                     {
-                        this.PageableLog.CurrentPageIndex = value - 1;
+                        value = this.pageableLog.NumberOfPages;
+                    }
 
-                        this.OnPropertyChanged(nameof(this.IsFirstPage));
-                        this.OnPropertyChanged(nameof(this.IsLastPage));
-                    }
+                    this.PageableLog.CurrentPageIndex = value - 1;
+                    this.OnPropertyChanged(nameof(this.IsFirstPage));
+                    this.OnPropertyChanged(nameof(this.IsLastPage));
                 }
             }
         }

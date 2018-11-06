@@ -6,13 +6,11 @@
 
 namespace MonitoringApplianceEmulatorTests.ViewModels
 {
-    using System;
     using System.Collections.Generic;
     using Microsoft.Azure.Monitoring.SmartDetectors;
     using Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.Models;
     using Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.ViewModels;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-    using Moq;
     using Alert = Microsoft.Azure.Monitoring.SmartDetectors.Alert;
     using AlertState = Microsoft.Azure.Monitoring.SmartDetectors.AlertState;
     using ResourceType = Microsoft.Azure.Monitoring.SmartDetectors.ResourceType;
@@ -65,42 +63,6 @@ namespace MonitoringApplianceEmulatorTests.ViewModels
             Assert.IsFalse(wasCloseEventHandlerFired);
             alertDetailsControlViewModel.CloseControlCommand.Execute(parameter: null);
             Assert.IsTrue(wasCloseEventHandlerFired);
-        }
-
-        [TestMethod]
-        public void WhenExecutingOpenAnalyticsQueryCommandForNonAppInsightsResourceThenQueryWasExecutedAsExpected()
-        {
-            EmulationAlert emulationAlert = EmulationAlertHelper.CreateEmulationAlert(new TestAlert(this.virtualMachineResourceIdentifier));
-
-            var alertDetailsControlViewModel = new AlertDetailsControlViewModel(
-                emulationAlert,
-                () => { },
-                this.systemProcessClientMock.Object);
-
-            alertDetailsControlViewModel.OpenAnalyticsQueryCommand.Execute(parameter: "<query>");
-
-            string expectedAbsoluteUri = "https://portal.loganalytics.io/subscriptions/7904b7bd-5e6b-4415-99a8-355657b7da19/resourcegroups/MyResourceGroupName/workspaces/MyVirtualMachineName?q=H4sIAAAAAAAEALMpLE0tqrQDAJjF8mcHAAAA";
-
-            // Verify that the query was composed and executed as expected
-            this.systemProcessClientMock.Verify(m => m.StartWebBrowserProcess(It.Is<Uri>(u => u.AbsoluteUri == expectedAbsoluteUri)), Times.Once());
-        }
-
-        [TestMethod]
-        public void WhenExecutingOpenAnalyticsQueryCommandForAppInsightsResourceThenQueryWasExecutedAsExpected()
-        {
-            EmulationAlert emulationAlert = EmulationAlertHelper.CreateEmulationAlert(new TestAlert(this.appInsightsResourceIdentifier));
-
-            var alertDetailsControlViewModel = new AlertDetailsControlViewModel(
-                emulationAlert,
-                () => { },
-                this.systemProcessClientMock.Object);
-
-            alertDetailsControlViewModel.OpenAnalyticsQueryCommand.Execute(parameter: "<query>");
-
-            string expectedAbsoluteUri = "https://analytics.applicationinsights.io/subscriptions/7904b7bd-5e6b-4415-99a8-355657b7da19/resourcegroups/MyResourceGroupName/components/someApp?q=H4sIAAAAAAAEALMpLE0tqrQDAJjF8mcHAAAA";
-
-            // Verify that the query was composed and executed as expected
-            this.systemProcessClientMock.Verify(m => m.StartWebBrowserProcess(It.Is<Uri>(u => u.AbsoluteUri == expectedAbsoluteUri)), Times.Once());
         }
 
         public class TestAlert : Alert

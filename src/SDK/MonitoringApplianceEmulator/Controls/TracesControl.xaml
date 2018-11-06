@@ -13,10 +13,7 @@
     <UserControl.Resources>
         <converters:InverseBooleanConverter x:Key="InverseBooleanConverter" />
         <converters:BooleanAndConverter x:Key="BooleanAndConverter" />
-        <converters:ConverterChain x:Key="NullToVisibilityConverter">
-            <converters:NullToBooleanConverter/>
-            <converters:BooleanToVisibilityConverter/>
-        </converters:ConverterChain>
+        <converters:IntStringConverter x:Key="IntStringConverter" />
 
         <CollectionViewSource x:Key="LogNamesViewSource" Source="{Binding Path=LogNames}">
             <CollectionViewSource.SortDescriptions>
@@ -25,7 +22,7 @@
         </CollectionViewSource>
     </UserControl.Resources>
 
-    <Grid Visibility="{Binding PageableLog, Converter={StaticResource NullToVisibilityConverter}, ConverterParameter='Visible,Hidden'}">
+    <Grid >
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
@@ -89,7 +86,7 @@
                 <materialDesign:PackIcon Kind="ArrowLeft" VerticalAlignment="Center"/>
             </Button>
             <TextBlock Text="Page" VerticalAlignment="Center"/>
-            <TextBox Width="20" VerticalAlignment="Center" Margin="5,0" Text="{Binding CurrentPageIndex}"/>
+            <TextBox Width="33" VerticalAlignment="Center" Margin="5,0" Text="{Binding CurrentPageIndex, Converter={StaticResource IntStringConverter}}" PreviewTextInput="CurrentPageTextBox_OnPreviewTextInput" KeyUp="CurrentPageTextBox_OnKeyUp"/>
             <TextBlock Text="{Binding NumberOfPages, StringFormat='of {0}'}" VerticalAlignment="Center"/>
             <Button Style="{StaticResource TracesControlButton}" Command="{Binding NextPageCommand}" IsEnabled="{Binding IsLastPage, Converter={StaticResource InverseBooleanConverter}}">
                 <materialDesign:PackIcon Kind="ArrowRight" VerticalAlignment="Center"/>

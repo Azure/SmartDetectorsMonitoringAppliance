@@ -131,13 +131,14 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
         {
             lock (this.logFileLock)
             {
+                var traceLine = new TraceLine(level, DateTime.UtcNow, message);
+
                 // Write the trace line to the log file
-                DateTime timestamp = DateTime.UtcNow;
-                this.tracerStreamWriter.WriteLine($"{level}|{timestamp:yyyy-MM-dd HH:mm:ss.fffZ}|{message}");
+                this.tracerStreamWriter.WriteLine(traceLine.Compose());
                 this.tracerStreamWriter.Flush();
 
                 // And to log object
-                this.log.AddTraceLine(level, timestamp, message);
+                this.log.AddTraceLine(traceLine);
             }
         }
 
