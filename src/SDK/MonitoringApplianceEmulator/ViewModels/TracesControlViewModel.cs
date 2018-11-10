@@ -35,7 +35,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
         {
             this.SupportedPageSizes = new List<int> { 50, 100, 150, 200 };
             this.pageSize = this.SupportedPageSizes[0];
-            this.isSmartDetectorRunning = false;
+            this.IsSmartDetectorRunning = false;
             this.LoadLogTask = new ObservableTask(Task.FromResult(false), null);
         }
 
@@ -180,8 +180,6 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
                     }
 
                     this.PageableLog.CurrentPageIndex = value - 1;
-                    this.OnPropertyChanged(nameof(this.IsFirstPage));
-                    this.OnPropertyChanged(nameof(this.IsLastPage));
                 }
             }
         }

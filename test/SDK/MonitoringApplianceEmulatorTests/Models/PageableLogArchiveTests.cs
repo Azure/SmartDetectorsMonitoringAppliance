@@ -17,7 +17,7 @@ namespace MonitoringApplianceEmulatorTests.Models
     public class PageableLogArchiveTests
     {
         private const string LogsFolder = @"..\..\..";
-        private const string LogsFilename = @"..\..\..\logs.zip";
+        private const string LogsFilename = @"..\..\..\test-detector.logs.zip";
         private const int TestPageSize = 50;
 
         [TestCleanup]
@@ -32,7 +32,7 @@ namespace MonitoringApplianceEmulatorTests.Models
         [TestMethod]
         public void WhenCreatingPageableLogArchiveThenLogArchiveIsCreatedEmpty()
         {
-            var pageableLogArchive = new PageableLogArchive(LogsFolder);
+            var pageableLogArchive = new PageableLogArchive("test/detector", LogsFolder);
             Assert.IsFalse(pageableLogArchive.LogNames.Any(), "Expected to get an empty log archive");
 
             AssertArchiveFile(expectedNumberOfEntries: 0);
@@ -42,7 +42,7 @@ namespace MonitoringApplianceEmulatorTests.Models
         public async Task WhenGettingLogFromEmptyArchiveThenLogIsCreatedOnce()
         {
             // Create the log tracer and validate
-            var pageableLogArchive = new PageableLogArchive(LogsFolder);
+            var pageableLogArchive = new PageableLogArchive("test/detector", LogsFolder);
             IPageableLog log = await pageableLogArchive.GetLogAsync("mylog", TestPageSize);
             AssertEmptyLogTracer(log, "mylog");
 
@@ -50,7 +50,7 @@ namespace MonitoringApplianceEmulatorTests.Models
             AssertEmptyArchiveLogEntry("mylog");
 
             // Create the log tracer again, and validate that nothing has happened
-            pageableLogArchive = new PageableLogArchive(LogsFolder);
+            pageableLogArchive = new PageableLogArchive("test/detector", LogsFolder);
             log = await pageableLogArchive.GetLogAsync("mylog", TestPageSize);
             AssertEmptyLogTracer(log, "mylog");
 
@@ -62,7 +62,7 @@ namespace MonitoringApplianceEmulatorTests.Models
         public async Task WhenGettingTwoLogsFromEmptyArchiveThenLogsAreCreated()
         {
             // Create the first log tracer and validate
-            var pageableLogArchive = new PageableLogArchive(LogsFolder);
+            var pageableLogArchive = new PageableLogArchive("test/detector", LogsFolder);
             IPageableLog log = await pageableLogArchive.GetLogAsync("mylog", TestPageSize);
             AssertEmptyLogTracer(log, "mylog");
 
@@ -70,7 +70,7 @@ namespace MonitoringApplianceEmulatorTests.Models
             AssertEmptyArchiveLogEntry("mylog");
 
             // Create the second log tracer and validate
-            pageableLogArchive = new PageableLogArchive(LogsFolder);
+            pageableLogArchive = new PageableLogArchive("test/detector", LogsFolder);
             log = await pageableLogArchive.GetLogAsync("mylog2", TestPageSize);
             AssertEmptyLogTracer(log, "mylog2");
 

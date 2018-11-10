@@ -12,6 +12,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
     using System.IO.Compression;
     using System.Linq;
     using System.Threading.Tasks;
+    using Unity.Interception.Utilities;
 
     /// <summary>
     /// An implementation of the <see cref="IPageableLogArchive"/> interface, which
@@ -24,16 +25,18 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
         /// <summary>
         /// Initializes a new instance of the <see cref="PageableLogArchive"/> class.
         /// </summary>
-        public PageableLogArchive()
-            : this(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "SmartAlertsEmulator"))
+        /// <param name="detectorName">The name of the detector to create the log archive for</param>
+        public PageableLogArchive(string detectorName)
+            : this(detectorName, Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "SmartAlertsEmulator"))
         {
         }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PageableLogArchive"/> class.
         /// </summary>
+        /// <param name="detectorName">The name of the detector to create the log archive for</param>
         /// <param name="archiveFolderName">The name of the folder to store the logs archive in.</param>
-        public PageableLogArchive(string archiveFolderName)
+        public PageableLogArchive(string detectorName, string archiveFolderName)
         {
             if (!Directory.Exists(archiveFolderName))
             {
@@ -41,7 +44,13 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
             }
 
             // Set the archive file name
-            this.archiveFileName = Path.Combine(archiveFolderName, "logs.zip");
+            string safeDetectorName = detectorName;
+            foreach (char c in Path.GetInvalidFileNameChars())
+            {
+                safeDetectorName = safeDetectorName.Replace(c, '-');
+            }
+
+            this.archiveFileName = Path.Combine(archiveFolderName, $"{safeDetectorName}.logs.zip");
 
             // And read the current log names - we open for update so the file will always be created
             using (ZipArchive logZipArchive = ZipFile.Open(this.archiveFileName, ZipArchiveMode.Update))

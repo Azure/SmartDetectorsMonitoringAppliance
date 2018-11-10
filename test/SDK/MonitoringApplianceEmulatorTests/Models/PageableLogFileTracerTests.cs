@@ -16,7 +16,7 @@ namespace MonitoringApplianceEmulatorTests.Models
     public class PageableLogFileTracerTests
     {
         private const string LogsFolder = @"..\..\..";
-        private const string LogsFilename = @"..\..\..\logs.zip";
+        private const string LogsFilename = @"..\..\..\test-detector.logs.zip";
         private const int TestPageSize = 10;
 
         [TestCleanup]
@@ -32,7 +32,7 @@ namespace MonitoringApplianceEmulatorTests.Models
         public async Task WhenSendingTracesThenTracesAreSaved()
         {
             // Create the log tracer, trace a bit, and validate
-            var pageableLogArchive = new PageableLogArchive(LogsFolder);
+            var pageableLogArchive = new PageableLogArchive("test/detector", LogsFolder);
             var log = await pageableLogArchive.GetLogAsync("mylog", TestPageSize);
             using (ILogArchiveTracer tracer = log.CreateTracer())
             {
@@ -57,7 +57,7 @@ namespace MonitoringApplianceEmulatorTests.Models
             AssertTraceLine(log, 3, TraceLevel.Error, "3");
 
             // Now reopen the tracer and validate again
-            pageableLogArchive = new PageableLogArchive(LogsFolder);
+            pageableLogArchive = new PageableLogArchive("test/detector", LogsFolder);
             log = await pageableLogArchive.GetLogAsync("mylog", TestPageSize);
             Assert.AreEqual(TestPageSize, log.PageSize, "Mismatch on the log's page size");
             Assert.AreEqual(0, log.CurrentPageIndex, "Mismatch on the log's current page");
@@ -77,7 +77,7 @@ namespace MonitoringApplianceEmulatorTests.Models
         public async Task WhenSendingManyTracesThenPagesAreHandledCorrectly()
         {
             // Create the log tracer, trace a lot, and validate
-            var pageableLogArchive = new PageableLogArchive(LogsFolder);
+            var pageableLogArchive = new PageableLogArchive("test/detector", LogsFolder);
             var log = await pageableLogArchive.GetLogAsync("mylog", TestPageSize);
             using (ILogArchiveTracer tracer = log.CreateTracer())
             {
@@ -88,9 +88,9 @@ namespace MonitoringApplianceEmulatorTests.Models
             }
 
             Assert.AreEqual(TestPageSize, log.PageSize, "Mismatch on the log's page size");
-            Assert.AreEqual(0, log.CurrentPageIndex, "Mismatch on the log's current page");
-            Assert.AreEqual(0, log.CurrentPageStart, "Mismatch on the log's current page start");
-            Assert.AreEqual(9, log.CurrentPageEnd, "Mismatch on the log's current page end");
+            Assert.AreEqual(9, log.CurrentPageIndex, "Mismatch on the log's current page");
+            Assert.AreEqual(90, log.CurrentPageStart, "Mismatch on the log's current page start");
+            Assert.AreEqual(99, log.CurrentPageEnd, "Mismatch on the log's current page end");
             Assert.AreEqual(10, log.NumberOfPages, "Mismatch on the log's number of pages");
             Assert.AreEqual(TestPageSize * 10, log.NumberOfTraceLines, "Mismatch on the log's number of trace lines");
             Assert.AreEqual("mylog", log.Name, "Mismatch on the log's name");
@@ -105,7 +105,7 @@ namespace MonitoringApplianceEmulatorTests.Models
             }
 
             // Now reopen the tracer, validate, trace some more and validate again
-            pageableLogArchive = new PageableLogArchive(LogsFolder);
+            pageableLogArchive = new PageableLogArchive("test/detector", LogsFolder);
             log = await pageableLogArchive.GetLogAsync("mylog", TestPageSize);
             Assert.AreEqual(TestPageSize, log.PageSize, "Mismatch on the log's page size");
             Assert.AreEqual(0, log.CurrentPageIndex, "Mismatch on the log's current page");
@@ -130,9 +130,9 @@ namespace MonitoringApplianceEmulatorTests.Models
             }
 
             Assert.AreEqual(TestPageSize, log.PageSize, "Mismatch on the log's page size");
-            Assert.AreEqual(9, log.CurrentPageIndex, "Mismatch on the log's current page");
-            Assert.AreEqual(90, log.CurrentPageStart, "Mismatch on the log's current page start");
-            Assert.AreEqual(99, log.CurrentPageEnd, "Mismatch on the log's current page end");
+            Assert.AreEqual(10, log.CurrentPageIndex, "Mismatch on the log's current page");
+            Assert.AreEqual(100, log.CurrentPageStart, "Mismatch on the log's current page start");
+            Assert.AreEqual(109, log.CurrentPageEnd, "Mismatch on the log's current page end");
             Assert.AreEqual(11, log.NumberOfPages, "Mismatch on the log's number of pages");
             Assert.AreEqual(TestPageSize * 11, log.NumberOfTraceLines, "Mismatch on the log's number of trace lines");
             Assert.AreEqual("mylog", log.Name, "Mismatch on the log's name");
@@ -149,7 +149,7 @@ namespace MonitoringApplianceEmulatorTests.Models
         public async Task WhenUpdatingPageSizeThenPagesAreHandledCorrectly()
         {
             // Create the log tracer, trace a lot, validate, update page size, trace and validate more
-            var pageableLogArchive = new PageableLogArchive(LogsFolder);
+            var pageableLogArchive = new PageableLogArchive("test/detector", LogsFolder);
             var log = await pageableLogArchive.GetLogAsync("mylog", TestPageSize);
             using (ILogArchiveTracer tracer = log.CreateTracer())
             {
@@ -160,9 +160,9 @@ namespace MonitoringApplianceEmulatorTests.Models
             }
 
             Assert.AreEqual(TestPageSize, log.PageSize, "Mismatch on the log's page size");
-            Assert.AreEqual(0, log.CurrentPageIndex, "Mismatch on the log's current page");
-            Assert.AreEqual(0, log.CurrentPageStart, "Mismatch on the log's current page start");
-            Assert.AreEqual(9, log.CurrentPageEnd, "Mismatch on the log's current page end");
+            Assert.AreEqual(9, log.CurrentPageIndex, "Mismatch on the log's current page");
+            Assert.AreEqual(90, log.CurrentPageStart, "Mismatch on the log's current page start");
+            Assert.AreEqual(99, log.CurrentPageEnd, "Mismatch on the log's current page end");
             Assert.AreEqual(10, log.NumberOfPages, "Mismatch on the log's number of pages");
             Assert.AreEqual(TestPageSize * 10, log.NumberOfTraceLines, "Mismatch on the log's number of trace lines");
             Assert.AreEqual("mylog", log.Name, "Mismatch on the log's name");

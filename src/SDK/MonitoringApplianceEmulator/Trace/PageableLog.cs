@@ -162,11 +162,12 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
         public static async Task<PageableLog> LoadLogFileAsync(string archiveFileName, string logName, int initialPageSize)
         {
             // Open the archive for read
-            using (var logZipArchive = ZipFile.OpenRead(archiveFileName))
+            using (var logZipArchive = ZipFile.Open(archiveFileName, ZipArchiveMode.Update))
             {
                 ZipArchiveEntry logFileEntry = logZipArchive.Entries.FirstOrDefault(entry => entry.Name == logName);
                 if (logFileEntry == null)
                 {
+                    logZipArchive.CreateEntry(logName, CompressionLevel.Optimal);
                     return new PageableLog(archiveFileName, logName, initialPageSize, new List<TraceLine>());
                 }
 
@@ -206,37 +207,51 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
         /// <param name="traceLine">The line to trace.</param>
         public void AddTraceLine(TraceLine traceLine)
         {
-            // Since traces are emitted from a thread which is not the UI thread, we must synchronize this
-            // to the UI thread so things won't break
-            System.Windows.Application.Current.Dispatcher.Invoke(() =>
+            // Test hook for supporting tracing in tests
+            if (System.Windows.Application.Current == null)
             {
-                lock (this.tracesLock)
-                {
-                    this.allTraces.Add(traceLine);
-                    this.OnPropertyChanged(nameof(this.NumberOfTraceLines));
-
-                    // Check if we've just added a page to the log - if so, notify it and move
-                    // to show the last page
-                    if (this.NumberOfTraceLines % this.PageSize == 1)
-                    {
-                        this.OnPropertyChanged(nameof(this.NumberOfPages));
-                    }
-
-                    // Final check if we have need to add the trace to the current page
-                    if (this.CurrentPageTraces.Count < this.PageSize)
-                    {
-                        this.CurrentPageTraces.Add(traceLine);
-                        this.OnPropertyChanged(nameof(this.CurrentPageEnd));
-                    }
-                    else
-                    {
-                        // We've filled the current page, so move on to the next
-                        this.CurrentPageIndex = this.NumberOfPages - 1;
-                    }
-                }
-            });
+                this.AddTraceLineInternal(traceLine);
+            }
+            else
+            {
+                // Since traces are emitted from a thread which is not the UI thread, we must synchronize this
+                // to the UI thread so things won't break
+                System.Windows.Application.Current.Dispatcher.Invoke(() => this.AddTraceLineInternal(traceLine));
+            }
         }
 
         #endregion
+
+        /// <summary>
+        /// Adds a trace line to the log, and updates all relevant properties
+        /// </summary>
+        /// <param name="traceLine">The line to trace.</param>
+        private void AddTraceLineInternal(TraceLine traceLine)
+        {
+            lock (this.tracesLock)
+            {
+                this.allTraces.Add(traceLine);
+                this.OnPropertyChanged(nameof(this.NumberOfTraceLines));
+
+                // Check if we've just added a page to the log - if so, notify it and move
+                // to show the last page
+                if (this.NumberOfTraceLines % this.PageSize == 1)
+                {
+                    this.OnPropertyChanged(nameof(this.NumberOfPages));
+                }
+
+                // Final check if we have need to add the trace to the current page
+                if (this.CurrentPageTraces.Count < this.PageSize)
+                {
+                    this.CurrentPageTraces.Add(traceLine);
+                    this.OnPropertyChanged(nameof(this.CurrentPageEnd));
+                }
+                else
+                {
+                    // We've filled the current page, so move on to the next
+                    this.CurrentPageIndex = this.NumberOfPages - 1;
+                }
+            }
+        }
     }
 }

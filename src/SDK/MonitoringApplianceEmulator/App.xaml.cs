@@ -97,7 +97,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator
                 var userSettings = UserSettings.LoadUserSettings();
 
                 // Create the detector runner
-                IPageableLogArchive logArchive = new PageableLogArchive();
+                IPageableLogArchive logArchive = new PageableLogArchive(smartDetectorManifest.Name);
                 IEmulationSmartDetectorRunner smartDetectorRunner = new SmartDetectorRunner(
                     detector,
                     analysisServicesFactory,
