@@ -56,11 +56,13 @@
                             <Setter Property="Foreground" Value="DarkGray"/>
                         </DataTrigger>
                         <DataTrigger Binding="{Binding Level}" Value="Warning">
-                            <Setter Property="Background" Value="Orange"/>
+                            <!--<Setter Property="Background" Value="Orange"/>-->
+                            <Setter Property="Foreground" Value="DarkOrange"/>
                         </DataTrigger>
                         <DataTrigger Binding="{Binding Level}" Value="Error">
-                            <Setter Property="Background" Value="Red"/>
-                            <Setter Property="Foreground" Value="White"/>
+                            <!--<Setter Property="Background" Value="Red"/>
+                            <Setter Property="Foreground" Value="White"/>-->
+                            <Setter Property="Foreground" Value="Red"/>
                         </DataTrigger>
                     </Style.Triggers>
                 </Style>
