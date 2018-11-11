@@ -99,7 +99,7 @@
                 <Setter Property="Background" Value="White"/>
             </Style>
         
-            <Style TargetType="{x:Type ListView}">
+            <Style TargetType="{x:Type ListView}" x:Key="AlertPropertiesListViewStyle">
                 <Style.Resources>
                     <Style TargetType="{x:Type GridViewColumnHeader}" BasedOn="{StaticResource ResultsColumnHeaderStyle}" />
                 </Style.Resources>
@@ -156,6 +156,10 @@
                 <Setter Property="Width" Value="14"/>
                 <Setter Property="ToolTipService.Placement" Value="Left"/>
                 <Setter Property="VerticalAlignment" Value="Top"/>
+            </Style>
+            
+            <Style TargetType="Button" x:Key="TracesControlButton" BasedOn="{StaticResource MaterialDesignFlatButton}">
+                <Setter Property="Padding" Value="4 0"/>
             </Style>
         </ResourceDictionary>
     </Application.Resources>

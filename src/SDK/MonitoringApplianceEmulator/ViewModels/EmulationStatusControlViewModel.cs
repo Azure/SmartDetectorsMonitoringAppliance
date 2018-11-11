@@ -28,13 +28,11 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
         /// Initializes a new instance of the <see cref="EmulationStatusControlViewModel"/> class.
         /// </summary>
         /// <param name="smartDetectorRunner">The Smart Detector runner.</param>
-        /// <param name="tracer">The tracer.</param>
         /// <param name="notificationService">The notification service.</param>
         [InjectionConstructor]
-        public EmulationStatusControlViewModel(IEmulationSmartDetectorRunner smartDetectorRunner, IObservableTracer tracer, NotificationService notificationService)
+        public EmulationStatusControlViewModel(IEmulationSmartDetectorRunner smartDetectorRunner, NotificationService notificationService)
         {
             this.SmartDetectorRunner = smartDetectorRunner;
-            this.Tracer = tracer;
             this.notificationService = notificationService;
         }
 
@@ -45,24 +43,15 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
         /// </summary>
         public IEmulationSmartDetectorRunner SmartDetectorRunner { get; }
 
-        /// <summary>
-        /// Gets the tracer used by the Smart Detector runner.
-        /// </summary>
-        public IObservableTracer Tracer { get; }
-
         #endregion
 
         #region Commands
 
         /// <summary>
-        /// Gets the command that clear the Tracer Box.
-        /// </summary>
-        public CommandHandler ClearTracerBoxCommand => new CommandHandler(() => this.Tracer.Clear());
-
-        /// <summary>
         /// Gets the command that switch to the Alerts Control tab
         /// </summary>
         public CommandHandler SwitchTabCommand => new CommandHandler(() => this.notificationService.OnTabSwitchedToAlertsControl());
+
         #endregion
     }
 }

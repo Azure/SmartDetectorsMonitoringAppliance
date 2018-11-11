@@ -24,7 +24,7 @@ namespace MonitoringApplianceEmulatorTests.ViewModels
     {
         private Mock<IEmulationSmartDetectorRunner> smartDetectorRunnerMock;
         private Mock<IExtendedAzureResourceManagerClient> azureResourceManagerClientMock;
-        private Mock<IObservableTracer> tracerMock;
+        private Mock<ITracer> tracerMock;
 
         private UserSettings userSettings;
         private SmartDetectorManifest smartDetectorManifest;
@@ -36,7 +36,7 @@ namespace MonitoringApplianceEmulatorTests.ViewModels
         {
             this.smartDetectorRunnerMock = new Mock<IEmulationSmartDetectorRunner>();
             this.azureResourceManagerClientMock = new Mock<IExtendedAzureResourceManagerClient>();
-            this.tracerMock = new Mock<IObservableTracer>();
+            this.tracerMock = new Mock<ITracer>();
 
             this.userSettings = new UserSettings();
 
