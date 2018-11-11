@@ -79,12 +79,14 @@ namespace MonitoringApplianceEmulatorTests.ViewModels
             // Act
             var chartPropertyControlViewModel = new ChartPropertyControlViewModel(chartAlertProperty);
 
-            // Assert generated Line Series
-            Assert.IsNotNull(chartPropertyControlViewModel);
-            Assert.IsNotNull(chartPropertyControlViewModel.SeriesCollection[0]);
+            // Assert
+            Assert.AreEqual("displayName", chartPropertyControlViewModel.Title, "Unexpected chart title");
+
+            Assert.IsNotNull(chartPropertyControlViewModel, "View model is expected bo be defined");
+            Assert.IsNotNull(chartPropertyControlViewModel.SeriesCollection[0], "Series is expected to be defined");
 
             T series = chartPropertyControlViewModel.SeriesCollection[0] as T;
-            Assert.IsNotNull(series);
+            Assert.IsNotNull(series, $"Series is from type {chartPropertyControlViewModel.SeriesCollection[0].GetType()}, but expected to be from type {typeof(T)}");
 
             List<LiveCharts.ChartPoint> actualDataPoints = series.ChartPoints.ToList();
             pointsAssertionMethod(expectedChartPoints, actualDataPoints);
@@ -99,8 +101,8 @@ namespace MonitoringApplianceEmulatorTests.ViewModels
                 var expectedDataPoint = expectedChartPoints[i];
                 var actualDataPoint = actualDataPoints[i];
 
-                Assert.AreEqual((double)((DateTime)expectedDataPoint.X).Ticks / xAxisFactor, actualDataPoint.X);
-                Assert.AreEqual(expectedDataPoint.Y, actualDataPoint.Y);
+                Assert.AreEqual((double)((DateTime)expectedDataPoint.X).Ticks / xAxisFactor, actualDataPoint.X, $"Unexpected X value for point in index: {i}");
+                Assert.AreEqual(expectedDataPoint.Y, actualDataPoint.Y, $"Unexpected Y value for point in index: {i}");
             }
         }
 
@@ -111,8 +113,8 @@ namespace MonitoringApplianceEmulatorTests.ViewModels
                 var expectedDataPoint = expectedChartPoints[i];
                 var actualDataPoint = actualDataPoints[i];
 
-                Assert.AreEqual(expectedDataPoint.X, actualDataPoint.X);
-                Assert.AreEqual(expectedDataPoint.Y, actualDataPoint.Y);
+                Assert.AreEqual(expectedDataPoint.X, actualDataPoint.X, $"Unexpected X value for point in index: {i}");
+                Assert.AreEqual(expectedDataPoint.Y, actualDataPoint.Y, $"Unexpected Y value for point in index: {i}");
             }
         }
     }
