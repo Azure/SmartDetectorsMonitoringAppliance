@@ -20,8 +20,6 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
     /// </summary>
     public class AlertsControlViewModel : ObservableObject
     {
-        private readonly ISystemProcessClient systemProcessClient;
-
         private IEmulationSmartDetectorRunner smartDetectorRunner;
 
         private EmulationAlert selectedAlert;
@@ -41,14 +39,12 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
         /// Initializes a new instance of the <see cref="AlertsControlViewModel"/> class.
         /// </summary>
         /// <param name="smartDetectorRunner">The Smart Detector runner.</param>
-        /// <param name="systemProcessClient">The system process client.</param>
         [InjectionConstructor]
-        public AlertsControlViewModel(IEmulationSmartDetectorRunner smartDetectorRunner, ISystemProcessClient systemProcessClient)
+        public AlertsControlViewModel(IEmulationSmartDetectorRunner smartDetectorRunner)
         {
             this.SmartDetectorRunner = smartDetectorRunner;
             this.SelectedAlert = null;
             this.AlertDetailsControlViewModel = null;
-            this.systemProcessClient = systemProcessClient;
 
             this.AlertDetailsControlClosed += () =>
             {
@@ -99,7 +95,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
 
                 if (this.selectedAlert != null)
                 {
-                    this.AlertDetailsControlViewModel = new AlertDetailsControlViewModel(this.selectedAlert, this.AlertDetailsControlClosed, this.systemProcessClient);
+                    this.AlertDetailsControlViewModel = new AlertDetailsControlViewModel(this.selectedAlert, this.AlertDetailsControlClosed);
                 }
                 else
                 {

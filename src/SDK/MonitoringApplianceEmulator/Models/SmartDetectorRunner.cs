@@ -16,6 +16,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
     using Microsoft.Azure.Monitoring.SmartDetectors;
     using Microsoft.Azure.Monitoring.SmartDetectors.Arm;
     using Microsoft.Azure.Monitoring.SmartDetectors.Clients;
+    using Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.Trace;
     using Microsoft.Azure.Monitoring.SmartDetectors.Package;
     using Microsoft.Azure.Monitoring.SmartDetectors.Presentation;
     using Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts;
@@ -40,9 +41,13 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
 
         private readonly IExtendedAzureResourceManagerClient azureResourceManagerClient;
 
+        private readonly IPageableLogArchive logArchive;
+
         private ObservableCollection<EmulationAlert> alerts;
 
         private bool isSmartDetectorRunning;
+
+        private IPageableLog pageableLogTracer;
 
         private Action cancelSmartDetectorRunAction = null;
 
@@ -55,7 +60,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
         /// <param name="smartDetectorManifes">The Smart Detector manifest.</param>
         /// <param name="stateRepositoryFactory">The state repository factory</param>
         /// <param name="azureResourceManagerClient">The Azure Resource Manager client</param>
-        /// <param name="tracer">The tracer.</param>
+        /// <param name="logArchive">The log archive.</param>
         public SmartDetectorRunner(
             ISmartDetector smartDetector,
             IInternalAnalysisServicesFactory analysisServicesFactory,
@@ -63,13 +68,13 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
             SmartDetectorManifest smartDetectorManifes,
             IStateRepositoryFactory stateRepositoryFactory,
             IExtendedAzureResourceManagerClient azureResourceManagerClient,
-            ITracer tracer)
+            IPageableLogArchive logArchive)
         {
             this.smartDetector = smartDetector;
             this.analysisServicesFactory = analysisServicesFactory;
             this.queryRunInfoProvider = queryRunInfoProvider;
             this.smartDetectorManifest = smartDetectorManifes;
-            this.Tracer = tracer;
+            this.logArchive = logArchive;
             this.IsSmartDetectorRunning = false;
             this.Alerts = new ObservableCollection<EmulationAlert>();
             this.stateRepositoryFactory = stateRepositoryFactory;
@@ -93,13 +98,13 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
         }
 
         /// <summary>
-        /// Gets or sets a value indicating whether the Smart Detector is running.
+        /// Gets a value indicating whether the Smart Detector is running.
         /// </summary>
         public bool IsSmartDetectorRunning
         {
             get => this.isSmartDetectorRunning;
 
-            set
+            private set
             {
                 this.isSmartDetectorRunning = value;
                 this.OnPropertyChanged();
@@ -107,9 +112,18 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
         }
 
         /// <summary>
-        /// Gets the tracer used by the Smart Detector runner.
+        /// Gets the log used for the last (or current) run.
         /// </summary>
-        private ITracer Tracer { get; }
+        public IPageableLog PageableLog
+        {
+            get => this.pageableLogTracer;
+
+            private set
+            {
+                this.pageableLogTracer = value;
+                this.OnPropertyChanged();
+            }
+        }
 
         #endregion
 
@@ -145,47 +159,61 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
                     int currentRunNumber = 1;
                     for (var currentTime = startTimeRange; currentTime <= endTimeRange; currentTime = currentTime.Add(analysisCadence))
                     {
-                        this.Tracer.TraceInformation($"Start analysis, end of time range: {currentTime}");
-
-                        ExtendedDateTime.SetEmulatedUtcNow(currentTime);
-                        var analysisRequest = new AnalysisRequest(targetResourcesForDetector, analysisCadence, null, this.analysisServicesFactory, stateRepository);
-
-                        // Run the detector in a different context by using "Task.Run()". This will prevent the detector execution from blocking the UI
-                        List<SmartDetectors.Alert> newAlerts = await Task.Run(() => this.smartDetector.AnalyzeResourcesAsync(
-                            analysisRequest,
-                            this.Tracer,
-                            cancellationToken));
-
-                        var smartDetectorExecutionRequest = new SmartDetectorExecutionRequest
+                        this.PageableLog = await this.logArchive.GetLogAsync(this.GetValidLogName(currentTime), 50);
+                        using (ILogArchiveTracer tracer = this.PageableLog.CreateTracer())
                         {
-                            ResourceIds = targetResourcesIds,
-                            SmartDetectorId = this.smartDetectorManifest.Id,
-                            Cadence = analysisCadence,
-                        };
+                            try
+                            {
+                                tracer.TraceInformation($"Start analysis, with session ID = '{tracer.SessionId}' end of time range: {currentTime}");
 
-                        var lazyResourceToWorkspaceResourceIdMapping = new Lazy<Task<Dictionary<ResourceIdentifier, ResourceIdentifier>>>(() => this.GetResourceToWorkspaceResourceIdMappingAsync(targetResourcesForDetector, cancellationToken));
+                                ExtendedDateTime.SetEmulatedUtcNow(currentTime);
+                                var analysisRequest = new AnalysisRequest(targetResourcesForDetector, analysisCadence, null, this.analysisServicesFactory, stateRepository);
 
-                        foreach (var newAlert in newAlerts)
-                        {
-                            QueryRunInfo queryRunInfo = await this.CreateQueryRunInfoForAlertAsync(newAlert, lazyResourceToWorkspaceResourceIdMapping, cancellationToken);
-                            ContractsAlert contractsAlert = newAlert.CreateContractsAlert(smartDetectorExecutionRequest, this.smartDetectorManifest.Name, queryRunInfo, this.analysisServicesFactory.UsedLogAnalysisClient, this.analysisServicesFactory.UsedMetricClient);
-                            this.Alerts.Add(new EmulationAlert(contractsAlert, currentTime));
+                                // Run the detector in a different context by using "Task.Run()". This will prevent the detector execution from blocking the UI
+                                List<SmartDetectors.Alert> newAlerts = await Task.Run(() =>
+                                    this.smartDetector.AnalyzeResourcesAsync(
+                                        analysisRequest,
+                                        tracer,
+                                        cancellationToken));
+
+                                var smartDetectorExecutionRequest = new SmartDetectorExecutionRequest
+                                {
+                                    ResourceIds = targetResourcesIds,
+                                    SmartDetectorId = this.smartDetectorManifest.Id,
+                                    Cadence = analysisCadence,
+                                };
+
+                                var lazyResourceToWorkspaceResourceIdMapping =
+                                    new Lazy<Task<Dictionary<ResourceIdentifier, ResourceIdentifier>>>(() =>
+                                        this.GetResourceToWorkspaceResourceIdMappingAsync(
+                                            targetResourcesForDetector, cancellationToken));
+
+                                foreach (var newAlert in newAlerts)
+                                {
+                                    QueryRunInfo queryRunInfo = await this.CreateQueryRunInfoForAlertAsync(newAlert, lazyResourceToWorkspaceResourceIdMapping, cancellationToken);
+                                    ContractsAlert contractsAlert = newAlert.CreateContractsAlert(
+                                        smartDetectorExecutionRequest,
+                                        this.smartDetectorManifest.Name,
+                                        queryRunInfo,
+                                        this.analysisServicesFactory.UsedLogAnalysisClient,
+                                        this.analysisServicesFactory.UsedMetricClient);
+                                    this.Alerts.Add(new EmulationAlert(contractsAlert, currentTime));
+                                }
+
+                                tracer.TraceInformation($"Completed {currentRunNumber} of {totalRunsAmount} runs - found {newAlerts.Count} new alerts");
+                                currentRunNumber++;
+                            }
+                            catch (OperationCanceledException)
+                            {
+                                tracer.TraceError("Smart Detector run was canceled.");
+                                break;
+                            }
+                            catch (Exception e)
+                            {
+                                tracer.TraceError($"Got exception while running detector: {e}");
+                            }
                         }
-
-                        this.Tracer.TraceInformation($"completed {currentRunNumber} of {totalRunsAmount} runs");
-                        currentRunNumber++;
                     }
-
-                    string separator = "=====================================================================================================";
-                    this.Tracer.TraceInformation($"Total alerts found: {this.Alerts.Count} {Environment.NewLine} {separator}");
-                }
-                catch (OperationCanceledException)
-                {
-                    this.Tracer.TraceError("Smart Detector run was canceled.");
-                }
-                catch (Exception e)
-                {
-                    this.Tracer.TraceError($"Got exception while running detector: {e}");
                 }
                 finally
                 {
@@ -370,6 +398,24 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
             }
 
             return workspaceIdToWorkspaceResourceIdMapping;
+        }
+
+        /// <summary>
+        /// Gets a valid log name for running the detector on the specified emulated time
+        /// </summary>
+        /// <param name="emulatedTime">The detector's run emulated time.</param>
+        /// <returns>The log name for the run.</returns>
+        private string GetValidLogName(DateTime emulatedTime)
+        {
+            string logName = $"{emulatedTime:yyyy-MM-dd HH-mm}";
+            int index = 0;
+            while (this.logArchive.LogNames.Contains(logName))
+            {
+                logName = $"{emulatedTime:yyyy-MM-dd HH-mm} ({index})";
+                index++;
+            }
+
+            return logName;
         }
     }
 }

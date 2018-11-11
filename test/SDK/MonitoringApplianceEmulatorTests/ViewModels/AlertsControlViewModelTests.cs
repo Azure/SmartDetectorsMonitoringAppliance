@@ -9,6 +9,7 @@ namespace MonitoringApplianceEmulatorTests.ViewModels
     using Microsoft.Azure.Monitoring.SmartDetectors;
     using Microsoft.Azure.Monitoring.SmartDetectors.Clients;
     using Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.Models;
+    using Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.Trace;
     using Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.ViewModels;
     using Microsoft.Azure.Monitoring.SmartDetectors.State;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -20,8 +21,6 @@ namespace MonitoringApplianceEmulatorTests.ViewModels
     public class AlertsControlViewModelTests
     {
         private SmartDetectorRunner smartDetectorRunner;
-
-        private Mock<ISystemProcessClient> systemProcessClientMock;
 
         [TestInitialize]
         public void Setup()
@@ -35,15 +34,13 @@ namespace MonitoringApplianceEmulatorTests.ViewModels
                 null,
                 new Mock<IStateRepositoryFactory>().Object,
                 azureResourceManagerClientMock.Object,
-                new Mock<ITracer>().Object);
-
-            this.systemProcessClientMock = new Mock<ISystemProcessClient>();
+                new Mock<IPageableLogArchive>().Object);
         }
 
         [TestMethod]
         public void WhenCreatingNewViewModelThenItWasInitializedCorrectly()
         {
-            var alertsControlViewModel = new AlertsControlViewModel(this.smartDetectorRunner, this.systemProcessClientMock.Object);
+            var alertsControlViewModel = new AlertsControlViewModel(this.smartDetectorRunner);
 
             Assert.AreEqual(this.smartDetectorRunner, alertsControlViewModel.SmartDetectorRunner, "Unexpected smart detector runner");
             Assert.IsNull(alertsControlViewModel.SelectedAlert, "Selected alert should be null");
@@ -53,7 +50,7 @@ namespace MonitoringApplianceEmulatorTests.ViewModels
         [TestMethod]
         public void WhenAlertWasSelectedThenAlertDetailsViewModelWasUpdatedAccordingly()
         {
-            var alertsControlViewModel = new AlertsControlViewModel(this.smartDetectorRunner, this.systemProcessClientMock.Object);
+            var alertsControlViewModel = new AlertsControlViewModel(this.smartDetectorRunner);
             EmulationAlert emulationAlert = EmulationAlertHelper.CreateEmulationAlert(new TestAlert());
 
             alertsControlViewModel.SelectedAlert = emulationAlert;
@@ -72,7 +69,7 @@ namespace MonitoringApplianceEmulatorTests.ViewModels
         [TestMethod]
         public void WhenAlertDetailsControlClosedEventWasInvokedThenSelectedAlertWasSetToNull()
         {
-            var alertsControlViewModel = new AlertsControlViewModel(this.smartDetectorRunner, this.systemProcessClientMock.Object);
+            var alertsControlViewModel = new AlertsControlViewModel(this.smartDetectorRunner);
             var emulationAlert = EmulationAlertHelper.CreateEmulationAlert(new TestAlert());
 
             alertsControlViewModel.SelectedAlert = emulationAlert;
