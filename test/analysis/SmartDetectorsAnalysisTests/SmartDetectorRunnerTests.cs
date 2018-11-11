@@ -59,6 +59,24 @@ namespace SmartDetectorsAnalysisTests
         }
 
         [TestMethod]
+        public async Task WhenRunningSmartDetectorItIsDisposedIfItImplementsIDisposable()
+        {
+            this.smartDetector = new TestSmartDetectorDisposable { ExpectedResourceType = ResourceType.VirtualMachine };
+
+            var smartDetectorLoaderMock = new Mock<ISmartDetectorLoader>();
+            smartDetectorLoaderMock
+                .Setup(x => x.LoadSmartDetector(this.smartDetectorPackage))
+                .Returns(this.smartDetector);
+            this.testContainer.RegisterInstance<ISmartDetectorLoader>(smartDetectorLoaderMock.Object);
+
+            // Run the Smart Detector
+            ISmartDetectorRunner runner = this.testContainer.Resolve<ISmartDetectorRunner>();
+            await runner.RunAsync(this.request, true, default(CancellationToken));
+
+            Assert.IsTrue(((TestSmartDetectorDisposable)this.smartDetector).Disposed);
+        }
+
+        [TestMethod]
         [ExpectedException(typeof(AggregateException))]
         public void WhenRunningSmartDetectorThenCancellationIsHandledGracefully()
         {
@@ -319,6 +337,16 @@ namespace SmartDetectorsAnalysisTests
 
             [AlertPresentationProperty(AlertPresentationSection.Property, "Summary title", InfoBalloon = "Summary info")]
             public string Summary { get; } = "Summary value";
+        }
+
+        public sealed class TestSmartDetectorDisposable : TestSmartDetector, IDisposable
+        {
+            public bool Disposed { get; private set; }
+
+            public void Dispose()
+            {
+                this.Disposed = true;
+            }
         }
     }
 }

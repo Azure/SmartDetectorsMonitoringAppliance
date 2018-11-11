@@ -89,54 +89,64 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.Analysis
             ISmartDetector smartDetector = this.smartDetectorLoader.LoadSmartDetector(smartDetectorPackage);
             this.tracer.TraceInformation($"Smart Detector instance loaded successfully, ID {smartDetectorManifest.Id}");
 
-            // Get the resources on which to run the Smart Detector
-            List<ResourceIdentifier> resources = await this.GetResourcesForSmartDetector(request.ResourceIds, smartDetectorManifest, cancellationToken);
-
-            // Create state repository
-            IStateRepository stateRepository = this.stateRepositoryFactory.Create(request.SmartDetectorId, request.AlertRuleResourceId);
-
-            // Run the Smart Detector
-            this.tracer.TraceInformation($"Started running Smart Detector ID {smartDetectorManifest.Id}, Name {smartDetectorManifest.Name}");
-            List<Alert> alerts;
             try
             {
-                var analysisRequest = new AnalysisRequest(resources, request.Cadence, request.AlertRuleResourceId, this.analysisServicesFactory, stateRepository);
-                ITracer detectorTracer = shouldDetectorTrace ? this.tracer : new EmptyTracer();
-                alerts = await smartDetector.AnalyzeResourcesAsync(analysisRequest, detectorTracer, cancellationToken);
-                this.tracer.TraceInformation($"Completed running Smart Detector ID {smartDetectorManifest.Id}, Name {smartDetectorManifest.Name}, returning {alerts.Count} alerts");
-            }
-            catch (Exception e)
-            {
-                this.tracer.TraceError($"Failed running Smart Detector ID {smartDetectorManifest.Id}, Name {smartDetectorManifest.Name}: {e}");
-                throw new FailedToRunSmartDetectorException($"Calling Smart Detector '{smartDetectorManifest.Name}' failed with exception of type {e.GetType()} and message: {e.Message}", e);
-            }
+                // Get the resources on which to run the Smart Detector
+                List<ResourceIdentifier> resources = await this.GetResourcesForSmartDetector(request.ResourceIds, smartDetectorManifest, cancellationToken);
 
-            // Verify that each alert belongs to one of the types declared in the Smart Detector manifest
-            foreach (Alert alert in alerts)
-            {
-                if (!smartDetectorManifest.SupportedResourceTypes.Contains(alert.ResourceIdentifier.ResourceType))
+                // Create state repository
+                IStateRepository stateRepository = this.stateRepositoryFactory.Create(request.SmartDetectorId, request.AlertRuleResourceId);
+
+                // Run the Smart Detector
+                this.tracer.TraceInformation($"Started running Smart Detector ID {smartDetectorManifest.Id}, Name {smartDetectorManifest.Name}");
+                List<Alert> alerts;
+                try
                 {
-                    throw new UnidentifiedAlertResourceTypeException(alert.ResourceIdentifier);
+                    var analysisRequest = new AnalysisRequest(resources, request.Cadence, request.AlertRuleResourceId, this.analysisServicesFactory, stateRepository);
+                    ITracer detectorTracer = shouldDetectorTrace ? this.tracer : new EmptyTracer();
+                    alerts = await smartDetector.AnalyzeResourcesAsync(analysisRequest, detectorTracer, cancellationToken);
+                    this.tracer.TraceInformation($"Completed running Smart Detector ID {smartDetectorManifest.Id}, Name {smartDetectorManifest.Name}, returning {alerts.Count} alerts");
+                }
+                catch (Exception e)
+                {
+                    this.tracer.TraceError($"Failed running Smart Detector ID {smartDetectorManifest.Id}, Name {smartDetectorManifest.Name}: {e}");
+                    throw new FailedToRunSmartDetectorException($"Calling Smart Detector '{smartDetectorManifest.Name}' failed with exception of type {e.GetType()} and message: {e.Message}", e);
+                }
+
+                // Verify that each alert belongs to one of the types declared in the Smart Detector manifest
+                foreach (Alert alert in alerts)
+                {
+                    if (!smartDetectorManifest.SupportedResourceTypes.Contains(alert.ResourceIdentifier.ResourceType))
+                    {
+                        throw new UnidentifiedAlertResourceTypeException(alert.ResourceIdentifier);
+                    }
+                }
+
+                // Trace the number of alerts of each type
+                foreach (var alertType in alerts.GroupBy(x => x.GetType().Name))
+                {
+                    this.tracer.TraceInformation($"Got {alertType.Count()} Alerts of type '{alertType.Key}'");
+                    this.tracer.ReportMetric("AlertType", alertType.Count(), new Dictionary<string, string>() { { "AlertType", alertType.Key } });
+                }
+
+                // Create results
+                List<ContractsAlert> results = new List<ContractsAlert>();
+                foreach (var alert in alerts)
+                {
+                    QueryRunInfo queryRunInfo = await this.queryRunInfoProvider.GetQueryRunInfoAsync(new List<ResourceIdentifier>() { alert.ResourceIdentifier }, cancellationToken);
+                    results.Add(alert.CreateContractsAlert(request, smartDetectorManifest.Name, queryRunInfo, this.analysisServicesFactory.UsedLogAnalysisClient, this.analysisServicesFactory.UsedMetricClient));
+                }
+
+                this.tracer.TraceInformation($"Returning {results.Count} results");
+                return results;
+            }
+            finally
+            {
+                if (smartDetector is IDisposable disposableSmartDetector)
+                {
+                    disposableSmartDetector.Dispose();
                 }
             }
-
-            // Trace the number of alerts of each type
-            foreach (var alertType in alerts.GroupBy(x => x.GetType().Name))
-            {
-                this.tracer.TraceInformation($"Got {alertType.Count()} Alerts of type '{alertType.Key}'");
-                this.tracer.ReportMetric("AlertType", alertType.Count(), new Dictionary<string, string>() { { "AlertType", alertType.Key } });
-            }
-
-            // Create results
-            List<ContractsAlert> results = new List<ContractsAlert>();
-            foreach (var alert in alerts)
-            {
-                QueryRunInfo queryRunInfo = await this.queryRunInfoProvider.GetQueryRunInfoAsync(new List<ResourceIdentifier>() { alert.ResourceIdentifier }, cancellationToken);
-                results.Add(alert.CreateContractsAlert(request, smartDetectorManifest.Name, queryRunInfo, this.analysisServicesFactory.UsedLogAnalysisClient, this.analysisServicesFactory.UsedMetricClient));
-            }
-
-            this.tracer.TraceInformation($"Returning {results.Count} results");
-            return results;
         }
 
         #endregion
