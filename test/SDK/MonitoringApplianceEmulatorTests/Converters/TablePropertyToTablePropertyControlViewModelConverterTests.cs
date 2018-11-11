@@ -30,12 +30,12 @@ namespace MonitoringApplianceEmulatorTests.Converters
                 new TestTableAlertPropertyValue() { FirstName = "Edinson", LastName = "Cavani", Goals = 4.67 },
             };
 
-            var tableAlertProperty = new TableAlertProperty("propertyName", "displayName", 5, true, columns, rows);
+            var tableAlertProperty = new TableAlertProperty<TestTableAlertPropertyValue>("propertyName", "displayName", 5, true, columns, rows);
             var converter = new TablePropertyToTablePropertyControlViewModelConverter();
 
-            object result = converter.Convert(tableAlertProperty, typeof(TablePropertyControlViewModel), null, new CultureInfo("en-us"));
+            object result = converter.Convert(tableAlertProperty, typeof(TablePropertyControlViewModel<TestTableAlertPropertyValue>), null, new CultureInfo("en-us"));
 
-            Assert.IsInstanceOfType(result, typeof(TablePropertyControlViewModel));
+            Assert.IsInstanceOfType(result, typeof(TablePropertyControlViewModel<TestTableAlertPropertyValue>));
         }
 
         [TestMethod]
@@ -46,7 +46,7 @@ namespace MonitoringApplianceEmulatorTests.Converters
             Exception thrownException = null;
             try
             {
-                converter.Convert(12, typeof(TablePropertyControlViewModel), null, new CultureInfo("en-us"));
+                converter.Convert(12, typeof(TablePropertyControlViewModel<string>), null, new CultureInfo("en-us"));
             }
             catch (Exception ex)
             {
@@ -64,7 +64,7 @@ namespace MonitoringApplianceEmulatorTests.Converters
             Exception thrownException = null;
             try
             {
-                converter.Convert(null, typeof(TablePropertyControlViewModel), null, new CultureInfo("en-us"));
+                converter.Convert(null, typeof(TablePropertyControlViewModel<string>), null, new CultureInfo("en-us"));
             }
             catch (Exception ex)
             {

@@ -13,7 +13,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
     using Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts;
 
     /// <summary>
-    /// Implementation of <see cref="IValueConverter"/> for converting from a <see cref="TableAlertProperty"/> value to <see cref="TablePropertyControlViewModel"/>.
+    /// Implementation of <see cref="IValueConverter"/> for converting from a <see cref="TableAlertProperty{T}"/> value to <see cref="TablePropertyControlViewModel{T}"/>.
     /// </summary>
     public class TablePropertyToTablePropertyControlViewModelConverter : IValueConverter
     {
@@ -31,16 +31,18 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
         /// <param name="culture">The culture to use in the converter.</param>
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (!(value is TableAlertProperty tableAlertProperty))
+            if (value == null)
             {
-                string exceptionMessage = value == null ?
-                    "The value parameter can't be null" :
-                    $"The value parameter must be of type {typeof(TablePropertyControlViewModel)}, but it is from type {value.GetType()}.";
-
-                throw new ArgumentException(exceptionMessage, nameof(value));
+                throw new ArgumentNullException(nameof(value));
             }
 
-            return new TablePropertyControlViewModel(tableAlertProperty);
+            Type valueType = value.GetType();
+            if (!valueType.IsGenericType || valueType.GetGenericTypeDefinition() == typeof(TableAlertProperty<>))
+            {
+                throw new ArgumentException($"The value parameter must be of type {typeof(TablePropertyControlViewModel<>)}, but it is from type {value.GetType()}.", nameof(value));
+            }
+
+            return Activator.CreateInstance(typeof(TableAlertProperty<>).MakeGenericType(valueType.GetGenericArguments()));
         }
 
         /// <summary>
