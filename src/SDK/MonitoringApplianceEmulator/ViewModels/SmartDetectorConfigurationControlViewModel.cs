@@ -89,7 +89,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
         [InjectionConstructor]
         public SmartDetectorConfigurationControlViewModel(
             IExtendedAzureResourceManagerClient azureResourceManagerClient,
-            IObservableTracer tracer,
+            ITracer tracer,
             SmartDetectorManifest smartDetectorManifest,
             IEmulationSmartDetectorRunner smartDetectorRunner,
             UserSettings userSettings)
