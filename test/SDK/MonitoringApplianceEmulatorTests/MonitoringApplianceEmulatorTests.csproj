@@ -26,6 +26,7 @@
     <Reference Include="System" />
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
+    <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
 	<AdditionalFiles Include="$(SolutionDir)stylecop.json" Link="stylecop.json" />
