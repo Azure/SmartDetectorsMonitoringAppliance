@@ -28,6 +28,11 @@ namespace MonitoringApplianceEmulatorTests.ViewModels
             new ChartPoint(Now.AddDays(4), 10.0)
         };
 
+        private static readonly List<ChartPoint> SingleDateTimeChartPoints = new List<ChartPoint>
+        {
+            new ChartPoint(Now, 8.0)
+        };
+
         private static readonly List<ChartPoint> NumericChartPoints = new List<ChartPoint>
         {
             new ChartPoint(1.0, 8.0),
@@ -43,6 +48,12 @@ namespace MonitoringApplianceEmulatorTests.ViewModels
         public void WhenCreatingNewViewModelForLineChartWithDateTimeXAxisTypeThenItWasInitializedCorrectly()
         {
             AssertChartViewModel<LineSeries>(ChartType.LineChart, ChartAxisType.Date, DateTimeChartPoints, AssertDateTimeChartPoints);
+        }
+
+        [TestMethod]
+        public void WhenCreatingNewViewModelForLineChartWithSingleDateTimePointXAxisTypeThenItWasInitializedCorrectly()
+        {
+            AssertChartViewModel<LineSeries>(ChartType.LineChart, ChartAxisType.Date, SingleDateTimeChartPoints, AssertDateTimeChartPoints);
         }
 
         [TestMethod]
@@ -94,7 +105,9 @@ namespace MonitoringApplianceEmulatorTests.ViewModels
 
         private static void AssertDateTimeChartPoints(List<ChartPoint> expectedChartPoints, List<LiveCharts.ChartPoint> actualDataPoints)
         {
-            double xAxisFactor = Now.AddDays(1).Ticks - Now.Ticks;
+            double xAxisFactor = actualDataPoints.Count > 1 ?
+                Now.AddDays(1).Ticks - Now.Ticks :
+                Now.Ticks;
 
             for (var i = 0; i < actualDataPoints.Count(); i++)
             {

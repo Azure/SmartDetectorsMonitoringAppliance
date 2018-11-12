@@ -24,12 +24,12 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
         }
 
         /// <summary>
-        /// Gets the point's date time.
+        /// Gets the point's X value.
         /// </summary>
         public T X { get; }
 
         /// <summary>
-        /// Gets the point's value.
+        /// Gets the point's Y value.
         /// </summary>
         public double Y { get; }
     }

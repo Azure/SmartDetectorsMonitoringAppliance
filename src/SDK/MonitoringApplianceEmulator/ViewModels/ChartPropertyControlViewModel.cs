@@ -87,7 +87,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
         /// <param name="coordinateValue">The chart alert property that should be displayed.</param>
         /// <param name="coordinateName">The coordinate name (e.g. X, Y).</param>
         /// <returns>The coordinate value as double</returns>
-        private static double ConvertCordinateValueToDouble(object coordinateValue, string coordinateName)
+        private static double ConvertCoordinateValueToDouble(object coordinateValue, string coordinateName)
         {
             try
             {
@@ -100,33 +100,46 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
         }
 
         /// <summary>
+        /// Converts a point's coordinate value to datetime.
+        /// </summary>
+        /// <param name="coordinateValue">The chart alert property that should be displayed.</param>
+        /// <param name="coordinateName">The coordinate name (e.g. X, Y).</param>
+        /// <returns>The coordinate value as datetime</returns>
+        private static DateTime ConvertCoordinateValueToDateTime(object coordinateValue, string coordinateName)
+        {
+            try
+            {
+                return Convert.ToDateTime(coordinateValue, CultureInfo.InvariantCulture);
+            }
+            catch (Exception e) when (e is FormatException || e is InvalidCastException)
+            {
+                throw new InvalidCastException($"The data point's {coordinateName} value - '{coordinateValue}', is not of a DateTime type", e);
+            }
+        }
+
+        /// <summary>
         /// Initializes a chart with X axis from type <see cref="SmartDetectors.ChartAxisType.DateAxis"/>.
         /// </summary>
         /// <param name="chartAlertProperty">The chart alert property that should be displayed.</param>
         private void InitializeDateTimeXAxisChart(ChartAlertProperty chartAlertProperty)
         {
-            var chartValues = new ChartValues<ChartDataPoint<DateTime>>();
-            var sortedDateTimePoints = chartAlertProperty.DataPoints.OrderBy(point => point.X);
-            foreach (var dataPoint in sortedDateTimePoints)
+            var sortedDateTimePoints = chartAlertProperty.DataPoints.OrderBy(point => point.X).ToList();
+
+            var chartDatePoints = sortedDateTimePoints.Select(dataPoint =>
             {
-                DateTime x;
-                try
-                {
-                    x = Convert.ToDateTime(dataPoint.X, CultureInfo.InvariantCulture);
-                }
-                catch (Exception e) when (e is FormatException || e is InvalidCastException)
-                {
-                    throw new InvalidCastException($"The data point's X value '{dataPoint.X}' is not of DateTime type", e);
-                }
+                DateTime x = ConvertCoordinateValueToDateTime(dataPoint.X, "X");
+                double y = ConvertCoordinateValueToDouble(dataPoint.Y, "Y");
 
-                double y = ConvertCordinateValueToDouble(dataPoint.Y, "Y");
+                return new ChartDataPoint<DateTime>(x, y);
+            });
 
-                chartValues.Add(new ChartDataPoint<DateTime>(x, y));
-            }
+            var chartValues = new ChartValues<ChartDataPoint<DateTime>>(chartDatePoints);
 
              // In order to support Bar Chart, Since we are using DateTime.Ticks as X, the width of the bar is 1 tick and 1 tick is 1 millisecond.
              // In order to make our bars visible we need to change the unit of the chart. Hence, we are taking the difference between 2 first points (assuming difference between every 2 points is equal)
-            double xAxisFactor = chartValues.Skip(1).First().X.Ticks - chartValues.First().X.Ticks;
+            double xAxisFactor = chartValues.Count > 1 ?
+                chartValues.Skip(1).First().X.Ticks - chartValues.First().X.Ticks :
+                chartValues.First().X.Ticks;
 
             CartesianMapper<ChartDataPoint<DateTime>> pointMapperConfig = Mappers.Xy<ChartDataPoint<DateTime>>()
                 .X(dateTimeDataPoint => dateTimeDataPoint.X.Ticks / xAxisFactor)
@@ -134,26 +147,9 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
 
             this.SeriesCollection = new SeriesCollection(pointMapperConfig);
 
-            this.XAxisFormatter = value => new DateTime((long)(value * xAxisFactor)).ToString(CultureInfo.InvariantCulture);
+            this.AddSeries(chartAlertProperty.ChartType, chartValues);
 
-            if (chartAlertProperty.ChartType == ChartType.LineChart)
-            {
-                this.SeriesCollection.Add(new LineSeries
-                {
-                    Values = chartValues,
-                    Stroke = SeriesColor,
-                    Fill = Brushes.Transparent
-                });
-            }
-            else
-            {
-                this.SeriesCollection.Add(new ColumnSeries
-                {
-                    Values = chartValues,
-                    Stroke = SeriesColor,
-                    Fill = SeriesColor
-                });
-            }
+            this.XAxisFormatter = value => new DateTime((long)(value * xAxisFactor)).ToString(CultureInfo.InvariantCulture);
         }
 
         /// <summary>
@@ -162,16 +158,17 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
         /// <param name="chartAlertProperty">The chart alert property that should be displayed.</param>
         private void InitializeNumberXAxisChart(ChartAlertProperty chartAlertProperty)
         {
-            var chartValues = new ChartValues<ChartDataPoint<double>>();
-            var sortedNumericPoints = chartAlertProperty.DataPoints.OrderBy(point => point.X);
+            var sortedNumericPoints = chartAlertProperty.DataPoints.OrderBy(point => point.X).ToList();
 
-            foreach (var dataPoint in sortedNumericPoints)
+            var chartDatePoints = sortedNumericPoints.Select(dataPoint =>
             {
-                double x = ConvertCordinateValueToDouble(dataPoint.X, "X");
-                double y = ConvertCordinateValueToDouble(dataPoint.Y, "Y");
+                double x = ConvertCoordinateValueToDouble(dataPoint.X, "X");
+                double y = ConvertCoordinateValueToDouble(dataPoint.Y, "Y");
 
-                chartValues.Add(new ChartDataPoint<double>(x, y));
-            }
+                return new ChartDataPoint<double>(x, y);
+            });
+
+            var chartValues = new ChartValues<ChartDataPoint<double>>(chartDatePoints);
 
             CartesianMapper<ChartDataPoint<double>> pointMapperConfig = Mappers.Xy<ChartDataPoint<double>>()
                 .X(dateTimeDataPoint => dateTimeDataPoint.X)
@@ -179,9 +176,20 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
 
             this.SeriesCollection = new SeriesCollection(pointMapperConfig);
 
-            this.XAxisFormatter = value => value.ToString(CultureInfo.InvariantCulture);
+            this.AddSeries(chartAlertProperty.ChartType, chartValues);
 
-            if (chartAlertProperty.ChartType == ChartType.LineChart)
+            this.XAxisFormatter = value => value.ToString(CultureInfo.InvariantCulture);
+        }
+
+        /// <summary>
+        /// Adds a new series to the chart with the given <paramref name="chartValues"/>.
+        /// </summary>
+        /// <typeparam name="T">The X value of a chart data point.</typeparam>
+        /// <param name="chartType">The chart type.</param>
+        /// <param name="chartValues">The chart values.</param>
+        private void AddSeries<T>(ChartType chartType, ChartValues<ChartDataPoint<T>> chartValues)
+        {
+            if (chartType == ChartType.LineChart)
             {
                 this.SeriesCollection.Add(new LineSeries
                 {
