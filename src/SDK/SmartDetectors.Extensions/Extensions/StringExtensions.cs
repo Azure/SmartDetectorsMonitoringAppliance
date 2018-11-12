@@ -6,11 +6,13 @@
 
 namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
 {
+    using System.Collections.Concurrent;
     using System.Globalization;
     using System.Security.Cryptography;
     using System.Text;
+    using Azure.Monitoring.SmartDetectors.Tools;
     using Microsoft.CodeAnalysis.CSharp.Scripting;
-    using Tools;
+    using Microsoft.CodeAnalysis.Scripting;
 
     /// <summary>
     /// Extension methods for string objects
@@ -18,13 +20,14 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
     public static class StringExtensions
     {
         private static readonly ObjectPool<HashAlgorithm> HashAlgoPool = new ObjectPool<HashAlgorithm>(SHA256.Create);
+        private static readonly ConcurrentDictionary<string, Script<string>> InterpolatedStringScripts = new ConcurrentDictionary<string, Script<string>>();
 
         /// <summary>
         /// Gets the hash of the specified string
         /// </summary>
         /// <param name="s">The string</param>
         /// <returns>The 256 bit hash value, represented by a string of 64 characters</returns>
-        public static string Hash(this string s)
+        public static string ToSha256Hash(this string s)
         {
             // Get the hash bytes
             byte[] hashBytes;
@@ -55,15 +58,25 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
         /// <param name="interpolatedStringDefinition">The interpolated string definition.</param>
         /// <param name="source">The object, whose properties can appear in the interpolated string definition. The object type definition must be public.</param>
         /// <returns>The evaluated result string</returns>
-        public static string EvaluateInterpolatedString(string interpolatedStringDefinition, object source)
+        internal static string EvaluateInterpolatedString(this string interpolatedStringDefinition, object source)
         {
+            // If this is not an interpolated string - just return it as-is
             if (!interpolatedStringDefinition.Contains("{"))
             {
                 return interpolatedStringDefinition;
             }
 
+            // Code that interprets the string as an interpolated string
             string code = "$\"" + interpolatedStringDefinition + "\"";
-            return CSharpScript.EvaluateAsync<string>(code, globals: source, globalsType: source.GetType()).Result;
+
+            // Get the script from cache (improves performance since the script is already compiled)
+            Script<string> script = InterpolatedStringScripts.GetOrAdd(
+                source.GetType().FullName + "#" + code,
+                _ => CSharpScript.Create<string>(code, globalsType: source.GetType()));
+
+            // Run the script and return its result
+            ScriptState<string> state = script.RunAsync(globals: source).Result;
+            return state.ReturnValue;
         }
     }
 }

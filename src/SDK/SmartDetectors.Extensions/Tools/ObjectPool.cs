@@ -4,6 +4,8 @@
 // </copyright>
 //-----------------------------------------------------------------------
 
+using System.Runtime.CompilerServices;
+[assembly: InternalsVisibleTo("SmartDetectorsExtensionsTests")]
 namespace Microsoft.Azure.Monitoring.SmartDetectors.Tools
 {
     using System;
@@ -14,7 +16,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Tools
     /// Pool of objects that can be leased.
     /// </summary>
     /// <typeparam name="T">Type of objects in pool</typeparam>
-    public class ObjectPool<T> : IDisposable
+    internal class ObjectPool<T> : IDisposable
     {
         private readonly int maxPoolSize;
         private readonly Func<T> objectGenerator;

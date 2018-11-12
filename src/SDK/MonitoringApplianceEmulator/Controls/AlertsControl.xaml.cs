@@ -21,7 +21,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
         public AlertsControl()
         {
             this.InitializeComponent();
-            this.DataContext = App.Container.Resolve<AlertsControlViewModel>();
+            this.DataContext = App.Container?.Resolve<AlertsControlViewModel>() ?? new AlertsControlViewModel();
         }
     }
 }
