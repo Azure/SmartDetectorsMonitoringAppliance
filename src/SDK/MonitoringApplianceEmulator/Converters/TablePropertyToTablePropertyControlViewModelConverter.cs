@@ -37,12 +37,13 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
             }
 
             Type valueType = value.GetType();
-            if (!valueType.IsGenericType || valueType.GetGenericTypeDefinition() == typeof(TableAlertProperty<>))
+            if (!valueType.IsGenericType || valueType.GetGenericTypeDefinition() != typeof(TableAlertProperty<>))
             {
-                throw new ArgumentException($"The value parameter must be of type {typeof(TablePropertyControlViewModel<>)}, but it is from type {value.GetType()}.", nameof(value));
+                throw new ArgumentException($"The value parameter must be of type {typeof(TableAlertProperty<>)}, but it is from type {value.GetType()}.", nameof(value));
             }
 
-            return Activator.CreateInstance(typeof(TableAlertProperty<>).MakeGenericType(valueType.GetGenericArguments()));
+            Type viewModelType = typeof(TablePropertyControlViewModel<>).MakeGenericType(valueType.GetGenericArguments());
+            return Activator.CreateInstance(viewModelType, value);
         }
 
         /// <summary>
