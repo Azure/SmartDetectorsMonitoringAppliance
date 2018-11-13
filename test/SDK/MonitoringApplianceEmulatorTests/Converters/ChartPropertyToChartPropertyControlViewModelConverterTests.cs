@@ -50,9 +50,9 @@ namespace MonitoringApplianceEmulatorTests.Converters
         [TestMethod]
         public void WhenConvertingNullThenNullIsReturned()
         {
-            var converter = new TablePropertyToTablePropertyControlViewModelConverter();
+            var converter = new ChartPropertyToChartPropertyControlViewModelConverter();
 
-            object result = converter.Convert(null, typeof(TablePropertyControlViewModel), null, new CultureInfo("en-us"));
+            object result = converter.Convert(null, typeof(ChartPropertyControlViewModel), null, new CultureInfo("en-us"));
 
             Assert.IsNull(result);
         }
@@ -64,7 +64,7 @@ namespace MonitoringApplianceEmulatorTests.Converters
 
             DisconnectedItem disconnectedItem = new DisconnectedItem();
 
-            object result = converter.Convert(disconnectedItem, typeof(TablePropertyControlViewModel), null, new CultureInfo("en-us"));
+            object result = converter.Convert(disconnectedItem, typeof(ChartPropertyControlViewModel), null, new CultureInfo("en-us"));
 
             Assert.AreEqual(disconnectedItem, result, "The conversion result should be the converted disconnected item object");
         }

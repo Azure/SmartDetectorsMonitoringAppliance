@@ -10,7 +10,7 @@ namespace MonitoringApplianceEmulatorTests
     using Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts;
 
     /// <summary>
-    /// Illustrate a class that represents a row of a <see cref="TableAlertProperty"/> for test puspose.
+    /// Illustrate a class that represents a row of a <see cref="TableAlertProperty{T}"/> for test purpose.
     /// </summary>
     public class TestTableAlertPropertyValue
     {

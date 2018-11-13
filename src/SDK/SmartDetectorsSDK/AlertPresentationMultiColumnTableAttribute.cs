@@ -1,5 +1,5 @@
 ﻿//-----------------------------------------------------------------------
-// <copyright file="AlertPresentationSingleColumnTableAttribute.cs" company="Microsoft Corporation">
+// <copyright file="AlertPresentationMultiColumnTableAttribute.cs" company="Microsoft Corporation">
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // </copyright>
 //-----------------------------------------------------------------------
@@ -7,15 +7,15 @@
 namespace Microsoft.Azure.Monitoring.SmartDetectors
 {
     /// <summary>
-    /// An attribute defining the presentation of a single column table property in an <see cref="Alert"/>.
+    /// An attribute defining the presentation of a columnar table property in an <see cref="Alert"/>.
     /// </summary>
-    public class AlertPresentationSingleColumnTableAttribute : AlertPresentationTableAttribute
+    public class AlertPresentationMultiColumnTableAttribute : AlertPresentationTableAttribute
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="AlertPresentationSingleColumnTableAttribute"/> class.
+        /// Initializes a new instance of the <see cref="AlertPresentationMultiColumnTableAttribute"/> class.
         /// </summary>
         /// <param name="displayName">The display name to use when presenting the property's value</param>
-        public AlertPresentationSingleColumnTableAttribute(string displayName)
+        public AlertPresentationMultiColumnTableAttribute(string displayName)
             : base(displayName)
         {
         }

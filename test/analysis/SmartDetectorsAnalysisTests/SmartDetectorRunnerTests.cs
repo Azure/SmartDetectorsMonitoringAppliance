@@ -37,7 +37,7 @@ namespace SmartDetectorsAnalysisTests
     {
         private SmartDetectorPackage smartDetectorPackage;
         private List<string> resourceIds;
-        private SmartDetectorExecutionRequest request;
+        private SmartDetectorAnalysisRequest request;
         private TestSmartDetector smartDetector;
         private IUnityContainer testContainer;
 
@@ -204,8 +204,8 @@ namespace SmartDetectorsAnalysisTests
                     break;
             }
 
-            this.resourceIds = new List<string>() { resourceId.ToResourceId() };
-            this.request = new SmartDetectorExecutionRequest
+            this.resourceIds = new List<string> { resourceId.ToResourceId() };
+            this.request = new SmartDetectorAnalysisRequest
             {
                 ResourceIds = this.resourceIds,
                 Cadence = TimeSpan.FromDays(1),
