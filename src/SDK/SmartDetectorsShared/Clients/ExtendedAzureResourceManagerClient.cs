@@ -329,7 +329,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Clients
 
                 if (!response.IsSuccessStatusCode)
                 {
-                    this.tracer.TraceError($"Query returned an error; Status code: {response.StatusCode}");
+                    this.tracer.TraceError($"Query returned an error - Status code: {response.StatusCode}");
                     throw new HttpRequestException($"Query returned an error code {response.StatusCode}");
                 }
 
