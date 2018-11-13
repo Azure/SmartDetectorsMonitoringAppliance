@@ -104,7 +104,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.Manageme
                 Description = manifest.Description,
                 SupportedCadences = new List<int>(manifest.SupportedCadencesInMinutes),
                 SupportedResourceTypes = manifest.SupportedResourceTypes.Select(resourceType => (ResourceType)resourceType).ToList(),
-                Configurations = new List<SmartDetectorConfiguration>(),
+                ParametersDefinitions = new List<DetectorParameterDefinition>(),
                 ImagePaths = manifest.ImagePaths?.Select(imagePath => new Uri(imagePath)).ToList()
             };
         }

@@ -7,21 +7,21 @@
 namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.ViewModels
 {
     using System.Data;
-    using System.Windows.Controls;
     using Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts;
 
     /// <summary>
-    /// The view model class for the <see cref="TablePropertyControlViewModel"/> control.
+    /// The view model class for the <see cref="TablePropertyControlViewModel{T}"/> control.
     /// </summary>
-    public class TablePropertyControlViewModel : ObservableObject
+    /// <typeparam name="T">The row type of the table</typeparam>
+    public class TablePropertyControlViewModel<T> : ObservableObject
     {
         private DataTable table;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="TablePropertyControlViewModel"/> class.
+        /// Initializes a new instance of the <see cref="TablePropertyControlViewModel{T}"/> class.
         /// </summary>
         /// <param name="tableAlertProperty">The table alert property that should be displayed.</param>
-        public TablePropertyControlViewModel(TableAlertProperty tableAlertProperty)
+        public TablePropertyControlViewModel(TableAlertProperty<T> tableAlertProperty)
         {
             // Generate a table for the given table alert property
             var table = new DataTable();
@@ -51,10 +51,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
         /// </summary>
         public DataTable Table
         {
-            get
-            {
-                return this.table;
-            }
+            get => this.table;
 
             private set
             {

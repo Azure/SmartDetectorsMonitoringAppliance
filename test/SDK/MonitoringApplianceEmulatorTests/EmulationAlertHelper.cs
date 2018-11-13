@@ -36,12 +36,12 @@ namespace MonitoringApplianceEmulatorTests
             QueryRunInfo queryRunInfo = new QueryRunInfo
             {
                 Type = alert.ResourceIdentifier.ResourceType == ResourceType.ApplicationInsights ? TelemetryDbType.ApplicationInsights : TelemetryDbType.LogAnalytics,
-                ResourceIds = new List<string>() { resourceId }
+                ResourceIds = new List<string> { resourceId }
             };
 
-            var request = new SmartDetectorExecutionRequest
+            var request = new SmartDetectorAnalysisRequest
             {
-                ResourceIds = new List<string>() { resourceId },
+                ResourceIds = new List<string> { resourceId },
                 SmartDetectorId = "smartDetectorId",
                 Cadence = TimeSpan.FromDays(1),
             };

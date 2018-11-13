@@ -96,7 +96,7 @@ namespace MonitoringApplianceEmulatorTests.ViewModels
 
             public string NoPresentation { get; }
 
-            [AlertPresentationTable("Some Table", Order = 5)]
+            [AlertPresentationMultiColumnTable("Some Table", Order = 5)]
             public List<TestTableAlertPropertyValue> TableProp { get; }
         }
     }
