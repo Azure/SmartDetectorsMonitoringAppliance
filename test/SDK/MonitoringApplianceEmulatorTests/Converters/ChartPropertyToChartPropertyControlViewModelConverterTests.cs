@@ -1,5 +1,5 @@
 ﻿//-----------------------------------------------------------------------
-// <copyright file="TablePropertyToTablePropertyControlViewModelConverterTests.cs" company="Microsoft Corporation">
+// <copyright file="ChartPropertyToChartPropertyControlViewModelConverterTests.cs" company="Microsoft Corporation">
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // </copyright>
 //-----------------------------------------------------------------------
@@ -15,38 +15,29 @@ namespace MonitoringApplianceEmulatorTests.Converters
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     [TestClass]
-    public class TablePropertyToTablePropertyControlViewModelConverterTests
+    public class ChartPropertyToChartPropertyControlViewModelConverterTests
     {
         [TestMethod]
         public void WhenConvertingTablePropertyThenResultIsTablePropertyControlViewModel()
         {
-            var columns = new List<TableColumn>()
-            {
-                new TableColumn(nameof(TestTableAlertPropertyValue.FirstName), "First Name"),
-            };
+            var chartPoints = new List<ChartPoint> { new ChartPoint(DateTime.Now, 8), new ChartPoint(DateTime.Now.AddDays(1), 6), new ChartPoint(DateTime.Now.AddDays(2), 4), new ChartPoint(DateTime.Now.AddDays(3), 14), new ChartPoint(DateTime.Now.AddDays(5), 10) };
+            var tableAlertProperty = new ChartAlertProperty("propertyName", "displayName", 5, ChartType.LineChart, ChartAxisType.Date, ChartAxisType.Number, chartPoints);
+            var converter = new ChartPropertyToChartPropertyControlViewModelConverter();
 
-            var rows = new List<TestTableAlertPropertyValue>()
-            {
-                new TestTableAlertPropertyValue() { FirstName = "Edinson", LastName = "Cavani", Goals = 4.67 },
-            };
+            object result = converter.Convert(tableAlertProperty, typeof(ChartPropertyControlViewModel), null, new CultureInfo("en-us"));
 
-            var tableAlertProperty = new TableAlertProperty("propertyName", "displayName", 5, true, columns, rows);
-            var converter = new TablePropertyToTablePropertyControlViewModelConverter();
-
-            object result = converter.Convert(tableAlertProperty, typeof(TablePropertyControlViewModel), null, new CultureInfo("en-us"));
-
-            Assert.IsInstanceOfType(result, typeof(TablePropertyControlViewModel));
+            Assert.IsInstanceOfType(result, typeof(ChartPropertyControlViewModel));
         }
 
         [TestMethod]
         public void WhenConvertingIntegerThenExceptionIsThrown()
         {
-            var converter = new TablePropertyToTablePropertyControlViewModelConverter();
+            var converter = new ChartPropertyToChartPropertyControlViewModelConverter();
 
             Exception thrownException = null;
             try
             {
-                converter.Convert(12, typeof(TablePropertyControlViewModel), null, new CultureInfo("en-us"));
+                converter.Convert(12, typeof(ChartPropertyControlViewModel), null, new CultureInfo("en-us"));
             }
             catch (Exception ex)
             {
@@ -69,7 +60,7 @@ namespace MonitoringApplianceEmulatorTests.Converters
         [TestMethod]
         public void WhenConvertingDisconnectedObjectThenSameObjectIsReturned()
         {
-            var converter = new TablePropertyToTablePropertyControlViewModelConverter();
+            var converter = new ChartPropertyToChartPropertyControlViewModelConverter();
 
             DisconnectedItem disconnectedItem = new DisconnectedItem();
 
