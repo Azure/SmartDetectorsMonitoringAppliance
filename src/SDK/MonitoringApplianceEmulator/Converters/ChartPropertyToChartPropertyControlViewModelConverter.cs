@@ -1,5 +1,5 @@
 ﻿//-----------------------------------------------------------------------
-// <copyright file="TablePropertyToTablePropertyControlViewModelConverter.cs" company="Microsoft Corporation">
+// <copyright file="ChartPropertyToChartPropertyControlViewModelConverter.cs" company="Microsoft Corporation">
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // </copyright>
 //-----------------------------------------------------------------------
@@ -13,9 +13,9 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
     using Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts;
 
     /// <summary>
-    /// Implementation of <see cref="IValueConverter"/> for converting from a <see cref="TableAlertProperty{T}"/> value to <see cref="TablePropertyControlViewModel{T}"/>.
+    /// Implementation of <see cref="IValueConverter"/> for converting from a <see cref="ChartAlertProperty"/> value to <see cref="ChartPropertyControlViewModel"/>.
     /// </summary>
-    public class TablePropertyToTablePropertyControlViewModelConverter : IValueConverter
+    public class ChartPropertyToChartPropertyControlViewModelConverter : IValueConverter
     {
         #region Implementation of IValueConverter
 
@@ -31,20 +31,19 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
         /// <param name="culture">The culture to use in the converter.</param>
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            // This 'if' clause was added to workaround a known issue in WPF - DataContext of a 'ListView' item is being assigned with '{DisconnectedItem}' object and then a null value whenever its container is closed.
+            // This 'if' clause was added to workaround a known issue in WPF -
+            // DataContext of a 'ListViewItem' is being assigned with '{DisconnectedItem}' object and then a null value whenever its container is closed.
             if (value == null || value.ToString() == "{DisconnectedItem}")
             {
                 return value;
             }
 
-            Type valueType = value.GetType();
-            if (!valueType.IsGenericType || valueType.GetGenericTypeDefinition() != typeof(TableAlertProperty<>))
+            if (!(value is ChartAlertProperty chartAlertProperty))
             {
-                throw new ArgumentException($"The value parameter must be of type {typeof(TableAlertProperty<>)}, but it is from type {value.GetType()}.", nameof(value));
+                throw new ArgumentException($"The value parameter must be of type {typeof(ChartAlertProperty)}, but it is from type {value.GetType()}.", nameof(value));
             }
 
-            Type viewModelType = typeof(TablePropertyControlViewModel<>).MakeGenericType(valueType.GetGenericArguments());
-            return Activator.CreateInstance(viewModelType, value);
+            return new ChartPropertyControlViewModel(chartAlertProperty);
         }
 
         /// <summary>
