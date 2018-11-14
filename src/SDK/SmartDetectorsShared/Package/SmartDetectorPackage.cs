@@ -13,6 +13,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Package
     using System.Linq;
     using System.Reflection;
     using Microsoft.Azure.Monitoring.SmartDetectors;
+    using Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts;
     using Newtonsoft.Json;
 
     /// <summary>
@@ -25,26 +26,14 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Package
         /// <summary>
         /// Initializes a new instance of the <see cref="SmartDetectorPackage"/> class.
         /// </summary>
-        /// <param name="manifest">The Smart Detector's manifest</param>
-        /// <param name="content">The Smart Detector package content represented by a dictionary mapping a file name to the file content bytes</param>
-        public SmartDetectorPackage(SmartDetectorManifest manifest, IReadOnlyDictionary<string, byte[]> content)
+        /// <param name="smartDetectorManifest">The Smart Detector's manifest</param>
+        /// <param name="packageContent">The Smart Detector package content represented by a dictionary mapping a file name to the file content bytes</param>
+        public SmartDetectorPackage(SmartDetectorManifest smartDetectorManifest, IReadOnlyDictionary<string, byte[]> packageContent)
         {
-            if (manifest == null)
-            {
-                throw new ArgumentNullException(nameof(manifest));
-            }
+            ValidatePackage(smartDetectorManifest, packageContent);
 
-            if (content == null)
-            {
-                throw new ArgumentNullException(nameof(content));
-            }
-            else if (content.Count == 0)
-            {
-                throw new ArgumentException("Package content must include at least one item", nameof(content));
-            }
-
-            this.Manifest = manifest;
-            this.Content = content;
+            this.Manifest = smartDetectorManifest;
+            this.Content = packageContent;
         }
 
         /// <summary>
@@ -71,12 +60,14 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Package
                 // for each file in the package get the file name and content and add it to the result dictionary
                 foreach (ZipArchiveEntry entry in archive.Entries)
                 {
-                    Stream entryStream = entry.Open();
-                    using (var entryMemoryStream = new MemoryStream())
+                    using (Stream entryStream = entry.Open())
                     {
-                        entryStream.CopyTo(entryMemoryStream);
-                        byte[] entryBytes = entryMemoryStream.ToArray();
-                        packageContent.Add(entry.FullName, entryBytes);
+                        using (var entryMemoryStream = new MemoryStream())
+                        {
+                            entryStream.CopyTo(entryMemoryStream);
+                            byte[] entryBytes = entryMemoryStream.ToArray();
+                            packageContent.Add(entry.FullName, entryBytes);
+                        }
                     }
                 }
             }
@@ -92,8 +83,15 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Package
             {
                 string manifest = stream.ReadToEnd();
                 tracer.TraceInformation($"Deserializing Smart Detector manifest {manifest}");
-                SmartDetectorManifest smartDetectorManifest = JsonConvert.DeserializeObject<SmartDetectorManifest>(manifest);
-                return new SmartDetectorPackage(smartDetectorManifest, packageContent);
+                try
+                {
+                    SmartDetectorManifest smartDetectorManifest = JsonConvert.DeserializeObject<SmartDetectorManifest>(manifest);
+                    return new SmartDetectorPackage(smartDetectorManifest, packageContent);
+                }
+                catch (JsonException jsonException)
+                {
+                    throw new InvalidSmartDetectorPackageException($"Failed to create Smart Detector Package - the manifest file is invalid: {jsonException.Message}");
+                }
             }
         }
 
@@ -130,41 +128,18 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Package
                 {
                     string manifest = stream.ReadToEnd();
                     SmartDetectorManifest smartDetectorManifest = JsonConvert.DeserializeObject<SmartDetectorManifest>(manifest);
-                    if (!packageContent.ContainsKey(smartDetectorManifest.AssemblyName))
-                    {
-                        throw new InvalidSmartDetectorPackageException("Failed to create Smart Detector Package - the manifest file is invalid: Assembly name must be a file in the Smart Detector package.");
-                    }
 
-                    if (smartDetectorManifest.SupportedResourceTypes == null || !smartDetectorManifest.SupportedResourceTypes.Any())
-                    {
-                        throw new InvalidSmartDetectorPackageException("Failed to create Smart Detector Package - the manifest file is invalid: Must specify at least one supported resource type.");
-                    }
+                    var package = new SmartDetectorPackage(smartDetectorManifest, packageContent);
 
-                    if (smartDetectorManifest.SupportedCadencesInMinutes == null || !smartDetectorManifest.SupportedCadencesInMinutes.Any())
-                    {
-                        throw new InvalidSmartDetectorPackageException("Failed to create Smart Detector Package - the manifest file is invalid: Must specify at least one supported cadence.");
-                    }
-
-                    if (smartDetectorManifest.ImagePaths != null && smartDetectorManifest.ImagePaths.Any())
-                    {
-                        foreach (var imagePath in smartDetectorManifest.ImagePaths)
-                        {
-                            string path = imagePath.Replace("/", "\\");
-                            if (!packageContent.ContainsKey(path))
-                            {
-                                throw new InvalidSmartDetectorPackageException($"Failed to create Smart Detector Package - The image file {imagePath} defined in the manifest file does not exists");
-                            }
-                        }
-                    }
-
-                    var assembly = Assembly.LoadFrom(Path.Combine(sourceFolder, smartDetectorManifest.AssemblyName));
-                    if (assembly.GetType(smartDetectorManifest.ClassName) == null)
+                    // After the package is created, we validate that the detector's class exists there
+                    var assembly = Assembly.LoadFrom(Path.Combine(sourceFolder, package.Manifest.AssemblyName));
+                    if (assembly.GetType(package.Manifest.ClassName) == null)
                     {
                         throw new InvalidSmartDetectorPackageException(
                             "Failed to create Smart Detector Package - the manifest file is invalid: The class name must be a file in the Smart Detector package.");
                     }
 
-                    return new SmartDetectorPackage(smartDetectorManifest, packageContent);
+                    return package;
                 }
             }
             catch (ArgumentException argumentException)
@@ -195,6 +170,73 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Package
                         {
                             streamWriter.Write(attachment.Value);
                         }
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Checks that the content of the package is valid
+        /// </summary>
+        /// <param name="smartDetectorManifest">The Smart Detector's manifest</param>
+        /// <param name="packageContent">The Smart Detector package content represented by a dictionary mapping a file name to the file content bytes</param>
+        private static void ValidatePackage(SmartDetectorManifest smartDetectorManifest, IReadOnlyDictionary<string, byte[]> packageContent)
+        {
+            if (smartDetectorManifest == null)
+            {
+                throw new ArgumentNullException(nameof(smartDetectorManifest));
+            }
+
+            if (packageContent == null)
+            {
+                throw new ArgumentNullException(nameof(packageContent));
+            }
+            else if (packageContent.Count == 0)
+            {
+                throw new ArgumentException("Package content must include at least one item", nameof(packageContent));
+            }
+
+            if (!(packageContent.ContainsKey(smartDetectorManifest.AssemblyName) ||
+                  packageContent.ContainsKey(smartDetectorManifest.AssemblyName + ".dll") ||
+                  packageContent.ContainsKey(smartDetectorManifest.AssemblyName + ".exe")))
+            {
+                throw new InvalidSmartDetectorPackageException("Failed to create Smart Detector Package - the manifest file is invalid: Assembly name must be a file in the Smart Detector package.");
+            }
+
+            if (smartDetectorManifest.SupportedResourceTypes == null || !smartDetectorManifest.SupportedResourceTypes.Any())
+            {
+                throw new InvalidSmartDetectorPackageException("Failed to create Smart Detector Package - the manifest file is invalid: Must specify at least one supported resource type.");
+            }
+
+            if (smartDetectorManifest.SupportedCadencesInMinutes == null || !smartDetectorManifest.SupportedCadencesInMinutes.Any())
+            {
+                throw new InvalidSmartDetectorPackageException("Failed to create Smart Detector Package - the manifest file is invalid: Must specify at least one supported cadence.");
+            }
+
+            if (smartDetectorManifest.ImagePaths != null)
+            {
+                foreach (var imagePath in smartDetectorManifest.ImagePaths)
+                {
+                    string path = imagePath.Replace("/", "\\");
+                    if (!packageContent.ContainsKey(path))
+                    {
+                        throw new InvalidSmartDetectorPackageException($"Failed to create Smart Detector Package - the image file {imagePath} defined in the manifest file does not exists");
+                    }
+                }
+            }
+
+            if (smartDetectorManifest.ParametersDefinitions != null)
+            {
+                foreach (DetectorParameterDefinition parameterDefinition in smartDetectorManifest.ParametersDefinitions)
+                {
+                    if (string.IsNullOrEmpty(parameterDefinition.Name))
+                    {
+                        throw new InvalidSmartDetectorPackageException("Failed to create Smart Detector Package - got parameter definition with no name");
+                    }
+
+                    if (string.IsNullOrEmpty(parameterDefinition.DisplayName))
+                    {
+                        throw new InvalidSmartDetectorPackageException($"Failed to create Smart Detector Package - parameter definition '{parameterDefinition.Name}' has no display name");
                     }
                 }
             }

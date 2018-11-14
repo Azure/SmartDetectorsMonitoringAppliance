@@ -209,10 +209,15 @@ namespace SmartDetectorsAnalysisTests
             {
                 ResourceIds = this.resourceIds,
                 Cadence = TimeSpan.FromDays(1),
-                SmartDetectorId = "1"
+                SmartDetectorId = "1",
+                DetectorParameters = new Dictionary<string, object>
+                {
+                    { "param1", "value1" },
+                    { "param2", 2 },
+                }
             };
 
-            var smartDetectorManifest = new SmartDetectorManifest("1", "Test Smart Detector", "Test Smart Detector description", Version.Parse("1.0"), "assembly", "class", new List<ResourceType>() { smartDetectorResourceType }, new List<int> { 60 }, null);
+            var smartDetectorManifest = new SmartDetectorManifest("1", "Test Smart Detector", "Test Smart Detector description", Version.Parse("1.0"), "TestSmartDetectorLibrary", "class", new List<ResourceType>() { smartDetectorResourceType }, new List<int> { 60 }, null, null);
             this.smartDetectorPackage = new SmartDetectorPackage(smartDetectorManifest, new Dictionary<string, byte[]> { ["TestSmartDetectorLibrary"] = Array.Empty<byte>() });
 
             var smartDetectorRepositoryMock = new Mock<ISmartDetectorRepository>();
@@ -272,6 +277,9 @@ namespace SmartDetectorsAnalysisTests
                 Assert.IsNotNull(analysisRequest.TargetResources, "Resources list is null");
                 Assert.AreEqual(1, analysisRequest.TargetResources.Count);
                 Assert.AreEqual(this.ExpectedResourceType, analysisRequest.TargetResources.Single().ResourceType);
+                Assert.AreEqual(2, analysisRequest.DetectorParameters.Count);
+                Assert.AreEqual("value1", analysisRequest.DetectorParameters["param1"]);
+                Assert.AreEqual(2, analysisRequest.DetectorParameters["param2"]);
 
                 await analysisRequest.StateRepository.StoreStateAsync("test key", "test state", cancellationToken);
 

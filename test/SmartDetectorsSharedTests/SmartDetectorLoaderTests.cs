@@ -83,8 +83,8 @@ namespace SmartDetectorsSharedTests
 
             this.manifests = new Dictionary<string, SmartDetectorManifest>()
             {
-                ["1"] = new SmartDetectorManifest("1", "Test Smart Detector", "Test Smart Detector description", Version.Parse("1.0"), "TestSmartDetectorLibrary.dll", "TestSmartDetectorLibrary.TestSmartDetector", new List<ResourceType>() { ResourceType.Subscription }, new List<int> { 60 }, null),
-                ["2"] = new SmartDetectorManifest("2", "Test Smart Detector with dependency", "Test Smart Detector with dependency description", Version.Parse("1.0"), "TestSmartDetectorLibrary.dll", "TestSmartDetectorLibrary.TestSmartDetectorWithDependency", new List<ResourceType>() { ResourceType.Subscription }, new List<int> { 60 }, null)
+                ["1"] = new SmartDetectorManifest("1", "Test Smart Detector", "Test Smart Detector description", Version.Parse("1.0"), "TestSmartDetectorLibrary.dll", "TestSmartDetectorLibrary.TestSmartDetector", new List<ResourceType>() { ResourceType.Subscription }, new List<int> { 60 }, null, null),
+                ["2"] = new SmartDetectorManifest("2", "Test Smart Detector with dependency", "Test Smart Detector with dependency description", Version.Parse("1.0"), "TestSmartDetectorLibrary.dll", "TestSmartDetectorLibrary.TestSmartDetectorWithDependency", new List<ResourceType>() { ResourceType.Subscription }, new List<int> { 60 }, null, null)
             };
 
             this.assemblies = new Dictionary<string, Dictionary<string, byte[]>>
@@ -181,7 +181,7 @@ namespace SmartDetectorsSharedTests
 
         private async Task TestLoadSmartDetectorSimple(Type smartDetectorType, string expectedTitle = "test test test")
         {
-            SmartDetectorManifest manifest = new SmartDetectorManifest("3", "simple", "description", Version.Parse("1.0"), smartDetectorType.Assembly.GetName().Name, smartDetectorType.FullName, new List<ResourceType>() { ResourceType.Subscription }, new List<int> { 60 }, null);
+            SmartDetectorManifest manifest = new SmartDetectorManifest("3", "simple", "description", Version.Parse("1.0"), smartDetectorType.Assembly.GetName().Name, smartDetectorType.FullName, new List<ResourceType>() { ResourceType.Subscription }, new List<int> { 60 }, null, null);
             SmartDetectorPackage package = new SmartDetectorPackage(manifest, this.assemblies["3"]);
             await this.TestLoadSmartDetectorSimple(package, expectedTitle);
         }
@@ -196,6 +196,7 @@ namespace SmartDetectorsSharedTests
             var analysisRequest = new AnalysisRequest(
                 new List<ResourceIdentifier> { resource },
                 TimeSpan.FromDays(1),
+                null,
                 null,
                 new Mock<IAnalysisServicesFactory>().Object,
                 new Mock<IStateRepository>().Object);
@@ -216,6 +217,7 @@ namespace SmartDetectorsSharedTests
             var analysisRequest = new AnalysisRequest(
                 new List<ResourceIdentifier> { resource },
                 TimeSpan.FromDays(1),
+                null,
                 null,
                 new Mock<IAnalysisServicesFactory>().Object,
                 new Mock<IStateRepository>().Object);
