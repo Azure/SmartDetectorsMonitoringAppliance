@@ -146,7 +146,7 @@ namespace SmartDetectorsAnalysisTests
             }
             else if (propertyName == "UrlValue")
             {
-                Assert.AreEqual("<a href=\"https://www.bing.com/ target=\"_blank\">LinkText1</a>", ((TextAlertProperty)property).Value);
+                Assert.AreEqual("<a href=\"https://www.bing.com/\" target=\"_blank\">LinkText1</a>", ((TextAlertProperty)property).Value);
             }
             else if (propertyName == "TextValue")
             {
@@ -187,12 +187,12 @@ namespace SmartDetectorsAnalysisTests
                 Assert.AreEqual(3, alertProperty.Values[0].Count);
                 Assert.AreEqual("p11", alertProperty.Values[0]["Prop1"]);
                 Assert.AreEqual("p21", alertProperty.Values[0]["Prop2"]);
-                Assert.AreEqual("<a href=\"http://microsoft.com/\">Link for NDP1</a>", alertProperty.Values[0]["UriProp"]);
+                Assert.AreEqual("<a href=\"http://microsoft.com/\" target=\"_blank\">Link for NDP1</a>", alertProperty.Values[0]["UriProp"]);
 
                 Assert.AreEqual(3, alertProperty.Values[1].Count);
                 Assert.AreEqual("p12", alertProperty.Values[1]["Prop1"]);
                 Assert.AreEqual("p22", alertProperty.Values[1]["Prop2"]);
-                Assert.AreEqual("<a href=\"http://contoso.com/\">Link for NDP2</a>", alertProperty.Values[1]["UriProp"]);
+                Assert.AreEqual("<a href=\"http://contoso.com/\" target=\"_blank\">Link for NDP2</a>", alertProperty.Values[1]["UriProp"]);
 
                 Assert.AreEqual(3, alertProperty.Columns.Count);
                 Assert.AreEqual("Prop1", alertProperty.Columns[0].PropertyName);
