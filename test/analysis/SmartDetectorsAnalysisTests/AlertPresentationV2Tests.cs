@@ -146,7 +146,7 @@ namespace SmartDetectorsAnalysisTests
             }
             else if (propertyName == "UrlValue")
             {
-                Assert.AreEqual("<a href=\"https://www.bing.com/\">LinkText1</a>", ((TextAlertProperty)property).Value);
+                Assert.AreEqual("<a href=\"https://www.bing.com/ target=\"_blank\">LinkText1</a>", ((TextAlertProperty)property).Value);
             }
             else if (propertyName == "TextValue")
             {

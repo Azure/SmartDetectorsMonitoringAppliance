@@ -386,7 +386,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Presentation
                 }
 
                 string linkText = uriFormatterAttribute.LinkText.EvaluateInterpolatedString(propertyOwner);
-                return $"<a href=\"{uriValue}\">{linkText}</a>";
+                return $"<a href=\"{uriValue}\" target=\"_blank\">{linkText}</a>";
             }
 
             // Otherwise - fall back to the regular conversion
