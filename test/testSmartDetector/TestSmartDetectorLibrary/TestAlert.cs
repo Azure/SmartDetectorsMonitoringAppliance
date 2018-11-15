@@ -10,8 +10,8 @@ namespace TestSmartDetectorLibrary
 
     public class TestAlert : Alert
     {
-        public TestAlert(string title, ResourceIdentifier resourceIdentifier, AlertState state)
-            : base(title, resourceIdentifier, state)
+        public TestAlert(string title, ResourceIdentifier resourceIdentifier)
+            : base(title, resourceIdentifier)
         {
         }
     }

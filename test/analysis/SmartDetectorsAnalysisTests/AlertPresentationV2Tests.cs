@@ -11,17 +11,15 @@ namespace SmartDetectorsAnalysisTests
     using System.Diagnostics.CodeAnalysis;
     using System.Linq;
     using Microsoft.Azure.Monitoring.SmartDetectors;
-    using Microsoft.Azure.Monitoring.SmartDetectors.Presentation;
+    using Microsoft.Azure.Monitoring.SmartDetectors.Extensions;
     using Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Newtonsoft.Json;
     using Alert = Microsoft.Azure.Monitoring.SmartDetectors.Alert;
-    using AlertState = Microsoft.Azure.Monitoring.SmartDetectors.AlertState;
     using ChartAxisType = Microsoft.Azure.Monitoring.SmartDetectors.ChartAxisType;
     using ChartPoint = Microsoft.Azure.Monitoring.SmartDetectors.ChartPoint;
     using ChartType = Microsoft.Azure.Monitoring.SmartDetectors.ChartType;
     using ContractsAlert = Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts.Alert;
-    using ContractsAlertState = Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts.AlertState;
     using ContractsChartAxisType = Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts.ChartAxisType;
     using ContractsChartType = Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts.ChartType;
     using ResourceType = Microsoft.Azure.Monitoring.SmartDetectors.ResourceType;
@@ -35,7 +33,6 @@ namespace SmartDetectorsAnalysisTests
         public void WhenProcessingAlertWithV2PresentationThenTheContractsAlertIsCreatedCorrectly()
         {
             ContractsAlert contractsAlert = CreateContractsV2Alert(new PresentationTestAlert());
-            Assert.AreEqual(ContractsAlertState.Active, contractsAlert.State);
             Assert.IsTrue(contractsAlert.AnalysisTimestamp <= DateTime.UtcNow, "Unexpected analysis timestamp in the future");
             Assert.IsTrue(contractsAlert.AnalysisTimestamp >= DateTime.UtcNow.AddMinutes(-1), "Unexpected analysis timestamp - too back in the past");
             Assert.AreEqual(24 * 60, contractsAlert.AnalysisWindowSizeInMinutes, "Unexpected analysis window size");
@@ -61,21 +58,15 @@ namespace SmartDetectorsAnalysisTests
         }
 
         [TestMethod]
-        public void WhenProcessingAlertWithStateResolvedThenTheContractsAlertIsCreatedWithCorrectState()
-        {
-            ContractsAlert contractsAlert = CreateContractsV2Alert(new PresentationTestAlert("AlertTitle", default(ResourceIdentifier), AlertState.Resolved));
-            Assert.AreEqual(ContractsAlertState.Resolved, contractsAlert.State);
-        }
-
-        [TestMethod]
         public void WhenAlertsHaveDifferentPredicatesThenTheCorrelationHashIsDifferent()
         {
             var alert1 = new PresentationTestAlert();
-            var alert2 = new PresentationTestAlert(state: AlertState.Resolved);
+            var alert2 = new PresentationTestAlert();
 
             var contractsAlert1 = CreateContractsV2Alert(alert1);
 
             // A non predicate property is different - correlation hash should be the same
+            alert2.RawProperty++;
             var contractsAlert2 = CreateContractsV2Alert(alert2);
             Assert.AreNotEqual(contractsAlert1.Id, contractsAlert2.Id);
             Assert.AreEqual(contractsAlert1.CorrelationHash, contractsAlert2.CorrelationHash);
@@ -238,15 +229,16 @@ namespace SmartDetectorsAnalysisTests
         [SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic", Justification = "Test code, approved")]
         public class PresentationTestAlert : Alert
         {
-            public PresentationTestAlert(string title = "AlertTitle", ResourceIdentifier resourceIdentifier = default(ResourceIdentifier), AlertState state = AlertState.Active)
-                : base(title, resourceIdentifier, state)
+            public PresentationTestAlert(string title = "AlertTitle", ResourceIdentifier resourceIdentifier = default(ResourceIdentifier))
+                : base(title, resourceIdentifier)
             {
+                this.RawProperty = 1;
             }
 
             [AlertPredicateProperty]
             public string Predicate => this.Title;
 
-            public int RawProperty => 1;
+            public int RawProperty { get; set; }
 
             [AlertPresentationLongTextAttribute("LongTextDisplayName", Order = 0, PropertyName = "LongTextPropertyName")]
             public string LongTextValue => "LongTextValue";

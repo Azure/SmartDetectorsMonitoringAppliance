@@ -27,7 +27,6 @@ namespace SmartDetectorsAnalysisTests
     using Moq;
     using Unity;
     using Alert = Microsoft.Azure.Monitoring.SmartDetectors.Alert;
-    using AlertState = Microsoft.Azure.Monitoring.SmartDetectors.AlertState;
     using ContractsAlert = Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts.Alert;
     using ResourceType = Microsoft.Azure.Monitoring.SmartDetectors.ResourceType;
 
@@ -313,7 +312,7 @@ namespace SmartDetectorsAnalysisTests
         public class TestAlert : Alert
         {
             public TestAlert(ResourceIdentifier resourceIdentifier)
-                : base("Test title", resourceIdentifier, AlertState.Active)
+                : base("Test title", resourceIdentifier)
             {
             }
 

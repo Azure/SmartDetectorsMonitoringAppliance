@@ -12,7 +12,6 @@ namespace MonitoringApplianceEmulatorTests.ViewModels
     using Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.ViewModels;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Alert = Microsoft.Azure.Monitoring.SmartDetectors.Alert;
-    using AlertState = Microsoft.Azure.Monitoring.SmartDetectors.AlertState;
     using ResourceType = Microsoft.Azure.Monitoring.SmartDetectors.ResourceType;
 
     [TestClass]
@@ -68,7 +67,7 @@ namespace MonitoringApplianceEmulatorTests.ViewModels
         public class TestAlert : Alert
         {
             public TestAlert(ResourceIdentifier resourceIdentifier)
-                : base("Test title", resourceIdentifier, AlertState.Active)
+                : base("Test title", resourceIdentifier)
             {
                 this.TextProperty1 = "Ahlan world";
                 this.TextProperty2 = 5;

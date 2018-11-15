@@ -4,7 +4,7 @@
 // </copyright>
 //-----------------------------------------------------------------------
 
-namespace Microsoft.Azure.Monitoring.SmartDetectors.Presentation
+namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
 {
     using System;
     using System.Collections;
@@ -14,16 +14,13 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Presentation
     using System.Linq;
     using System.Reflection;
     using Microsoft.Azure.Monitoring.SmartDetectors;
-    using Microsoft.Azure.Monitoring.SmartDetectors.Extensions;
     using Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts;
     using Newtonsoft.Json;
     using Alert = Microsoft.Azure.Monitoring.SmartDetectors.Alert;
-    using AlertState = Microsoft.Azure.Monitoring.SmartDetectors.AlertState;
     using ChartAxisType = Microsoft.Azure.Monitoring.SmartDetectors.ChartAxisType;
     using ChartPoint = Microsoft.Azure.Monitoring.SmartDetectors.ChartPoint;
     using ChartType = Microsoft.Azure.Monitoring.SmartDetectors.ChartType;
     using ContractsAlert = Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts.Alert;
-    using ContractsAlertState = Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts.AlertState;
     using ContractsChartAxisType = Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts.ChartAxisType;
     using ContractsChartPoint = Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts.ChartPoint;
     using ContractsChartType = Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts.ChartType;
@@ -110,7 +107,6 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Presentation
             return new ContractsAlert
             {
                 Id = id,
-                State = (alert.State == AlertState.Active) ? ContractsAlertState.Active : ContractsAlertState.Resolved,
                 Title = alert.Title,
                 ResourceId = resourceId,
                 CorrelationHash = correlationHash,

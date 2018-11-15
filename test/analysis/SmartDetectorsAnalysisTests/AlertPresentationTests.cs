@@ -11,13 +11,11 @@ namespace SmartDetectorsAnalysisTests
     using System.Globalization;
     using System.Linq;
     using Microsoft.Azure.Monitoring.SmartDetectors;
-    using Microsoft.Azure.Monitoring.SmartDetectors.Presentation;
+    using Microsoft.Azure.Monitoring.SmartDetectors.Extensions;
     using Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Alert = Microsoft.Azure.Monitoring.SmartDetectors.Alert;
-    using AlertState = Microsoft.Azure.Monitoring.SmartDetectors.AlertState;
     using ContractsAlert = Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts.Alert;
-    using ContractsAlertState = Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts.AlertState;
     using ResourceType = Microsoft.Azure.Monitoring.SmartDetectors.ResourceType;
 
     [TestClass]
@@ -35,7 +33,6 @@ namespace SmartDetectorsAnalysisTests
         public void WhenProcessingAlertThenTheContractsAlertIsCreatedCorrectly()
         {
             ContractsAlert contractsAlert = CreateContractsAlert(new TestAlert());
-            Assert.AreEqual(ContractsAlertState.Active, contractsAlert.State);
             Assert.IsTrue(contractsAlert.AnalysisTimestamp <= DateTime.UtcNow, "Unexpected analysis timestamp in the future");
             Assert.IsTrue(contractsAlert.AnalysisTimestamp >= DateTime.UtcNow.AddMinutes(-1), "Unexpected analysis timestamp - too back in the past");
             Assert.AreEqual(24 * 60, contractsAlert.AnalysisWindowSizeInMinutes, "Unexpected analysis window size");
@@ -56,13 +53,6 @@ namespace SmartDetectorsAnalysisTests
             CollectionAssert.AreEqual(new[] { "resourceId1", "resourceId2" }, contractsAlert.QueryRunInfo.ResourceIds.ToArray(), "Unexpected resource IDs");
         }
 #pragma warning restore CS0612 // Type or member is obsolete
-
-        [TestMethod]
-        public void WhenProcessingAlertWithStateResolvedThenTheContractsAlertIsCreatedWithCorrectState()
-        {
-            ContractsAlert contractsAlert = CreateContractsAlert(new TestAlert(AlertState.Resolved));
-            Assert.AreEqual(ContractsAlertState.Resolved, contractsAlert.State);
-        }
 
         [TestMethod]
         public void WhenProcessingAlertWithoutSummaryChartThenNoExceptionIsThrown()
@@ -162,8 +152,8 @@ namespace SmartDetectorsAnalysisTests
 
         public class TestAlertNoSummary : Alert
         {
-            public TestAlertNoSummary(AlertState alertState = AlertState.Active)
-                : base("Test title", default(ResourceIdentifier), alertState)
+            public TestAlertNoSummary()
+                : base("Test title", default(ResourceIdentifier))
             {
                 this.Value = 22.4;
                 this.MachineName = "strongOne";
@@ -180,8 +170,7 @@ namespace SmartDetectorsAnalysisTests
 
         public class TestAlertNoQueries : TestAlertNoSummary
         {
-            public TestAlertNoQueries(AlertState alertState = AlertState.Active)
-                : base(alertState)
+            public TestAlertNoQueries()
             {
                 this.Value = 22.4;
             }
@@ -193,8 +182,7 @@ namespace SmartDetectorsAnalysisTests
 
         public class TestAlertNoSummaryProperty : TestAlertNoSummary
         {
-            public TestAlertNoSummaryProperty(AlertState alertState = AlertState.Active)
-                : base(alertState)
+            public TestAlertNoSummaryProperty()
             {
                 this.CpuChartQuery = "<the query>";
             }
@@ -205,8 +193,7 @@ namespace SmartDetectorsAnalysisTests
 
         public class TestAlert : TestAlertNoSummaryProperty
         {
-            public TestAlert(AlertState alertState = AlertState.Active)
-                : base(alertState)
+            public TestAlert()
             {
                 this.Value = 22.4;
                 this.Query1 = "<query1>";
@@ -245,8 +232,7 @@ namespace SmartDetectorsAnalysisTests
 
         public class TestAlertNoSummaryChart : TestAlertNoSummary
         {
-            public TestAlertNoSummaryChart(AlertState alertState = AlertState.Active)
-                : base(alertState)
+            public TestAlertNoSummaryChart()
             {
                 this.Value = 22.4;
             }

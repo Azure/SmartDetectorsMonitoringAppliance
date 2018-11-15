@@ -265,7 +265,7 @@ namespace SmartDetectorsSharedTests
         private class TestAlert : Alert
         {
             public TestAlert(string title, ResourceIdentifier resourceIdentifier)
-                : base(title, resourceIdentifier, AlertState.Active)
+                : base(title, resourceIdentifier)
             {
             }
         }
