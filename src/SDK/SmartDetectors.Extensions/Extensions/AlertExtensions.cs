@@ -21,6 +21,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
     using ChartPoint = Microsoft.Azure.Monitoring.SmartDetectors.ChartPoint;
     using ChartType = Microsoft.Azure.Monitoring.SmartDetectors.ChartType;
     using ContractsAlert = Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts.Alert;
+    using ContractsAutomaticResolutionParameters = Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts.AutomaticResolutionParameters;
     using ContractsChartAxisType = Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts.ChartAxisType;
     using ContractsChartPoint = Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts.ChartPoint;
     using ContractsChartType = Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts.ChartType;
@@ -118,7 +119,11 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
                 AlertProperties = alertProperties,
                 RawProperties = rawProperties,
                 QueryRunInfo = queryRunInfo,
-                SignalType = signalType
+                SignalType = signalType,
+                AutomaticResolutionParameters = alert.AutomaticResolutionParameters == null ? null : new ContractsAutomaticResolutionParameters
+                {
+                    CheckForAutomaticResolutionAfter = alert.AutomaticResolutionParameters.CheckForAutomaticResolutionAfter
+                }
             };
             #pragma warning restore CS0612 // Type or member is obsolete; Task to remove obsolete code #1312924
         }

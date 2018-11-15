@@ -44,5 +44,10 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors
         /// Gets the resource identifier that this Alert applies to.
         /// </summary>
         public ResourceIdentifier ResourceIdentifier { get; }
+
+        /// <summary>
+        /// Gets or sets optional automatic resolution parameters for this Alert.
+        /// </summary>
+        public AutomaticResolutionParameters AutomaticResolutionParameters { get; set; }
     }
 }
