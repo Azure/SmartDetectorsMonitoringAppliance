@@ -13,6 +13,7 @@ namespace SmartDetectorsSharedTests
     using System.IO;
     using System.Linq;
     using System.Reflection;
+    using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.Azure.Monitoring.SmartDetectors;
@@ -22,6 +23,7 @@ namespace SmartDetectorsSharedTests
     using Microsoft.Azure.Monitoring.SmartDetectors.Trace;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Moq;
+    using Newtonsoft.Json;
 
     /// <summary>
     /// The Smart Detector loader tests rely on detectors that are defined in TestSmartDetectorLibrary and TestSmartDetectorDependentLibrary.
@@ -182,7 +184,9 @@ namespace SmartDetectorsSharedTests
         private async Task TestLoadSmartDetectorSimple(Type smartDetectorType, string expectedTitle = "test test test")
         {
             SmartDetectorManifest manifest = new SmartDetectorManifest("3", "simple", "description", Version.Parse("1.0"), smartDetectorType.Assembly.GetName().Name, smartDetectorType.FullName, new List<ResourceType>() { ResourceType.Subscription }, new List<int> { 60 }, null, null);
-            SmartDetectorPackage package = new SmartDetectorPackage(manifest, this.assemblies["3"]);
+            Dictionary<string, byte[]> packageContent = this.assemblies["3"];
+            packageContent["manifest.json"] = Encoding.ASCII.GetBytes(JsonConvert.SerializeObject(manifest));
+            SmartDetectorPackage package = new SmartDetectorPackage(packageContent);
             await this.TestLoadSmartDetectorSimple(package, expectedTitle);
         }
 
@@ -209,7 +213,9 @@ namespace SmartDetectorsSharedTests
         private async Task TestLoadSmartDetectorFromDll(string smartDetectorId, string expectedTitle)
         {
             ISmartDetectorLoader loader = new SmartDetectorLoader(this.tempFolder, this.tracerMock.Object);
-            SmartDetectorPackage package = new SmartDetectorPackage(this.manifests[smartDetectorId], this.assemblies[smartDetectorId]);
+            Dictionary<string, byte[]> packageContent = this.assemblies[smartDetectorId];
+            packageContent["manifest.json"] = Encoding.ASCII.GetBytes(JsonConvert.SerializeObject(this.manifests[smartDetectorId]));
+            SmartDetectorPackage package = new SmartDetectorPackage(packageContent);
             ISmartDetector detector = loader.LoadSmartDetector(package);
             Assert.IsNotNull(detector, "Smart Detector is NULL");
 

@@ -28,7 +28,7 @@ namespace SmartDetectorsSharedTests
             Assert.AreEqual("name", manifest.Name);
             Assert.AreEqual("description", manifest.Description);
             Assert.AreEqual(new Version(1, 0), manifest.Version);
-            Assert.AreEqual("TestSmartDetectorLibrary.dll", manifest.AssemblyName);
+            Assert.AreEqual("TestSmartDetectorLibrary", manifest.AssemblyName);
             Assert.AreEqual("TestSmartDetectorLibrary.TestSmartDetectorWithDependency", manifest.ClassName);
 
             Assert.AreEqual(1, manifest.SupportedResourceTypes.Count);

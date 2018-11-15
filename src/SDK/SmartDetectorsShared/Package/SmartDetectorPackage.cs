@@ -12,7 +12,6 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Package
     using System.IO.Compression;
     using System.Linq;
     using System.Reflection;
-    using Microsoft.Azure.Monitoring.SmartDetectors;
     using Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts;
     using Newtonsoft.Json;
 
@@ -26,10 +25,19 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Package
         /// <summary>
         /// Initializes a new instance of the <see cref="SmartDetectorPackage"/> class.
         /// </summary>
-        /// <param name="smartDetectorManifest">The Smart Detector's manifest</param>
         /// <param name="packageContent">The Smart Detector package content represented by a dictionary mapping a file name to the file content bytes</param>
-        public SmartDetectorPackage(SmartDetectorManifest smartDetectorManifest, IReadOnlyDictionary<string, byte[]> packageContent)
+        public SmartDetectorPackage(IReadOnlyDictionary<string, byte[]> packageContent)
         {
+            if (packageContent == null)
+            {
+                throw new ArgumentNullException(nameof(packageContent));
+            }
+            else if (packageContent.Count == 0)
+            {
+                throw new ArgumentException("Package content must include at least one item", nameof(packageContent));
+            }
+
+            SmartDetectorManifest smartDetectorManifest = ReadManifestFromPackageContent(packageContent);
             ValidatePackage(smartDetectorManifest, packageContent);
 
             this.Manifest = smartDetectorManifest;
@@ -50,9 +58,8 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Package
         /// Creates a <see cref="SmartDetectorPackage"/> from a zipped package stream
         /// </summary>
         /// <param name="zippedPackageStream">The zipped package stream</param>
-        /// <param name="tracer">The tracer</param>
         /// <returns>A <see cref="SmartDetectorPackage"/></returns>
-        public static SmartDetectorPackage CreateFromStream(Stream zippedPackageStream, ITracer tracer)
+        public static SmartDetectorPackage CreateFromStream(Stream zippedPackageStream)
         {
             var packageContent = new Dictionary<string, byte[]>(StringComparer.OrdinalIgnoreCase);
             using (var archive = new ZipArchive(zippedPackageStream, ZipArchiveMode.Read))
@@ -72,27 +79,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Package
                 }
             }
 
-            bool manifestFileExists = packageContent.TryGetValue(ManifestFileName, out byte[] manifestBytes);
-            if (!manifestFileExists)
-            {
-                throw new InvalidSmartDetectorPackageException("No manifest file found in the Smart Detector package");
-            }
-
-            // Deserialize the manifest. We use stream reader to avoid unexpected characters such as BOM.
-            using (var stream = new StreamReader(new MemoryStream(manifestBytes)))
-            {
-                string manifest = stream.ReadToEnd();
-                tracer.TraceInformation($"Deserializing Smart Detector manifest {manifest}");
-                try
-                {
-                    SmartDetectorManifest smartDetectorManifest = JsonConvert.DeserializeObject<SmartDetectorManifest>(manifest);
-                    return new SmartDetectorPackage(smartDetectorManifest, packageContent);
-                }
-                catch (JsonException jsonException)
-                {
-                    throw new InvalidSmartDetectorPackageException($"Failed to create Smart Detector Package - the manifest file is invalid: {jsonException.Message}");
-                }
-            }
+            return new SmartDetectorPackage(packageContent);
         }
 
         /// <summary>
@@ -115,41 +102,16 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Package
                 }
             }
 
-            bool manifestFileExists = packageContent.TryGetValue(ManifestFileName, out byte[] manifestBytes);
-            if (!manifestFileExists)
+            var package = new SmartDetectorPackage(packageContent);
+
+            // After the package is created, we validate that the detector's class exists there
+            var assembly = Assembly.LoadFrom(Path.Combine(sourceFolder, package.Manifest.AssemblyName));
+            if (assembly.GetType(package.Manifest.ClassName) == null)
             {
-                throw new InvalidSmartDetectorPackageException("Failed to create Smart Detector Package - no manifest file found in the Smart Detector package");
+                throw new InvalidSmartDetectorPackageException("Failed to create Smart Detector Package - the manifest file is invalid: The class name must be a file in the Smart Detector package.");
             }
 
-            try
-            {
-                // Validates the manifest. We use stream reader to avoid unexpected characters such as BOM.
-                using (var stream = new StreamReader(new MemoryStream(manifestBytes)))
-                {
-                    string manifest = stream.ReadToEnd();
-                    SmartDetectorManifest smartDetectorManifest = JsonConvert.DeserializeObject<SmartDetectorManifest>(manifest);
-
-                    var package = new SmartDetectorPackage(smartDetectorManifest, packageContent);
-
-                    // After the package is created, we validate that the detector's class exists there
-                    var assembly = Assembly.LoadFrom(Path.Combine(sourceFolder, package.Manifest.AssemblyName));
-                    if (assembly.GetType(package.Manifest.ClassName) == null)
-                    {
-                        throw new InvalidSmartDetectorPackageException(
-                            "Failed to create Smart Detector Package - the manifest file is invalid: The class name must be a file in the Smart Detector package.");
-                    }
-
-                    return package;
-                }
-            }
-            catch (ArgumentException argumentException)
-            {
-                throw new InvalidSmartDetectorPackageException($"Failed to create Smart Detector Package - the manifest file is invalid: {argumentException.Message}");
-            }
-            catch (JsonException jsonException)
-            {
-                throw new InvalidSmartDetectorPackageException($"Failed to create Smart Detector Package - the manifest file is invalid: {jsonException.Message}");
-            }
+            return package;
         }
 
         /// <summary>
@@ -176,26 +138,51 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Package
         }
 
         /// <summary>
+        /// Reads and deserializes the manifest from the package content.
+        /// </summary>
+        /// <param name="packageContent">The package content.</param>
+        /// <returns>The deserialized manifest</returns>
+        private static SmartDetectorManifest ReadManifestFromPackageContent(IReadOnlyDictionary<string, byte[]> packageContent)
+        {
+            bool manifestFileExists = packageContent.TryGetValue(ManifestFileName, out byte[] manifestBytes);
+            if (!manifestFileExists)
+            {
+                throw new InvalidSmartDetectorPackageException("No manifest file found in the Smart Detector package");
+            }
+
+            SmartDetectorManifest smartDetectorManifest;
+            try
+            {
+                // Deserialize the manifest. We use stream reader to avoid unexpected characters such as BOM.
+                using (var stream = new StreamReader(new MemoryStream(manifestBytes)))
+                {
+                    string manifest = stream.ReadToEnd();
+                    try
+                    {
+                        smartDetectorManifest = JsonConvert.DeserializeObject<SmartDetectorManifest>(manifest);
+                    }
+                    catch (JsonException jsonException)
+                    {
+                        throw new InvalidSmartDetectorPackageException(
+                            $"Failed to create Smart Detector Package - the manifest file is invalid: {jsonException.Message}");
+                    }
+                }
+            }
+            catch (Exception e) when (e is ArgumentNullException || e is ArgumentException || e is JsonException)
+            {
+                throw new InvalidSmartDetectorPackageException($"Failed to create Smart Detector Package - the manifest file is invalid: {e.Message}", e);
+            }
+
+            return smartDetectorManifest;
+        }
+
+        /// <summary>
         /// Checks that the content of the package is valid
         /// </summary>
         /// <param name="smartDetectorManifest">The Smart Detector's manifest</param>
         /// <param name="packageContent">The Smart Detector package content represented by a dictionary mapping a file name to the file content bytes</param>
         private static void ValidatePackage(SmartDetectorManifest smartDetectorManifest, IReadOnlyDictionary<string, byte[]> packageContent)
         {
-            if (smartDetectorManifest == null)
-            {
-                throw new ArgumentNullException(nameof(smartDetectorManifest));
-            }
-
-            if (packageContent == null)
-            {
-                throw new ArgumentNullException(nameof(packageContent));
-            }
-            else if (packageContent.Count == 0)
-            {
-                throw new ArgumentException("Package content must include at least one item", nameof(packageContent));
-            }
-
             if (!(packageContent.ContainsKey(smartDetectorManifest.AssemblyName) ||
                   packageContent.ContainsKey(smartDetectorManifest.AssemblyName + ".dll") ||
                   packageContent.ContainsKey(smartDetectorManifest.AssemblyName + ".exe")))

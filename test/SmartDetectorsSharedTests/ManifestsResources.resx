@@ -166,6 +166,12 @@
   <data name="NoOptionalProperties" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>Manifests\NoOptionalProperties.json;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
+  <data name="NoParameterDisplayName" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>Manifests\NoParameterDisplayName.json;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="NoParameterName" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>Manifests\NoParameterName.json;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
   <data name="NoSupportedCadencesInMinutes" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>Manifests\NoSupportedCadencesInMinutes.json;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>

@@ -22,7 +22,7 @@ namespace SmartDetectorsSharedTests
         [TestMethod]
         public void WhenCreatingPackageWithValidValuesThenPackageIsCreated()
         {
-            var package = new SmartDetectorPackage(GetDefaultManifest(), GetDefaultPackageContent());
+            var package = new SmartDetectorPackage(GetDefaultPackageContent());
         }
 
         [TestMethod]
@@ -31,7 +31,7 @@ namespace SmartDetectorsSharedTests
             Dictionary<string, byte[]> content = GetDefaultPackageContent();
             content.Remove("TestSmartDetectorLibrary");
             content["TestSmartDetectorLibrary.dll"] = new byte[] { 0 };
-            var package = new SmartDetectorPackage(GetDefaultManifest(), content);
+            var package = new SmartDetectorPackage(content);
         }
 
         [TestMethod]
@@ -40,7 +40,7 @@ namespace SmartDetectorsSharedTests
             Dictionary<string, byte[]> content = GetDefaultPackageContent();
             content.Remove("TestSmartDetectorLibrary");
             content["TestSmartDetectorLibrary.exe"] = new byte[] { 0 };
-            var package = new SmartDetectorPackage(GetDefaultManifest(), content);
+            var package = new SmartDetectorPackage(content);
         }
 
         #endregion
@@ -49,23 +49,16 @@ namespace SmartDetectorsSharedTests
 
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
-        public void WhenCreatingPackageWithNullManifestThenExceptionIsThrown()
-        {
-            var package = new SmartDetectorPackage(null, GetDefaultPackageContent());
-        }
-
-        [TestMethod]
-        [ExpectedException(typeof(ArgumentNullException))]
         public void WhenCreatingPackageWithNullContentThenExceptionIsThrown()
         {
-            var package = new SmartDetectorPackage(GetDefaultManifest(), null);
+            var package = new SmartDetectorPackage(null);
         }
 
         [TestMethod]
         [ExpectedException(typeof(ArgumentException))]
         public void WhenCreatingPackageWithEmptyContentThenExceptionIsThrown()
         {
-            var package = new SmartDetectorPackage(GetDefaultManifest(), new ReadOnlyDictionary<string, byte[]>(new Dictionary<string, byte[]>()));
+            var package = new SmartDetectorPackage(new ReadOnlyDictionary<string, byte[]>(new Dictionary<string, byte[]>()));
         }
 
         [TestMethod]
@@ -74,7 +67,7 @@ namespace SmartDetectorsSharedTests
         {
             Dictionary<string, byte[]> content = GetDefaultPackageContent();
             content.Remove("TestSmartDetectorLibrary");
-            var package = new SmartDetectorPackage(GetDefaultManifest(), content);
+            var package = new SmartDetectorPackage(content);
         }
 
         [TestMethod]
@@ -83,25 +76,43 @@ namespace SmartDetectorsSharedTests
         {
             Dictionary<string, byte[]> content = GetDefaultPackageContent();
             content.Remove("anotherImage");
-            var package = new SmartDetectorPackage(GetDefaultManifest(), content);
+            var package = new SmartDetectorPackage(content);
         }
 
         [TestMethod]
         [ExpectedException(typeof(InvalidSmartDetectorPackageException))]
         public void WhenCreatingPackageWithMissingParameterNameThenExceptionIsThrown()
         {
-            SmartDetectorManifest manifest = GetDefaultManifest();
-            manifest.ParametersDefinitions[1].Name = string.Empty;
-            var package = new SmartDetectorPackage(manifest, GetDefaultPackageContent());
+            Dictionary<string, byte[]> content = GetDefaultPackageContent();
+            content["manifest.json"] = ManifestsResources.NoParameterName;
+            var package = new SmartDetectorPackage(content);
         }
 
         [TestMethod]
         [ExpectedException(typeof(InvalidSmartDetectorPackageException))]
         public void WhenCreatingPackageWithMissingParameterDisplayNameThenExceptionIsThrown()
         {
-            SmartDetectorManifest manifest = GetDefaultManifest();
-            manifest.ParametersDefinitions[1].DisplayName = string.Empty;
-            var package = new SmartDetectorPackage(manifest, GetDefaultPackageContent());
+            Dictionary<string, byte[]> content = GetDefaultPackageContent();
+            content["manifest.json"] = ManifestsResources.NoParameterDisplayName;
+            var package = new SmartDetectorPackage(content);
+        }
+
+        [TestMethod]
+        public void WhenCreatingPackageWithInvalidManifestThenExceptionIsThrown()
+        {
+            Dictionary<string, byte[]> content = GetDefaultPackageContent();
+
+            // This checks for NullArgumentException from the manifest creation
+            content["manifest.json"] = ManifestsResources.NoId;
+            Assert.ThrowsException<InvalidSmartDetectorPackageException>(() => new SmartDetectorPackage(content));
+
+            // This checks for ArgumentException from the manifest creation
+            content["manifest.json"] = ManifestsResources.EmptySupportedResourceTypes;
+            Assert.ThrowsException<InvalidSmartDetectorPackageException>(() => new SmartDetectorPackage(content));
+
+            // This checks for JsonException from the manifest creation
+            content["manifest.json"] = ManifestsResources.MalformedVersion;
+            Assert.ThrowsException<InvalidSmartDetectorPackageException>(() => new SmartDetectorPackage(content));
         }
 
         #endregion
@@ -110,16 +121,11 @@ namespace SmartDetectorsSharedTests
         {
             return new Dictionary<string, byte[]>
             {
-                { "Manifest.json", ManifestsResources.AllValues },
-                { "TestSmartDetectorLibrary", new byte[] { 0 } },
-                { "someImage", new byte[] { 0 } },
-                { "anotherImage", new byte[] { 0 } },
+                ["manifest.json"] = ManifestsResources.AllValues,
+                ["TestSmartDetectorLibrary"] = new byte[] { 0 },
+                ["someImage"] = new byte[] { 0 },
+                ["anotherImage"] = new byte[] { 0 },
             };
-        }
-
-        private static SmartDetectorManifest GetDefaultManifest()
-        {
-            return JsonConvert.DeserializeObject<SmartDetectorManifest>(Encoding.Default.GetString(ManifestsResources.AllValues));
         }
     }
 }

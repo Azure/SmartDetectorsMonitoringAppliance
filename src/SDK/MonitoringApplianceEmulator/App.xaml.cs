@@ -71,7 +71,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator
             SmartDetectorPackage smartDetectorPackage;
             using (var fileStream = new FileStream(smartDetectorPackagePath, FileMode.Open))
             {
-                smartDetectorPackage = SmartDetectorPackage.CreateFromStream(fileStream, consoleTracer);
+                smartDetectorPackage = SmartDetectorPackage.CreateFromStream(fileStream);
             }
 
             try

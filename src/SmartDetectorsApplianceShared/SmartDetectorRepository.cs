@@ -106,7 +106,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance
                 {
                     // Download the blob to a stream and generate the Smart Detector package from it
                     await latestVersionSmartDetectorBlob.DownloadToStreamAsync(blobMemoryStream, cancellationToken);
-                    return SmartDetectorPackage.CreateFromStream(blobMemoryStream, this.tracer);
+                    return SmartDetectorPackage.CreateFromStream(blobMemoryStream);
                 }
             }
             catch (StorageException e)

@@ -10,6 +10,7 @@ namespace SmartDetectorsAnalysisTests
     using System.Collections.Generic;
     using System.Diagnostics.CodeAnalysis;
     using System.Linq;
+    using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.Azure.Monitoring.SmartDetectors;
@@ -25,6 +26,7 @@ namespace SmartDetectorsAnalysisTests
     using Microsoft.Azure.Monitoring.SmartDetectors.Trace;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Moq;
+    using Newtonsoft.Json;
     using Unity;
     using Alert = Microsoft.Azure.Monitoring.SmartDetectors.Alert;
     using AlertState = Microsoft.Azure.Monitoring.SmartDetectors.AlertState;
@@ -218,7 +220,11 @@ namespace SmartDetectorsAnalysisTests
             };
 
             var smartDetectorManifest = new SmartDetectorManifest("1", "Test Smart Detector", "Test Smart Detector description", Version.Parse("1.0"), "TestSmartDetectorLibrary", "class", new List<ResourceType>() { smartDetectorResourceType }, new List<int> { 60 }, null, null);
-            this.smartDetectorPackage = new SmartDetectorPackage(smartDetectorManifest, new Dictionary<string, byte[]> { ["TestSmartDetectorLibrary"] = Array.Empty<byte>() });
+            this.smartDetectorPackage = new SmartDetectorPackage(new Dictionary<string, byte[]>
+            {
+                ["manifest.json"] = Encoding.ASCII.GetBytes(JsonConvert.SerializeObject(smartDetectorManifest)),
+                ["TestSmartDetectorLibrary"] = Array.Empty<byte>(),
+            });
 
             var smartDetectorRepositoryMock = new Mock<ISmartDetectorRepository>();
             smartDetectorRepositoryMock

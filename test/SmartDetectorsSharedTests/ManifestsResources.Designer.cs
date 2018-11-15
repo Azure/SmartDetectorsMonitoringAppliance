@@ -223,6 +223,26 @@ namespace SmartDetectorsSharedTests {
         /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
+        internal static byte[] NoParameterDisplayName {
+            get {
+                object obj = ResourceManager.GetObject("NoParameterDisplayName", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] NoParameterName {
+            get {
+                object obj = ResourceManager.GetObject("NoParameterName", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
         internal static byte[] NoSupportedCadencesInMinutes {
             get {
                 object obj = ResourceManager.GetObject("NoSupportedCadencesInMinutes", resourceCulture);
