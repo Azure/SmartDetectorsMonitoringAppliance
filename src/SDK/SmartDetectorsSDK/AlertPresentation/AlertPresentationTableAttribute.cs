@@ -4,10 +4,10 @@
 // </copyright>
 //-----------------------------------------------------------------------
 
-namespace Microsoft.Azure.Monitoring.SmartDetectors
+namespace Microsoft.Azure.Monitoring.SmartDetectors.AlertPresentation
 {
     /// <summary>
-    /// An attribute defining the presentation of a columnar table property in an <see cref="Alert"/>.
+    /// An attribute defining the presentation of a columnar table property in an <see cref="Microsoft.Azure.Monitoring.SmartDetectors.Alert"/>.
     /// </summary>
     public abstract class AlertPresentationTableAttribute : AlertPresentationPropertyV2Attribute
     {

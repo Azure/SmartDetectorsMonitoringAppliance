@@ -13,13 +13,13 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
     using System.Globalization;
     using System.Linq;
     using System.Reflection;
-    using Microsoft.Azure.Monitoring.SmartDetectors;
+    using Microsoft.Azure.Monitoring.SmartDetectors.AlertPresentation;
     using Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts;
     using Newtonsoft.Json;
     using Alert = Microsoft.Azure.Monitoring.SmartDetectors.Alert;
-    using ChartAxisType = Microsoft.Azure.Monitoring.SmartDetectors.ChartAxisType;
-    using ChartPoint = Microsoft.Azure.Monitoring.SmartDetectors.ChartPoint;
-    using ChartType = Microsoft.Azure.Monitoring.SmartDetectors.ChartType;
+    using ChartAxisType = Microsoft.Azure.Monitoring.SmartDetectors.AlertPresentation.ChartAxisType;
+    using ChartPoint = Microsoft.Azure.Monitoring.SmartDetectors.AlertPresentation.ChartPoint;
+    using ChartType = Microsoft.Azure.Monitoring.SmartDetectors.AlertPresentation.ChartType;
     using ContractsAlert = Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts.Alert;
     using ContractsAutomaticResolutionParameters = Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts.AutomaticResolutionParameters;
     using ContractsChartAxisType = Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts.ChartAxisType;
@@ -103,6 +103,13 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
             // Get the alert's signal type based on the clients used to create the alert
             SignalType signalType = GetSignalType(usedLogAnalysisClient, usedMetricClient);
 
+            // Get the alert's automatic resolution parameters
+            ContractsAutomaticResolutionParameters automaticResolutionParameters =
+                new ContractsAutomaticResolutionParameters
+                {
+                    CheckForAutomaticResolutionAfter = alert.AutomaticResolutionParameters.CheckForAutomaticResolutionAfter
+                };
+
             // Return the presentation object
             #pragma warning disable CS0612 // Type or member is obsolete; Task to remove obsolete code #1312924
             return new ContractsAlert
@@ -120,10 +127,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
                 RawProperties = rawProperties,
                 QueryRunInfo = queryRunInfo,
                 SignalType = signalType,
-                AutomaticResolutionParameters = alert.AutomaticResolutionParameters == null ? null : new ContractsAutomaticResolutionParameters
-                {
-                    CheckForAutomaticResolutionAfter = alert.AutomaticResolutionParameters.CheckForAutomaticResolutionAfter
-                }
+                AutomaticResolutionParameters = automaticResolutionParameters
             };
             #pragma warning restore CS0612 // Type or member is obsolete; Task to remove obsolete code #1312924
         }

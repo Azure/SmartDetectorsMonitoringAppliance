@@ -11,6 +11,7 @@ namespace SmartDetectorsAnalysisTests
     using System.Globalization;
     using System.Linq;
     using Microsoft.Azure.Monitoring.SmartDetectors;
+    using Microsoft.Azure.Monitoring.SmartDetectors.AlertPresentation;
     using Microsoft.Azure.Monitoring.SmartDetectors.Extensions;
     using Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -159,12 +160,12 @@ namespace SmartDetectorsAnalysisTests
                 this.MachineName = "strongOne";
             }
 
-            [AlertPredicateProperty]
-            [AlertPresentationProperty(AlertPresentationSection.Property, "CPU increased", InfoBalloon = "CPU increase on machine {MachineName}")]
+            [AlertPredicatePropertyAttribute]
+            [AlertPresentationPropertyAttribute(AlertPresentationSection.Property, "CPU increased", InfoBalloon = "CPU increase on machine {MachineName}")]
             public double Value { get; }
 
-            [AlertPredicateProperty]
-            [AlertPresentationProperty(AlertPresentationSection.Property, "Machine name", Order = 1, InfoBalloon = "The machine on which the CPU had increased")]
+            [AlertPredicatePropertyAttribute]
+            [AlertPresentationPropertyAttribute(AlertPresentationSection.Property, "Machine name", Order = 1, InfoBalloon = "The machine on which the CPU had increased")]
             public string MachineName { get; }
         }
 
@@ -175,8 +176,8 @@ namespace SmartDetectorsAnalysisTests
                 this.Value = 22.4;
             }
 
-            [AlertPredicateProperty]
-            [AlertPresentationProperty(AlertPresentationSection.Property, "CPU increased", InfoBalloon = "CPU increase on machine {MachineName}")]
+            [AlertPredicatePropertyAttribute]
+            [AlertPresentationPropertyAttribute(AlertPresentationSection.Property, "CPU increased", InfoBalloon = "CPU increase on machine {MachineName}")]
             public new double Value { get; }
         }
 
@@ -187,7 +188,7 @@ namespace SmartDetectorsAnalysisTests
                 this.CpuChartQuery = "<the query>";
             }
 
-            [AlertPresentationProperty(AlertPresentationSection.Chart, "CPU over the last 7 days", InfoBalloon = "CPU chart for machine {MachineName}, showing increase of {Value}")]
+            [AlertPresentationPropertyAttribute(AlertPresentationSection.Chart, "CPU over the last 7 days", InfoBalloon = "CPU chart for machine {MachineName}, showing increase of {Value}")]
             public string CpuChartQuery { get; }
         }
 
@@ -205,28 +206,28 @@ namespace SmartDetectorsAnalysisTests
                 this.OnlyPredicate = "only predicate";
             }
 
-            [AlertPredicateProperty]
-            [AlertPresentationProperty(AlertPresentationSection.Property, "CPU increased", InfoBalloon = "CPU increase on machine {MachineName}")]
+            [AlertPredicatePropertyAttribute]
+            [AlertPresentationPropertyAttribute(AlertPresentationSection.Property, "CPU increased", InfoBalloon = "CPU increase on machine {MachineName}")]
             public new double Value { get; }
 
-            [AlertPresentationProperty(AlertPresentationSection.AdditionalQuery, "Another query 1", InfoBalloon = "Info balloon for another query 1")]
+            [AlertPresentationPropertyAttribute(AlertPresentationSection.AdditionalQuery, "Another query 1", InfoBalloon = "Info balloon for another query 1")]
             public string Query1 { get; }
 
-            [AlertPresentationProperty(AlertPresentationSection.AdditionalQuery, "Another query 2", InfoBalloon = "Info balloon for another query 2")]
+            [AlertPresentationPropertyAttribute(AlertPresentationSection.AdditionalQuery, "Another query 2", InfoBalloon = "Info balloon for another query 2")]
             public string Query2 { get; }
 
-            [AlertPresentationProperty(AlertPresentationSection.Analysis, "Analysis 1", InfoBalloon = "Info balloon for analysis 1")]
+            [AlertPresentationPropertyAttribute(AlertPresentationSection.Analysis, "Analysis 1", InfoBalloon = "Info balloon for analysis 1")]
             public string Analysis1 { get; }
 
-            [AlertPresentationProperty(AlertPresentationSection.Analysis, "Analysis 2", InfoBalloon = "Info balloon for analysis 2")]
+            [AlertPresentationPropertyAttribute(AlertPresentationSection.Analysis, "Analysis 2", InfoBalloon = "Info balloon for analysis 2")]
             public string Analysis2 { get; }
 
-            [AlertPresentationProperty(AlertPresentationSection.Analysis, "Analysis 3", InfoBalloon = "Info balloon for analysis 3")]
+            [AlertPresentationPropertyAttribute(AlertPresentationSection.Analysis, "Analysis 3", InfoBalloon = "Info balloon for analysis 3")]
             public DateTime Analysis3 { get; }
 
             public string NoPresentation { get; set; }
 
-            [AlertPredicateProperty]
+            [AlertPredicatePropertyAttribute]
             public string OnlyPredicate { get; set; }
         }
 
@@ -237,8 +238,8 @@ namespace SmartDetectorsAnalysisTests
                 this.Value = 22.4;
             }
 
-            [AlertPredicateProperty]
-            [AlertPresentationProperty(AlertPresentationSection.Property, "CPU increased", InfoBalloon = "CPU increase on machine {MachineName}")]
+            [AlertPredicatePropertyAttribute]
+            [AlertPresentationPropertyAttribute(AlertPresentationSection.Property, "CPU increased", InfoBalloon = "CPU increase on machine {MachineName}")]
             public new double Value { get; }
         }
     }

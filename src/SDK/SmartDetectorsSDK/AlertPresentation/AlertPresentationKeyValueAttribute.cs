@@ -4,12 +4,12 @@
 // </copyright>
 //-----------------------------------------------------------------------
 
-namespace Microsoft.Azure.Monitoring.SmartDetectors
+namespace Microsoft.Azure.Monitoring.SmartDetectors.AlertPresentation
 {
     using System;
 
     /// <summary>
-    /// An attribute defining the presentation of a key-value table property in an <see cref="Alert"/>.
+    /// An attribute defining the presentation of a key-value table property in an <see cref="Microsoft.Azure.Monitoring.SmartDetectors.Alert"/>.
     /// </summary>
     public class AlertPresentationKeyValueAttribute : AlertPresentationPropertyV2Attribute
     {

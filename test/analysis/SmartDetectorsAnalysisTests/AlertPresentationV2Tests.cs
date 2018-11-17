@@ -11,14 +11,15 @@ namespace SmartDetectorsAnalysisTests
     using System.Diagnostics.CodeAnalysis;
     using System.Linq;
     using Microsoft.Azure.Monitoring.SmartDetectors;
+    using Microsoft.Azure.Monitoring.SmartDetectors.AlertPresentation;
     using Microsoft.Azure.Monitoring.SmartDetectors.Extensions;
     using Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Newtonsoft.Json;
     using Alert = Microsoft.Azure.Monitoring.SmartDetectors.Alert;
-    using ChartAxisType = Microsoft.Azure.Monitoring.SmartDetectors.ChartAxisType;
-    using ChartPoint = Microsoft.Azure.Monitoring.SmartDetectors.ChartPoint;
-    using ChartType = Microsoft.Azure.Monitoring.SmartDetectors.ChartType;
+    using ChartAxisType = Microsoft.Azure.Monitoring.SmartDetectors.AlertPresentation.ChartAxisType;
+    using ChartPoint = Microsoft.Azure.Monitoring.SmartDetectors.AlertPresentation.ChartPoint;
+    using ChartType = Microsoft.Azure.Monitoring.SmartDetectors.AlertPresentation.ChartType;
     using ContractsAlert = Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts.Alert;
     using ContractsChartAxisType = Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts.ChartAxisType;
     using ContractsChartType = Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts.ChartType;
@@ -243,23 +244,23 @@ namespace SmartDetectorsAnalysisTests
             [AlertPresentationLongTextAttribute("LongTextDisplayName", Order = 0, PropertyName = "LongTextPropertyName")]
             public string LongTextValue => "LongTextValue";
 
-            [AlertPresentationUrlFormatter("LinkText{RawProperty}")]
-            [AlertPresentationText("UrlDisplayName", Order = 1)]
+            [AlertPresentationUrlFormatterAttribute("LinkText{RawProperty}")]
+            [AlertPresentationTextAttribute("UrlDisplayName", Order = 1)]
             public Uri UrlValue => new Uri("https://www.bing.com");
 
-            [AlertPresentationText("TextDisplayName", Order = 2)]
+            [AlertPresentationTextAttribute("TextDisplayName", Order = 2)]
             public string TextValue => "TextValue";
 
-            [AlertPresentationKeyValue("KeyValueDisplayName", Order = 3)]
+            [AlertPresentationKeyValueAttribute("KeyValueDisplayName", Order = 3)]
             public IDictionary<string, string> KeyValue => new Dictionary<string, string> { { "key1", "value1" } };
 
-            [AlertPresentationKeyValue("KeyValueWithHeadersDisplayName", "Keys", "Values{RawProperty}", Order = 4)]
+            [AlertPresentationKeyValueAttribute("KeyValueWithHeadersDisplayName", "Keys", "Values{RawProperty}", Order = 4)]
             public IDictionary<string, string> KeyValueWithHeaders => new Dictionary<string, string> { { "key1", "value1" } };
 
-            [AlertPresentationChart("ChartDisplayName", ChartType.LineChart, ChartAxisType.DateAxis, ChartAxisType.NumberAxis)]
+            [AlertPresentationChartAttribute("ChartDisplayName", ChartType.LineChart, ChartAxisType.DateAxis, ChartAxisType.NumberAxis)]
             public List<ChartPoint> DataPoints => new List<ChartPoint>() { new ChartPoint(new DateTime(2018, 7, 9, 14, 31, 0, DateTimeKind.Utc), 5) };
 
-            [AlertPresentationMultiColumnTable("TableDisplayName", Order = 5, ShowHeaders = true)]
+            [AlertPresentationMultiColumnTableAttribute("TableDisplayName", Order = 5, ShowHeaders = true)]
             [SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays", Justification = "Test code, allowed")]
             public TableData[] Table => new TableData[]
             {
@@ -267,21 +268,21 @@ namespace SmartDetectorsAnalysisTests
                 new TableData { Prop1 = "p12", Prop2 = "p22", UriProp = new Uri("http://contoso.com"), NonDisplayProp = "NDP2" },
             };
 
-            [AlertPresentationSingleColumnTable("SingleColumnTableDisplayName", Order = 6, ShowHeaders = false)]
+            [AlertPresentationSingleColumnTableAttribute("SingleColumnTableDisplayName", Order = 6, ShowHeaders = false)]
             public List<string> SingleColumnTable => new List<string> { "value1", "value2", "value3" };
         }
 
         public class TableData
         {
             [JsonProperty("prop1")]
-            [AlertPresentationTableColumn("First Prop")]
+            [AlertPresentationTableColumnAttribute("First Prop")]
             public string Prop1 { get; set; }
 
-            [AlertPresentationTableColumn("Second Prop")]
+            [AlertPresentationTableColumnAttribute("Second Prop")]
             public string Prop2 { get; set; }
 
-            [AlertPresentationUrlFormatter("Link for {NonDisplayProp}")]
-            [AlertPresentationTableColumn("Uri Prop")]
+            [AlertPresentationUrlFormatterAttribute("Link for {NonDisplayProp}")]
+            [AlertPresentationTableColumnAttribute("Uri Prop")]
             public Uri UriProp { get; set; }
 
             public string NonDisplayProp { get; set; }

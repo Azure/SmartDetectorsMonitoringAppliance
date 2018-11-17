@@ -8,6 +8,7 @@ namespace MonitoringApplianceEmulatorTests.ViewModels
 {
     using System.Collections.Generic;
     using Microsoft.Azure.Monitoring.SmartDetectors;
+    using Microsoft.Azure.Monitoring.SmartDetectors.AlertPresentation;
     using Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.Models;
     using Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.ViewModels;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -84,18 +85,18 @@ namespace MonitoringApplianceEmulatorTests.ViewModels
             [AlertPresentationKeyValue("PresidentsKeyValue", "First name", "Last name", Order = 3)]
             public IDictionary<string, string> KeyValue1 { get; }
 
-            [AlertPresentationKeyValue("PlayersKeyValue", Order = 4)]
+            [AlertPresentationKeyValueAttribute("PlayersKeyValue", Order = 4)]
             public IDictionary<string, string> KeyValue2 { get; }
 
-            [AlertPresentationText("Some string", Order = 2)]
+            [AlertPresentationTextAttribute("Some string", Order = 2)]
             public string TextProperty1 { get; }
 
-            [AlertPresentationText("Some numeric string", Order = 1)]
+            [AlertPresentationTextAttribute("Some numeric string", Order = 1)]
             public int TextProperty2 { get; }
 
             public string NoPresentation { get; }
 
-            [AlertPresentationMultiColumnTable("Some Table", Order = 5)]
+            [AlertPresentationMultiColumnTableAttribute("Some Table", Order = 5)]
             public List<TestTableAlertPropertyValue> TableProp { get; }
         }
     }

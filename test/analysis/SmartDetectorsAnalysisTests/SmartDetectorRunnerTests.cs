@@ -13,6 +13,7 @@ namespace SmartDetectorsAnalysisTests
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.Azure.Monitoring.SmartDetectors;
+    using Microsoft.Azure.Monitoring.SmartDetectors.AlertPresentation;
     using Microsoft.Azure.Monitoring.SmartDetectors.Clients;
     using Microsoft.Azure.Monitoring.SmartDetectors.Loader;
     using Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance;
