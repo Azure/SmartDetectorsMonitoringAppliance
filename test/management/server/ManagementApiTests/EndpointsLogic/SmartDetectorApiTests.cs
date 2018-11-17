@@ -44,7 +44,7 @@ namespace ManagementApiTests.EndpointsLogic
             this.smartDetectorRepository.Setup(repository => repository.ReadAllSmartDetectorsManifestsAsync(It.IsAny<CancellationToken>()))
                                        .ReturnsAsync(() => new List<SmartDetectorManifest>()
                 {
-                    new SmartDetectorManifest("someId", "someName", "someDescription", Version.Parse("1.0"), "someAssemblyName", "someClassName", new List<ResourceType> { ResourceType.ResourceGroup }, new List<int> { 60 }, null)
+                    new SmartDetectorManifest("someId", "someName", "someDescription", Version.Parse("1.0"), "someAssemblyName", "someClassName", new List<ResourceType> { ResourceType.ResourceGroup }, new List<int> { 60 }, null, null)
                 });
 
             ListSmartDetectorsResponse response = await this.smartDetectorsLogic.GetSmartDetectorsAsync(CancellationToken.None);
@@ -77,7 +77,7 @@ namespace ManagementApiTests.EndpointsLogic
         {
             string detectorId = "someId";
             this.smartDetectorRepository.Setup(repository => repository.ReadSmartDetectorManifestAsync(detectorId, It.IsAny<CancellationToken>()))
-                .ReturnsAsync(() => new SmartDetectorManifest("someId", "someName", "someDescription", Version.Parse("1.0"), "someAssemblyName", "someClassName", new List<ResourceType> { ResourceType.ResourceGroup }, new List<int> { 60 }, null));
+                .ReturnsAsync(() => new SmartDetectorManifest("someId", "someName", "someDescription", Version.Parse("1.0"), "someAssemblyName", "someClassName", new List<ResourceType> { ResourceType.ResourceGroup }, new List<int> { 60 }, null, null));
 
             SmartDetector smartDetector = await this.smartDetectorsLogic.GetSmartDetectorAsync(detectorId, CancellationToken.None);
 

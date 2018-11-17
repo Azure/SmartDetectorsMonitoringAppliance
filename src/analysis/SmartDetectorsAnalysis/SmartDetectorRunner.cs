@@ -100,7 +100,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.Analysis
             List<Alert> alerts;
             try
             {
-                var analysisRequest = new AnalysisRequest(resources, request.Cadence, request.AlertRuleResourceId, this.analysisServicesFactory, stateRepository);
+                var analysisRequest = new AnalysisRequest(resources, request.Cadence, request.AlertRuleResourceId, request.DetectorParameters, this.analysisServicesFactory, stateRepository);
                 ITracer detectorTracer = shouldDetectorTrace ? this.tracer : new EmptyTracer();
                 alerts = await smartDetector.AnalyzeResourcesAsync(analysisRequest, detectorTracer, cancellationToken);
                 this.tracer.TraceInformation($"Completed running Smart Detector ID {smartDetectorManifest.Id}, Name {smartDetectorManifest.Name}, returning {alerts.Count} alerts");

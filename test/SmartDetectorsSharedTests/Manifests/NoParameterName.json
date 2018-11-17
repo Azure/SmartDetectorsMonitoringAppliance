@@ -2,15 +2,14 @@
   "id": "id",
   "name": "name",
   "description": "description",
-  "displayName": "displayName",
   "version": "1.0",
-  "assemblyName": "TestSmartDetectorLibrary.dll",
+  "assemblyName": "TestSmartDetectorLibrary",
   "className": "TestSmartDetectorLibrary.TestSmartDetectorWithDependency",
   "supportedResourceTypes": [ "Subscription" ],
   "supportedCadencesInMinutes": [ 60 ],
+  "imagePaths": [ "someImage", "anotherImage" ],
   "parametersDefinitions": [
     {
-      "name": "param1",
       "type": "String",
       "displayName": "first parameter",
       "description": "the first parameter for the detector",

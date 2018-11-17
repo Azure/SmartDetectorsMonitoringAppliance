@@ -168,7 +168,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
                                 tracer.TraceInformation($"Start analysis, with session ID = '{tracer.SessionId}' end of time range: {currentTime}");
 
                                 ExtendedDateTime.SetEmulatedUtcNow(currentTime);
-                                var analysisRequest = new AnalysisRequest(targetResourcesForDetector, analysisCadence, null, this.analysisServicesFactory, stateRepository);
+                                var analysisRequest = new AnalysisRequest(targetResourcesForDetector, analysisCadence, null, null, this.analysisServicesFactory, stateRepository);
 
                                 // Run the detector in a different context by using "Task.Run()". This will prevent the detector execution from blocking the UI
                                 List<Alert> newAlerts = await Task.Run(() =>
