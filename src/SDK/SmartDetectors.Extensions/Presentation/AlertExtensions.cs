@@ -310,7 +310,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Presentation
             AlertPresentationTableAttribute tableAttribute)
         {
             var columns = new List<TableColumn>();
-            var rows = new List<Dictionary<string, string>>();
+            var rows = new List<Dictionary<string, string>>(tableRows.Count);
 
             // Initialize the table rows with new dictionaries
             for (int i = 0; i < tableRows.Count; i++)
