@@ -17,7 +17,7 @@ namespace TestSmartDetectorLibrary
         public Task<List<Alert>> AnalyzeResourcesAsync(AnalysisRequest analysisRequest, ITracer tracer, CancellationToken cancellationToken)
         {
             List<Alert> alerts = new List<Alert>();
-            alerts.Add(new TestAlert("test title", analysisRequest.TargetResources.First()));
+            alerts.Add(new TestAlert("test title", analysisRequest.RequestParameters.TargetResources.First()));
             return Task.FromResult(alerts);
         }
     }

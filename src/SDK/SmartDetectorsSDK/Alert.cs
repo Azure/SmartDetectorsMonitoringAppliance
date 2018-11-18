@@ -26,11 +26,6 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors
                 throw new ArgumentNullException(nameof(title));
             }
 
-            if (resourceIdentifier == null)
-            {
-                throw new ArgumentNullException(nameof(resourceIdentifier));
-            }
-
             this.Title = title;
             this.ResourceIdentifier = resourceIdentifier;
         }

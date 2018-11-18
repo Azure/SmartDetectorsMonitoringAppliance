@@ -280,12 +280,12 @@ namespace SmartDetectorsAnalysisTests
             {
                 this.IsRunning = true;
 
-                Assert.IsNotNull(analysisRequest.TargetResources, "Resources list is null");
-                Assert.AreEqual(1, analysisRequest.TargetResources.Count);
-                Assert.AreEqual(this.ExpectedResourceType, analysisRequest.TargetResources.Single().ResourceType);
-                Assert.AreEqual(2, analysisRequest.DetectorParameters.Count);
-                Assert.AreEqual("value1", analysisRequest.DetectorParameters["param1"]);
-                Assert.AreEqual(2, analysisRequest.DetectorParameters["param2"]);
+                Assert.IsNotNull(analysisRequest.RequestParameters.TargetResources, "Resources list is null");
+                Assert.AreEqual(1, analysisRequest.RequestParameters.TargetResources.Count);
+                Assert.AreEqual(this.ExpectedResourceType, analysisRequest.RequestParameters.TargetResources.Single().ResourceType);
+                Assert.AreEqual(2, analysisRequest.RequestParameters.DetectorParameters.Count);
+                Assert.AreEqual("value1", analysisRequest.RequestParameters.DetectorParameters["param1"]);
+                Assert.AreEqual(2, analysisRequest.RequestParameters.DetectorParameters["param2"]);
 
                 await analysisRequest.StateRepository.StoreStateAsync("test key", "test state", cancellationToken);
 
@@ -313,7 +313,7 @@ namespace SmartDetectorsAnalysisTests
                 }
 
                 List<Alert> alerts = new List<Alert>();
-                alerts.Add(new TestAlert(analysisRequest.TargetResources.First()));
+                alerts.Add(new TestAlert(analysisRequest.RequestParameters.TargetResources.First()));
                 return await Task.FromResult(alerts);
             }
 
