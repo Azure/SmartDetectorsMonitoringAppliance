@@ -55,6 +55,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
 
         /// <summary>
         /// Occurs when the <see cref="Hypertext"/> dependency property was changed.
+        /// This method replace all link patterns within the new assigned hypertext  <see cref="Hyperlink"/> elements.
         /// </summary>
         /// <param name="dependencyObject">The dependency object</param>
         /// <param name="eventArgs">The event args</param>
@@ -72,12 +73,13 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
 
             Match match = HtmlHyperlinkRegex.Match(hypertext);
 
-            // In case there are no links in the text
+            // In case there are no links in the text, just add it
             if (!match.Success)
             {
                 hypertextTextBlock.Inlines.Add(hypertext);
             }
 
+            // Go over all link pattern matches and replace it with a hyperlink element
             Match previousMatch = null;
             while (match.Success)
             {
@@ -86,11 +88,11 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
                     0 :
                     previousMatch.Index + previousMatch.Length;
 
-                int endIndexOfTextBeforeMatch = previousMatch == null ?
+                int lengthOfTextBeforeMatch = previousMatch == null ?
                     match.Index :
                     match.Index - (previousMatch.Index + previousMatch.Length);
 
-                string textBeforeMatch = hypertext.Substring(startIndexOfTextBeforeMatch, endIndexOfTextBeforeMatch);
+                string textBeforeMatch = hypertext.Substring(startIndexOfTextBeforeMatch, lengthOfTextBeforeMatch);
 
                 hypertextTextBlock.Inlines.Add(textBeforeMatch);
 
@@ -114,7 +116,6 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
             if (previousMatch != null)
             {
                 int remainingTextStartIndex = previousMatch.Index + previousMatch.Length;
-                //// int remainingTextEndIndex = hypertext.Length - 1 - remainingTextStartIndex;
                 string textAfterLaftMatch = hypertext.Substring(remainingTextStartIndex);
 
                 hypertextTextBlock.Inlines.Add(textAfterLaftMatch);
