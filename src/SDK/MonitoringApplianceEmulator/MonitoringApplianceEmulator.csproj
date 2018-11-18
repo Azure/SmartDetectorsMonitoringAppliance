@@ -97,6 +97,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="Controls\LongTextPropertyControl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Compile Update="**\*.xaml.cs" SubType="Code" DependentUpon="%(Filename)" />
   </ItemGroup>
   <ItemGroup>
@@ -125,5 +129,10 @@
     <ProjectReference Include="..\SmartDetectors.Extensions\SmartDetectors.Extensions.csproj" />
     <ProjectReference Include="..\SmartDetectorsSDK\SmartDetectorsSDK.csproj" />
     <ProjectReference Include="..\SmartDetectorsShared\SmartDetectorsShared.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="Controls\LongTextPropertyControl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </None>
   </ItemGroup>
 </Project>

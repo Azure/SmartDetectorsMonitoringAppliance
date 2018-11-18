@@ -8,8 +8,8 @@
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid Width="580" Height="200">
-        <TextBlock Text="{Binding Title}" FontWeight="Bold"/>
-        <lvc:CartesianChart Series="{Binding SeriesCollection}">
+        <TextBlock Text="{Binding Title}" FontWeight="Bold" />
+        <lvc:CartesianChart Series="{Binding SeriesCollection}" Margin="0,20,0,0">
             <lvc:CartesianChart.AxisX>
                 <lvc:Axis LabelFormatter="{Binding XAxisFormatter}"></lvc:Axis>
             </lvc:CartesianChart.AxisX>
