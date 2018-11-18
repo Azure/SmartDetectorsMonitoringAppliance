@@ -97,21 +97,21 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.Analysis
                 // Create state repository
                 IStateRepository stateRepository = this.stateRepositoryFactory.Create(request.SmartDetectorId, request.AlertRuleResourceId);
 
-            // Run the Smart Detector
-            this.tracer.TraceInformation($"Started running Smart Detector ID {smartDetectorManifest.Id}, Name {smartDetectorManifest.Name}");
-            List<Alert> alerts;
-            try
-            {
-                var analysisRequest = new AnalysisRequest(resources, request.Cadence, request.AlertRuleResourceId, request.DetectorParameters, this.analysisServicesFactory, stateRepository);
-                ITracer detectorTracer = shouldDetectorTrace ? this.tracer : new EmptyTracer();
-                alerts = await smartDetector.AnalyzeResourcesAsync(analysisRequest, detectorTracer, cancellationToken);
-                this.tracer.TraceInformation($"Completed running Smart Detector ID {smartDetectorManifest.Id}, Name {smartDetectorManifest.Name}, returning {alerts.Count} alerts");
-            }
-            catch (Exception e)
-            {
-                this.tracer.TraceError($"Failed running Smart Detector ID {smartDetectorManifest.Id}, Name {smartDetectorManifest.Name}: {e}");
-                throw new FailedToRunSmartDetectorException($"Calling Smart Detector '{smartDetectorManifest.Name}' failed with exception of type {e.GetType()} and message: {e.Message}", e);
-            }
+                // Run the Smart Detector
+                this.tracer.TraceInformation($"Started running Smart Detector ID {smartDetectorManifest.Id}, Name {smartDetectorManifest.Name}");
+                List<Alert> alerts;
+                try
+                {
+                    var analysisRequest = new AnalysisRequest(resources, request.Cadence, request.AlertRuleResourceId, request.DetectorParameters, this.analysisServicesFactory, stateRepository);
+                    ITracer detectorTracer = shouldDetectorTrace ? this.tracer : new EmptyTracer();
+                    alerts = await smartDetector.AnalyzeResourcesAsync(analysisRequest, detectorTracer, cancellationToken);
+                    this.tracer.TraceInformation($"Completed running Smart Detector ID {smartDetectorManifest.Id}, Name {smartDetectorManifest.Name}, returning {alerts.Count} alerts");
+                }
+                catch (Exception e)
+                {
+                    this.tracer.TraceError($"Failed running Smart Detector ID {smartDetectorManifest.Id}, Name {smartDetectorManifest.Name}: {e}");
+                    throw new FailedToRunSmartDetectorException($"Calling Smart Detector '{smartDetectorManifest.Name}' failed with exception of type {e.GetType()} and message: {e.Message}", e);
+                }
 
                 // Verify that each alert belongs to one of the types declared in the Smart Detector manifest
                 foreach (Alert alert in alerts)
