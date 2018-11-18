@@ -61,7 +61,7 @@ namespace SmartDetectorsAnalysisTests
         [TestMethod]
         public async Task WhenRunningSmartDetectorItIsDisposedIfItImplementsIDisposable()
         {
-            this.smartDetector = new TestSmartDetectorDisposable { ExpectedResourceType = ResourceType.VirtualMachine };
+            this.smartDetector = new DisposableTestSmartDetector { ExpectedResourceType = ResourceType.VirtualMachine };
 
             var smartDetectorLoaderMock = new Mock<ISmartDetectorLoader>();
             smartDetectorLoaderMock
@@ -73,7 +73,7 @@ namespace SmartDetectorsAnalysisTests
             ISmartDetectorRunner runner = this.testContainer.Resolve<ISmartDetectorRunner>();
             await runner.RunAsync(this.request, true, default(CancellationToken));
 
-            Assert.IsTrue(((TestSmartDetectorDisposable)this.smartDetector).Disposed);
+            Assert.IsTrue(((DisposableTestSmartDetector)this.smartDetector).WasDisposed);
         }
 
         [TestMethod]
@@ -339,13 +339,18 @@ namespace SmartDetectorsAnalysisTests
             public string Summary { get; } = "Summary value";
         }
 
-        public sealed class TestSmartDetectorDisposable : TestSmartDetector, IDisposable
+        public sealed class DisposableTestSmartDetector : TestSmartDetector, IDisposable
         {
-            public bool Disposed { get; private set; }
+            public DisposableTestSmartDetector()
+            {
+                this.WasDisposed = false;
+            }
+
+            public bool WasDisposed { get; private set; }
 
             public void Dispose()
             {
-                this.Disposed = true;
+                this.WasDisposed = true;
             }
         }
     }
