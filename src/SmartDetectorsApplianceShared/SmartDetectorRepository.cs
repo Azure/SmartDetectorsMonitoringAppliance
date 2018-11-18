@@ -13,15 +13,17 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
-    using Microsoft.Azure.Monitoring.SmartDetectors;
     using Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.AzureStorage;
     using Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.Exceptions;
     using Microsoft.Azure.Monitoring.SmartDetectors.Package;
+    using Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts;
     using Microsoft.Azure.Monitoring.SmartDetectors.Tools;
     using Microsoft.Azure.Monitoring.SmartDetectors.Trace;
     using Microsoft.WindowsAzure.Storage;
     using Microsoft.WindowsAzure.Storage.Blob;
+    using Newtonsoft.Json;
     using Newtonsoft.Json.Linq;
+    using ResourceType = Microsoft.Azure.Monitoring.SmartDetectors.ResourceType;
 
     /// <summary>
     /// Implementation of the <see cref="ISmartDetectorRepository"/> interface over Azure Blob Storage.
@@ -104,7 +106,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance
                 {
                     // Download the blob to a stream and generate the Smart Detector package from it
                     await latestVersionSmartDetectorBlob.DownloadToStreamAsync(blobMemoryStream, cancellationToken);
-                    return SmartDetectorPackage.CreateFromStream(blobMemoryStream, this.tracer);
+                    return SmartDetectorPackage.CreateFromStream(blobMemoryStream);
                 }
             }
             catch (StorageException e)
@@ -196,6 +198,13 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance
                     .ToList();
             }
 
+            List<DetectorParameterDefinition> parametersDefinitions = null;
+            if (smartDetectorMetadata.ContainsKey("parametersDefinitions"))
+            {
+                parametersDefinitions =
+                    JsonConvert.DeserializeObject<List<DetectorParameterDefinition>>(smartDetectorMetadata["parametersDefinitions"]);
+            }
+
             return new SmartDetectorManifest(
                  smartDetectorMetadata["id"],
                  smartDetectorMetadata["name"],
@@ -205,7 +214,8 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance
                  smartDetectorMetadata["className"],
                  supportedResourceTypes,
                  supportedCadencesInMinutes,
-                 imagePaths);
+                 imagePaths,
+                 parametersDefinitions);
         }
 
         /// <summary>

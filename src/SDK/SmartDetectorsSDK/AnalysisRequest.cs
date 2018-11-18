@@ -8,7 +8,6 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors
 {
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics.CodeAnalysis;
     using System.Linq;
     using Microsoft.Azure.Monitoring.SmartDetectors.State;
 
@@ -23,10 +22,17 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors
         /// </summary>
         /// <param name="targetResources">The list of resource identifiers to analyze.</param>
         /// <param name="analysisCadence">The analysis cadence defined in the Alert Rule which initiated the Smart Detector's analysis.</param>
-        /// <param name="alertRuleResourceId">The alert rule resource ID.</param>
+        /// <param name="alertRuleResourceId">The Alert Rule resource ID.</param>
+        /// <param name="detectorParameters">The detector parameters as specified in the Alert Rule.</param>
         /// <param name="analysisServicesFactory">The analysis services factory to be used for querying the resources telemetry.</param>
         /// <param name="stateRepository">The persistent state repository for storing state between analysis runs</param>
-        public AnalysisRequest(List<ResourceIdentifier> targetResources, TimeSpan analysisCadence, string alertRuleResourceId, IAnalysisServicesFactory analysisServicesFactory, IStateRepository stateRepository)
+        public AnalysisRequest(
+            List<ResourceIdentifier> targetResources,
+            TimeSpan analysisCadence,
+            string alertRuleResourceId,
+            IDictionary<string, object> detectorParameters,
+            IAnalysisServicesFactory analysisServicesFactory,
+            IStateRepository stateRepository)
         {
             // Parameter validations
             if (targetResources == null)
@@ -51,6 +57,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors
             this.TargetResources = targetResources;
             this.AnalysisCadence = analysisCadence;
             this.AlertRuleResourceId = alertRuleResourceId;
+            this.DetectorParameters = detectorParameters ?? new Dictionary<string, object>();
             this.AnalysisServicesFactory = analysisServicesFactory;
             this.StateRepository = stateRepository;
         }
@@ -65,13 +72,6 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors
         public List<ResourceIdentifier> TargetResources { get; }
 
         /// <summary>
-        /// Gets the data end time to query.
-        /// </summary>
-        [Obsolete("DataEndTime is moved to the responsibility of the detector")]
-        [SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic", Justification = "Obsolete member, about to be deprecated")]
-        public DateTime DataEndTime => DateTime.UtcNow;
-
-        /// <summary>
         /// Gets the analysis cadence defined in the Alert Rule which initiated the Smart Detector's analysis.
         /// </summary>
         public TimeSpan AnalysisCadence { get; }
@@ -80,6 +80,11 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors
         /// Gets the alert rule resource ID.
         /// </summary>
         public string AlertRuleResourceId { get; }
+
+        /// <summary>
+        /// Gets the detector parameters as specified in the Alert Rule.
+        /// </summary>
+        public IDictionary<string, object> DetectorParameters { get; }
 
         /// <summary>
         /// Gets the analysis services factory to be used for querying the resources telemetry.

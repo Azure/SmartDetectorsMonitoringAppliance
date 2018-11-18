@@ -1,8 +1,7 @@
 {
   "id": "id",
-  "name": "name",
+  "name": "",
   "description": "description",
-  "displayName": "displayName",
   "version": "1.0",
   "assemblyName": "TestSmartDetectorLibrary.dll",
   "className": "TestSmartDetectorLibrary.TestSmartDetectorWithDependency",

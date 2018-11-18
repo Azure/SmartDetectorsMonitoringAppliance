@@ -13,6 +13,7 @@ namespace SmartDetectorsSharedTests
     using System.IO;
     using System.Linq;
     using System.Reflection;
+    using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.Azure.Monitoring.SmartDetectors;
@@ -22,6 +23,7 @@ namespace SmartDetectorsSharedTests
     using Microsoft.Azure.Monitoring.SmartDetectors.Trace;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Moq;
+    using Newtonsoft.Json;
 
     /// <summary>
     /// The Smart Detector loader tests rely on detectors that are defined in TestSmartDetectorLibrary and TestSmartDetectorDependentLibrary.
@@ -83,8 +85,8 @@ namespace SmartDetectorsSharedTests
 
             this.manifests = new Dictionary<string, SmartDetectorManifest>()
             {
-                ["1"] = new SmartDetectorManifest("1", "Test Smart Detector", "Test Smart Detector description", Version.Parse("1.0"), "TestSmartDetectorLibrary.dll", "TestSmartDetectorLibrary.TestSmartDetector", new List<ResourceType>() { ResourceType.Subscription }, new List<int> { 60 }, null),
-                ["2"] = new SmartDetectorManifest("2", "Test Smart Detector with dependency", "Test Smart Detector with dependency description", Version.Parse("1.0"), "TestSmartDetectorLibrary.dll", "TestSmartDetectorLibrary.TestSmartDetectorWithDependency", new List<ResourceType>() { ResourceType.Subscription }, new List<int> { 60 }, null)
+                ["1"] = new SmartDetectorManifest("1", "Test Smart Detector", "Test Smart Detector description", Version.Parse("1.0"), "TestSmartDetectorLibrary.dll", "TestSmartDetectorLibrary.TestSmartDetector", new List<ResourceType>() { ResourceType.Subscription }, new List<int> { 60 }, null, null),
+                ["2"] = new SmartDetectorManifest("2", "Test Smart Detector with dependency", "Test Smart Detector with dependency description", Version.Parse("1.0"), "TestSmartDetectorLibrary.dll", "TestSmartDetectorLibrary.TestSmartDetectorWithDependency", new List<ResourceType>() { ResourceType.Subscription }, new List<int> { 60 }, null, null)
             };
 
             this.assemblies = new Dictionary<string, Dictionary<string, byte[]>>
@@ -181,8 +183,10 @@ namespace SmartDetectorsSharedTests
 
         private async Task TestLoadSmartDetectorSimple(Type smartDetectorType, string expectedTitle = "test test test")
         {
-            SmartDetectorManifest manifest = new SmartDetectorManifest("3", "simple", "description", Version.Parse("1.0"), smartDetectorType.Assembly.GetName().Name, smartDetectorType.FullName, new List<ResourceType>() { ResourceType.Subscription }, new List<int> { 60 }, null);
-            SmartDetectorPackage package = new SmartDetectorPackage(manifest, this.assemblies["3"]);
+            SmartDetectorManifest manifest = new SmartDetectorManifest("3", "simple", "description", Version.Parse("1.0"), smartDetectorType.Assembly.GetName().Name, smartDetectorType.FullName, new List<ResourceType>() { ResourceType.Subscription }, new List<int> { 60 }, null, null);
+            Dictionary<string, byte[]> packageContent = this.assemblies["3"];
+            packageContent["manifest.json"] = Encoding.ASCII.GetBytes(JsonConvert.SerializeObject(manifest));
+            SmartDetectorPackage package = new SmartDetectorPackage(packageContent);
             await this.TestLoadSmartDetectorSimple(package, expectedTitle);
         }
 
@@ -197,6 +201,7 @@ namespace SmartDetectorsSharedTests
                 new List<ResourceIdentifier> { resource },
                 TimeSpan.FromDays(1),
                 null,
+                null,
                 new Mock<IAnalysisServicesFactory>().Object,
                 new Mock<IStateRepository>().Object);
             List<Alert> alerts = await detector.AnalyzeResourcesAsync(analysisRequest, this.tracerMock.Object, default(CancellationToken));
@@ -208,7 +213,9 @@ namespace SmartDetectorsSharedTests
         private async Task TestLoadSmartDetectorFromDll(string smartDetectorId, string expectedTitle)
         {
             ISmartDetectorLoader loader = new SmartDetectorLoader(this.tempFolder, this.tracerMock.Object);
-            SmartDetectorPackage package = new SmartDetectorPackage(this.manifests[smartDetectorId], this.assemblies[smartDetectorId]);
+            Dictionary<string, byte[]> packageContent = this.assemblies[smartDetectorId];
+            packageContent["manifest.json"] = Encoding.ASCII.GetBytes(JsonConvert.SerializeObject(this.manifests[smartDetectorId]));
+            SmartDetectorPackage package = new SmartDetectorPackage(packageContent);
             ISmartDetector detector = loader.LoadSmartDetector(package);
             Assert.IsNotNull(detector, "Smart Detector is NULL");
 
@@ -216,6 +223,7 @@ namespace SmartDetectorsSharedTests
             var analysisRequest = new AnalysisRequest(
                 new List<ResourceIdentifier> { resource },
                 TimeSpan.FromDays(1),
+                null,
                 null,
                 new Mock<IAnalysisServicesFactory>().Object,
                 new Mock<IStateRepository>().Object);

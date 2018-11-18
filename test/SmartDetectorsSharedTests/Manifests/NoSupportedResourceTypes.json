@@ -2,11 +2,9 @@
   "id": "id",
   "name": "name",
   "description": "description",
-  "displayName": "displayName",
   "version": "1.0",
   "assemblyName": "TestSmartDetectorLibrary.dll",
   "className": "TestSmartDetectorLibrary.TestSmartDetectorWithDependency",
-  "supportedResourceTypes": [ "Subscription" ],
   "supportedCadencesInMinutes": [ 60 ],
   "parametersDefinitions": [
     {

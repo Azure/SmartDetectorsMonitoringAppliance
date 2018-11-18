@@ -49,6 +49,7 @@ namespace MonitoringApplianceEmulatorTests.ViewModels
                 "someClassName",
                 new List<ResourceType> { ResourceType.ResourceGroup, ResourceType.VirtualMachine },
                 new List<int> { 10, 60, 120 },
+                null,
                 null);
 
             this.azureResourceManagerClientMock
@@ -297,6 +298,7 @@ namespace MonitoringApplianceEmulatorTests.ViewModels
                 "someClassName",
                 new List<ResourceType> { ResourceType.ResourceGroup },
                 new List<int> { 10, 60, 120 },
+                null,
                 null);
 
             this.smartDetectorConfigurationControlViewModel = new SmartDetectorConfigurationControlViewModel(

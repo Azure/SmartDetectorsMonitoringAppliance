@@ -9,9 +9,10 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Package
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using Microsoft.Azure.Monitoring.SmartDetectors;
+    using Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts;
     using Newtonsoft.Json;
     using Newtonsoft.Json.Converters;
+    using ResourceType = Microsoft.Azure.Monitoring.SmartDetectors.ResourceType;
 
     /// <summary>
     /// Represents the manifest of a Smart Detector, stored in the Smart Detectors repository
@@ -30,6 +31,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Package
         /// <param name="supportedResourceTypes">The types of resources that this Smart Detector supports</param>
         /// <param name="supportedCadencesInMinutes">The cadences that this Smart Detector can be executed</param>
         /// <param name="imagePaths">The image paths in the package</param>
+        /// <param name="parametersDefinitions">An optional list of parameter definitions that the Smart Detector supports.</param>
         public SmartDetectorManifest(
             string id,
             string name,
@@ -39,7 +41,8 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Package
             string className,
             IReadOnlyList<ResourceType> supportedResourceTypes,
             IReadOnlyList<int> supportedCadencesInMinutes,
-            IReadOnlyList<string> imagePaths)
+            IReadOnlyList<string> imagePaths,
+            IReadOnlyList<DetectorParameterDefinition> parametersDefinitions)
         {
             if (string.IsNullOrWhiteSpace(id))
             {
@@ -100,6 +103,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Package
             this.SupportedResourceTypes = supportedResourceTypes;
             this.SupportedCadencesInMinutes = supportedCadencesInMinutes;
             this.ImagePaths = imagePaths ?? new List<string>();
+            this.ParametersDefinitions = parametersDefinitions ?? new List<DetectorParameterDefinition>();
         }
 
         /// <summary>
@@ -157,80 +161,10 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Package
         [JsonProperty("imagePaths")]
         public IReadOnlyList<string> ImagePaths { get; }
 
-        #region Overrides of Object
-
         /// <summary>
-        /// Determines whether the specified object is equal to the current object.
+        /// Gets an optional list of parameter definitions that the Smart Detector supports.
         /// </summary>
-        /// <returns>true if the specified object  is equal to the current object; otherwise, false.</returns>
-        /// <param name="obj">The object to compare with the current object. </param>
-        public override bool Equals(object obj)
-        {
-            // If parameter cannot be cast to SmartDetectorManifest return false.
-            var other = obj as SmartDetectorManifest;
-            if (other == null)
-            {
-                return false;
-            }
-
-            // And validate the properties (constructor ensures those are never null)
-            return
-                this.Id.Equals(other.Id, StringComparison.InvariantCulture) &&
-                this.Name.Equals(other.Name, StringComparison.InvariantCulture) &&
-                this.Description.Equals(other.Description, StringComparison.InvariantCulture) &&
-                this.Version.Equals(other.Version) &&
-                this.AssemblyName.Equals(other.AssemblyName, StringComparison.InvariantCulture) &&
-                this.ClassName.Equals(other.ClassName, StringComparison.InvariantCulture) &&
-                this.SupportedResourceTypes.SequenceEqual(other.SupportedResourceTypes) &&
-                this.SupportedCadencesInMinutes.SequenceEqual(other.SupportedCadencesInMinutes) &&
-                this.ImagePaths.SequenceEqual(other.ImagePaths);
-        }
-
-        /// <summary>
-        /// Returns the hash code for the current object.
-        /// </summary>
-        /// <returns>A hash code for the current object.</returns>
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                int hash = this.Id.GetHashCode();
-                hash = (31 * hash) + this.Name.GetHashCode();
-                hash = (31 * hash) + this.Description.GetHashCode();
-                hash = (31 * hash) + this.Version.GetHashCode();
-                hash = (31 * hash) + this.AssemblyName.GetHashCode();
-
-                foreach (ResourceType resourceType in this.SupportedResourceTypes)
-                {
-                    hash = (31 * hash) + resourceType.GetHashCode();
-                }
-
-                foreach (int supportedCadence in this.SupportedCadencesInMinutes)
-                {
-                    hash = (31 * hash) + supportedCadence.GetHashCode();
-                }
-
-                if (this.ImagePaths != null)
-                {
-                    foreach (string imagePath in this.ImagePaths)
-                    {
-                        hash = (31 * hash) + imagePath.GetHashCode();
-                    }
-                }
-
-                return hash;
-            }
-        }
-
-        /// <summary>
-        /// Returns a string that represents the current object.
-        /// </summary>
-        /// <returns>A string that represents the current object.</returns>
-        public override string ToString()
-        {
-            return $"Id={this.Id}, Name={this.Name}, Description={this.Description}, Version={this.Version}, SupportedResourceTypes={string.Join("|", this.SupportedResourceTypes)}, SupportedCadencesInMinutes={string.Join("|", this.SupportedCadencesInMinutes)}, ImagePaths={string.Join("|", this.ImagePaths)}";
-        }
-
-        #endregion
+        [JsonProperty("parametersDefinitions")]
+        public IReadOnlyList<DetectorParameterDefinition> ParametersDefinitions { get; }
     }
 }
