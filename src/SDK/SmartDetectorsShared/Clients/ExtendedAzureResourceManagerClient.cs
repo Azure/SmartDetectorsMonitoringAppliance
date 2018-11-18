@@ -40,20 +40,29 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Clients
         /// </summary>
         private const string DependencyName = "ARM";
 
+        /// <summary>
+        /// The HTTP request timeout for ARM calls, in minutes
+        /// </summary>
+        private const int HttpRequestTimeoutInMinutes = 5;
+
         private static readonly ConcurrentDictionary<string, ProviderInner> ProvidersCache = new ConcurrentDictionary<string, ProviderInner>(StringComparer.CurrentCultureIgnoreCase);
 
         private readonly ServiceClientCredentials credentials;
         private readonly IExtendedTracer tracer;
         private readonly Policy retryPolicy;
+        private readonly Policy<HttpResponseMessage> httpRetryPolicy;
         private readonly Uri baseUri;
+        private readonly IHttpClientWrapper httpClientWrapper;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ExtendedAzureResourceManagerClient"/> class
         /// </summary>
+        /// <param name="httpClientWrapper">The HTTP client wrapper</param>
         /// <param name="credentialsFactory">The credentials factory</param>
         /// <param name="tracer">The tracer</param>
-        public ExtendedAzureResourceManagerClient(ICredentialsFactory credentialsFactory, IExtendedTracer tracer)
+        public ExtendedAzureResourceManagerClient(IHttpClientWrapper httpClientWrapper, ICredentialsFactory credentialsFactory, IExtendedTracer tracer)
         {
+            this.httpClientWrapper = Diagnostics.EnsureArgumentNotNull(() => httpClientWrapper);
             Diagnostics.EnsureArgumentNotNull(() => credentialsFactory);
             this.baseUri = new Uri(ConfigurationManager.AppSettings["ResourceManagerBaseUri"] ?? "https://management.azure.com/");
             this.credentials = credentialsFactory.Create(ConfigurationManager.AppSettings["ResourceManagerCredentialsResource"] ?? "https://management.azure.com/");
@@ -65,6 +74,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Clients
                     3,
                     (i) => TimeSpan.FromSeconds(Math.Pow(2, i)),
                     (exception, span, context) => tracer.TraceError($"Failed accessing DependencyName on {exception.Message}, retry {Math.Log(span.Seconds, 2)} out of 3"));
+            this.httpRetryPolicy = PolicyExtensions.CreateTransientHttpErrorPolicy(this.tracer, DependencyName);
         }
 
         /// <summary>
@@ -279,6 +289,62 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Clients
             }
 
             return workspaceId;
+        }
+
+        /// <summary>
+        /// Executes an ARM GET request, using the specified resource, suffix, and query string.
+        /// For example, the following call gets the list of databases for an SQL Server resource:
+        /// <code>
+        /// List&lt;JObject&gt; databases = await ExecuteArmQueryAsync(sqlResource, "/databases", "api-version=2017-10-01-preview", cancellationToken);
+        /// </code>
+        /// </summary>
+        /// <param name="resource">The resource for the request.</param>
+        /// <param name="suffix">The resource suffix.</param>
+        /// <param name="queryString">The query string.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>>A <see cref="Task{TResult}"/>, running the current operation, returning a list of all items returned.</returns>
+        public async Task<List<JObject>> ExecuteArmQueryAsync(ResourceIdentifier resource, string suffix, string queryString, CancellationToken cancellationToken)
+        {
+            // Create the URI
+            Uri nextLink = new Uri(this.baseUri, resource.ToResourceId() + suffix + "?" + queryString);
+            List<JObject> allItems = new List<JObject>();
+
+            while (nextLink != null)
+            {
+                this.tracer.TraceVerbose($"Sending a request to {nextLink}");
+                HttpResponseMessage response = await this.httpRetryPolicy.RunAndTrackDependencyAsync(
+                    this.tracer,
+                    DependencyName,
+                    "ExecuteArmQueryAsync",
+                    async () =>
+                    {
+                        var request = new HttpRequestMessage(HttpMethod.Get, nextLink);
+
+                        // Set the credentials
+                        await this.credentials.ProcessHttpRequestAsync(request, cancellationToken);
+
+                        // Send request and get the response as JObject
+                        return await this.httpClientWrapper.SendAsync(request, TimeSpan.FromMinutes(HttpRequestTimeoutInMinutes), cancellationToken);
+                    });
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    this.tracer.TraceError($"Query returned an error; Status code: {response.StatusCode}");
+                    throw new HttpRequestException($"Query returned an error code {response.StatusCode}");
+                }
+
+                string responseContent = await response.Content.ReadAsStringAsync();
+                JObject responseObject = JObject.Parse(responseContent);
+
+                var returnedObjects = responseObject["value"].ToObject<List<JObject>>();
+                allItems.AddRange(returnedObjects);
+
+                // Link to next page
+                string nextLinkToken = responseObject.GetValue("nextLink", StringComparison.InvariantCulture)?.ToString();
+                nextLink = (string.IsNullOrWhiteSpace(nextLinkToken) || !returnedObjects.Any()) ? null : new Uri(nextLinkToken);
+            }
+
+            return allItems;
         }
 
         /// <summary>

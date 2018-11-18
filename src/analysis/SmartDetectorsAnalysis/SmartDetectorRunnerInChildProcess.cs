@@ -45,7 +45,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.Analysis
         /// <param name="shouldDetectorTrace">Determines if the detector's traces are emitted</param>
         /// <param name="cancellationToken">The cancellation token</param>
         /// <returns>A <see cref="Task{TResult}"/>, returning the generated alerts presentations</returns>
-        public async Task<List<ContractsAlert>> RunAsync(SmartDetectorExecutionRequest request, bool shouldDetectorTrace, CancellationToken cancellationToken)
+        public async Task<List<ContractsAlert>> RunAsync(SmartDetectorAnalysisRequest request, bool shouldDetectorTrace, CancellationToken cancellationToken)
         {
             // Find the executable location
             string currentDllPath = new Uri(typeof(SmartDetectorRunnerInChildProcess).Assembly.CodeBase).AbsolutePath;

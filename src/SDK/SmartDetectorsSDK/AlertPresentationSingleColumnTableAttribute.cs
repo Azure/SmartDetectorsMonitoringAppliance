@@ -9,7 +9,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors
     /// <summary>
     /// An attribute defining the presentation of a single column table property in an <see cref="Alert"/>.
     /// </summary>
-    public class AlertPresentationSingleColumnTableAttribute : AlertPresentationPropertyV2Attribute
+    public class AlertPresentationSingleColumnTableAttribute : AlertPresentationTableAttribute
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="AlertPresentationSingleColumnTableAttribute"/> class.
@@ -18,12 +18,6 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors
         public AlertPresentationSingleColumnTableAttribute(string displayName)
             : base(displayName)
         {
-            this.ShowHeaders = true;
         }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether headers should be displayed for this table property
-        /// </summary>
-        public bool ShowHeaders { get; set;  }
     }
 }

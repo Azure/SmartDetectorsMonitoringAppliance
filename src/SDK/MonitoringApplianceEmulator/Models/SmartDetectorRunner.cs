@@ -21,6 +21,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
     using Microsoft.Azure.Monitoring.SmartDetectors.Presentation;
     using Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts;
     using Microsoft.Azure.Monitoring.SmartDetectors.State;
+    using Alert = Microsoft.Azure.Monitoring.SmartDetectors.Alert;
     using ContractsAlert = Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts.Alert;
     using ResourceType = Microsoft.Azure.Monitoring.SmartDetectors.ResourceType;
 
@@ -167,16 +168,16 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
                                 tracer.TraceInformation($"Start analysis, with session ID = '{tracer.SessionId}' end of time range: {currentTime}");
 
                                 ExtendedDateTime.SetEmulatedUtcNow(currentTime);
-                                var analysisRequest = new AnalysisRequest(targetResourcesForDetector, analysisCadence, null, this.analysisServicesFactory, stateRepository);
+                                var analysisRequest = new AnalysisRequest(targetResourcesForDetector, analysisCadence, null, null, this.analysisServicesFactory, stateRepository);
 
                                 // Run the detector in a different context by using "Task.Run()". This will prevent the detector execution from blocking the UI
-                                List<SmartDetectors.Alert> newAlerts = await Task.Run(() =>
+                                List<Alert> newAlerts = await Task.Run(() =>
                                     this.smartDetector.AnalyzeResourcesAsync(
                                         analysisRequest,
                                         tracer,
                                         cancellationToken));
 
-                                var smartDetectorExecutionRequest = new SmartDetectorExecutionRequest
+                                var smartDetectorExecutionRequest = new SmartDetectorAnalysisRequest
                                 {
                                     ResourceIds = targetResourcesIds,
                                     SmartDetectorId = this.smartDetectorManifest.Id,
@@ -188,7 +189,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
                                         this.GetResourceToWorkspaceResourceIdMappingAsync(
                                             targetResourcesForDetector, cancellationToken));
 
-                                foreach (var newAlert in newAlerts)
+                                foreach (Alert newAlert in newAlerts)
                                 {
                                     QueryRunInfo queryRunInfo = await this.CreateQueryRunInfoForAlertAsync(newAlert, lazyResourceToWorkspaceResourceIdMapping, cancellationToken);
                                     ContractsAlert contractsAlert = newAlert.CreateContractsAlert(
@@ -289,7 +290,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
         /// <param name="cancellationToken">A cancellation token controlling the asynchronous operation</param>
         /// <returns>A task returning <see cref="QueryRunInfo"/> for alert</returns>
         private async Task<QueryRunInfo> CreateQueryRunInfoForAlertAsync(
-            SmartDetectors.Alert alert,
+            Alert alert,
             Lazy<Task<Dictionary<ResourceIdentifier, ResourceIdentifier>>> lazyResourceToWorkspaceResourceIdMapping,
             CancellationToken cancellationToken)
         {

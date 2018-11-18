@@ -1,0 +1,10 @@
+{
+  "id": "id",
+  "name": "name",
+  "description": "description",
+  "version": "1.0",
+  "assemblyName": "TestSmartDetectorLibrary.dll",
+  "className": "TestSmartDetectorLibrary.TestSmartDetectorWithDependency",
+  "supportedResourceTypes": [ "Subscription" ],
+  "supportedCadencesInMinutes": [ 60 ]
+}

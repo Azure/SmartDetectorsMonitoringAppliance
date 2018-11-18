@@ -73,5 +73,19 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Arm
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A <see cref="Task{TResult}"/>, returning the resource identifiers.</returns>
         Task<IList<ResourceIdentifier>> GetAllResourcesInResourceGroupAsync(string subscriptionId, string resourceGroupName, IEnumerable<ResourceType> resourceTypes, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Executes an ARM GET request, using the specified resource, suffix, and query string.
+        /// For example, the following call gets the list of databases for an SQL Server resource:
+        /// <code>
+        /// List&lt;JObject&gt; databases = await ExecuteArmQueryAsync(sqlResource, "/databases", "api-version=2017-10-01-preview", cancellationToken);
+        /// </code>
+        /// </summary>
+        /// <param name="resource">The resource for the request.</param>
+        /// <param name="suffix">The resource suffix.</param>
+        /// <param name="queryString">The query string.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>>A <see cref="Task{TResult}"/>, running the current operation, returning a list of all items returned.</returns>
+        Task<List<JObject>> ExecuteArmQueryAsync(ResourceIdentifier resource, string suffix, string queryString, CancellationToken cancellationToken);
     }
 }

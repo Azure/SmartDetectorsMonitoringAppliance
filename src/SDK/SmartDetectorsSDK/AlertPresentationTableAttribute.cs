@@ -9,13 +9,13 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors
     /// <summary>
     /// An attribute defining the presentation of a columnar table property in an <see cref="Alert"/>.
     /// </summary>
-    public class AlertPresentationTableAttribute : AlertPresentationPropertyV2Attribute
+    public abstract class AlertPresentationTableAttribute : AlertPresentationPropertyV2Attribute
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="AlertPresentationTableAttribute"/> class.
         /// </summary>
         /// <param name="displayName">The display name to use when presenting the property's value</param>
-        public AlertPresentationTableAttribute(string displayName)
+        protected AlertPresentationTableAttribute(string displayName)
             : base(displayName)
         {
             this.ShowHeaders = true;

@@ -13,7 +13,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
     using Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts;
 
     /// <summary>
-    /// Implementation of <see cref="IValueConverter"/> for converting from a <see cref="TableAlertProperty"/> value to <see cref="TablePropertyControlViewModel"/>.
+    /// Implementation of <see cref="IValueConverter"/> for converting from a <see cref="TableAlertProperty{T}"/> value to <see cref="TablePropertyControlViewModel{T}"/>.
     /// </summary>
     public class TablePropertyToTablePropertyControlViewModelConverter : IValueConverter
     {
@@ -31,16 +31,20 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
         /// <param name="culture">The culture to use in the converter.</param>
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (!(value is TableAlertProperty tableAlertProperty))
+            // This 'if' clause was added to workaround a known issue in WPF - DataContext of a 'ListView' item is being assigned with '{DisconnectedItem}' object and then a null value whenever its container is closed.
+            if (value == null || value.ToString() == "{DisconnectedItem}")
             {
-                string exceptionMessage = value == null ?
-                    "The value parameter can't be null" :
-                    $"The value parameter must be of type {typeof(TablePropertyControlViewModel)}, but it is from type {value.GetType()}.";
-
-                throw new ArgumentException(exceptionMessage, nameof(value));
+                return value;
             }
 
-            return new TablePropertyControlViewModel(tableAlertProperty);
+            Type valueType = value.GetType();
+            if (!valueType.IsGenericType || valueType.GetGenericTypeDefinition() != typeof(TableAlertProperty<>))
+            {
+                throw new ArgumentException($"The value parameter must be of type {typeof(TableAlertProperty<>)}, but it is from type {value.GetType()}.", nameof(value));
+            }
+
+            Type viewModelType = typeof(TablePropertyControlViewModel<>).MakeGenericType(valueType.GetGenericArguments());
+            return Activator.CreateInstance(viewModelType, value);
         }
 
         /// <summary>

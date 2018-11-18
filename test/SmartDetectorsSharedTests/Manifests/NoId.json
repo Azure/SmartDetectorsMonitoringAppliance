@@ -1,0 +1,23 @@
+{
+  "name": "name",
+  "description": "description",
+  "version": "1.0",
+  "assemblyName": "TestSmartDetectorLibrary.dll",
+  "className": "TestSmartDetectorLibrary.TestSmartDetectorWithDependency",
+  "supportedResourceTypes": [ "Subscription" ],
+  "supportedCadencesInMinutes": [ 60 ],
+  "parametersDefinitions": [
+    {
+      "name": "param1",
+      "type": "String",
+      "displayName": "first parameter",
+      "description": "the first parameter for the detector",
+      "isMandatory": true
+    },
+    {
+      "name": "param2",
+      "type": "Integer",
+      "displayName": "second parameter"
+    }
+  ] 
+}
