@@ -1,5 +1,5 @@
 ﻿//-----------------------------------------------------------------------
-// <copyright file="AlertPresentationTextAttribute.cs" company="Microsoft Corporation">
+// <copyright file="TextPropertyAttribute.cs" company="Microsoft Corporation">
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // </copyright>
 //-----------------------------------------------------------------------
@@ -9,13 +9,13 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.AlertPresentation
     /// <summary>
     /// An attribute defining the presentation of a (short) text property in an <see cref="Microsoft.Azure.Monitoring.SmartDetectors.Alert"/>.
     /// </summary>
-    public class AlertPresentationTextAttribute : AlertPresentationPropertyV2Attribute
+    public class TextPropertyAttribute : AlertPresentationPropertyV2Attribute
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="AlertPresentationTextAttribute"/> class.
+        /// Initializes a new instance of the <see cref="TextPropertyAttribute"/> class.
         /// </summary>
         /// <param name="displayName">The display name to use when presenting the property's value.</param>
-        public AlertPresentationTextAttribute(string displayName)
+        public TextPropertyAttribute(string displayName)
             : base(displayName)
         {
         }

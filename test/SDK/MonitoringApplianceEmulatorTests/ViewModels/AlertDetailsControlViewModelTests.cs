@@ -82,21 +82,21 @@ namespace MonitoringApplianceEmulatorTests.ViewModels
                 };
             }
 
-            [AlertPresentationKeyValue("PresidentsKeyValue", "First name", "Last name", Order = 3)]
+            [KeyValueProperty("PresidentsKeyValue", "First name", "Last name", Order = 3)]
             public IDictionary<string, string> KeyValue1 { get; }
 
-            [AlertPresentationKeyValueAttribute("PlayersKeyValue", Order = 4)]
+            [KeyValueProperty("PlayersKeyValue", Order = 4)]
             public IDictionary<string, string> KeyValue2 { get; }
 
-            [AlertPresentationTextAttribute("Some string", Order = 2)]
+            [TextProperty("Some string", Order = 2)]
             public string TextProperty1 { get; }
 
-            [AlertPresentationTextAttribute("Some numeric string", Order = 1)]
+            [TextProperty("Some numeric string", Order = 1)]
             public int TextProperty2 { get; }
 
             public string NoPresentation { get; }
 
-            [AlertPresentationMultiColumnTableAttribute("Some Table", Order = 5)]
+            [MultiColumnTableProperty("Some Table", Order = 5)]
             public List<TestTableAlertPropertyValue> TableProp { get; }
         }
     }

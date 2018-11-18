@@ -236,31 +236,31 @@ namespace SmartDetectorsAnalysisTests
                 this.RawProperty = 1;
             }
 
-            [AlertPredicateProperty]
+            [PredicateProperty]
             public string Predicate => this.Title;
 
             public int RawProperty { get; set; }
 
-            [AlertPresentationLongTextAttribute("LongTextDisplayName", Order = 0, PropertyName = "LongTextPropertyName")]
+            [LongTextProperty("LongTextDisplayName", Order = 0, PropertyName = "LongTextPropertyName")]
             public string LongTextValue => "LongTextValue";
 
-            [AlertPresentationUrlFormatterAttribute("LinkText{RawProperty}")]
-            [AlertPresentationTextAttribute("UrlDisplayName", Order = 1)]
+            [UrlFormatter("LinkText{RawProperty}")]
+            [TextProperty("UrlDisplayName", Order = 1)]
             public Uri UrlValue => new Uri("https://www.bing.com");
 
-            [AlertPresentationTextAttribute("TextDisplayName", Order = 2)]
+            [TextProperty("TextDisplayName", Order = 2)]
             public string TextValue => "TextValue";
 
-            [AlertPresentationKeyValueAttribute("KeyValueDisplayName", Order = 3)]
+            [KeyValueProperty("KeyValueDisplayName", Order = 3)]
             public IDictionary<string, string> KeyValue => new Dictionary<string, string> { { "key1", "value1" } };
 
-            [AlertPresentationKeyValueAttribute("KeyValueWithHeadersDisplayName", "Keys", "Values{RawProperty}", Order = 4)]
+            [KeyValueProperty("KeyValueWithHeadersDisplayName", "Keys", "Values{RawProperty}", Order = 4)]
             public IDictionary<string, string> KeyValueWithHeaders => new Dictionary<string, string> { { "key1", "value1" } };
 
-            [AlertPresentationChartAttribute("ChartDisplayName", ChartType.LineChart, ChartAxisType.DateAxis, ChartAxisType.NumberAxis)]
+            [ChartProperty("ChartDisplayName", ChartType.LineChart, ChartAxisType.DateAxis, ChartAxisType.NumberAxis)]
             public List<ChartPoint> DataPoints => new List<ChartPoint>() { new ChartPoint(new DateTime(2018, 7, 9, 14, 31, 0, DateTimeKind.Utc), 5) };
 
-            [AlertPresentationMultiColumnTableAttribute("TableDisplayName", Order = 5, ShowHeaders = true)]
+            [MultiColumnTableProperty("TableDisplayName", Order = 5, ShowHeaders = true)]
             [SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays", Justification = "Test code, allowed")]
             public TableData[] Table => new TableData[]
             {
@@ -268,21 +268,21 @@ namespace SmartDetectorsAnalysisTests
                 new TableData { Prop1 = "p12", Prop2 = "p22", UriProp = new Uri("http://contoso.com"), NonDisplayProp = "NDP2" },
             };
 
-            [AlertPresentationSingleColumnTableAttribute("SingleColumnTableDisplayName", Order = 6, ShowHeaders = false)]
+            [SingleColumnTableProperty("SingleColumnTableDisplayName", Order = 6, ShowHeaders = false)]
             public List<string> SingleColumnTable => new List<string> { "value1", "value2", "value3" };
         }
 
         public class TableData
         {
             [JsonProperty("prop1")]
-            [AlertPresentationTableColumnAttribute("First Prop")]
+            [TableColumn("First Prop")]
             public string Prop1 { get; set; }
 
-            [AlertPresentationTableColumnAttribute("Second Prop")]
+            [TableColumn("Second Prop")]
             public string Prop2 { get; set; }
 
-            [AlertPresentationUrlFormatterAttribute("Link for {NonDisplayProp}")]
-            [AlertPresentationTableColumnAttribute("Uri Prop")]
+            [UrlFormatter("Link for {NonDisplayProp}")]
+            [TableColumn("Uri Prop")]
             public Uri UriProp { get; set; }
 
             public string NonDisplayProp { get; set; }

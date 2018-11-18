@@ -160,11 +160,11 @@ namespace SmartDetectorsAnalysisTests
                 this.MachineName = "strongOne";
             }
 
-            [AlertPredicatePropertyAttribute]
+            [PredicateProperty]
             [AlertPresentationPropertyAttribute(AlertPresentationSection.Property, "CPU increased", InfoBalloon = "CPU increase on machine {MachineName}")]
             public double Value { get; }
 
-            [AlertPredicatePropertyAttribute]
+            [PredicateProperty]
             [AlertPresentationPropertyAttribute(AlertPresentationSection.Property, "Machine name", Order = 1, InfoBalloon = "The machine on which the CPU had increased")]
             public string MachineName { get; }
         }
@@ -176,7 +176,7 @@ namespace SmartDetectorsAnalysisTests
                 this.Value = 22.4;
             }
 
-            [AlertPredicatePropertyAttribute]
+            [PredicateProperty]
             [AlertPresentationPropertyAttribute(AlertPresentationSection.Property, "CPU increased", InfoBalloon = "CPU increase on machine {MachineName}")]
             public new double Value { get; }
         }
@@ -206,7 +206,7 @@ namespace SmartDetectorsAnalysisTests
                 this.OnlyPredicate = "only predicate";
             }
 
-            [AlertPredicatePropertyAttribute]
+            [PredicateProperty]
             [AlertPresentationPropertyAttribute(AlertPresentationSection.Property, "CPU increased", InfoBalloon = "CPU increase on machine {MachineName}")]
             public new double Value { get; }
 
@@ -227,7 +227,7 @@ namespace SmartDetectorsAnalysisTests
 
             public string NoPresentation { get; set; }
 
-            [AlertPredicatePropertyAttribute]
+            [PredicateProperty]
             public string OnlyPredicate { get; set; }
         }
 
@@ -238,7 +238,7 @@ namespace SmartDetectorsAnalysisTests
                 this.Value = 22.4;
             }
 
-            [AlertPredicatePropertyAttribute]
+            [PredicateProperty]
             [AlertPresentationPropertyAttribute(AlertPresentationSection.Property, "CPU increased", InfoBalloon = "CPU increase on machine {MachineName}")]
             public new double Value { get; }
         }

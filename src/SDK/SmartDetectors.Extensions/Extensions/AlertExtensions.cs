@@ -71,7 +71,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
                 rawProperties[property.Name] = propertyStringValue;
 
                 // Check if this property is a predicate
-                if (property.GetCustomAttribute<AlertPredicatePropertyAttribute>() != null)
+                if (property.GetCustomAttribute<PredicatePropertyAttribute>() != null)
                 {
                     predicates[property.Name] = propertyStringValue;
                 }
@@ -210,7 +210,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
             // Return the presentation property according to the property type
             switch (presentationAttribute)
             {
-                case AlertPresentationChartAttribute chartAttribute:
+                case ChartPropertyAttribute chartAttribute:
                     if (!(propertyValue is IList<ChartPoint> listValues))
                     {
                         throw new ArgumentException("An AlertPresentationChartAttribute can only be applied to properties of type IList<ChartPoint>");
@@ -225,13 +225,13 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
                         ConvertChartAxisTypeToContractsChartType(chartAttribute.YAxisType),
                         listValues.Select(point => new ContractsChartPoint(point.X, point.Y)).ToList());
 
-                case AlertPresentationLongTextAttribute _:
+                case LongTextPropertyAttribute _:
                     return new LongTextAlertProprety(propertyName, displayName, presentationAttribute.Order, PropertyValueToString(alert, property, propertyValue));
 
-                case AlertPresentationTextAttribute _:
+                case TextPropertyAttribute _:
                     return new TextAlertProperty(propertyName, displayName, presentationAttribute.Order, PropertyValueToString(alert, property, propertyValue));
 
-                case AlertPresentationKeyValueAttribute keyValueAttribute:
+                case KeyValuePropertyAttribute keyValueAttribute:
                     if (!(propertyValue is IDictionary<string, string> keyValuePropertyValue))
                     {
                         throw new ArgumentException("An AlertPresentationKeyValueAttribute can only be applied to properties of type IDictionary<string, string>");
@@ -248,7 +248,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
                         return new KeyValueAlertProperty(propertyName, displayName, presentationAttribute.Order, keyValuePropertyValue);
                     }
 
-                case AlertPresentationTableAttribute tableAttribute:
+                case TablePropertyAttribute tableAttribute:
                     return CreateTableAlertProperty(propertyValue, propertyName, displayName, tableAttribute);
 
                 default:
@@ -268,7 +268,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
             object propertyValue,
             string propertyName,
             string displayName,
-            AlertPresentationTableAttribute tableAttribute)
+            TablePropertyAttribute tableAttribute)
         {
             // Validate we have a proper value
             if (!(propertyValue is IList tablePropertyValue))
@@ -283,7 +283,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
             }
 
             // Easy way out if we're handling a single-column table
-            if (tableAttribute is AlertPresentationSingleColumnTableAttribute)
+            if (tableAttribute is SingleColumnTablePropertyAttribute)
             {
                 Type tablePropertyType = typeof(TableAlertProperty<>).MakeGenericType(tableRowType);
                 return (DisplayableAlertProperty)Activator.CreateInstance(
@@ -312,7 +312,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
             string tablePropertyName,
             string tableDisplayName,
             Type tableRowType,
-            AlertPresentationTableAttribute tableAttribute)
+            TablePropertyAttribute tableAttribute)
         {
             var columns = new List<TableColumn>();
             var rows = new Dictionary<string, string>[tableRows.Count];
@@ -327,7 +327,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
             foreach (PropertyInfo columnProperty in tableRowType.GetProperties())
             {
                 // Handle only table column properties
-                AlertPresentationTableColumnAttribute tableColumnAttribute = columnProperty.GetCustomAttribute<AlertPresentationTableColumnAttribute>();
+                TableColumnAttribute tableColumnAttribute = columnProperty.GetCustomAttribute<TableColumnAttribute>();
                 if (tableColumnAttribute != null)
                 {
                     for (int i = 0; i < tableRows.Count; i++)
@@ -377,7 +377,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
             }
 
             // Check if there's a formatter attribute on the property
-            AlertPresentationUrlFormatterAttribute uriFormatterAttribute = propertyInfo.GetCustomAttribute<AlertPresentationUrlFormatterAttribute>();
+            UrlFormatterAttribute uriFormatterAttribute = propertyInfo.GetCustomAttribute<UrlFormatterAttribute>();
             if (uriFormatterAttribute != null)
             {
                 if (!(propertyValue is Uri uriValue))

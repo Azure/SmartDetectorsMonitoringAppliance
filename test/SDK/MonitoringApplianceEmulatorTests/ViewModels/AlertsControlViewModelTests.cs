@@ -85,7 +85,7 @@ namespace MonitoringApplianceEmulatorTests.ViewModels
         private class TestAlert : Alert
         {
             public TestAlert()
-                : base("Test title", new ResourceIdentifier(ResourceType.VirtualMachine, "someSubscription", "someGroup", "someVM"), AlertState.Active)
+                : base("Test title", new ResourceIdentifier(ResourceType.VirtualMachine, "someSubscription", "someGroup", "someVM"))
             {
             }
         }
