@@ -10,9 +10,9 @@
         <StackPanel Width="275">
             <TextBlock Style="{StaticResource OtherDetailsPropertyTitle}"
                        Text="{Binding Path=TextAlertProperty.DisplayName, Mode=OneWay, RelativeSource={RelativeSource AncestorType=local:TextPropertyControl, AncestorLevel=1}}"  />
-            <local:HypertextBlock Hypertext="{Binding Path=TextAlertProperty.Value, RelativeSource={RelativeSource AncestorType=local:TextPropertyControl, AncestorLevel=1}}"
-                                   ToolTip="{Binding RelativeSource={RelativeSource Self}, Path=Hypertext}"
-                                   TextTrimming="CharacterEllipsis" />
+            <local:HyperTextBlock HyperText="{Binding Path=TextAlertProperty.Value, RelativeSource={RelativeSource AncestorType=local:TextPropertyControl, AncestorLevel=1}}"
+                                  ToolTip="{Binding RelativeSource={RelativeSource Self}, Path=HyperText}"
+                                  TextTrimming="CharacterEllipsis" />
         </StackPanel>
     </Grid>
 </UserControl>

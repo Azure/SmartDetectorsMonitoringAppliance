@@ -10,7 +10,7 @@
         <StackPanel Width="580">
             <TextBlock Style="{StaticResource OtherDetailsPropertyTitle}"
                        Text="{Binding Path=LongTextAlertProprety.DisplayName, Mode=OneWay, RelativeSource={RelativeSource AncestorType=local:LongTextPropertyControl, AncestorLevel=1}}" />
-            <local:HypertextBlock Hypertext="{Binding Path=LongTextAlertProprety.Value, RelativeSource={RelativeSource AncestorType=local:LongTextPropertyControl, AncestorLevel=1}}" 
+            <local:HyperTextBlock HyperText="{Binding Path=LongTextAlertProprety.Value, RelativeSource={RelativeSource AncestorType=local:LongTextPropertyControl, AncestorLevel=1}}" 
                                   TextWrapping="WrapWithOverflow"/>
         </StackPanel>
     </Grid>

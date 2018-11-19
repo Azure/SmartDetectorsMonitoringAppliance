@@ -1,5 +1,5 @@
 ﻿//-----------------------------------------------------------------------
-// <copyright file="HypertextBlock.cs" company="Microsoft Corporation">
+// <copyright file="HyperTextBlock.cs" company="Microsoft Corporation">
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // </copyright>
 //-----------------------------------------------------------------------
@@ -14,61 +14,62 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
     using System.Windows.Documents;
 
     /// <summary>
-    /// An extension of <see cref="TextBlock"/> control that displays hypertext. The hypertext should be transfered using the <see cref="Hypertext"/> dependency property.
+    /// An extension of <see cref="TextBlock"/> control that displays hypertext. The hypertext should be transfered using the <see cref="HyperText"/> dependency property.
+    /// This control supports only links in the following format '<a href="https://msdn.microsoft.com">Developer Network</a>'.
     /// </summary>
-    public class HypertextBlock : TextBlock
+    public class HyperTextBlock : TextBlock
     {
         /// <summary>
         /// The hypertext dependency property. This text may include multiple hyperlinks in valid HTML A tags.
         /// For example, '<a href="https://msdn.microsoft.com">Developer Network</a>' will be replaced with a hyperlink with display text of "Developers Network".
         /// </summary>
-        public static readonly DependencyProperty HypertextProperty = DependencyProperty.Register(
-            "Hypertext",
+        public static readonly DependencyProperty HyperTextProperty = DependencyProperty.Register(
+            "HyperText",
             typeof(string),
-            typeof(HypertextBlock),
+            typeof(HyperTextBlock),
             new FrameworkPropertyMetadata(
                 string.Empty,
                 new PropertyChangedCallback(OnHypertextPropertyChanged)),
             HypertextValidateCallback);
 
-        private static readonly Regex HtmlHyperlinkRegex = new Regex("<a [^>]*href[ ]*=[ ]*(?<href>(?:'.*?')|(?:\".*?\"))[ ]*>(?<linkText>[^<]*)</a>");
+        private static readonly Regex HtmlHyperlinkRegex = new Regex("<a [^>]*href[\\s]*=[\\s]*(?<href>(?:'.*?')|(?:\".*?\"))[ ]*>(?<linkText>[^<]*)</a>");
 
         #region Dependency Properties
 
         /// <summary>
         /// Gets or sets the hypertext.
         /// </summary>
-        public string Hypertext
+        public string HyperText
         {
             get
             {
-                return (string)this.GetValue(HypertextProperty);
+                return (string)this.GetValue(HyperTextProperty);
             }
 
             set
             {
-                this.SetValue(HypertextProperty, value);
+                this.SetValue(HyperTextProperty, value);
             }
         }
 
         #endregion
 
         /// <summary>
-        /// Occurs when the <see cref="Hypertext"/> dependency property was changed.
+        /// Occurs when the <see cref="HyperText"/> dependency property was changed.
         /// This method replace all link patterns within the new assigned hypertext  <see cref="Hyperlink"/> elements.
         /// </summary>
         /// <param name="dependencyObject">The dependency object</param>
         /// <param name="eventArgs">The event args</param>
         private static void OnHypertextPropertyChanged(DependencyObject dependencyObject, DependencyPropertyChangedEventArgs eventArgs)
         {
-            if (!(dependencyObject is HypertextBlock hypertextTextBlock))
+            if (!(dependencyObject is HyperTextBlock hypertextTextBlock))
             {
-                throw new ArgumentException($"The dependency object must be of type {typeof(HypertextBlock)}, but it is from type {dependencyObject.GetType()}.", nameof(dependencyObject));
+                throw new ArgumentException($"The dependency object must be of type {nameof(HyperTextBlock)}, but it is from type {dependencyObject.GetType().Name}.", nameof(dependencyObject));
             }
 
             if (!(eventArgs.NewValue is string hypertext))
             {
-                throw new ArgumentException($"The new value must be of type {typeof(string)}, but it is from type {eventArgs.NewValue.GetType()}.", nameof(eventArgs));
+                throw new ArgumentException($"The new value must be of type {typeof(string).Name}, but it is from type {eventArgs.NewValue.GetType().Name}.", nameof(eventArgs));
             }
 
             Match match = HtmlHyperlinkRegex.Match(hypertext);
@@ -77,20 +78,19 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
             if (!match.Success)
             {
                 hypertextTextBlock.Inlines.Add(hypertext);
+                return;
             }
+
+            hypertextTextBlock.Inlines.Clear();
 
             // Go over all link pattern matches and replace it with a hyperlink element
             Match previousMatch = null;
             while (match.Success)
             {
                 // First, add text before the current match
-                int startIndexOfTextBeforeMatch = previousMatch == null ?
-                    0 :
-                    previousMatch.Index + previousMatch.Length;
+                int startIndexOfTextBeforeMatch = previousMatch?.Index + previousMatch?.Length ?? 0;
 
-                int lengthOfTextBeforeMatch = previousMatch == null ?
-                    match.Index :
-                    match.Index - (previousMatch.Index + previousMatch.Length);
+                int lengthOfTextBeforeMatch = match.Index - (previousMatch?.Index + previousMatch?.Length) ?? match.Index;
 
                 string textBeforeMatch = hypertext.Substring(startIndexOfTextBeforeMatch, lengthOfTextBeforeMatch);
 
@@ -118,12 +118,15 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
                 int remainingTextStartIndex = previousMatch.Index + previousMatch.Length;
                 string textAfterLaftMatch = hypertext.Substring(remainingTextStartIndex);
 
-                hypertextTextBlock.Inlines.Add(textAfterLaftMatch);
+                if (!string.IsNullOrEmpty(textAfterLaftMatch))
+                {
+                    hypertextTextBlock.Inlines.Add(textAfterLaftMatch);
+                }
             }
         }
 
         /// <summary>
-        /// Validates the new assigned value for <see cref="Hypertext"/> dependency property.
+        /// Validates the new assigned value for <see cref="HyperText"/> dependency property.
         /// </summary>
         /// <param name="value">The new assigned value</param>
         /// <returns>True if valid, otherwise false</returns>
