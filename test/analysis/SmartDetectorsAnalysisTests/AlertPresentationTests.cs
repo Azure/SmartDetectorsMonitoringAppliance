@@ -133,12 +133,12 @@ namespace SmartDetectorsAnalysisTests
                 queryRunInfo = new QueryRunInfo
                 {
                     Type = alert.ResourceIdentifier.ResourceType == ResourceType.ApplicationInsights ? TelemetryDbType.ApplicationInsights : TelemetryDbType.LogAnalytics,
-                    ResourceIds = new List<string>() { "resourceId1", "resourceId2" }
+                    ResourceIds = new List<string> { "resourceId1", "resourceId2" }
                 };
             }
 
             string resourceId = "resourceId";
-            var request = new SmartDetectorExecutionRequest
+            var request = new SmartDetectorAnalysisRequest
             {
                 ResourceIds = new List<string>() { resourceId },
                 SmartDetectorId = "smartDetectorId",

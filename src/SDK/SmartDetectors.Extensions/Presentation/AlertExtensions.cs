@@ -43,7 +43,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Presentation
         /// <param name="usedLogAnalysisClient">Indicates whether a log analysis client was used to create the alert</param>
         /// <param name="usedMetricClient">Indicates whether a metric client was used to create the alert</param>
         /// <returns>The presentation</returns>
-        public static ContractsAlert CreateContractsAlert(this Alert alert, SmartDetectorExecutionRequest request, string smartDetectorName, QueryRunInfo queryRunInfo, bool usedLogAnalysisClient, bool usedMetricClient)
+        public static ContractsAlert CreateContractsAlert(this Alert alert, SmartDetectorAnalysisRequest request, string smartDetectorName, QueryRunInfo queryRunInfo, bool usedLogAnalysisClient, bool usedMetricClient)
         {
             // A null alert has null presentation
             if (alert == null)
@@ -63,7 +63,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Presentation
             {
                 // Get the property value
                 object propertyValue = property.GetValue(alert);
-                string propertyStringValue = PropertyValueToString(propertyValue);
+                string propertyStringValue = PropertyValueToString(alert, property, propertyValue);
                 if (string.IsNullOrWhiteSpace(propertyStringValue) || (propertyValue is ICollection value && value.Count == 0))
                 {
                     // not accepting empty properties
@@ -89,7 +89,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Presentation
                 AlertPresentationPropertyV2Attribute presentationV2Attribute = property.GetCustomAttribute<AlertPresentationPropertyV2Attribute>();
                 if (presentationV2Attribute != null)
                 {
-                    alertProperties.Add(CreateAlertProperty(alert, presentationV2Attribute, property.Name, propertyValue));
+                    alertProperties.Add(CreateAlertProperty(alert, property, presentationV2Attribute, propertyValue));
                 }
                 else if (!alertBaseClassPropertiesNames.Contains(property.Name))
                 {
@@ -127,6 +127,8 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Presentation
             #pragma warning restore CS0612 // Type or member is obsolete; Task to remove obsolete code #1312924
         }
 
+#pragma warning disable CS0612 // Type or member is obsolete; Task to remove obsolete code #1312924
+
         /// <summary>
         /// Creates an <see cref="AlertPropertyLegacy"/> based on an alert presentation V1 property
         /// </summary>
@@ -135,7 +137,6 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Presentation
         /// <param name="queryRunInfo">The query run information</param>
         /// <param name="propertyStringValue">The property string value</param>
         /// <returns>An <see cref="AlertPropertyLegacy"/></returns>
-#pragma warning disable CS0612 // Type or member is obsolete; Task to remove obsolete code #1312924
         private static AlertPropertyLegacy CreateAlertPropertyLegacy(Alert alert, AlertPresentationPropertyAttribute presentationAttribute, QueryRunInfo queryRunInfo, string propertyStringValue)
         {
             // Verify that if the entity is a chart or query, then query run information was provided
@@ -158,23 +159,48 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Presentation
                 Order = presentationAttribute.Order
             };
         }
-        #pragma warning restore CS0612 // Type or member is obsolete; Task to remove obsolete code #1312924
+
+        /// <summary>
+        /// Gets the display category enum value from the presentation section enum value
+        /// </summary>
+        /// <param name="presentationSection">The property presentation section</param>
+        /// <returns>The display category that coralline with the presentation section</returns>
+        private static AlertPropertyDisplayCategory GetDisplayCategoryFromPresentationSection(AlertPresentationSection presentationSection)
+        {
+            switch (presentationSection)
+            {
+                case AlertPresentationSection.AdditionalQuery:
+                    return AlertPropertyDisplayCategory.AdditionalQuery;
+
+                case AlertPresentationSection.Analysis:
+                    return AlertPropertyDisplayCategory.Analysis;
+
+                case AlertPresentationSection.Chart:
+                    return AlertPropertyDisplayCategory.Chart;
+
+                case AlertPresentationSection.Property:
+                default:
+                    return AlertPropertyDisplayCategory.Property;
+            }
+        }
+
+#pragma warning restore CS0612 // Type or member is obsolete; Task to remove obsolete code #1312924
 
         /// <summary>
         /// Creates an <see cref="AlertProperty"/> based on an alert presentation V2 property
         /// </summary>
         /// <param name="alert">The alert</param>
+        /// <param name="property">The property info of the property to create</param>
         /// <param name="presentationAttribute">The attribute defining the presentation V2 of the alert property</param>
-        /// <param name="propertyDefaultName">The property default name</param>
         /// <param name="propertyValue">The property value</param>
         /// <returns>An <see cref="AlertProperty"/></returns>
-        private static AlertProperty CreateAlertProperty(Alert alert, AlertPresentationPropertyV2Attribute presentationAttribute, string propertyDefaultName, object propertyValue)
+        private static AlertProperty CreateAlertProperty(Alert alert, PropertyInfo property, AlertPresentationPropertyV2Attribute presentationAttribute, object propertyValue)
         {
             // Get the attribute display name
             string displayName = presentationAttribute.DisplayName.EvaluateInterpolatedString(alert);
 
             // Get the property name
-            string propertyName = string.IsNullOrWhiteSpace(presentationAttribute.PropertyName) ? propertyDefaultName : presentationAttribute.PropertyName;
+            string propertyName = string.IsNullOrWhiteSpace(presentationAttribute.PropertyName) ? property.Name : presentationAttribute.PropertyName;
 
             // Return the presentation property according to the property type
             switch (presentationAttribute)
@@ -194,25 +220,11 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Presentation
                         ConvertChartAxisTypeToContractsChartType(chartAttribute.YAxisType),
                         listValues.Select(point => new ContractsChartPoint(point.X, point.Y)).ToList());
 
-                case AlertPresentationLongTextAttribute longTextAttribute:
-                    return new LongTextAlertProprety(propertyName, displayName, presentationAttribute.Order, PropertyValueToString(propertyValue));
+                case AlertPresentationLongTextAttribute _:
+                    return new LongTextAlertProprety(propertyName, displayName, presentationAttribute.Order, PropertyValueToString(alert, property, propertyValue));
 
-                case AlertPresentationTextAttribute textAttribute:
-                    return new TextAlertProperty(propertyName, displayName, presentationAttribute.Order, PropertyValueToString(propertyValue));
-
-                case AlertPresentationUrlAttribute urlAttribute:
-                    if (!(propertyValue is Uri uriValue))
-                    {
-                        throw new ArgumentException("An AlertPresentationUrlAttribute can only be applied to properties of type Uri");
-                    }
-
-                    if (!uriValue.IsAbsoluteUri)
-                    {
-                        throw new ArgumentException("The URI supplied must be absolute");
-                    }
-
-                    string linkText = urlAttribute.LinkText.EvaluateInterpolatedString(alert);
-                    return new TextAlertProperty(propertyName, displayName, presentationAttribute.Order, $"<a href=\"{uriValue.ToString()}\">{linkText}</a>");
+                case AlertPresentationTextAttribute _:
+                    return new TextAlertProperty(propertyName, displayName, presentationAttribute.Order, PropertyValueToString(alert, property, propertyValue));
 
                 case AlertPresentationKeyValueAttribute keyValueAttribute:
                     if (!(propertyValue is IDictionary<string, string> keyValuePropertyValue))
@@ -231,31 +243,101 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Presentation
                         return new KeyValueAlertProperty(propertyName, displayName, presentationAttribute.Order, keyValuePropertyValue);
                     }
 
-                case AlertPresentationSingleColumnTableAttribute singleColumnTableAttribute:
-                    if (!(propertyValue is IList singleColumnTablePropertyValue))
-                    {
-                        throw new ArgumentException("An AlertPresentationSingleColumnTableAttribute can only be applied to properties of type IList");
-                    }
-
-                    return new TableAlertProperty(propertyName, displayName, presentationAttribute.Order, singleColumnTableAttribute.ShowHeaders, singleColumnTablePropertyValue);
-
                 case AlertPresentationTableAttribute tableAttribute:
-                    if (!(propertyValue is IList tablePropertyValue))
-                    {
-                        throw new ArgumentException("An AlertPresentationTableAttribute can only be applied to properties of type IList");
-                    }
-
-                    Type tableRowType = GetGenericListType(propertyValue.GetType());
-                    if (tableRowType == null)
-                    {
-                        throw new ArgumentException("An AlertPresentationTableAttribute can only be applied to properties of type IList<>");
-                    }
-
-                    return new TableAlertProperty(propertyName, displayName, presentationAttribute.Order, tableAttribute.ShowHeaders, CreateTableColumnsFromRowType(tableRowType), tablePropertyValue);
+                    return CreateTableAlertProperty(propertyValue, propertyName, displayName, tableAttribute);
 
                 default:
                     throw new InvalidEnumArgumentException($"Unable to handle presentation attribute of type {presentationAttribute.GetType().Name}");
             }
+        }
+
+        /// <summary>
+        /// Create a new instance of a <see cref="TableAlertProperty{T}"/> based on the given values.
+        /// </summary>
+        /// <param name="propertyValue">The property value, this must be an instance of <see cref="IList{T}"/>.</param>
+        /// <param name="propertyName">The table property name.</param>
+        /// <param name="displayName">The table property display name.</param>
+        /// <param name="tableAttribute">The attribute applied to the table property.</param>
+        /// <returns>The newly created <see cref="TableAlertProperty{T}"/> instance.</returns>
+        private static DisplayableAlertProperty CreateTableAlertProperty(
+            object propertyValue,
+            string propertyName,
+            string displayName,
+            AlertPresentationTableAttribute tableAttribute)
+        {
+            // Validate we have a proper value
+            if (!(propertyValue is IList tablePropertyValue))
+            {
+                throw new ArgumentException("An AlertPresentationTableAttribute can only be applied to properties of type IList");
+            }
+
+            Type tableRowType = GetGenericListType(propertyValue.GetType());
+            if (tableRowType == null)
+            {
+                throw new ArgumentException("An AlertPresentationTableAttribute can only be applied to properties of type IList<>");
+            }
+
+            // Easy way out if we're handling a single-column table
+            if (tableAttribute is AlertPresentationSingleColumnTableAttribute)
+            {
+                Type tablePropertyType = typeof(TableAlertProperty<>).MakeGenericType(tableRowType);
+                return (DisplayableAlertProperty)Activator.CreateInstance(
+                    tablePropertyType,
+                    propertyName,
+                    displayName,
+                    tableAttribute.Order,
+                    tableAttribute.ShowHeaders,
+                    propertyValue);
+            }
+
+            return CreateMultiColumnTableAlertProperty(tablePropertyValue, propertyName, displayName, tableRowType, tableAttribute);
+        }
+
+        /// <summary>
+        /// Create a new instance of a multi-columned <see cref="TableAlertProperty{T}"/> based on the given values.
+        /// </summary>
+        /// <param name="tableRows">The values of the table rows.</param>
+        /// <param name="tablePropertyName">The table property name.</param>
+        /// <param name="tableDisplayName">The table property display name.</param>
+        /// <param name="tableRowType">The type of the table's rows.</param>
+        /// <param name="tableAttribute">The attribute applied to the table property.</param>
+        /// <returns>The newly created <see cref="TableAlertProperty{T}"/> instance.</returns>
+        private static TableAlertProperty<Dictionary<string, string>> CreateMultiColumnTableAlertProperty(
+            IList tableRows,
+            string tablePropertyName,
+            string tableDisplayName,
+            Type tableRowType,
+            AlertPresentationTableAttribute tableAttribute)
+        {
+            var columns = new List<TableColumn>();
+            var rows = new List<Dictionary<string, string>>(tableRows.Count);
+
+            // Initialize the table rows with new dictionaries
+            for (int i = 0; i < tableRows.Count; i++)
+            {
+                rows.Add(new Dictionary<string, string>());
+            }
+
+            // We scan the table by columns to we'll handle a single property at a time
+            foreach (PropertyInfo columnProperty in tableRowType.GetProperties())
+            {
+                // Handle only table column properties
+                AlertPresentationTableColumnAttribute tableColumnAttribute = columnProperty.GetCustomAttribute<AlertPresentationTableColumnAttribute>();
+                if (tableColumnAttribute != null)
+                {
+                    for (int i = 0; i < tableRows.Count; i++)
+                    {
+                        rows[i][columnProperty.Name] = PropertyValueToString(
+                            tableRows[i],
+                            columnProperty,
+                            columnProperty.GetValue(tableRows[i]));
+                    }
+
+                    columns.Add(new TableColumn(columnProperty.Name, tableColumnAttribute.DisplayName));
+                }
+            }
+
+            return new TableAlertProperty<Dictionary<string, string>>(tablePropertyName, tableDisplayName, tableAttribute.Order, tableAttribute.ShowHeaders, columns, rows);
         }
 
         /// <summary>
@@ -275,53 +357,49 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Presentation
         }
 
         /// <summary>
-        /// Converts a presentation property's value to a string
+        /// Converts a presentation property's value to a string.
         /// </summary>
-        /// <param name="propertyValue">The property value</param>
+        /// <param name="propertyOwner">The object containing the property.</param>
+        /// <param name="propertyInfo">The property's info.</param>
+        /// <param name="propertyValue">The property value.</param>
         /// <returns>The string</returns>
-        private static string PropertyValueToString(object propertyValue)
+        private static string PropertyValueToString(object propertyOwner, PropertyInfo propertyInfo, object propertyValue)
         {
             if (propertyValue == null)
             {
-                // null is an empty string
-                return string.Empty;
+                // null is a null string
+                return null;
             }
-            else if (propertyValue is DateTime)
+
+            // Check if there's a formatter attribute on the property
+            AlertPresentationUrlFormatterAttribute uriFormatterAttribute = propertyInfo.GetCustomAttribute<AlertPresentationUrlFormatterAttribute>();
+            if (uriFormatterAttribute != null)
+            {
+                if (!(propertyValue is Uri uriValue))
+                {
+                    throw new ArgumentException("An AlertPresentationUrlFormatterAttribute can only be applied to properties of type Uri");
+                }
+
+                if (!uriValue.IsAbsoluteUri)
+                {
+                    throw new ArgumentException("The URI supplied must be absolute");
+                }
+
+                string linkText = uriFormatterAttribute.LinkText.EvaluateInterpolatedString(propertyOwner);
+                return $"<a href=\"{uriValue}\" target=\"_blank\">{linkText}</a>";
+            }
+
+            // Otherwise - fall back to the regular conversion
+            if (propertyValue is DateTime dateProperty)
             {
                 // Convert to universal sortable time
-                return ((DateTime)propertyValue).ToString("u", CultureInfo.InvariantCulture);
+                return dateProperty.ToString("u", CultureInfo.InvariantCulture);
             }
             else
             {
                 return propertyValue.ToString();
             }
         }
-
-        /// <summary>
-        /// Gets the display category enum value from the presentation section enum value
-        /// </summary>
-        /// <param name="presentationSection">The property presentation section</param>
-        /// <returns>The display category that coralline with the presentation section</returns>
-#pragma warning disable 612 // Task to remove obsolete code #1312924
-        private static AlertPropertyDisplayCategory GetDisplayCategoryFromPresentationSection(AlertPresentationSection presentationSection)
-        {
-            switch (presentationSection)
-            {
-                case AlertPresentationSection.AdditionalQuery:
-                    return AlertPropertyDisplayCategory.AdditionalQuery;
-
-                case AlertPresentationSection.Analysis:
-                    return AlertPropertyDisplayCategory.Analysis;
-
-                case AlertPresentationSection.Chart:
-                    return AlertPropertyDisplayCategory.Chart;
-
-                case AlertPresentationSection.Property:
-                default:
-                    return AlertPropertyDisplayCategory.Property;
-            }
-        }
-#pragma warning restore 612
 
         /// <summary>
         /// Converts chart type to contracts chart type
@@ -359,35 +437,6 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Presentation
                 default:
                     throw new InvalidEnumArgumentException("Chart type can be Number, Date or String only");
             }
-        }
-
-        /// <summary>
-        /// Extracts the list of table columns from the type of the table row, by looking for properties
-        /// with attribute <see cref="AlertPresentationTableColumnAttribute"/>.
-        /// </summary>
-        /// <param name="tableRowType">The table row type.</param>
-        /// <returns>A list of <see cref="TableColumn"/> objects describing the row type.</returns>
-        private static List<TableColumn> CreateTableColumnsFromRowType(Type tableRowType)
-        {
-            var columns = new List<TableColumn>();
-            foreach (PropertyInfo property in tableRowType.GetProperties())
-            {
-                // Check if this property is a table column
-                AlertPresentationTableColumnAttribute tableColumnAttribute = property.GetCustomAttribute<AlertPresentationTableColumnAttribute>();
-                if (tableColumnAttribute != null)
-                {
-                    string propertyName = property.Name;
-                    JsonPropertyAttribute jsonPropertyAttribute = property.GetCustomAttribute<JsonPropertyAttribute>();
-                    if (jsonPropertyAttribute != null)
-                    {
-                        propertyName = jsonPropertyAttribute.PropertyName;
-                    }
-
-                    columns.Add(new TableColumn(propertyName, tableColumnAttribute.DisplayName));
-                }
-            }
-
-            return columns;
         }
 
         /// <summary>

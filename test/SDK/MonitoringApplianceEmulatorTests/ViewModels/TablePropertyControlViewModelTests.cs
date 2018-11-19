@@ -39,9 +39,9 @@ namespace MonitoringApplianceEmulatorTests.ViewModels
                 new TestTableAlertPropertyValue() { FirstName = "Fernando", LastName = "Torres", Goals = 1.7 }
             };
 
-            var tableAlertProperty = new TableAlertProperty("propertyName", "displayName", 5, true, columns, rows);
+            var tableAlertProperty = new TableAlertProperty<TestTableAlertPropertyValue>("propertyName", "displayName", 5, true, columns, rows);
 
-            var tablePropertyControlViewModel = new TablePropertyControlViewModel(tableAlertProperty);
+            var tablePropertyControlViewModel = new TablePropertyControlViewModel<TestTableAlertPropertyValue>(tableAlertProperty);
 
             DataTable generateDataTable = tablePropertyControlViewModel.Table;
 

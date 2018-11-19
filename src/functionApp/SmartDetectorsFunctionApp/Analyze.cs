@@ -82,7 +82,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.Function
                     tracer.TraceAppCounters();
 
                     // Read the request
-                    SmartDetectorExecutionRequest smartDetectorExecutionRequest = await request.Content.ReadAsAsync<SmartDetectorExecutionRequest>(cancellationToken);
+                    SmartDetectorAnalysisRequest smartDetectorExecutionRequest = await request.Content.ReadAsAsync<SmartDetectorAnalysisRequest>(cancellationToken);
                     tracer.AddCustomProperty("SmartDetectorId", smartDetectorExecutionRequest.SmartDetectorId);
                     tracer.TraceInformation($"Analyze request received: {JsonConvert.SerializeObject(smartDetectorExecutionRequest)}");
 

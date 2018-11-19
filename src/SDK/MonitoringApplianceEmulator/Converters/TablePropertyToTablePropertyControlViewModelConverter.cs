@@ -13,7 +13,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
     using Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts;
 
     /// <summary>
-    /// Implementation of <see cref="IValueConverter"/> for converting from a <see cref="TableAlertProperty"/> value to <see cref="TablePropertyControlViewModel"/>.
+    /// Implementation of <see cref="IValueConverter"/> for converting from a <see cref="TableAlertProperty{T}"/> value to <see cref="TablePropertyControlViewModel{T}"/>.
     /// </summary>
     public class TablePropertyToTablePropertyControlViewModelConverter : IValueConverter
     {
@@ -37,12 +37,14 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
                 return value;
             }
 
-            if (!(value is TableAlertProperty tableAlertProperty))
+            Type valueType = value.GetType();
+            if (!valueType.IsGenericType || valueType.GetGenericTypeDefinition() != typeof(TableAlertProperty<>))
             {
-                throw new ArgumentException($"The value parameter must be of type {typeof(TableAlertProperty)}, but it is from type {value.GetType()}.", nameof(value));
+                throw new ArgumentException($"The value parameter must be of type {typeof(TableAlertProperty<>)}, but it is from type {value.GetType()}.", nameof(value));
             }
 
-            return new TablePropertyControlViewModel(tableAlertProperty);
+            Type viewModelType = typeof(TablePropertyControlViewModel<>).MakeGenericType(valueType.GetGenericArguments());
+            return Activator.CreateInstance(viewModelType, value);
         }
 
         /// <summary>

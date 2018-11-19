@@ -71,7 +71,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator
             SmartDetectorPackage smartDetectorPackage;
             using (var fileStream = new FileStream(smartDetectorPackagePath, FileMode.Open))
             {
-                smartDetectorPackage = SmartDetectorPackage.CreateFromStream(fileStream, consoleTracer);
+                smartDetectorPackage = SmartDetectorPackage.CreateFromStream(fileStream);
             }
 
             try
@@ -84,7 +84,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator
                 authenticationServices.AuthenticateUser();
                 ICredentialsFactory credentialsFactory = new ActiveDirectoryCredentialsFactory(authenticationServices);
                 IHttpClientWrapper httpClientWrapper = new HttpClientWrapper();
-                IExtendedAzureResourceManagerClient azureResourceManagerClient = new ExtendedAzureResourceManagerClient(credentialsFactory, consoleTracer);
+                IExtendedAzureResourceManagerClient azureResourceManagerClient = new ExtendedAzureResourceManagerClient(httpClientWrapper, credentialsFactory, consoleTracer);
 
                 // Create analysis service factory
                 var queryRunInfoProvider = new QueryRunInfoProvider(azureResourceManagerClient);

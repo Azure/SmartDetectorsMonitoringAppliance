@@ -121,7 +121,7 @@ namespace SmartDetectorsAnalysisTests
             }
 
             string resourceId = "resourceId";
-            var request = new SmartDetectorExecutionRequest
+            var request = new SmartDetectorAnalysisRequest
             {
                 ResourceIds = new List<string>() { resourceId },
                 SmartDetectorId = "smartDetectorId",
@@ -146,7 +146,7 @@ namespace SmartDetectorsAnalysisTests
             }
             else if (propertyName == "UrlValue")
             {
-                Assert.AreEqual("<a href=\"https://www.bing.com/\">LinkText1</a>", ((TextAlertProperty)property).Value);
+                Assert.AreEqual("<a href=\"https://www.bing.com/\" target=\"_blank\">LinkText1</a>", ((TextAlertProperty)property).Value);
             }
             else if (propertyName == "TextValue")
             {
@@ -180,29 +180,31 @@ namespace SmartDetectorsAnalysisTests
             }
             else if (propertyName == "Table")
             {
-                TableAlertProperty alertProperty = (TableAlertProperty)property;
+                TableAlertProperty<Dictionary<string, string>> alertProperty = (TableAlertProperty<Dictionary<string, string>>)property;
                 Assert.AreEqual(true, alertProperty.ShowHeaders);
 
                 Assert.AreEqual(2, alertProperty.Values.Count);
-                Assert.IsInstanceOfType(alertProperty.Values[0], typeof(TableData));
-                Assert.AreEqual("p11", ((TableData)alertProperty.Values[0]).Prop1);
-                Assert.AreEqual("p21", ((TableData)alertProperty.Values[0]).Prop2);
-                Assert.AreEqual("NDP1", ((TableData)alertProperty.Values[0]).NonDisplayProp);
+                Assert.AreEqual(3, alertProperty.Values[0].Count);
+                Assert.AreEqual("p11", alertProperty.Values[0]["Prop1"]);
+                Assert.AreEqual("p21", alertProperty.Values[0]["Prop2"]);
+                Assert.AreEqual("<a href=\"http://microsoft.com/\" target=\"_blank\">Link for NDP1</a>", alertProperty.Values[0]["UriProp"]);
 
-                Assert.IsInstanceOfType(alertProperty.Values[1], typeof(TableData));
-                Assert.AreEqual("p12", ((TableData)alertProperty.Values[1]).Prop1);
-                Assert.AreEqual("p22", ((TableData)alertProperty.Values[1]).Prop2);
-                Assert.AreEqual("NDP2", ((TableData)alertProperty.Values[1]).NonDisplayProp);
+                Assert.AreEqual(3, alertProperty.Values[1].Count);
+                Assert.AreEqual("p12", alertProperty.Values[1]["Prop1"]);
+                Assert.AreEqual("p22", alertProperty.Values[1]["Prop2"]);
+                Assert.AreEqual("<a href=\"http://contoso.com/\" target=\"_blank\">Link for NDP2</a>", alertProperty.Values[1]["UriProp"]);
 
-                Assert.AreEqual(2, alertProperty.Columns.Count);
-                Assert.AreEqual("prop1", alertProperty.Columns[0].PropertyName);
+                Assert.AreEqual(3, alertProperty.Columns.Count);
+                Assert.AreEqual("Prop1", alertProperty.Columns[0].PropertyName);
                 Assert.AreEqual("First Prop", alertProperty.Columns[0].DisplayName);
                 Assert.AreEqual("Prop2", alertProperty.Columns[1].PropertyName);
                 Assert.AreEqual("Second Prop", alertProperty.Columns[1].DisplayName);
+                Assert.AreEqual("UriProp", alertProperty.Columns[2].PropertyName);
+                Assert.AreEqual("Uri Prop", alertProperty.Columns[2].DisplayName);
             }
             else if (propertyName == "SingleColumnTable")
             {
-                TableAlertProperty alertProperty = (TableAlertProperty)property;
+                TableAlertProperty<string> alertProperty = (TableAlertProperty<string>)property;
                 Assert.AreEqual(false, alertProperty.ShowHeaders);
 
                 Assert.AreEqual(3, alertProperty.Values.Count);
@@ -249,7 +251,8 @@ namespace SmartDetectorsAnalysisTests
             [AlertPresentationLongTextAttribute("LongTextDisplayName", Order = 0, PropertyName = "LongTextPropertyName")]
             public string LongTextValue => "LongTextValue";
 
-            [AlertPresentationUrl("UrlDisplayName", "LinkText{RawProperty}", Order = 1)]
+            [AlertPresentationUrlFormatter("LinkText{RawProperty}")]
+            [AlertPresentationText("UrlDisplayName", Order = 1)]
             public Uri UrlValue => new Uri("https://www.bing.com");
 
             [AlertPresentationText("TextDisplayName", Order = 2)]
@@ -264,12 +267,12 @@ namespace SmartDetectorsAnalysisTests
             [AlertPresentationChart("ChartDisplayName", ChartType.LineChart, ChartAxisType.DateAxis, ChartAxisType.NumberAxis)]
             public List<ChartPoint> DataPoints => new List<ChartPoint>() { new ChartPoint(new DateTime(2018, 7, 9, 14, 31, 0, DateTimeKind.Utc), 5) };
 
-            [AlertPresentationTable("TableDisplayName", Order = 5, ShowHeaders = true)]
+            [AlertPresentationMultiColumnTable("TableDisplayName", Order = 5, ShowHeaders = true)]
             [SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays", Justification = "Test code, allowed")]
             public TableData[] Table => new TableData[]
             {
-                new TableData { Prop1 = "p11", Prop2 = "p21", NonDisplayProp = "NDP1" },
-                new TableData { Prop1 = "p12", Prop2 = "p22", NonDisplayProp = "NDP2" },
+                new TableData { Prop1 = "p11", Prop2 = "p21", UriProp = new Uri("http://microsoft.com"), NonDisplayProp = "NDP1" },
+                new TableData { Prop1 = "p12", Prop2 = "p22", UriProp = new Uri("http://contoso.com"), NonDisplayProp = "NDP2" },
             };
 
             [AlertPresentationSingleColumnTable("SingleColumnTableDisplayName", Order = 6, ShowHeaders = false)]
@@ -284,6 +287,10 @@ namespace SmartDetectorsAnalysisTests
 
             [AlertPresentationTableColumn("Second Prop")]
             public string Prop2 { get; set; }
+
+            [AlertPresentationUrlFormatter("Link for {NonDisplayProp}")]
+            [AlertPresentationTableColumn("Uri Prop")]
+            public Uri UriProp { get; set; }
 
             public string NonDisplayProp { get; set; }
         }
