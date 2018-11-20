@@ -21,7 +21,6 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
     using ChartPoint = Microsoft.Azure.Monitoring.SmartDetectors.AlertPresentation.ChartPoint;
     using ChartType = Microsoft.Azure.Monitoring.SmartDetectors.AlertPresentation.ChartType;
     using ContractsAlert = Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts.Alert;
-    using ContractsAutomaticResolutionParameters = Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts.AutomaticResolutionParameters;
     using ContractsChartAxisType = Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts.ChartAxisType;
     using ContractsChartPoint = Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts.ChartPoint;
     using ContractsChartType = Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts.ChartType;
@@ -50,7 +49,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
             }
 
             // Create presentation elements for each alert property
-            Dictionary<string, string> predicates = new Dictionary<string, string>();
+            Dictionary<string, object> predicates = alert.ExtractPredicates();
             #pragma warning disable CS0612 // Type or member is obsolete; Task to remove obsolete code #1312924
             List<AlertPropertyLegacy> alertPropertiesLegacy = new List<AlertPropertyLegacy>();
             #pragma warning restore CS0612 // Type or member is obsolete; Task to remove obsolete code #1312924
@@ -69,12 +68,6 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
                 }
 
                 rawProperties[property.Name] = propertyStringValue;
-
-                // Check if this property is a predicate
-                if (property.GetCustomAttribute<PredicatePropertyAttribute>() != null)
-                {
-                    predicates[property.Name] = propertyStringValue;
-                }
 
                 // Get the v1 presentation attribute
                 AlertPresentationPropertyAttribute presentationAttribute = property.GetCustomAttribute<AlertPresentationPropertyAttribute>();
@@ -98,17 +91,10 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
 
             string id = string.Join("##", alert.GetType().FullName, JsonConvert.SerializeObject(request), JsonConvert.SerializeObject(alert)).ToSha256Hash();
             string resourceId = alert.ResourceIdentifier.ToResourceId();
-            string correlationHash = string.Join("##", predicates.OrderBy(x => x.Key).Select(x => x.Key + "|" + x.Value)).ToSha256Hash();
+            string correlationHash = string.Join("##", predicates.OrderBy(x => x.Key).Select(x => x.Key + "|" + x.Value.ToString())).ToSha256Hash();
 
             // Get the alert's signal type based on the clients used to create the alert
             SignalType signalType = GetSignalType(usedLogAnalysisClient, usedMetricClient);
-
-            // Get the alert's automatic resolution parameters
-            ContractsAutomaticResolutionParameters automaticResolutionParameters =
-                new ContractsAutomaticResolutionParameters
-                {
-                    CheckForAutomaticResolutionAfter = alert.AutomaticResolutionParameters.CheckForAutomaticResolutionAfter
-                };
 
             // Return the presentation object
             #pragma warning disable CS0612 // Type or member is obsolete; Task to remove obsolete code #1312924
@@ -127,9 +113,31 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
                 RawProperties = rawProperties,
                 QueryRunInfo = queryRunInfo,
                 SignalType = signalType,
-                AutomaticResolutionParameters = automaticResolutionParameters
+                AutomaticResolutionParameters = alert.AutomaticResolutionParameters?.CreateContractsAutomaticResolutionParameters()
             };
             #pragma warning restore CS0612 // Type or member is obsolete; Task to remove obsolete code #1312924
+        }
+
+        /// <summary>
+        /// Extracts the predicate properties from the alert. Predicate properties are properties
+        /// in the alert's object which are marked by <see cref="PredicatePropertyAttribute"/>.
+        /// </summary>
+        /// <param name="alert">The alert to extract the predicates from.</param>
+        /// <returns>A dictionary mapping each predicate property name to its value.</returns>
+        public static Dictionary<string, object> ExtractPredicates(this Alert alert)
+        {
+            if (alert == null)
+            {
+                throw new ArgumentNullException(nameof(alert));
+            }
+
+            var predicates = new Dictionary<string, object>();
+            foreach (PropertyInfo property in alert.GetType().GetProperties().Where(prop => prop.GetCustomAttribute<PredicatePropertyAttribute>() != null))
+            {
+                predicates[property.Name] = property.GetValue(alert);
+            }
+
+            return predicates;
         }
 
 #pragma warning disable CS0612 // Type or member is obsolete; Task to remove obsolete code #1312924
