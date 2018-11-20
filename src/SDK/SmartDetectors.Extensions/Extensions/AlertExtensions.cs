@@ -323,12 +323,12 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
             TablePropertyAttribute tableAttribute)
         {
             var columns = new List<TableColumn>();
-            var rows = new Dictionary<string, string>[tableRows.Count];
+            var rows = new List<Dictionary<string, string>>(tableRows.Count);
 
             // Initialize the table rows with new dictionaries
             for (int i = 0; i < tableRows.Count; i++)
             {
-                rows[i] = new Dictionary<string, string>();
+                rows.Add(new Dictionary<string, string>());
             }
 
             // We scan the table by columns to we'll handle a single property at a time

@@ -94,87 +94,97 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.Analysis
             ISmartDetector smartDetector = this.smartDetectorLoader.LoadSmartDetector(smartDetectorPackage);
             this.tracer.TraceInformation($"Smart Detector instance loaded successfully, ID {smartDetectorManifest.Id}");
 
-            // Create state repository
-            IStateRepository stateRepository = this.stateRepositoryFactory.Create(request.SmartDetectorId, request.AlertRuleResourceId);
-
-            // Create the input for the Smart Detector
-            AnalysisRequestParameters analysisRequestParameters = await this.CreateAnalysisRequestParametersAsync(request, smartDetectorManifest, true, cancellationToken);
-            var analysisRequest = new AnalysisRequest(analysisRequestParameters, this.analysisServicesFactory, stateRepository);
-
-            // Run the Smart Detector
-            this.tracer.TraceInformation($"Started running Smart Detector ID {smartDetectorManifest.Id}, Name {smartDetectorManifest.Name}");
-            List<Alert> alerts;
             try
             {
-                ITracer detectorTracer = shouldDetectorTrace ? this.tracer : new EmptyTracer();
-                alerts = await smartDetector.AnalyzeResourcesAsync(analysisRequest, detectorTracer, cancellationToken);
-                this.tracer.TraceInformation($"Completed running Smart Detector ID {smartDetectorManifest.Id}, Name {smartDetectorManifest.Name}, returning {alerts.Count} alerts");
-            }
-            catch (Exception e)
-            {
-                this.tracer.TraceError($"Failed running Smart Detector ID {smartDetectorManifest.Id}, Name {smartDetectorManifest.Name}: {e}");
-                throw new FailedToRunSmartDetectorException($"Calling Smart Detector '{smartDetectorManifest.Name}' failed with exception of type {e.GetType()} and message: {e.Message}", e);
-            }
+                // Create state repository
+                IStateRepository stateRepository = this.stateRepositoryFactory.Create(request.SmartDetectorId, request.AlertRuleResourceId);
 
-            // Verify that each alert belongs to one of the types declared in the Smart Detector manifest
-            foreach (Alert alert in alerts)
-            {
-                if (!smartDetectorManifest.SupportedResourceTypes.Contains(alert.ResourceIdentifier.ResourceType))
+                // Create the input for the Smart Detector
+                AnalysisRequestParameters analysisRequestParameters = await this.CreateAnalysisRequestParametersAsync(request, smartDetectorManifest, true, cancellationToken);
+                var analysisRequest = new AnalysisRequest(analysisRequestParameters, this.analysisServicesFactory, stateRepository);
+
+                // Run the Smart Detector
+                this.tracer.TraceInformation($"Started running Smart Detector ID {smartDetectorManifest.Id}, Name {smartDetectorManifest.Name}");
+                List<Alert> alerts;
+                try
                 {
-                    throw new UnidentifiedAlertResourceTypeException(alert.ResourceIdentifier);
+                    ITracer detectorTracer = shouldDetectorTrace ? this.tracer : new EmptyTracer();
+                    alerts = await smartDetector.AnalyzeResourcesAsync(analysisRequest, detectorTracer, cancellationToken);
+                    this.tracer.TraceInformation($"Completed running Smart Detector ID {smartDetectorManifest.Id}, Name {smartDetectorManifest.Name}, returning {alerts.Count} alerts");
                 }
-            }
-
-            // Trace the number of alerts of each type
-            foreach (var alertType in alerts.GroupBy(x => x.GetType().Name))
-            {
-                this.tracer.TraceInformation($"Got {alertType.Count()} Alerts of type '{alertType.Key}'");
-                this.tracer.ReportMetric("AlertType", alertType.Count(), new Dictionary<string, string>() { { "AlertType", alertType.Key } });
-            }
-
-            // Create results
-            bool detectorSupportsAutomaticResolution = smartDetector is IAutomaticResolutionSmartDetector;
-            List<ContractsAlert> results = new List<ContractsAlert>();
-            foreach (var alert in alerts)
-            {
-                QueryRunInfo queryRunInfo = await this.queryRunInfoProvider.GetQueryRunInfoAsync(new List<ResourceIdentifier>() { alert.ResourceIdentifier }, cancellationToken);
-                ContractsAlert contractsAlert = alert.CreateContractsAlert(
-                    request,
-                    smartDetectorManifest.Name,
-                    queryRunInfo,
-                    this.analysisServicesFactory.UsedLogAnalysisClient,
-                    this.analysisServicesFactory.UsedMetricClient);
-
-                // Handle automatic resolution parameters in the alerts:
-                // If the detector supports automatic resolution - save the predicates for the resolution checks
-                // If the detector supports automatic resolution - drop the automatic resolution parameters (since they are useless) and error trace
-                if (contractsAlert.AutomaticResolutionParameters != null)
+                catch (Exception e)
                 {
-                    if (detectorSupportsAutomaticResolution)
+                    this.tracer.TraceError($"Failed running Smart Detector ID {smartDetectorManifest.Id}, Name {smartDetectorManifest.Name}: {e}");
+                    throw new FailedToRunSmartDetectorException($"Calling Smart Detector '{smartDetectorManifest.Name}' failed with exception of type {e.GetType()} and message: {e.Message}", e);
+                }
+
+                // Verify that each alert belongs to one of the types declared in the Smart Detector manifest
+                foreach (Alert alert in alerts)
+                {
+                    if (!smartDetectorManifest.SupportedResourceTypes.Contains(alert.ResourceIdentifier.ResourceType))
                     {
-                        this.tracer.TraceInformation($"Alert {contractsAlert.Id} has automatic resolution parameters, so saving alert details for later use");
-                        await stateRepository.StoreStateAsync(
-                            GetAutomaticResolutionStateKey(contractsAlert.Id),
-                            new AutomaticResolutionState
-                            {
-                                AlertId = contractsAlert.Id,
-                                AlertPredicates = alert.ExtractPredicates()
-                            },
-                            cancellationToken);
-                    }
-                    else
-                    {
-                        this.tracer.TraceError($"Dropping automatic resolution parameters from alert {contractsAlert.Id}");
-                        contractsAlert.AutomaticResolutionParameters = null;
+                        throw new UnidentifiedAlertResourceTypeException(alert.ResourceIdentifier);
                     }
                 }
 
-                // And add the alert to the results
-                results.Add(contractsAlert);
-            }
+                // Trace the number of alerts of each type
+                foreach (var alertType in alerts.GroupBy(x => x.GetType().Name))
+                {
+                    this.tracer.TraceInformation($"Got {alertType.Count()} Alerts of type '{alertType.Key}'");
+                    this.tracer.ReportMetric("AlertType", alertType.Count(), new Dictionary<string, string>() { { "AlertType", alertType.Key } });
+                }
 
-            this.tracer.TraceInformation($"Returning {results.Count} results");
-            return results;
+                // Create results
+                bool detectorSupportsAutomaticResolution = smartDetector is IAutomaticResolutionSmartDetector;
+                List<ContractsAlert> results = new List<ContractsAlert>();
+                foreach (var alert in alerts)
+                {
+                    QueryRunInfo queryRunInfo = await this.queryRunInfoProvider.GetQueryRunInfoAsync(new List<ResourceIdentifier>() { alert.ResourceIdentifier }, cancellationToken);
+                    ContractsAlert contractsAlert = alert.CreateContractsAlert(
+                        request,
+                        smartDetectorManifest.Name,
+                        queryRunInfo,
+                        this.analysisServicesFactory.UsedLogAnalysisClient,
+                        this.analysisServicesFactory.UsedMetricClient);
+
+                    // Handle automatic resolution parameters in the alerts:
+                    // If the detector supports automatic resolution - save the predicates for the resolution checks
+                    // If the detector supports automatic resolution - drop the automatic resolution parameters (since they are useless) and error trace
+                    if (contractsAlert.AutomaticResolutionParameters != null)
+                    {
+                        if (detectorSupportsAutomaticResolution)
+                        {
+                            this.tracer.TraceInformation($"Alert {contractsAlert.Id} has automatic resolution parameters, so saving alert details for later use");
+                            await stateRepository.StoreStateAsync(
+                                GetAutomaticResolutionStateKey(contractsAlert.Id),
+                                new AutomaticResolutionState
+                                {
+                                    AlertId = contractsAlert.Id,
+                                    AlertPredicates = alert.ExtractPredicates()
+                                },
+                                cancellationToken);
+                        }
+                        else
+                        {
+                            this.tracer.TraceError($"Dropping automatic resolution parameters from alert {contractsAlert.Id}");
+                            contractsAlert.AutomaticResolutionParameters = null;
+                        }
+                    }
+
+                    // And add the alert to the results
+                    results.Add(contractsAlert);
+                }
+
+                this.tracer.TraceInformation($"Returning {results.Count} results");
+                return results;
+            }
+            finally
+            {
+                if (smartDetector is IDisposable disposableSmartDetector)
+                {
+                    disposableSmartDetector.Dispose();
+                }
+            }
         }
 
         /// <summary>
