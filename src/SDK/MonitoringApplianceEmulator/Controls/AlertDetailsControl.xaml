@@ -64,6 +64,9 @@
                         <DataTemplate x:Key="TextProperty">
                             <local:TextPropertyControl TextAlertProperty="{Binding }"/>
                         </DataTemplate>
+                        <DataTemplate x:Key="LongTextProperty">
+                            <local:LongTextPropertyControl LongTextAlertProprety="{Binding }" />
+                        </DataTemplate>
                         <DataTemplate x:Key="KeyValueProperty">
                             <local:KeyValuePropertyControl KeyValueAlertProperty="{Binding }" />
                         </DataTemplate>
@@ -82,6 +85,9 @@
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding Type}" Value="Text">
                                                 <Setter Property="ContentTemplate" Value="{StaticResource TextProperty}"/>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding Type}" Value="LongText">
+                                                <Setter Property="ContentTemplate" Value="{StaticResource LongTextProperty}"/>
                                             </DataTrigger>
                                             <DataTrigger Binding="{Binding Type}" Value="KeyValue">
                                                 <Setter Property="ContentTemplate" Value="{StaticResource KeyValueProperty}"/>
