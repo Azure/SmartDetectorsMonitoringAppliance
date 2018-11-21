@@ -110,7 +110,6 @@ namespace SmartDetectorsAnalysisTests
             Assert.AreEqual("test state", this.stateRepository["test key"]);
             Assert.IsInstanceOfType(this.stateRepository[$"_autoResolve{contractsAlerts.Single().Id}"], typeof(AutomaticResolutionState));
             var automaticResolutionState = (AutomaticResolutionState)this.stateRepository[$"_autoResolve{contractsAlerts.Single().Id}"];
-            Assert.AreEqual(contractsAlerts.Single().Id, automaticResolutionState.AlertId);
             Assert.AreEqual(1, automaticResolutionState.AlertPredicates.Count);
             Assert.AreEqual("Predicate value", automaticResolutionState.AlertPredicates["Predicate"]);
         }
@@ -514,7 +513,6 @@ namespace SmartDetectorsAnalysisTests
         {
             var state = new AutomaticResolutionState
             {
-                AlertId = this.automaticResolutionCheckRequest.AlertId,
                 AlertPredicates = new Dictionary<string, object>
                 {
                     ["Predicate"] = "Predicate value"

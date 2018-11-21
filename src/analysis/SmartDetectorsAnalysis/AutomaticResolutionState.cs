@@ -15,11 +15,6 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.Analysis
     public class AutomaticResolutionState
     {
         /// <summary>
-        /// Gets or sets the alert ID this state relates to.
-        /// </summary>
-        public string AlertId { get; set; }
-
-        /// <summary>
         /// Gets or sets the alert predicates this state relates to.
         /// </summary>
         public IReadOnlyDictionary<string, object> AlertPredicates { get; set; }

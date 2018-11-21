@@ -202,7 +202,6 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.Analysis
                             GetAutomaticResolutionStateKey(contractsAlert.Id),
                             new AutomaticResolutionState
                             {
-                                AlertId = contractsAlert.Id,
                                 AlertPredicates = alert.ExtractPredicates()
                             },
                             cancellationToken);
