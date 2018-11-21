@@ -80,40 +80,15 @@ namespace SmartDetectorsAnalysisTests
         }
 
         [TestMethod]
-        public async Task WhenRunningSmartDetectorItIsDisposedIfItImplementsIDisposable()
+        public async Task WhenRunningSmartDetectorAnalyzeItIsDisposedIfItImplementsIDisposable()
         {
             this.smartDetector = new DisposableTestSmartDetector { ExpectedResourceType = ResourceType.VirtualMachine };
 
-            var smartDetectorLoaderMock = new Mock<ISmartDetectorLoader>();
-            smartDetectorLoaderMock
-                .Setup(x => x.LoadSmartDetector(this.smartDetectorPackage))
-                .Returns(this.smartDetector);
-            this.testContainer.RegisterInstance<ISmartDetectorLoader>(smartDetectorLoaderMock.Object);
-
             // Run the Smart Detector
             ISmartDetectorRunner runner = this.testContainer.Resolve<ISmartDetectorRunner>();
-            await runner.RunAsync(this.request, true, default(CancellationToken));
+            await runner.AnalyzeAsync(this.analysisRequest, true, default(CancellationToken));
 
             Assert.IsTrue(((DisposableTestSmartDetector)this.smartDetector).WasDisposed);
-        }
-
-        [TestMethod]
-        [ExpectedException(typeof(AggregateException))]
-        public void WhenRunningSmartDetectorThenCancellationIsHandledGracefully()
-        {
-            this.smartDetector.ShouldAutoResolve = true;
-
-            // Run the Smart Detector and validate results
-            ISmartDetectorRunner runner = this.testContainer.Resolve<ISmartDetectorRunner>();
-            List<ContractsAlert> contractsAlerts = await runner.AnalyzeAsync(this.analysisRequest, true, default(CancellationToken));
-            Assert.IsNotNull(contractsAlerts, "Presentation list is null");
-            Assert.AreEqual(1, contractsAlerts.Count);
-            Assert.AreEqual("Test title", contractsAlerts.Single().Title);
-            Assert.IsNull(contractsAlerts.Single().AutomaticResolutionParameters);
-
-            // Assert the detector's state
-            Assert.AreEqual(1, this.stateRepository.Count);
-            Assert.AreEqual("test state", this.stateRepository["test key"]);
         }
 
         [TestMethod]
@@ -237,6 +212,22 @@ namespace SmartDetectorsAnalysisTests
             // Assert the detector's state
             Assert.AreEqual(1, this.stateRepository.Count);
             Assert.AreEqual("test state", this.stateRepository["test auto resolve key"]);
+        }
+
+        [TestMethod]
+        public async Task WhenRunningSmartDetectorCheckAutomaticResolutionItIsDisposedIfItImplementsIDisposable()
+        {
+            // Initialize the automatic resolution state
+            this.InitializeAutomaticResolutionState();
+
+            // Make the detector  a disposable one
+            this.autoResolveSmartDetector = new DisposableTestAutoResolveSmartDetector { ExpectedResourceType = ResourceType.VirtualMachine };
+
+            // Run the Smart Detector
+            ISmartDetectorRunner runner = this.testContainer.Resolve<ISmartDetectorRunner>();
+            await runner.CheckAutomaticResolutionAsync(this.automaticResolutionCheckRequest, true, default(CancellationToken));
+
+            Assert.IsTrue(((DisposableTestAutoResolveSmartDetector)this.autoResolveSmartDetector).WasDisposed);
         }
 
         [TestMethod]
@@ -481,10 +472,10 @@ namespace SmartDetectorsAnalysisTests
             var smartDetectorLoaderMock = new Mock<ISmartDetectorLoader>();
             smartDetectorLoaderMock
                 .Setup(x => x.LoadSmartDetector(this.smartDetectorPackage))
-                .Returns(this.smartDetector);
+                .Returns(() => this.smartDetector);
             smartDetectorLoaderMock
                 .Setup(x => x.LoadSmartDetector(this.autoResolveSmartDetectorPackage))
-                .Returns(this.autoResolveSmartDetector);
+                .Returns(() => this.autoResolveSmartDetector);
             this.testContainer.RegisterInstance(smartDetectorLoaderMock.Object);
 
             var azureResourceManagerClientMock = new Mock<IExtendedAzureResourceManagerClient>();
@@ -684,6 +675,21 @@ namespace SmartDetectorsAnalysisTests
         public sealed class DisposableTestSmartDetector : TestSmartDetector, IDisposable
         {
             public DisposableTestSmartDetector()
+            {
+                this.WasDisposed = false;
+            }
+
+            public bool WasDisposed { get; private set; }
+
+            public void Dispose()
+            {
+                this.WasDisposed = true;
+            }
+        }
+
+        public sealed class DisposableTestAutoResolveSmartDetector : TestAutoResolveSmartDetector, IDisposable
+        {
+            public DisposableTestAutoResolveSmartDetector()
             {
                 this.WasDisposed = false;
             }
