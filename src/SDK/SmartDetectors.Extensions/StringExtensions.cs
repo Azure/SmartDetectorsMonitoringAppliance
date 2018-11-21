@@ -10,7 +10,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
     using System.Globalization;
     using System.Security.Cryptography;
     using System.Text;
-    using Azure.Monitoring.SmartDetectors.Tools;
+    using Microsoft.Azure.Monitoring.SmartDetectors.Extensions.Tools;
     using Microsoft.CodeAnalysis.CSharp.Scripting;
     using Microsoft.CodeAnalysis.Scripting;
 
