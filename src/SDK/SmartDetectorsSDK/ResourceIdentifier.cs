@@ -34,6 +34,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors
                     [ResourceType.KeyVault] = "Microsoft.KeyVault/vaults",
                     [ResourceType.ServiceBus] = "Microsoft.ServiceBus/namespaces",
                     [ResourceType.SqlServer] = "Microsoft.Sql/servers",
+                    [ResourceType.EventHub] = "Microsoft.EventHub/namespaces",
                 });
 
         private const string SubscriptionRegexPattern = "/subscriptions/(?<subscriptionId>[^/]*)";
