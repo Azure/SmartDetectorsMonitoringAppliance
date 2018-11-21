@@ -118,7 +118,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
         }
 
         /// <summary>
-        /// Initializes a chart with X axis from type <see cref="SmartDetectors.ChartAxisType.DateAxis"/>.
+        /// Initializes a chart with X axis from type <see cref="AlertPresentation.ChartAxisType.DateAxis"/>.
         /// </summary>
         /// <param name="chartAlertProperty">The chart alert property that should be displayed.</param>
         private void InitializeDateTimeXAxisChart(ChartAlertProperty chartAlertProperty)
@@ -153,7 +153,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
         }
 
         /// <summary>
-        /// Initializes a chart with X axis from type <see cref="SmartDetectors.ChartAxisType.NumberAxis"/>.
+        /// Initializes a chart with X axis from type <see cref="AlertPresentation.ChartAxisType.NumberAxis"/>.
         /// </summary>
         /// <param name="chartAlertProperty">The chart alert property that should be displayed.</param>
         private void InitializeNumberXAxisChart(ChartAlertProperty chartAlertProperty)

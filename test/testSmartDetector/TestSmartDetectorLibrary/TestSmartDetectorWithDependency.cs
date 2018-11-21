@@ -22,8 +22,7 @@ namespace TestSmartDetectorLibrary
             List<Alert> alerts = new List<Alert>();
             alerts.Add(new TestAlert(
                 "test title - " + dependent.GetString() + " - " + dependent.ObjectToString(obj),
-                analysisRequest.TargetResources.First(),
-                AlertState.Active));
+                analysisRequest.RequestParameters.TargetResources.First()));
             return Task.FromResult(alerts);
         }
     }

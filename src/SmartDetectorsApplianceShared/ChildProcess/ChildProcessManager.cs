@@ -155,7 +155,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.ChildPro
         /// <param name="input">The child process input</param>
         /// <param name="cancellationToken">The cancellation token</param>
         /// <exception cref="InvalidOperationException">The child process could not be started</exception>
-        /// <exception cref="ChildProcessException">The child process failed - see InnerException ro details</exception>
+        /// <exception cref="ChildProcessException">The child process failed - see InnerException for details</exception>
         /// <returns>A <see cref="Task{TResult}"/>, returning the child process output</returns>
         public async Task<TOutput> RunChildProcessAsync<TOutput>(string exePath, object input, CancellationToken cancellationToken)
         {

@@ -4,12 +4,12 @@
 // </copyright>
 //-----------------------------------------------------------------------
 
-namespace Microsoft.Azure.Monitoring.SmartDetectors
+namespace Microsoft.Azure.Monitoring.SmartDetectors.AlertPresentation
 {
     using System;
 
     /// <summary>
-    /// An attribute defining the presentation of a specific property in an <see cref="Alert"/>.
+    /// An attribute defining the presentation of a specific property in an <see cref="Microsoft.Azure.Monitoring.SmartDetectors.Alert"/>.
     /// The attribute determines the type of the presentation, the display name of the
     /// property and its order.
     /// </summary>

@@ -1,24 +1,24 @@
 ﻿//-----------------------------------------------------------------------
-// <copyright file="AlertPresentationChartAttribute.cs" company="Microsoft Corporation">
+// <copyright file="ChartPropertyAttribute.cs" company="Microsoft Corporation">
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // </copyright>
 //-----------------------------------------------------------------------
 
-namespace Microsoft.Azure.Monitoring.SmartDetectors
+namespace Microsoft.Azure.Monitoring.SmartDetectors.AlertPresentation
 {
     /// <summary>
-    /// An attribute defining the presentation of a chart property in an <see cref="Alert"/>.
+    /// An attribute defining the presentation of a chart property in an <see cref="Microsoft.Azure.Monitoring.SmartDetectors.Alert"/>.
     /// </summary>
-    public class AlertPresentationChartAttribute : AlertPresentationPropertyV2Attribute
+    public class ChartPropertyAttribute : AlertPresentationPropertyV2Attribute
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="AlertPresentationChartAttribute"/> class.
+        /// Initializes a new instance of the <see cref="ChartPropertyAttribute"/> class.
         /// </summary>
         /// <param name="displayName">The display name to use when presenting the property's value.</param>
         /// <param name="chartType">The type of the chart</param>
         /// <param name="xAxistype">The type of the X axis</param>
         /// <param name="yAxisType">The type of the Y axis</param>
-        public AlertPresentationChartAttribute(
+        public ChartPropertyAttribute(
             string displayName,
             ChartType chartType,
             ChartAxisType xAxistype,
