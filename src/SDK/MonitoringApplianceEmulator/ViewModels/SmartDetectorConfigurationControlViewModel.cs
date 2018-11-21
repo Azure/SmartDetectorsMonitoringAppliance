@@ -303,10 +303,10 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
                 this.selectedResourceType = value;
                 this.OnPropertyChanged();
 
-                if (!this.ShouldSelectResourcesAccordingToUserSettings)
-                {
-                    this.userSettings.SelectedResourceType = value;
-                }
+                ////if (!this.ShouldSelectResourcesAccordingToUserSettings)
+                ////{
+                ////    this.userSettings.SelectedResourceType = value;
+                ////}
 
                 if (this.ResourcesHierarchicalCollection != null && this.ResourcesHierarchicalCollection.ContainedResources != null)
                 {

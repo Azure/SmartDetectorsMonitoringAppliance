@@ -6,6 +6,7 @@
 
 namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.ViewModels
 {
+    using System;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Linq;
@@ -13,6 +14,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
     using Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.Models;
     using Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts;
     using Unity.Attributes;
+    using Unity.Interception.Utilities;
 
     /// <summary>
     /// The view model class for the <see cref="AlertDetailsControl"/> control.
@@ -25,7 +27,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
             AlertPropertyType.LongText,
             AlertPropertyType.KeyValue,
             AlertPropertyType.Table,
-            AlertPropertyType.Chart
+            //// AlertPropertyType.Chart
         };
 
         private EmulationAlert alert;
@@ -63,11 +65,43 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
                     new AzureResourceProperty("Resource name", this.Alert.ResourceIdentifier.ResourceName)
                 });
 
+            // Project chart displayable properties
+            List<ChartAlertProperty> chartAlertProperties = this.Alert.ContractsAlert.AlertProperties.OfType<ChartAlertProperty>().ToList();
+
             List<DisplayableAlertProperty> displayableAlertProperties = this.Alert.ContractsAlert.AlertProperties.OfType<DisplayableAlertProperty>()
                 .Where(prop => this.supportedPropertiesTypes.Contains(prop.Type))
                 .OrderBy(prop => prop.Order)
                 .ThenBy(prop => prop.PropertyName)
                 .ToList();
+
+            // Group all chart properties by chart display name
+            Dictionary<string, List<ChartAlertProperty>> chartNamesToContainers = new Dictionary<string, List<ChartAlertProperty>>();
+
+            foreach (var chartProperty in chartAlertProperties)
+            {
+                char[] delimiterChars = { '_' };
+                string chartDisplayNamePrefix = chartProperty.DisplayName.Split(delimiterChars).First();
+                if (chartNamesToContainers.ContainsKey(chartDisplayNamePrefix))
+                {
+                    chartNamesToContainers[chartDisplayNamePrefix].Add(chartProperty);
+                }
+                else
+                {
+                    chartNamesToContainers.Add(chartDisplayNamePrefix, new List<ChartAlertProperty>() { chartProperty });
+                }
+            }
+
+            List<ChartAlertPropertiesContainer> chartsContainers = new List<ChartAlertPropertiesContainer>();
+            chartNamesToContainers.Values.ForEach(chartPropertiesList =>
+            {
+                byte chartsContainersPropertyOrder = chartPropertiesList
+                    .First(chartProp => chartProp.DisplayName.EndsWith("_Value", StringComparison.InvariantCulture))
+                    .Order;
+
+                chartsContainers.Add(new ChartAlertPropertiesContainer(chartPropertiesList, chartsContainersPropertyOrder));
+            });
+
+            displayableAlertProperties.AddRange(chartsContainers);
 
             this.DisplayableProperties = new ObservableCollection<DisplayableAlertProperty>(displayableAlertProperties);
 

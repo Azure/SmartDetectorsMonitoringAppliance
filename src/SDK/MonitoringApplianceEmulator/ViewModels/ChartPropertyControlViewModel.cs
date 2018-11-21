@@ -55,6 +55,94 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
         }
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="ChartPropertyControlViewModel"/> class.
+        /// </summary>
+        /// <param name="chartAlertPropertiesContainer">The chart alert properties container that should be displayed.</param>
+        public ChartPropertyControlViewModel(ChartAlertPropertiesContainer chartAlertPropertiesContainer)
+        {
+            this.Title = chartAlertPropertiesContainer.ChartsAlertProperties
+                .First(prop => prop.DisplayName.EndsWith("_Value", StringComparison.InvariantCulture)).DisplayName;
+
+            /*
+             * Relevant for Column Series:
+             * Since we are using DateTime.Ticks as X, the width of the bar is 1 tick and 1 tick is 1 millisecond.
+             * In order to make our bars visible we need to change the unit of the chart. For the initial view are going to use hours.
+             * There is a future task (#1380564) to create this scale dynamically according to the X values range size.
+             */
+            CartesianMapper<ChartDataPoint<DateTime>> pointMapperConfig = Mappers.Xy<ChartDataPoint<DateTime>>()
+                .X(dateTimeDataPoint => (double)dateTimeDataPoint.X.Ticks / TimeSpan.FromHours(1).Ticks)
+                .Y(dateTimeDataPoint => dateTimeDataPoint.Y);
+
+            this.SeriesCollection = new SeriesCollection(pointMapperConfig);
+
+            this.XAxisFormatter = value => new DateTime((long)(value * TimeSpan.FromHours(1).Ticks)).ToString(CultureInfo.InvariantCulture);
+
+            foreach (var chartAlertProperty in chartAlertPropertiesContainer.ChartsAlertProperties)
+            {
+                var chartValues = new ChartValues<ChartDataPoint<DateTime>>();
+
+                foreach (var dataPoint in chartAlertProperty.DataPoints)
+                {
+                    DateTime dateTime;
+                    try
+                    {
+                        dateTime = Convert.ToDateTime(dataPoint.X, CultureInfo.InvariantCulture);
+                    }
+                    catch (Exception e) when (e is FormatException || e is InvalidCastException)
+                    {
+                        throw new InvalidCastException($"The data point's Y value '{dataPoint.X}' is not of DateTime type", e);
+                    }
+
+                    double value;
+                    try
+                    {
+                        value = Convert.ToDouble(dataPoint.Y, CultureInfo.InvariantCulture);
+                    }
+                    catch (Exception e) when (e is FormatException || e is InvalidCastException || e is OverflowException)
+                    {
+                        throw new InvalidCastException($"The data point's X value '{dataPoint.X}' is not of a numeric type", e);
+                    }
+
+                    chartValues.Add(new ChartDataPoint<DateTime>(dateTime, value));
+                }
+
+                if (chartAlertProperty.DisplayName.EndsWith("Value", StringComparison.InvariantCulture))
+                {
+                    this.SeriesCollection.Add(new LineSeries
+                    {
+                        Title = chartAlertProperty.DisplayName,
+                        Values = chartValues,
+                        Stroke = SeriesColor,
+                        Fill = Brushes.Transparent,
+                        StrokeDashArray = null
+                    });
+                }
+                else if (chartAlertProperty.DisplayName.EndsWith("High", StringComparison.InvariantCulture))
+                {
+                    this.SeriesCollection.Add(new LineSeries
+                    {
+                        Title = chartAlertProperty.DisplayName,
+                        Values = chartValues,
+                        Stroke = Brushes.DimGray,
+                        Fill = Brushes.Transparent,
+                        StrokeDashArray = new DoubleCollection() { 2 }
+                    });
+                }
+                else if (chartAlertProperty.DisplayName.EndsWith("Low", StringComparison.InvariantCulture))
+                {
+                    this.SeriesCollection.Add(new LineSeries
+                    {
+                        Title = chartAlertProperty.DisplayName,
+                        Values = chartValues,
+                        Stroke = Brushes.DimGray,
+                        Fill = Brushes.Transparent,
+                        StrokeDashArray = new DoubleCollection() { 2 }
+                    });
+                }
+            }
+        }
+
+        /// <summary>
         /// Gets the series collection.
         /// </summary>
         public SeriesCollection SeriesCollection

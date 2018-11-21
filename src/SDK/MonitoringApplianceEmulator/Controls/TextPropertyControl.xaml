@@ -7,7 +7,7 @@
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
-        <StackPanel Width="275">
+        <StackPanel Width="380">
             <TextBlock Style="{StaticResource OtherDetailsPropertyTitle}"
                        Text="{Binding Path=TextAlertProperty.DisplayName, Mode=OneWay, RelativeSource={RelativeSource AncestorType=local:TextPropertyControl, AncestorLevel=1}}"  />
             <local:HyperTextBlock HyperText="{Binding Path=TextAlertProperty.Value, RelativeSource={RelativeSource AncestorType=local:TextPropertyControl, AncestorLevel=1}}"

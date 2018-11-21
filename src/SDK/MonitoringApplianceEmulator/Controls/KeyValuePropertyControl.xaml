@@ -14,7 +14,7 @@
         CanUserAddRows="False"
         AutoGenerateColumns="False"
         IsReadOnly="True"
-        Width="275">
+        Width="380">
         <DataGrid.Columns>
             <DataGridTemplateColumn>
                 <DataGridTemplateColumn.Header>

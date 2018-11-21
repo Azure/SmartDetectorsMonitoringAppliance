@@ -6,6 +6,8 @@
 
 namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.ViewModels
 {
+    using System;
+    using System.Collections.Generic;
     using System.Data;
     using Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts;
 
@@ -34,10 +36,14 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
 
             foreach (object value in tableAlertProperty.Values)
             {
+                var valueAsDictionary = value as Dictionary<string, string>;
                 var newRow = table.NewRow();
                 foreach (var tableColumn in tableAlertProperty.Columns)
                 {
-                    newRow[tableColumn.DisplayName] = value.GetType().GetProperty(tableColumn.PropertyName)?.GetValue(value, null)?.ToString();
+                    //// newRow[tableColumn.DisplayName] = value.GetType().GetProperty(tableColumn.PropertyName)?.GetValue(value, null)?.ToString();
+                    string valueAsString = string.Empty;
+                    valueAsDictionary?.TryGetValue(tableColumn.PropertyName, out valueAsString);
+                    newRow[tableColumn.DisplayName] = valueAsString;
                 }
 
                 table.Rows.Add(newRow);

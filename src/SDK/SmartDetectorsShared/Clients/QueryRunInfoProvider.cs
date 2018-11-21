@@ -79,7 +79,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Clients
                     workspaces = workspacesList;
                     if (workspaces.Count == 0)
                     {
-                        throw new InvalidOperationException("No log analytics workspaces were found");
+                        //// throw new InvalidOperationException("No log analytics workspaces were found");
                     }
                 }
 

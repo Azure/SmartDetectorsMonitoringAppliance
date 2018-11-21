@@ -9,6 +9,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
     using System;
     using System.Globalization;
     using System.Windows.Data;
+    using Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.Models;
     using Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.ViewModels;
     using Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts;
 
@@ -38,12 +39,18 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
                 return value;
             }
 
-            if (!(value is ChartAlertProperty chartAlertProperty))
+            if (value.GetType() == typeof(ChartAlertProperty))
             {
-                throw new ArgumentException($"The value parameter must be of type {typeof(ChartAlertProperty)}, but it is from type {value.GetType()}.", nameof(value));
+                var chartlertProperty = value as ChartAlertProperty;
+                return new ChartPropertyControlViewModel(chartlertProperty);
+            }
+            else if (value.GetType() == typeof(ChartAlertPropertiesContainer))
+            {
+                var chartAlertPropertiesContainer = value as ChartAlertPropertiesContainer;
+                return new ChartPropertyControlViewModel(chartAlertPropertiesContainer);
             }
 
-            return new ChartPropertyControlViewModel(chartAlertProperty);
+            throw new ArgumentException($"The value parameter must be of type {nameof(ChartAlertProperty)} or {nameof(ChartPropertyControlViewModel)}, but it is from type {value.GetType().Name}.", nameof(value));
         }
 
         /// <summary>

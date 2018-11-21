@@ -6,7 +6,7 @@
              xmlns:local="clr-namespace:Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.Controls"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
-    <DataGrid MaxWidth="580" 
+    <DataGrid MaxWidth="800" 
               ItemsSource="{Binding Table}"
               ColumnWidth ="*"
               CanUserAddRows="False"
@@ -17,10 +17,13 @@
                 <Setter Property="Template">
                     <Setter.Value>
                         <ControlTemplate TargetType="{x:Type DataGridCell}"  >
-                            <local:HyperTextBlock HyperText="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=Content.Text}"
+                            <!--<local:HyperTextBlock HyperText="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=Content.Text}"
                                                    ToolTip="{Binding RelativeSource={RelativeSource Self}, Path=HyperText}"
                                                    TextTrimming="CharacterEllipsis" 
-                                                   Margin="12" />
+                                                   Margin="12" />-->
+                            <TextBlock Text="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=Content.Text}"
+                                                  TextTrimming="CharacterEllipsis" 
+                                                  Margin="12" />
                         </ControlTemplate>
                     </Setter.Value>
                 </Setter>

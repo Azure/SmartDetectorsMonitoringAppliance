@@ -106,7 +106,7 @@
                     </ListView.ItemTemplate>
                     <ListView.ItemsPanel>
                         <ItemsPanelTemplate>
-                            <WrapPanel Orientation="Horizontal" Width="600"></WrapPanel>
+                            <WrapPanel Orientation="Horizontal" MaxWidth="800"></WrapPanel>
                         </ItemsPanelTemplate>
                     </ListView.ItemsPanel>
                 </ListView>
