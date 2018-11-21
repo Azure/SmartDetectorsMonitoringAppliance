@@ -192,7 +192,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.Analysis
 
                 // Handle automatic resolution parameters in the alerts:
                 // If the detector supports automatic resolution - save the predicates for the resolution checks
-                // If the detector supports automatic resolution - drop the automatic resolution parameters (since they are useless) and error trace
+                // If the detector doesn't support automatic resolution - drop the automatic resolution parameters (since they are useless) and error trace
                 if (contractsAlert.AutomaticResolutionParameters != null)
                 {
                     if (detectorSupportsAutomaticResolution)
@@ -255,7 +255,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.Analysis
             }
 
             // Create the input for the Smart Detector
-            AnalysisRequestParameters analysisRequestParameters = await this.CreateAnalysisRequestParametersAsync(request.OriginalAnalysisRequest, smartDetectorManifest, true, cancellationToken);
+            AnalysisRequestParameters analysisRequestParameters = await this.CreateAnalysisRequestParametersAsync(request.OriginalAnalysisRequest, smartDetectorManifest, false, cancellationToken);
             var automaticResolutionCheckRequest = new AutomaticResolutionCheckRequest(
                 analysisRequestParameters,
                 new AutomaticResolutionCheckRequestParameters(ResourceIdentifier.CreateFromResourceId(request.TargetResource), request.AlertFireTime, automaticResolutionState.AlertPredicates),

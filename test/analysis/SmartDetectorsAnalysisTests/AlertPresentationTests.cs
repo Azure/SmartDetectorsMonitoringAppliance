@@ -161,11 +161,11 @@ namespace SmartDetectorsAnalysisTests
             }
 
             [PredicateProperty]
-            [AlertPresentationPropertyAttribute(AlertPresentationSection.Property, "CPU increased", InfoBalloon = "CPU increase on machine {MachineName}")]
+            [AlertPresentationProperty(AlertPresentationSection.Property, "CPU increased", InfoBalloon = "CPU increase on machine {MachineName}")]
             public double Value { get; }
 
             [PredicateProperty]
-            [AlertPresentationPropertyAttribute(AlertPresentationSection.Property, "Machine name", Order = 1, InfoBalloon = "The machine on which the CPU had increased")]
+            [AlertPresentationProperty(AlertPresentationSection.Property, "Machine name", Order = 1, InfoBalloon = "The machine on which the CPU had increased")]
             public string MachineName { get; }
         }
 
@@ -177,7 +177,7 @@ namespace SmartDetectorsAnalysisTests
             }
 
             [PredicateProperty]
-            [AlertPresentationPropertyAttribute(AlertPresentationSection.Property, "CPU increased", InfoBalloon = "CPU increase on machine {MachineName}")]
+            [AlertPresentationProperty(AlertPresentationSection.Property, "CPU increased", InfoBalloon = "CPU increase on machine {MachineName}")]
             public new double Value { get; }
         }
 
@@ -188,7 +188,7 @@ namespace SmartDetectorsAnalysisTests
                 this.CpuChartQuery = "<the query>";
             }
 
-            [AlertPresentationPropertyAttribute(AlertPresentationSection.Chart, "CPU over the last 7 days", InfoBalloon = "CPU chart for machine {MachineName}, showing increase of {Value}")]
+            [AlertPresentationProperty(AlertPresentationSection.Chart, "CPU over the last 7 days", InfoBalloon = "CPU chart for machine {MachineName}, showing increase of {Value}")]
             public string CpuChartQuery { get; }
         }
 
@@ -207,22 +207,22 @@ namespace SmartDetectorsAnalysisTests
             }
 
             [PredicateProperty]
-            [AlertPresentationPropertyAttribute(AlertPresentationSection.Property, "CPU increased", InfoBalloon = "CPU increase on machine {MachineName}")]
+            [AlertPresentationProperty(AlertPresentationSection.Property, "CPU increased", InfoBalloon = "CPU increase on machine {MachineName}")]
             public new double Value { get; }
 
-            [AlertPresentationPropertyAttribute(AlertPresentationSection.AdditionalQuery, "Another query 1", InfoBalloon = "Info balloon for another query 1")]
+            [AlertPresentationProperty(AlertPresentationSection.AdditionalQuery, "Another query 1", InfoBalloon = "Info balloon for another query 1")]
             public string Query1 { get; }
 
-            [AlertPresentationPropertyAttribute(AlertPresentationSection.AdditionalQuery, "Another query 2", InfoBalloon = "Info balloon for another query 2")]
+            [AlertPresentationProperty(AlertPresentationSection.AdditionalQuery, "Another query 2", InfoBalloon = "Info balloon for another query 2")]
             public string Query2 { get; }
 
-            [AlertPresentationPropertyAttribute(AlertPresentationSection.Analysis, "Analysis 1", InfoBalloon = "Info balloon for analysis 1")]
+            [AlertPresentationProperty(AlertPresentationSection.Analysis, "Analysis 1", InfoBalloon = "Info balloon for analysis 1")]
             public string Analysis1 { get; }
 
-            [AlertPresentationPropertyAttribute(AlertPresentationSection.Analysis, "Analysis 2", InfoBalloon = "Info balloon for analysis 2")]
+            [AlertPresentationProperty(AlertPresentationSection.Analysis, "Analysis 2", InfoBalloon = "Info balloon for analysis 2")]
             public string Analysis2 { get; }
 
-            [AlertPresentationPropertyAttribute(AlertPresentationSection.Analysis, "Analysis 3", InfoBalloon = "Info balloon for analysis 3")]
+            [AlertPresentationProperty(AlertPresentationSection.Analysis, "Analysis 3", InfoBalloon = "Info balloon for analysis 3")]
             public DateTime Analysis3 { get; }
 
             public string NoPresentation { get; set; }
@@ -239,7 +239,7 @@ namespace SmartDetectorsAnalysisTests
             }
 
             [PredicateProperty]
-            [AlertPresentationPropertyAttribute(AlertPresentationSection.Property, "CPU increased", InfoBalloon = "CPU increase on machine {MachineName}")]
+            [AlertPresentationProperty(AlertPresentationSection.Property, "CPU increased", InfoBalloon = "CPU increase on machine {MachineName}")]
             public new double Value { get; }
         }
     }

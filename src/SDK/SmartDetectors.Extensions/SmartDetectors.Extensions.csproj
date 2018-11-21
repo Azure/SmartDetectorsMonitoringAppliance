@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net461</TargetFramework>
-    <RootNamespace>Microsoft.Azure.Monitoring.SmartDetectors</RootNamespace>
+    <RootNamespace>Microsoft.Azure.Monitoring.SmartDetectors.Extensions</RootNamespace>
     <AssemblyName>Microsoft.Azure.Monitoring.SmartDetectors.Extensions</AssemblyName>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <StyleCopTreatErrorsAsWarnings>False</StyleCopTreatErrorsAsWarnings>

@@ -49,13 +49,13 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
             }
 
             // Create presentation elements for each alert property
-            Dictionary<string, object> predicates = alert.ExtractPredicates();
             #pragma warning disable CS0612 // Type or member is obsolete; Task to remove obsolete code #1312924
             List<AlertPropertyLegacy> alertPropertiesLegacy = new List<AlertPropertyLegacy>();
             #pragma warning restore CS0612 // Type or member is obsolete; Task to remove obsolete code #1312924
             List<AlertProperty> alertProperties = new List<AlertProperty>();
             Dictionary<string, string> rawProperties = new Dictionary<string, string>();
             List<string> alertBaseClassPropertiesNames = typeof(Alert).GetProperties().Select(p => p.Name).ToList();
+
             foreach (PropertyInfo property in alert.GetType().GetProperties())
             {
                 // Get the property value
@@ -91,7 +91,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
 
             string id = string.Join("##", alert.GetType().FullName, JsonConvert.SerializeObject(request), JsonConvert.SerializeObject(alert)).ToSha256Hash();
             string resourceId = alert.ResourceIdentifier.ToResourceId();
-            string correlationHash = string.Join("##", predicates.OrderBy(x => x.Key).Select(x => x.Key + "|" + x.Value.ToString())).ToSha256Hash();
+            string correlationHash = string.Join("##", alert.ExtractPredicates().OrderBy(x => x.Key).Select(x => x.Key + "|" + x.Value.ToString())).ToSha256Hash();
 
             // Get the alert's signal type based on the clients used to create the alert
             SignalType signalType = GetSignalType(usedLogAnalysisClient, usedMetricClient);
