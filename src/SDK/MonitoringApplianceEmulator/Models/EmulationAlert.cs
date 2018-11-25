@@ -101,12 +101,18 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
         /// Gets the alert's status.
         /// </summary>
         [SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic", Justification = "Used for binding")]
-        public string Status => "Unresolved";
+        public string Status => "Active";
 
         /// <summary>
         /// Gets the alert's monitor service.
         /// </summary>
         [SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic", Justification = "Used for binding")]
         public string MonitorService => "Azure monitor";
+
+        /// <summary>
+        /// Gets the alert's monitor service.
+        /// </summary>
+        [SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic", Justification = "Used for binding")]
+        public string TargetResource => "AC-SCCM-RG";
     }
 }

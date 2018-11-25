@@ -289,27 +289,41 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
         /// <param name="lazyResourceToWorkspaceResourceIdMapping">Lazily computed mapping between resources and workspaces</param>
         /// <param name="cancellationToken">A cancellation token controlling the asynchronous operation</param>
         /// <returns>A task returning <see cref="QueryRunInfo"/> for alert</returns>
-        private async Task<QueryRunInfo> CreateQueryRunInfoForAlertAsync(
+        private Task<QueryRunInfo> CreateQueryRunInfoForAlertAsync(
             Alert alert,
             Lazy<Task<Dictionary<ResourceIdentifier, ResourceIdentifier>>> lazyResourceToWorkspaceResourceIdMapping,
             CancellationToken cancellationToken)
         {
-            // Get mapping from log analytics (valid only for VMs)
-            if (alert.ResourceIdentifier.ResourceType == ResourceType.VirtualMachine || alert.ResourceIdentifier.ResourceType == ResourceType.VirtualMachineScaleSet)
-            {
-                Dictionary<ResourceIdentifier, ResourceIdentifier> resourceToWorkspaceResourceIdMapping = await lazyResourceToWorkspaceResourceIdMapping.Value;
-                if (resourceToWorkspaceResourceIdMapping.ContainsKey(alert.ResourceIdentifier))
-                {
-                    return new QueryRunInfo
-                    {
-                        ResourceIds = new List<string> { resourceToWorkspaceResourceIdMapping[alert.ResourceIdentifier].ToResourceId() },
-                        Type = TelemetryDbType.LogAnalytics
-                    };
-                }
-            }
+            ////try
+            ////{
+            ////    // Get mapping from log analytics (valid only for VMs)
+            ////    if (alert.ResourceIdentifier.ResourceType == ResourceType.VirtualMachine ||
+            ////        alert.ResourceIdentifier.ResourceType == ResourceType.VirtualMachineScaleSet)
+            ////    {
+            ////        Dictionary<ResourceIdentifier, ResourceIdentifier> resourceToWorkspaceResourceIdMapping =
+            ////            await lazyResourceToWorkspaceResourceIdMapping.Value;
+            ////        if (resourceToWorkspaceResourceIdMapping.ContainsKey(alert.ResourceIdentifier))
+            ////        {
+            ////            return new QueryRunInfo
+            ////            {
+            ////                ResourceIds = new List<string> { resourceToWorkspaceResourceIdMapping[alert.ResourceIdentifier].ToResourceId() },
+            ////                Type = TelemetryDbType.LogAnalytics
+            ////            };
+            ////        }
+            ////    }
 
-            // Get mapping from the provider
-            return await this.queryRunInfoProvider.GetQueryRunInfoAsync(new List<ResourceIdentifier>() { alert.ResourceIdentifier }, cancellationToken);
+            ////    // Get mapping from the provider
+            ////    return await this.queryRunInfoProvider.GetQueryRunInfoAsync(
+            ////        new List<ResourceIdentifier>() { alert.ResourceIdentifier },
+            ////        cancellationToken);
+            ////}
+            ////catch (Exception)
+            ////{
+            ////    return new QueryRunInfo();
+            ////}
+
+            Console.WriteLine(alert.ToString() + lazyResourceToWorkspaceResourceIdMapping.ToString() + cancellationToken.ToString() + this.Alerts.ToString());
+            return Task.FromResult(new QueryRunInfo());
         }
 
         /// <summary>

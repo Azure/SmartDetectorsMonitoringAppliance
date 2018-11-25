@@ -56,7 +56,7 @@
                             Header="STATUS"
                             EditingElementStyle="{StaticResource MaterialDesignDataGridTextColumnEditingStyle}" />
                             <DataGridTextColumn
-                            Binding="{Binding ResourceIdentifier.ResourceName, Mode=OneWay}"
+                            Binding="{Binding TargetResource, Mode=OneWay}"
                             Header="TARGET RESOURCE"
                             EditingElementStyle="{StaticResource MaterialDesignDataGridTextColumnEditingStyle}" />
                             <DataGridTextColumn

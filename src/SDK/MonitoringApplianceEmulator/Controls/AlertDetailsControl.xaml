@@ -44,7 +44,8 @@
                            Background="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Control}}, Path=Background}">
                     <ListView.ItemTemplate>
                         <DataTemplate>
-                            <StackPanel Margin="0,0,0,20">
+                            <StackPanel Margin="0,0,0,20"
+                                        Visibility="{Binding ResourceName, Converter={StaticResource EmptyStringToVisibilityConverter}}">
                                 <TextBlock Style="{StaticResource AlertDetailsPropertyTitle}" 
                                            Text="{Binding ResourceType}" />
                                 <TextBlock Style="{StaticResource AlertDetailsPropertyValue}" 
@@ -79,7 +80,7 @@
                     </ListView.Resources>
                     <ListView.ItemTemplate>
                         <DataTemplate>
-                            <ContentControl Content="{Binding }" Margin="0,0,0,20" Background="Transparent">
+                            <ContentControl Content="{Binding }" Margin="0,0,0,30" Background="Transparent">
                                 <ContentControl.Style>
                                     <Style TargetType="ContentControl">
                                         <Style.Triggers>

@@ -7,6 +7,7 @@
 namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.ViewModels
 {
     using System;
+    using System.Collections.Generic;
     using System.Globalization;
     using System.Linq;
     using System.Windows.Media;
@@ -16,6 +17,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
     using Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.Controls;
     using Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.Models;
     using Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts;
+    using ChartPoint = Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts.ChartPoint;
 
     /// <summary>
     /// The view model class for the <see cref="ChartPropertyControl"/> control.
@@ -63,15 +65,55 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
             this.Title = chartAlertPropertiesContainer.ChartsAlertProperties
                 .First(prop => prop.DisplayName.EndsWith("_Value", StringComparison.InvariantCulture)).DisplayName;
 
-            /*
-             * Relevant for Column Series:
-             * Since we are using DateTime.Ticks as X, the width of the bar is 1 tick and 1 tick is 1 millisecond.
-             * In order to make our bars visible we need to change the unit of the chart. For the initial view are going to use hours.
-             * There is a future task (#1380564) to create this scale dynamically according to the X values range size.
-             */
+            this.Title = this.Title.Replace("_Value", string.Empty);
+
+            List<ChartPoint> anomaliesChart = chartAlertPropertiesContainer.ChartsAlertProperties
+                .First(prop => prop.DisplayName.EndsWith("_Anomalies", StringComparison.InvariantCulture)).DataPoints;
+
+            var anomaliesChartValues = new ChartValues<ChartDataPoint<DateTime>>();
+            foreach (var anomalyPoint in anomaliesChart)
+            {
+                DateTime dateTime;
+                try
+                {
+                    dateTime = Convert.ToDateTime(anomalyPoint.X, CultureInfo.InvariantCulture);
+                }
+                catch (Exception e) when (e is FormatException || e is InvalidCastException)
+                {
+                    throw new InvalidCastException($"The data point's Y value '{anomalyPoint.X}' is not of DateTime type", e);
+                }
+
+                double value;
+                try
+                {
+                    value = Convert.ToDouble(anomalyPoint.Y, CultureInfo.InvariantCulture);
+                }
+                catch (Exception e) when (e is FormatException || e is InvalidCastException || e is OverflowException)
+                {
+                    throw new InvalidCastException($"The data point's X value '{anomalyPoint.X}' is not of a numeric type", e);
+                }
+
+                anomaliesChartValues.Add(new ChartDataPoint<DateTime>(dateTime, value));
+            }
+
+            // Color of anomaly points
+            var anomalyPointBrush = new SolidColorBrush(Color.FromRgb(238, 83, 80));
+
+            Func<ChartDataPoint<DateTime>, object> anomalyColorPredicate = dateTimeDataPoint =>
+            {
+                bool isAnomalyPoint = anomaliesChartValues.Any(anomalyChartValue =>
+                {
+                    return anomalyChartValue.Y == dateTimeDataPoint.Y; //// && anomalyChartValue.X == dateTimeDataPoint.X;
+                });
+
+                return isAnomalyPoint ? anomalyPointBrush : null;
+            };
+
             CartesianMapper<ChartDataPoint<DateTime>> pointMapperConfig = Mappers.Xy<ChartDataPoint<DateTime>>()
                 .X(dateTimeDataPoint => (double)dateTimeDataPoint.X.Ticks / TimeSpan.FromHours(1).Ticks)
-                .Y(dateTimeDataPoint => dateTimeDataPoint.Y);
+                .Y(dateTimeDataPoint => dateTimeDataPoint.Y)
+                .Fill(anomalyColorPredicate)
+                .Stroke(anomalyColorPredicate);
 
             this.SeriesCollection = new SeriesCollection(pointMapperConfig);
 
