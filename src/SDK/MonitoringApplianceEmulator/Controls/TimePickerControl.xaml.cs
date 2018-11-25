@@ -65,7 +65,9 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
         public static readonly DependencyProperty FullSelectedDateTimeProperty = DependencyProperty.Register(
                                                                        "FullSelectedDateTime",
                                                                        typeof(DateTime),
-                                                                       typeof(TimePickerControl));
+                                                                       typeof(TimePickerControl),
+                                                                       new FrameworkPropertyMetadata(
+                                                                           new PropertyChangedCallback(OnFullSelectedDateTimePropertyChanged)));
 
         /// <summary>
         /// The control's hint text for selecting the date dependency property
@@ -241,6 +243,24 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
                 timePickerControl.SelectedTime.Minute,
                 second: 0,
                 kind: DateTimeKind.Utc);
+        }
+
+        /// <summary>
+        /// Updates <see cref="SelectedDate"/> and <see cref="SelectedTime"/> according to the full selected date time change.
+        /// </summary>
+        /// <param name="d">the dependency object</param>
+        /// <param name="e">the event args</param>
+        private static void OnFullSelectedDateTimePropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            TimePickerControl timePickerControl = (TimePickerControl)d;
+            DateTime newSelectedTime = (DateTime)e.NewValue;
+
+            timePickerControl.SelectedDate = new DateTime(
+                timePickerControl.SelectedDate.Year,
+                timePickerControl.SelectedDate.Month,
+                timePickerControl.SelectedDate.Day);
+
+            timePickerControl.SelectedTime = newSelectedTime;
         }
     }
 }

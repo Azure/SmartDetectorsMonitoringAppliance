@@ -87,6 +87,25 @@
                         </DataGrid.RowStyle>
                     </DataGrid>
                 </ScrollViewer>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*" MinHeight="0.5"/>
+                        <RowDefinition Height="*" MinHeight="0.5"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" MinWidth="0.5"/>
+                        <ColumnDefinition Width="*" MinWidth="0.5"/>
+                        <ColumnDefinition Width="*" MinWidth="0.5"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Style="{StaticResource ControlText}" Text="Start Time" Grid.Column="0" Grid.Row="0"/>
+                    <TextBlock Style="{StaticResource ControlText}" Text="End Time" Grid.Column="1" Grid.Row="0"/>
+                    <TextBlock Style="{StaticResource ControlText}" Text="Cadence" Grid.Column="2" Grid.Row="0"
+                               Visibility="{Binding Path=SmartDetectorRunner.EmulationRunSettings.IterativeRunModeEnabled, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                    <TextBlock Style="{StaticResource DetectorName}" Text="{Binding SmartDetectorRunner.EmulationRunSettings.StartTime}" Grid.Column="0" Grid.Row="1"/>
+                    <TextBlock Style="{StaticResource DetectorName}" Text="{Binding SmartDetectorRunner.EmulationRunSettings.EndTime}" Grid.Column="1" Grid.Row="1"/>
+                    <TextBlock Style="{StaticResource DetectorName}" Text="{Binding Path=SmartDetectorRunner.EmulationRunSettings.AnalysisCadence.DisplayName, StringFormat=Every {0}}" Grid.Column="2" Grid.Row="1" 
+                               Visibility="{Binding Path=SmartDetectorRunner.EmulationRunSettings.IterativeRunModeEnabled, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                </Grid>
             </StackPanel>
         </Border>
 
