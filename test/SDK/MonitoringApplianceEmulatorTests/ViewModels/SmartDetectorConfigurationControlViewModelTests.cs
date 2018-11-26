@@ -25,6 +25,7 @@ namespace MonitoringApplianceEmulatorTests.ViewModels
         private Mock<IEmulationSmartDetectorRunner> smartDetectorRunnerMock;
         private Mock<IExtendedAzureResourceManagerClient> azureResourceManagerClientMock;
         private Mock<ITracer> tracerMock;
+        private Mock<NotificationService> notificationService;
 
         private UserSettings userSettings;
         private SmartDetectorManifest smartDetectorManifest;
@@ -37,6 +38,7 @@ namespace MonitoringApplianceEmulatorTests.ViewModels
             this.smartDetectorRunnerMock = new Mock<IEmulationSmartDetectorRunner>();
             this.azureResourceManagerClientMock = new Mock<IExtendedAzureResourceManagerClient>();
             this.tracerMock = new Mock<ITracer>();
+            this.notificationService = new Mock<NotificationService>();
 
             this.userSettings = new UserSettings();
 
@@ -69,7 +71,8 @@ namespace MonitoringApplianceEmulatorTests.ViewModels
                 this.tracerMock.Object,
                 this.smartDetectorManifest,
                 this.smartDetectorRunnerMock.Object,
-                this.userSettings);
+                this.userSettings,
+                this.notificationService.Object);
         }
 
         [TestMethod]
@@ -126,7 +129,8 @@ namespace MonitoringApplianceEmulatorTests.ViewModels
                 this.tracerMock.Object,
                 this.smartDetectorManifest,
                 this.smartDetectorRunnerMock.Object,
-                this.userSettings);
+                this.userSettings,
+                this.notificationService.Object);
 
             // Wait for subscriptions & resources task
             await Task.Delay(TimeSpan.FromSeconds(1));
@@ -150,7 +154,8 @@ namespace MonitoringApplianceEmulatorTests.ViewModels
                 this.tracerMock.Object,
                 this.smartDetectorManifest,
                 this.smartDetectorRunnerMock.Object,
-                this.userSettings);
+                this.userSettings,
+                this.notificationService.Object);
 
             // Wait for subscriptions & resources task
             await Task.Delay(TimeSpan.FromSeconds(1));
@@ -174,7 +179,8 @@ namespace MonitoringApplianceEmulatorTests.ViewModels
                 this.tracerMock.Object,
                 this.smartDetectorManifest,
                 this.smartDetectorRunnerMock.Object,
-                this.userSettings);
+                this.userSettings,
+                this.notificationService.Object);
 
             // Wait for subscriptions & resources task
             await Task.Delay(TimeSpan.FromSeconds(1));
@@ -203,7 +209,8 @@ namespace MonitoringApplianceEmulatorTests.ViewModels
                 this.tracerMock.Object,
                 this.smartDetectorManifest,
                 this.smartDetectorRunnerMock.Object,
-                this.userSettings);
+                this.userSettings,
+                this.notificationService.Object);
 
             // Wait for subscriptions & resources task
             await Task.Delay(TimeSpan.FromSeconds(1));
@@ -232,7 +239,8 @@ namespace MonitoringApplianceEmulatorTests.ViewModels
                 this.tracerMock.Object,
                 this.smartDetectorManifest,
                 this.smartDetectorRunnerMock.Object,
-                this.userSettings);
+                this.userSettings,
+                this.notificationService.Object);
 
             // Wait for subscriptions & resources task
             await Task.Delay(TimeSpan.FromSeconds(1));
@@ -306,7 +314,8 @@ namespace MonitoringApplianceEmulatorTests.ViewModels
                 this.tracerMock.Object,
                 this.smartDetectorManifest,
                 this.smartDetectorRunnerMock.Object,
-                this.userSettings);
+                this.userSettings,
+                this.notificationService.Object);
 
             var subscriptionToSelect = new HierarchicalResource(
                 new ResourceIdentifier(ResourceType.Subscription, "subId1", string.Empty, string.Empty),
@@ -372,7 +381,9 @@ namespace MonitoringApplianceEmulatorTests.ViewModels
                     this.smartDetectorConfigurationControlViewModel.ReadResourcesTask.Result,
                     this.smartDetectorConfigurationControlViewModel.SelectedCadence.TimeSpan,
                     It.IsAny<DateTime>(),
-                    It.IsAny<DateTime>()),
+                    It.IsAny<DateTime>(),
+                    this.userSettings,
+                    "1"),
                 Times.Once());
         }
 
