@@ -12,6 +12,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
     using System.Windows;
     using System.Windows.Controls;
     using System.Windows.Documents;
+    using System.Windows.Media.Imaging;
 
     /// <summary>
     /// An extension of <see cref="TextBlock"/> control that displays hypertext. The hypertext should be transfered using the <see cref="HyperText"/> dependency property.
@@ -77,7 +78,38 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
             // In case there are no links in the text, just add it
             if (!match.Success)
             {
-                hypertextTextBlock.Inlines.Add(hypertext);
+                // only for CAD scenarios, replace arrows asci chart with image
+                if (hypertext.StartsWith("↑", StringComparison.InvariantCulture))
+                {
+                    hypertext = hypertext.Trim('↑');
+
+                    var upArrowImg = new BitmapImage(new Uri("pack://application:,,,/Media/up_arrow.png"));
+                    Image image = new Image();
+                    image.Source = upArrowImg;
+                    image.Width = 15;
+                    image.Height = 15;
+                    image.Visibility = Visibility.Visible;
+                    InlineUIContainer container = new InlineUIContainer(image);
+
+                    hypertextTextBlock.Inlines.Add(container);
+                }
+                else if (hypertext.StartsWith("↓", StringComparison.InvariantCulture))
+                {
+                    hypertext = hypertext.Trim('↓');
+
+                    var upArrowImg = new BitmapImage(new Uri("pack://application:,,,/Media/down_arrow.png"));
+                    Image image = new Image();
+                    image.Source = upArrowImg;
+                    image.Width = 15;
+                    image.Height = 15;
+                    image.Visibility = Visibility.Visible;
+                    InlineUIContainer container = new InlineUIContainer(image);
+
+                    hypertextTextBlock.Inlines.Add(container);
+                }
+
+                hypertextTextBlock.Inlines.Add(" " + hypertext);
+
                 return;
             }
 

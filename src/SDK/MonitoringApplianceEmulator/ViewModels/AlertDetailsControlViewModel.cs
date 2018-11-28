@@ -70,8 +70,6 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
 
             List<DisplayableAlertProperty> displayableAlertProperties = this.Alert.ContractsAlert.AlertProperties.OfType<DisplayableAlertProperty>()
                 .Where(prop => this.supportedPropertiesTypes.Contains(prop.Type))
-                .OrderBy(prop => prop.Order)
-                .ThenBy(prop => prop.PropertyName)
                 .ToList();
 
             // Group all chart properties by chart display name
@@ -94,6 +92,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
             List<ChartAlertPropertiesContainer> chartsContainers = new List<ChartAlertPropertiesContainer>();
             chartNamesToContainers.Values.ForEach(chartPropertiesList =>
             {
+                // Set the chart container Order property to be as the Order of 'Value' chart property
                 byte chartsContainersPropertyOrder = chartPropertiesList
                     .First(chartProp => chartProp.DisplayName.EndsWith("_Value", StringComparison.InvariantCulture))
                     .Order;
@@ -102,6 +101,10 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
             });
 
             displayableAlertProperties.AddRange(chartsContainers);
+
+            displayableAlertProperties = new List<DisplayableAlertProperty>(displayableAlertProperties
+                .OrderBy(prop => prop.Order)
+                .ThenBy(prop => prop.PropertyName));
 
             this.DisplayableProperties = new ObservableCollection<DisplayableAlertProperty>(displayableAlertProperties);
 

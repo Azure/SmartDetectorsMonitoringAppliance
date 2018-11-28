@@ -10,6 +10,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
     using System.Collections.Generic;
     using System.Data;
     using Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts;
+    using Newtonsoft.Json.Linq;
 
     /// <summary>
     /// The view model class for the <see cref="TablePropertyControlViewModel{T}"/> control.
@@ -36,7 +37,17 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
 
             foreach (object value in tableAlertProperty.Values)
             {
-                var valueAsDictionary = value as Dictionary<string, string>;
+                Dictionary<string, string> valueAsDictionary;
+                if (value.GetType() == typeof(Dictionary<string, string>))
+                {
+                    valueAsDictionary = value as Dictionary<string, string>;
+                }
+                else
+                {
+                    var valueAsJobject = value as JObject;
+                    valueAsDictionary = valueAsJobject?.ToObject<Dictionary<string, string>>();
+                }
+
                 var newRow = table.NewRow();
                 foreach (var tableColumn in tableAlertProperty.Columns)
                 {

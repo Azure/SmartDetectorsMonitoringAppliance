@@ -34,6 +34,11 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
         IPageableLog PageableLog { get; }
 
         /// <summary>
+        /// Gets or sets the emulation run settings.
+        /// </summary>
+        EmulationRunSettings EmulationRunSettings { get; set; }
+
+        /// <summary>
         /// Runs the Smart Detector asynchronously.
         /// </summary>
         /// <param name="targetResource">The resource which the Smart Detector should run on.</param>
@@ -41,8 +46,10 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
         /// <param name="analysisCadence">The analysis cadence.</param>
         /// <param name="startTimeRange">The start time.</param>
         /// <param name="endTimeRange">The end time.</param>
+        /// <param name="userSettings">The user settings.</param>
+        /// <param name="subscriptionId">The subscription ID.</param>
         /// <returns>A task that runs the Smart Detector.</returns>
-        Task RunAsync(HierarchicalResource targetResource, List<ResourceIdentifier> allResources, TimeSpan analysisCadence, DateTime startTimeRange, DateTime endTimeRange);
+        Task RunAsync(HierarchicalResource targetResource, List<ResourceIdentifier> allResources, TimeSpan analysisCadence, DateTime startTimeRange, DateTime endTimeRange, UserSettings userSettings, string subscriptionId);
 
         /// <summary>
         /// Cancels the Smart Detector run.

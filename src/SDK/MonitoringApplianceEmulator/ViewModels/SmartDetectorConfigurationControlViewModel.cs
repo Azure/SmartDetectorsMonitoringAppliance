@@ -17,6 +17,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
     using Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.Controls;
     using Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.Models;
     using Microsoft.Azure.Monitoring.SmartDetectors.Package;
+    using Microsoft.Win32;
     using Unity.Attributes;
 
     /// <summary>
@@ -30,7 +31,9 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
 
         private readonly ITracer tracer;
 
-        private readonly UserSettings userSettings;
+        private readonly NotificationService notificationService;
+
+        private UserSettings userSettings;
 
         private IEmulationSmartDetectorRunner smartDetectorRunner;
 
@@ -86,13 +89,15 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
         /// <param name="smartDetectorManifest">The Smart Detector manifest.</param>
         /// <param name="smartDetectorRunner">The Smart Detector runner.</param>
         /// <param name="userSettings">The user settings.</param>
+        /// <param name="notificationService">The notification service.</param>
         [InjectionConstructor]
         public SmartDetectorConfigurationControlViewModel(
             IExtendedAzureResourceManagerClient azureResourceManagerClient,
             ITracer tracer,
             SmartDetectorManifest smartDetectorManifest,
             IEmulationSmartDetectorRunner smartDetectorRunner,
-            UserSettings userSettings)
+            UserSettings userSettings,
+            NotificationService notificationService)
         {
             this.azureResourceManagerClient = azureResourceManagerClient;
             this.smartDetectorManifest = smartDetectorManifest;
@@ -103,6 +108,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
             this.SmartDetectorRunner = smartDetectorRunner;
             this.SmartDetectorName = this.smartDetectorManifest.Name;
             this.ShouldShowStatusControl = false;
+            this.notificationService = notificationService;
 
             // Create dummy resource identifier for initialization purposes
             this.dummyResourceIdentifier = new ResourceIdentifier(ResourceType.ApplicationInsights, "dummy-subscription-id", "dummy-resource-group-name", "dummy-resource-name");
@@ -303,10 +309,10 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
                 this.selectedResourceType = value;
                 this.OnPropertyChanged();
 
-                ////if (!this.ShouldSelectResourcesAccordingToUserSettings)
-                ////{
-                ////    this.userSettings.SelectedResourceType = value;
-                ////}
+                if (!this.ShouldSelectResourcesAccordingToUserSettings)
+                {
+                    this.userSettings.SelectedResourceType = value;
+                }
 
                 if (this.ResourcesHierarchicalCollection != null && this.ResourcesHierarchicalCollection.ContainedResources != null)
                 {
@@ -496,6 +502,11 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
         /// </summary>
         public CommandHandler OnSelectedResourceChangedCommand => new CommandHandler(this.SelectResource);
 
+        /// <summary>
+        /// Gets the command that imports the emulation run settings.
+        /// </summary>
+        public CommandHandler ImportCommand => new CommandHandler(this.Import);
+
         #endregion
 
         /// <summary>
@@ -574,6 +585,22 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
                 default:
                     return resource.ResourceIdentifier.ResourceType == selectedType;
             }
+        }
+
+        /// <summary>
+        /// Raises a file selection dialog window to allow the user to select an emulation run settings file.
+        /// </summary>
+        /// <returns>The selected file path or null if no file was selected</returns>
+        private static string GetEmulationRunSettingsFilePath()
+        {
+            var dialog = new OpenFileDialog();
+
+            if (dialog.ShowDialog() == true)
+            {
+                return dialog.FileName;
+            }
+
+            return null;
         }
 
         /// <summary>
@@ -709,11 +736,74 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
                     this.ReadResourcesTask.Result,
                     this.SelectedCadence.TimeSpan,
                     startTimeRange,
-                    endTimeRange);
+                    endTimeRange,
+                    this.userSettings,
+                    this.SelectedSubscription.ResourceIdentifier.SubscriptionId);
             }
             catch (Exception e)
             {
                 this.tracer.TraceError($"Failed running Detector: {e.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Imports the emulation run settings.
+        /// </summary>
+        private void Import()
+        {
+            // Get the emulation run settings file path
+            string filePath = GetEmulationRunSettingsFilePath();
+
+            if (filePath != null)
+            {
+                // Load the file and create an emulation run settings object from the JSON file
+                EmulationRunSettings emulationRunSettings = EmulationRunSettings.LoadEmulationRunSettings(filePath);
+
+                if (emulationRunSettings != null)
+                {
+                    this.userSettings = emulationRunSettings.UserSettings;
+                    this.ShouldSelectResourcesAccordingToUserSettings = true;
+
+                    // Load the selected subscription
+                    this.ReadSubscriptionsTask = new ObservableTask<ObservableCollection<HierarchicalResource>>(
+                        this.GetSubscriptionsAsync(),
+                        this.tracer,
+                        this.LoadPreviousSelectedSubscription);
+
+                    // Set the iterative run mode, cadence, start time, and end time
+                    if (emulationRunSettings.IterativeRunModeEnabled)
+                    {
+                        this.IterativeRunModeEnabled = true;
+                        this.SelectedCadence = this.Cadences.First(cad => cad.DisplayName == emulationRunSettings.AnalysisCadence.DisplayName);
+                        this.IterativeStartTime = emulationRunSettings.StartTime;
+                        this.IterativeEndTime = emulationRunSettings.EndTime;
+                    }
+                    else
+                    {
+                        this.IterativeRunModeEnabled = false;
+
+                        // Set selected cadence to be the first one. If non, pick 10 minutes cadence as default
+                        this.SelectedCadence = this.Cadences.Any() ?
+                            this.Cadences.First() :
+                            new SmartDetectorCadence(TimeSpan.FromMinutes(10));
+
+                        this.IterativeStartTime = DateTime.UtcNow;
+                        this.IterativeEndTime = DateTime.UtcNow;
+                    }
+
+                    // Switch to the alerts view
+                    this.notificationService.OnTabSwitchedToAlertsControl();
+
+                    // Load the alerts from the emulation run settings
+                    this.SmartDetectorRunner.Alerts.Clear();
+                    foreach (var alert in emulationRunSettings.EmulationAlerts)
+                    {
+                        this.SmartDetectorRunner.Alerts.Add(alert);
+                    }
+
+                    // Set the emulation run settings in the smart detector runner
+                    this.SmartDetectorRunner.EmulationRunSettings = emulationRunSettings;
+                }
             }
         }
     }

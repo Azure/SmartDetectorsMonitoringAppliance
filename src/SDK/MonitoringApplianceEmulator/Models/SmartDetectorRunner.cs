@@ -50,6 +50,8 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
 
         private IPageableLog pageableLogTracer;
 
+        private EmulationRunSettings emulationRunSettings;
+
         private Action cancelSmartDetectorRunAction = null;
 
         /// <summary>
@@ -126,6 +128,23 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
             }
         }
 
+        /// <summary>
+        /// Gets or sets the emulation run settings.
+        /// </summary>
+        public EmulationRunSettings EmulationRunSettings
+        {
+            get
+            {
+                return this.emulationRunSettings;
+            }
+
+            set
+            {
+                this.emulationRunSettings = value;
+                this.OnPropertyChanged();
+            }
+        }
+
         #endregion
 
         #region IEmulationSmartDetectorRunner implementation
@@ -138,8 +157,10 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
         /// <param name="analysisCadence">The analysis cadence</param>
         /// <param name="startTimeRange">The start time</param>
         /// <param name="endTimeRange">The end time</param>
+        /// <param name="userSettings">The user settings</param>
+        /// <param name="subscriptionId">The subscription ID.</param>
         /// <returns>A task that runs the Smart Detector</returns>
-        public async Task RunAsync(HierarchicalResource targetResource, List<ResourceIdentifier> allResources, TimeSpan analysisCadence, DateTime startTimeRange, DateTime endTimeRange)
+        public async Task RunAsync(HierarchicalResource targetResource, List<ResourceIdentifier> allResources, TimeSpan analysisCadence, DateTime startTimeRange, DateTime endTimeRange, UserSettings userSettings, string subscriptionId)
         {
             using (var cancellationTokenSource = new CancellationTokenSource())
             {
@@ -215,6 +236,18 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
                             }
                         }
                     }
+
+                    EmulationRunSettings emulationRunSettings = new EmulationRunSettings(
+                        startTimeRange,
+                        endTimeRange,
+                        new SmartDetectorCadence(analysisCadence),
+                        this.Alerts.ToList(),
+                        userSettings,
+                        subscriptionId,
+                        currentRunNumber > 2);
+
+                    this.EmulationRunSettings = emulationRunSettings;
+                    emulationRunSettings.Save();
                 }
                 finally
                 {
@@ -289,27 +322,41 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
         /// <param name="lazyResourceToWorkspaceResourceIdMapping">Lazily computed mapping between resources and workspaces</param>
         /// <param name="cancellationToken">A cancellation token controlling the asynchronous operation</param>
         /// <returns>A task returning <see cref="QueryRunInfo"/> for alert</returns>
-        private async Task<QueryRunInfo> CreateQueryRunInfoForAlertAsync(
+        private Task<QueryRunInfo> CreateQueryRunInfoForAlertAsync(
             Alert alert,
             Lazy<Task<Dictionary<ResourceIdentifier, ResourceIdentifier>>> lazyResourceToWorkspaceResourceIdMapping,
             CancellationToken cancellationToken)
         {
-            // Get mapping from log analytics (valid only for VMs)
-            if (alert.ResourceIdentifier.ResourceType == ResourceType.VirtualMachine || alert.ResourceIdentifier.ResourceType == ResourceType.VirtualMachineScaleSet)
-            {
-                Dictionary<ResourceIdentifier, ResourceIdentifier> resourceToWorkspaceResourceIdMapping = await lazyResourceToWorkspaceResourceIdMapping.Value;
-                if (resourceToWorkspaceResourceIdMapping.ContainsKey(alert.ResourceIdentifier))
-                {
-                    return new QueryRunInfo
-                    {
-                        ResourceIds = new List<string> { resourceToWorkspaceResourceIdMapping[alert.ResourceIdentifier].ToResourceId() },
-                        Type = TelemetryDbType.LogAnalytics
-                    };
-                }
-            }
+            ////try
+            ////{
+            ////    // Get mapping from log analytics (valid only for VMs)
+            ////    if (alert.ResourceIdentifier.ResourceType == ResourceType.VirtualMachine ||
+            ////        alert.ResourceIdentifier.ResourceType == ResourceType.VirtualMachineScaleSet)
+            ////    {
+            ////        Dictionary<ResourceIdentifier, ResourceIdentifier> resourceToWorkspaceResourceIdMapping =
+            ////            await lazyResourceToWorkspaceResourceIdMapping.Value;
+            ////        if (resourceToWorkspaceResourceIdMapping.ContainsKey(alert.ResourceIdentifier))
+            ////        {
+            ////            return new QueryRunInfo
+            ////            {
+            ////                ResourceIds = new List<string> { resourceToWorkspaceResourceIdMapping[alert.ResourceIdentifier].ToResourceId() },
+            ////                Type = TelemetryDbType.LogAnalytics
+            ////            };
+            ////        }
+            ////    }
 
-            // Get mapping from the provider
-            return await this.queryRunInfoProvider.GetQueryRunInfoAsync(new List<ResourceIdentifier>() { alert.ResourceIdentifier }, cancellationToken);
+            ////    // Get mapping from the provider
+            ////    return await this.queryRunInfoProvider.GetQueryRunInfoAsync(
+            ////        new List<ResourceIdentifier>() { alert.ResourceIdentifier },
+            ////        cancellationToken);
+            ////}
+            ////catch (Exception)
+            ////{
+            ////    return new QueryRunInfo();
+            ////}
+
+            Console.WriteLine(alert.ToString() + lazyResourceToWorkspaceResourceIdMapping.ToString() + cancellationToken.ToString() + this.Alerts.ToString());
+            return Task.FromResult(new QueryRunInfo());
         }
 
         /// <summary>

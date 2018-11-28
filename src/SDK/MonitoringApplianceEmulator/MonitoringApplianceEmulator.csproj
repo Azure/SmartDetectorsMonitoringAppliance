@@ -125,6 +125,8 @@
     <Resource Include="Media\virtual_machine.png" />
     <Resource Include="Media\virtual_machine_set.png" />
     <Resource Include="Media\subscription.png" />
+    <Resource Include="Media\up_arrow.png" />
+    <Resource Include="Media\down_arrow.png" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\SmartDetectors.Extensions\SmartDetectors.Extensions.csproj" />
