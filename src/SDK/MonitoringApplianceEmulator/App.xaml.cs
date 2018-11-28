@@ -9,7 +9,11 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator
 {
     using System;
     using System.IO;
+    using System.Net;
+    using System.Threading.Tasks;
     using System.Windows;
+    using IdentityModel.Clients.ActiveDirectory;
+    using KeyVault;
     using Microsoft.Azure.Monitoring.SmartDetectors;
     using Microsoft.Azure.Monitoring.SmartDetectors.Clients;
     using Microsoft.Azure.Monitoring.SmartDetectors.Extensions;
@@ -64,7 +68,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator
 
             // *Temporary*: if package file path wasn't accepted, raise file selection window to allow package file selection.
             // This option should be removed before launching version for customers (bug for tracking: 1177247)
-            string smartDetectorPackagePath = e.Args.Length != 1 ?
+            string smartDetectorPackagePath = e.Args.Length < 1 ?
                 GetSmartDetectorPackagePath() :
                 Diagnostics.EnsureStringNotNullOrWhiteSpace(() => e.Args[0]);
 
@@ -80,7 +84,22 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator
                 ISmartDetector detector = smartDetectorLoader.LoadSmartDetector(smartDetectorPackage);
 
                 // Authenticate the user to Active Directory
-                IAuthenticationServices authenticationServices = new AuthenticationServices();
+                IAuthenticationServices authenticationServices;
+                string dirId = null;
+                if (e.Args.Length == 2)
+                {
+                    var subId = e.Args[1];
+                    dirId = GetDirectoryForSubscriptionAsync(subId).Result;
+                    var kv = new KeyVaultClient(GetToken);
+                    var sec = kv.GetSecretAsync("https://cadservicepreviewvault.vault.azure.net/secrets/CadServicePreview/836cea07a62147fd9d614a8dd0ac1e91").Result;
+                    Console.WriteLine(sec.Value);
+                    authenticationServices = new AuthenticationServices(dirId, "b6836b10-1302-4894-9421-423edb2816f9", sec.Value);
+                }
+                else
+                {
+                    authenticationServices = new AuthenticationServices();
+                }
+
                 authenticationServices.AuthenticateUser();
                 ICredentialsFactory credentialsFactory = new ActiveDirectoryCredentialsFactory(authenticationServices);
                 IHttpClientWrapper httpClientWrapper = new HttpClientWrapper();
@@ -132,6 +151,17 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator
             }
         }
 
+        private static Task<string> GetToken(string authority, string resource, string scope)
+        {
+            var authenticationContext = new AuthenticationContext(authority);
+            var authenticationResult = authenticationContext.AcquireToken(
+                resource,
+                "1950a258-227b-4e31-a9cf-717495945fc2",
+                new Uri(@"urn:ietf:wg:oauth:2.0:oob"));
+
+            return Task.FromResult(authenticationResult.AccessToken);
+        }
+
         /// <summary>
         /// Raises file selection dialog window to allow the user to select package file.
         /// </summary>
@@ -146,6 +176,34 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator
             }
 
             return null;
+        }
+
+        /// <summary>
+        /// Give a subscription gets the directory id
+        /// </summary>
+        /// <param name="subscriptionId">The sub id</param>
+        /// <returns>The directory id</returns>
+        private static async Task<string> GetDirectoryForSubscriptionAsync(string subscriptionId)
+        {
+            string directoryId = null;
+
+            string url = $"https://management.azure.com/subscriptions/{subscriptionId}?api-version=2014-04-01";
+            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(new Uri(url));
+            request.Method = "GET";
+            try
+            {
+                await request.GetResponseAsync().ConfigureAwait(false);
+            }
+            catch (WebException ex)
+            {
+                if (ex.Response != null && ((HttpWebResponse)ex.Response).StatusCode == HttpStatusCode.Unauthorized)
+                {
+                    string authUrl = ex.Response.Headers["WWW-Authenticate"].Split(',')[0].Split('=')[1];
+                    directoryId = authUrl.Substring(authUrl.LastIndexOf('/') + 1, 36);
+                }
+            }
+
+            return directoryId;
         }
     }
 }

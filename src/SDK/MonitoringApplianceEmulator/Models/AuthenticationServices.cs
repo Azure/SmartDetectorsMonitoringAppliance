@@ -18,11 +18,16 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
     /// </summary>
     public class AuthenticationServices : IAuthenticationServices
     {
+        private readonly string directoryId;
+
         // The resource ID used for authentication requests.
         private readonly string resourceId;
 
         // The client ID for the emulator's application.
         private readonly string clientId;
+
+        // The client secret
+        private readonly string clientSecret;
 
         // The redirect URI registered in Azure for the emulator's application.
         private readonly Uri redirectUri;
@@ -39,27 +44,40 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
         /// <summary>
         /// Initializes a new instance of the <see cref="AuthenticationServices"/> class.
         /// </summary>
-        public AuthenticationServices()
+        /// <param name="directoryId">The directory id</param>
+        /// <param name="clientId">The client id</param>
+        /// <param name="clientSecret">The client secret</param>
+        public AuthenticationServices(string directoryId, string clientId, string clientSecret)
         {
+            this.directoryId = directoryId;
             this.AuthenticatedUserName = string.Empty;
 
             string commonAuthority = Diagnostics.EnsureStringNotNullOrWhiteSpace(() => ConfigurationManager.AppSettings["CommonAuthority"]);
             this.resourceId = Diagnostics.EnsureStringNotNullOrWhiteSpace(() => ConfigurationManager.AppSettings["ResourceId"]);
-            this.clientId = Diagnostics.EnsureStringNotNullOrWhiteSpace(() => ConfigurationManager.AppSettings["ClientId"]);
+            this.clientId = clientId;
             this.redirectUri = new Uri(Diagnostics.EnsureStringNotNullOrWhiteSpace(() => ConfigurationManager.AppSettings["RedirectUri"]));
+            this.clientSecret = clientSecret;
 
             // Initialize the AuthenticationContext with the common (tenant-less) endpoint
-            this.authenticationContext = new AuthenticationContext(commonAuthority);
-
-            // If we already have tokens in the cache
-            if (this.authenticationContext.TokenCache.ReadItems().Any())
+            if (string.IsNullOrEmpty(directoryId))
             {
-                // Re-bind the AuthenticationContext to the authority that sourced the token in the cache.
-                // This is needed for the cache to work when asking a token from that authority
-                // (the common endpoint never triggers cache hits)
-                string cachedAuthority = this.authenticationContext.TokenCache.ReadItems().First().Authority;
-                this.authenticationContext = new AuthenticationContext(cachedAuthority);
+                this.authenticationContext = new AuthenticationContext(commonAuthority);
             }
+            else
+            {
+                this.authenticationContext = new AuthenticationContext($@"https://login.windows.net/{this.directoryId}/");
+            }
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AuthenticationServices"/> class.
+        /// </summary>
+        public AuthenticationServices()
+            : this(
+                null,
+                Diagnostics.EnsureStringNotNullOrWhiteSpace(() => ConfigurationManager.AppSettings["ClientId"]),
+                null)
+        {
         }
 
         #region IAuthenticationServices implementation
@@ -80,15 +98,24 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
         /// </summary>
         public void AuthenticateUser()
         {
-            this.authenticationResult = this.authenticationContext.AcquireToken(
-                this.resourceId,
-                this.clientId,
-                this.redirectUri,
-                PromptBehavior.Auto);
+            if (string.IsNullOrEmpty(this.clientSecret))
+            {
+                this.authenticationResult = this.authenticationContext.AcquireToken(
+                    this.resourceId,
+                    this.clientId,
+                    this.redirectUri,
+                    PromptBehavior.Auto);
                 ////UserIdentifier.AnyUser,
                 ////"prompt=consent");
+            }
+            else
+            {
+                this.authenticationResult = this.authenticationContext.AcquireToken(
+                    this.resourceId,
+                    new ClientCredential(this.clientId, this.clientSecret));
+            }
 
-            this.AuthenticatedUserName = this.authenticationResult.UserInfo.GivenName;
+            this.AuthenticatedUserName = this.authenticationResult.UserInfo?.GivenName;
         }
 
         /// <summary>
@@ -106,15 +133,38 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
                     // Check again
                     if (this.IsAccessTokenAboutToExpire)
                     {
-                        this.authenticationResult = this.authenticationContext.AcquireTokenByRefreshToken(this.authenticationResult.RefreshToken, this.clientId);
+                        if (string.IsNullOrEmpty(this.clientSecret))
+                        {
+                            this.authenticationResult =
+                                this.authenticationContext.AcquireTokenByRefreshToken(
+                                    this.authenticationResult.RefreshToken, this.clientId);
+                        }
+                        else
+                        {
+                            this.authenticationResult =
+                                this.authenticationContext.AcquireTokenByRefreshToken(
+                                    this.authenticationResult.RefreshToken, new ClientCredential(this.clientId, this.clientSecret));
+                        }
                     }
                 }
             }
 
-            var authResult = await this.authenticationContext.AcquireTokenAsync(
-                resource,
-                this.clientId,
-                new UserAssertion(this.authenticationResult.AccessToken, this.authenticationResult.AccessTokenType));
+            AuthenticationResult authResult;
+            if (string.IsNullOrEmpty(this.clientSecret))
+            {
+                authResult = await this.authenticationContext.AcquireTokenAsync(
+                    resource,
+                    this.clientId,
+                    new UserAssertion(
+                        this.authenticationResult.AccessToken,
+                        this.authenticationResult.AccessTokenType));
+            }
+            else
+            {
+                authResult = await this.authenticationContext.AcquireTokenAsync(
+                    resource,
+                    new ClientCredential(this.clientId, this.clientSecret));
+            }
 
             return authResult.AccessToken;
         }
