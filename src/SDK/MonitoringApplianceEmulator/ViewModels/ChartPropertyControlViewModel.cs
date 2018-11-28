@@ -25,6 +25,8 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
     public class ChartPropertyControlViewModel : ObservableObject
     {
         private static readonly Brush SeriesColor = Brushes.DeepSkyBlue;
+        private static readonly Brush BaselineColor = Brushes.LightGray;
+        private static readonly Brush AnomalyColor = new SolidColorBrush(Color.FromRgb(238, 83, 80));
 
         private SeriesCollection seriesCollection;
 
@@ -70,43 +72,22 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
             List<ChartPoint> anomaliesChart = chartAlertPropertiesContainer.ChartsAlertProperties
                 .First(prop => prop.DisplayName.EndsWith("_Anomalies", StringComparison.InvariantCulture)).DataPoints;
 
-            var anomaliesChartValues = new ChartValues<ChartDataPoint<DateTime>>();
+            var anomaliesChartXValues = new HashSet<DateTime>();
             foreach (var anomalyPoint in anomaliesChart)
             {
-                DateTime dateTime;
                 try
                 {
-                    dateTime = Convert.ToDateTime(anomalyPoint.X, CultureInfo.InvariantCulture);
+                    anomaliesChartXValues.Add(Convert.ToDateTime(anomalyPoint.X, CultureInfo.InvariantCulture));
                 }
                 catch (Exception e) when (e is FormatException || e is InvalidCastException)
                 {
                     throw new InvalidCastException($"The data point's Y value '{anomalyPoint.X}' is not of DateTime type", e);
                 }
-
-                double value;
-                try
-                {
-                    value = Convert.ToDouble(anomalyPoint.Y, CultureInfo.InvariantCulture);
-                }
-                catch (Exception e) when (e is FormatException || e is InvalidCastException || e is OverflowException)
-                {
-                    throw new InvalidCastException($"The data point's X value '{anomalyPoint.X}' is not of a numeric type", e);
-                }
-
-                anomaliesChartValues.Add(new ChartDataPoint<DateTime>(dateTime, value));
             }
-
-            // Color of anomaly points
-            var anomalyPointBrush = new SolidColorBrush(Color.FromRgb(238, 83, 80));
 
             Func<ChartDataPoint<DateTime>, object> anomalyColorPredicate = dateTimeDataPoint =>
             {
-                bool isAnomalyPoint = anomaliesChartValues.Any(anomalyChartValue =>
-                {
-                    return anomalyChartValue.Y == dateTimeDataPoint.Y; //// && anomalyChartValue.X == dateTimeDataPoint.X;
-                });
-
-                return isAnomalyPoint ? anomalyPointBrush : null;
+                return anomaliesChartXValues.Contains(dateTimeDataPoint.X) ? AnomalyColor : null;
             };
 
             CartesianMapper<ChartDataPoint<DateTime>> pointMapperConfig = Mappers.Xy<ChartDataPoint<DateTime>>()
@@ -119,6 +100,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
 
             this.XAxisFormatter = value => new DateTime((long)(value * TimeSpan.FromHours(1).Ticks)).ToString(CultureInfo.InvariantCulture);
 
+            ChartValues<ChartDataPoint<DateTime>> lowValues = null, highValues = null, values = null;
             foreach (var chartAlertProperty in chartAlertPropertiesContainer.ChartsAlertProperties)
             {
                 var chartValues = new ChartValues<ChartDataPoint<DateTime>>();
@@ -150,37 +132,60 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
 
                 if (chartAlertProperty.DisplayName.EndsWith("Value", StringComparison.InvariantCulture))
                 {
-                    this.SeriesCollection.Add(new LineSeries
-                    {
-                        Title = chartAlertProperty.DisplayName,
-                        Values = chartValues,
-                        Stroke = SeriesColor,
-                        Fill = Brushes.Transparent,
-                        StrokeDashArray = null
-                    });
+                    values = chartValues;
                 }
                 else if (chartAlertProperty.DisplayName.EndsWith("High", StringComparison.InvariantCulture))
                 {
-                    this.SeriesCollection.Add(new LineSeries
-                    {
-                        Title = chartAlertProperty.DisplayName,
-                        Values = chartValues,
-                        Stroke = Brushes.DimGray,
-                        Fill = Brushes.Transparent,
-                        StrokeDashArray = new DoubleCollection() { 2 }
-                    });
+                    highValues = chartValues;
                 }
                 else if (chartAlertProperty.DisplayName.EndsWith("Low", StringComparison.InvariantCulture))
                 {
-                    this.SeriesCollection.Add(new LineSeries
-                    {
-                        Title = chartAlertProperty.DisplayName,
-                        Values = chartValues,
-                        Stroke = Brushes.DimGray,
-                        Fill = Brushes.Transparent,
-                        StrokeDashArray = new DoubleCollection() { 2 }
-                    });
+                    lowValues = chartValues;
                 }
+            }
+
+            if (highValues != null && lowValues != null)
+            {
+                highValues = new ChartValues<ChartDataPoint<DateTime>>(highValues.Zip(lowValues, (high, low) => new ChartDataPoint<DateTime>(high.X, high.Y - low.Y)));
+            }
+
+            if (lowValues != null)
+            {
+                this.SeriesCollection.Add(new LineSeries()
+                {
+                    Title = "Low",
+                    Values = lowValues,
+                    Stroke = BaselineColor,
+                    Fill = Brushes.Transparent,
+                    StrokeDashArray = null,
+                    PointGeometrySize = 0,
+                });
+            }
+
+            if (highValues != null)
+            {
+                this.SeriesCollection.Add(new LineSeries
+                {
+                    Title = "High",
+                    Values = highValues,
+                    Stroke = BaselineColor,
+                    Fill = Brushes.Transparent,
+                    StrokeDashArray = null,
+                    PointGeometrySize = 0,
+                });
+            }
+
+            if (values != null)
+            {
+                this.SeriesCollection.Add(new LineSeries()
+                {
+                    Title = "Value",
+                    Values = values,
+                    Stroke = SeriesColor,
+                    Fill = Brushes.Transparent,
+                    StrokeDashArray = null,
+                    PointGeometrySize = 4,
+                });
             }
         }
 

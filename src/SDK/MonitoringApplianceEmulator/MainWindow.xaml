@@ -9,7 +9,8 @@
         xmlns:viewModels="clr-namespace:Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.ViewModels"
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance Type=viewModels:MainWindowViewModel, IsDesignTimeCreatable=True}"
-        Title="" Height="680" Width="1300" MinHeight="580" MinWidth="1300">
+        Title="" Height="680" Width="1300" MinHeight="580" MinWidth="1300"
+        WindowStartupLocation="CenterScreen" WindowState="Maximized">
     <Window.Resources>
         <converters:CountToVisibilityConverter x:Key="CountToVisibilityConverter"/>
         <converters:EnumToIntConverter x:Key="EnumToIntConverter"/>
