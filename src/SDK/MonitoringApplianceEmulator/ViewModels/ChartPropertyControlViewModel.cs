@@ -144,11 +144,6 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
                 }
             }
 
-            if (highValues != null && lowValues != null)
-            {
-                highValues = new ChartValues<ChartDataPoint<DateTime>>(highValues.Zip(lowValues, (high, low) => new ChartDataPoint<DateTime>(high.X, high.Y - low.Y)));
-            }
-
             if (lowValues != null)
             {
                 this.SeriesCollection.Add(new LineSeries()
