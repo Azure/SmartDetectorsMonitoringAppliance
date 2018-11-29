@@ -139,12 +139,6 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
                                 this.authenticationContext.AcquireTokenByRefreshToken(
                                     this.authenticationResult.RefreshToken, this.clientId);
                         }
-                        else
-                        {
-                            this.authenticationResult =
-                                this.authenticationContext.AcquireTokenByRefreshToken(
-                                    this.authenticationResult.RefreshToken, new ClientCredential(this.clientId, this.clientSecret));
-                        }
                     }
                 }
             }
