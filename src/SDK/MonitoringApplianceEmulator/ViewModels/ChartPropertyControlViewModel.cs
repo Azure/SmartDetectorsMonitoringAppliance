@@ -156,15 +156,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
 
             this.XAxisFormatter = value => new DateTime((long)(value * xAxisFactor)).ToString(CultureInfo.InvariantCulture);
 
-            // Set the Y axis format
-            if (chartAlertProperty.YAxisType == ChartAxisType.Percentage)
-            {
-                this.YAxisFormatter = value => $"{value.ToString(CultureInfo.InvariantCulture)}%";
-            }
-            else
-            {
-                this.YAxisFormatter = value => value.ToString(CultureInfo.InvariantCulture);
-            }
+            this.SetYAxisFormat(chartAlertProperty);
         }
 
         /// <summary>
@@ -195,15 +187,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
 
             this.XAxisFormatter = value => value.ToString(CultureInfo.InvariantCulture);
 
-            // Set the Y axis format
-            if (chartAlertProperty.YAxisType == ChartAxisType.Percentage)
-            {
-                this.YAxisFormatter = value => $"{value.ToString(CultureInfo.InvariantCulture)}%";
-            }
-            else
-            {
-                this.YAxisFormatter = value => value.ToString(CultureInfo.InvariantCulture);
-            }
+            this.SetYAxisFormat(chartAlertProperty);
         }
 
         /// <summary>
@@ -231,6 +215,22 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
                     Stroke = SeriesColor,
                     Fill = SeriesColor
                 });
+            }
+        }
+
+        /// <summary>
+        /// Sets the Y axis format.
+        /// </summary>
+        /// <param name="chartAlertProperty">The chart alert property that should be displayed.</param>
+        private void SetYAxisFormat(ChartAlertProperty chartAlertProperty)
+        {
+            if (chartAlertProperty.YAxisType == ChartAxisType.Percentage)
+            {
+                this.YAxisFormatter = value => $"{value.ToString(CultureInfo.InvariantCulture)}%";
+            }
+            else
+            {
+                this.YAxisFormatter = value => value.ToString(CultureInfo.InvariantCulture);
             }
         }
     }

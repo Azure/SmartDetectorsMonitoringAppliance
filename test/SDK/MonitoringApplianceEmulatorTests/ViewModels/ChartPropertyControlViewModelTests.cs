@@ -54,61 +54,111 @@ namespace MonitoringApplianceEmulatorTests.ViewModels
         [TestMethod]
         public void WhenCreatingNewViewModelForLineChartWithDateTimeXAxisTypeAndWithNumericYAxisTypeThenItWasInitializedCorrectly()
         {
-            AssertChartViewModel<LineSeries>(ChartType.LineChart, ChartAxisType.Date, ChartAxisType.Number, DateTimeChartPoints, AssertDateTimeChartPoints);
+            AssertChartViewModel<LineSeries>(
+                chartType: ChartType.LineChart,
+                xAxisType: ChartAxisType.Date,
+                yAxisType: ChartAxisType.Number,
+                expectedChartPoints: DateTimeChartPoints,
+                pointsAssertionMethod: AssertDateTimeChartPoints);
         }
 
         [TestMethod]
         public void WhenCreatingNewViewModelForLineChartWithDateTimeXAxisTypeAndWithPercentageYAxisTypeThenItWasInitializedCorrectly()
         {
-            AssertChartViewModel<LineSeries>(ChartType.LineChart, ChartAxisType.Date, ChartAxisType.Percentage, DateTimeChartPoints, AssertDateTimeChartPoints);
+            AssertChartViewModel<LineSeries>(
+                chartType: ChartType.LineChart,
+                xAxisType: ChartAxisType.Date,
+                yAxisType: ChartAxisType.Percentage,
+                expectedChartPoints: DateTimeChartPoints,
+                pointsAssertionMethod: AssertDateTimeChartPoints);
         }
 
         [TestMethod]
         public void WhenCreatingNewViewModelForLineChartWithSingleDateTimePointXAxisTypeAndWithNumericYAxisTypeThenItWasInitializedCorrectly()
         {
-            AssertChartViewModel<LineSeries>(ChartType.LineChart, ChartAxisType.Date, ChartAxisType.Number, SingleDateTimeChartPoints, AssertDateTimeChartPoints);
+            AssertChartViewModel<LineSeries>(
+                chartType: ChartType.LineChart,
+                xAxisType: ChartAxisType.Date,
+                yAxisType: ChartAxisType.Number,
+                expectedChartPoints: SingleDateTimeChartPoints,
+                pointsAssertionMethod: AssertDateTimeChartPoints);
         }
 
         [TestMethod]
         public void WhenCreatingNewViewModelForLineChartWithSingleDateTimePointXAxisTypeAndWithPercentageYAxisTypeThenItWasInitializedCorrectly()
         {
-            AssertChartViewModel<LineSeries>(ChartType.LineChart, ChartAxisType.Date, ChartAxisType.Percentage, SingleDateTimeChartPoints, AssertDateTimeChartPoints);
+            AssertChartViewModel<LineSeries>(
+                chartType: ChartType.LineChart,
+                xAxisType: ChartAxisType.Date,
+                yAxisType: ChartAxisType.Percentage,
+                expectedChartPoints: SingleDateTimeChartPoints,
+                pointsAssertionMethod: AssertDateTimeChartPoints);
         }
 
         [TestMethod]
         public void WhenCreatingNewViewModelForBarChartWithDateTimeXAxisTypeAndWithNumericYAxisTypeThenItWasInitializedCorrectly()
         {
-            AssertChartViewModel<ColumnSeries>(ChartType.BarChart, ChartAxisType.Date, ChartAxisType.Number, DateTimeChartPoints, AssertDateTimeChartPoints);
+            AssertChartViewModel<ColumnSeries>(
+                chartType: ChartType.BarChart,
+                xAxisType: ChartAxisType.Date,
+                yAxisType: ChartAxisType.Number,
+                expectedChartPoints: DateTimeChartPoints,
+                pointsAssertionMethod: AssertDateTimeChartPoints);
         }
 
         [TestMethod]
         public void WhenCreatingNewViewModelForBarChartWithDateTimeXAxisTypeAndWithPercentageYAxisTypeThenItWasInitializedCorrectly()
         {
-            AssertChartViewModel<ColumnSeries>(ChartType.BarChart, ChartAxisType.Date, ChartAxisType.Percentage, DateTimeChartPoints, AssertDateTimeChartPoints);
+            AssertChartViewModel<ColumnSeries>(
+                chartType: ChartType.BarChart,
+                xAxisType: ChartAxisType.Date,
+                yAxisType: ChartAxisType.Percentage,
+                expectedChartPoints: DateTimeChartPoints,
+                pointsAssertionMethod: AssertDateTimeChartPoints);
         }
 
         [TestMethod]
         public void WhenCreatingNewViewModelForLineChartWithNumericXAxisTypeAndWithNumericYAxisTypeThenItWasInitializedCorrectly()
         {
-            AssertChartViewModel<LineSeries>(ChartType.LineChart, ChartAxisType.Number, ChartAxisType.Number, NumericChartPoints, AssertNumericChartPoints);
+            AssertChartViewModel<LineSeries>(
+                chartType: ChartType.LineChart,
+                xAxisType: ChartAxisType.Number,
+                yAxisType: ChartAxisType.Number,
+                expectedChartPoints: NumericChartPoints,
+                pointsAssertionMethod: AssertNumericChartPoints);
         }
 
         [TestMethod]
         public void WhenCreatingNewViewModelForLineChartWithNumericXAxisTypeAndWithPercentageYAxisTypeThenItWasInitializedCorrectly()
         {
-            AssertChartViewModel<LineSeries>(ChartType.LineChart, ChartAxisType.Number, ChartAxisType.Percentage, NumericChartPoints, AssertNumericChartPoints);
+            AssertChartViewModel<LineSeries>(
+                chartType: ChartType.LineChart,
+                xAxisType: ChartAxisType.Number,
+                yAxisType: ChartAxisType.Percentage,
+                expectedChartPoints: NumericChartPoints,
+                pointsAssertionMethod: AssertNumericChartPoints);
         }
 
         [TestMethod]
         public void WhenCreatingNewViewModelForBarChartWithNumericXAxisTypeAndWithNumericYAxisTypeThenItWasInitializedCorrectly()
         {
-            AssertChartViewModel<ColumnSeries>(ChartType.BarChart, ChartAxisType.Number, ChartAxisType.Number, NumericChartPoints, AssertNumericChartPoints);
+            AssertChartViewModel<ColumnSeries>(
+                chartType: ChartType.BarChart,
+                xAxisType: ChartAxisType.Number,
+                yAxisType: ChartAxisType.Number,
+                expectedChartPoints: NumericChartPoints,
+                pointsAssertionMethod: AssertNumericChartPoints);
         }
 
         [TestMethod]
         public void WhenCreatingNewViewModelForBarChartWithNumericXAxisTypeAndWithPercentageYAxisTypeThenItWasInitializedCorrectly()
         {
-            AssertChartViewModel<ColumnSeries>(ChartType.BarChart, ChartAxisType.Number, ChartAxisType.Percentage, NumericChartPoints, AssertNumericChartPoints);
+            AssertChartViewModel<ColumnSeries>(
+                chartType: ChartType.BarChart,
+                xAxisType: ChartAxisType.Number,
+                yAxisType: ChartAxisType.Percentage,
+                expectedChartPoints: NumericChartPoints,
+                pointsAssertionMethod: AssertNumericChartPoints);
         }
 
         private static void AssertChartViewModel<T>(ChartType chartType, ChartAxisType xAxisType, ChartAxisType yAxisType, List<ChartPoint> expectedChartPoints, ChartPointsAssertionDelegate pointsAssertionMethod)
