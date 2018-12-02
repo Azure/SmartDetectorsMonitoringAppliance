@@ -8,6 +8,7 @@ namespace MonitoringApplianceEmulatorTests.ViewModels
 {
     using System;
     using System.Collections.Generic;
+    using System.Globalization;
     using System.Linq;
     using LiveCharts.Wpf;
     using Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.ViewModels;
@@ -42,39 +43,75 @@ namespace MonitoringApplianceEmulatorTests.ViewModels
             new ChartPoint(5.0, 10.0)
         };
 
+        private static readonly Func<double, string> PercentageYFormatter = value => $"{value.ToString(CultureInfo.InvariantCulture)}%";
+
+        private static readonly Func<double, string> NumberFormatter = value => value.ToString(CultureInfo.InvariantCulture);
+
+        private static Func<double, string> dateXFormatter;
+
         public delegate void ChartPointsAssertionDelegate(List<ChartPoint> expectedPoints, List<LiveCharts.ChartPoint> actualPoints);
 
         [TestMethod]
-        public void WhenCreatingNewViewModelForLineChartWithDateTimeXAxisTypeThenItWasInitializedCorrectly()
+        public void WhenCreatingNewViewModelForLineChartWithDateTimeXAxisTypeAndWithNumericYAxisTypeThenItWasInitializedCorrectly()
         {
-            AssertChartViewModel<LineSeries>(ChartType.LineChart, ChartAxisType.Date, DateTimeChartPoints, AssertDateTimeChartPoints);
+            AssertChartViewModel<LineSeries>(ChartType.LineChart, ChartAxisType.Date, ChartAxisType.Number, DateTimeChartPoints, AssertDateTimeChartPoints);
         }
 
         [TestMethod]
-        public void WhenCreatingNewViewModelForLineChartWithSingleDateTimePointXAxisTypeThenItWasInitializedCorrectly()
+        public void WhenCreatingNewViewModelForLineChartWithDateTimeXAxisTypeAndWithPercentageYAxisTypeThenItWasInitializedCorrectly()
         {
-            AssertChartViewModel<LineSeries>(ChartType.LineChart, ChartAxisType.Date, SingleDateTimeChartPoints, AssertDateTimeChartPoints);
+            AssertChartViewModel<LineSeries>(ChartType.LineChart, ChartAxisType.Date, ChartAxisType.Percentage, DateTimeChartPoints, AssertDateTimeChartPoints);
         }
 
         [TestMethod]
-        public void WhenCreatingNewViewModelForBarChartWithDateTimeXAxisTypeThenItWasInitializedCorrectly()
+        public void WhenCreatingNewViewModelForLineChartWithSingleDateTimePointXAxisTypeAndWithNumericYAxisTypeThenItWasInitializedCorrectly()
         {
-            AssertChartViewModel<ColumnSeries>(ChartType.BarChart, ChartAxisType.Date, DateTimeChartPoints, AssertDateTimeChartPoints);
+            AssertChartViewModel<LineSeries>(ChartType.LineChart, ChartAxisType.Date, ChartAxisType.Number, SingleDateTimeChartPoints, AssertDateTimeChartPoints);
         }
 
         [TestMethod]
-        public void WhenCreatingNewViewModelForLineChartWithNumericXAxisTypeThenItWasInitializedCorrectly()
+        public void WhenCreatingNewViewModelForLineChartWithSingleDateTimePointXAxisTypeAndWithPercentageYAxisTypeThenItWasInitializedCorrectly()
         {
-            AssertChartViewModel<LineSeries>(ChartType.LineChart, ChartAxisType.Number, NumericChartPoints, AssertNumericChartPoints);
+            AssertChartViewModel<LineSeries>(ChartType.LineChart, ChartAxisType.Date, ChartAxisType.Percentage, SingleDateTimeChartPoints, AssertDateTimeChartPoints);
         }
 
         [TestMethod]
-        public void WhenCreatingNewViewModelForBarChartWithNumericXAxisTypeThenItWasInitializedCorrectly()
+        public void WhenCreatingNewViewModelForBarChartWithDateTimeXAxisTypeAndWithNumericYAxisTypeThenItWasInitializedCorrectly()
         {
-            AssertChartViewModel<ColumnSeries>(ChartType.BarChart, ChartAxisType.Number, NumericChartPoints, AssertNumericChartPoints);
+            AssertChartViewModel<ColumnSeries>(ChartType.BarChart, ChartAxisType.Date, ChartAxisType.Number, DateTimeChartPoints, AssertDateTimeChartPoints);
         }
 
-        private static void AssertChartViewModel<T>(ChartType chartType, ChartAxisType xAxisType, List<ChartPoint> expectedChartPoints, ChartPointsAssertionDelegate pointsAssertionMethod)
+        [TestMethod]
+        public void WhenCreatingNewViewModelForBarChartWithDateTimeXAxisTypeAndWithPercentageYAxisTypeThenItWasInitializedCorrectly()
+        {
+            AssertChartViewModel<ColumnSeries>(ChartType.BarChart, ChartAxisType.Date, ChartAxisType.Percentage, DateTimeChartPoints, AssertDateTimeChartPoints);
+        }
+
+        [TestMethod]
+        public void WhenCreatingNewViewModelForLineChartWithNumericXAxisTypeAndWithNumericYAxisTypeThenItWasInitializedCorrectly()
+        {
+            AssertChartViewModel<LineSeries>(ChartType.LineChart, ChartAxisType.Number, ChartAxisType.Number, NumericChartPoints, AssertNumericChartPoints);
+        }
+
+        [TestMethod]
+        public void WhenCreatingNewViewModelForLineChartWithNumericXAxisTypeAndWithPercentageYAxisTypeThenItWasInitializedCorrectly()
+        {
+            AssertChartViewModel<LineSeries>(ChartType.LineChart, ChartAxisType.Number, ChartAxisType.Percentage, NumericChartPoints, AssertNumericChartPoints);
+        }
+
+        [TestMethod]
+        public void WhenCreatingNewViewModelForBarChartWithNumericXAxisTypeAndWithNumericYAxisTypeThenItWasInitializedCorrectly()
+        {
+            AssertChartViewModel<ColumnSeries>(ChartType.BarChart, ChartAxisType.Number, ChartAxisType.Number, NumericChartPoints, AssertNumericChartPoints);
+        }
+
+        [TestMethod]
+        public void WhenCreatingNewViewModelForBarChartWithNumericXAxisTypeAndWithPercentageYAxisTypeThenItWasInitializedCorrectly()
+        {
+            AssertChartViewModel<ColumnSeries>(ChartType.BarChart, ChartAxisType.Number, ChartAxisType.Percentage, NumericChartPoints, AssertNumericChartPoints);
+        }
+
+        private static void AssertChartViewModel<T>(ChartType chartType, ChartAxisType xAxisType, ChartAxisType yAxisType, List<ChartPoint> expectedChartPoints, ChartPointsAssertionDelegate pointsAssertionMethod)
             where T : Series
         {
             // Init
@@ -84,7 +121,7 @@ namespace MonitoringApplianceEmulatorTests.ViewModels
                 1,
                 chartType,
                 xAxisType,
-                ChartAxisType.Number,
+                yAxisType,
                 expectedChartPoints);
 
             // Act
@@ -93,7 +130,7 @@ namespace MonitoringApplianceEmulatorTests.ViewModels
             // Assert
             Assert.AreEqual("displayName", chartPropertyControlViewModel.Title, "Unexpected chart title");
 
-            Assert.IsNotNull(chartPropertyControlViewModel, "View model is expected bo be defined");
+            Assert.IsNotNull(chartPropertyControlViewModel, "View model is expected to be defined");
             Assert.IsNotNull(chartPropertyControlViewModel.SeriesCollection[0], "Series is expected to be defined");
 
             T series = chartPropertyControlViewModel.SeriesCollection[0] as T;
@@ -101,6 +138,50 @@ namespace MonitoringApplianceEmulatorTests.ViewModels
 
             List<LiveCharts.ChartPoint> actualDataPoints = series.ChartPoints.ToList();
             pointsAssertionMethod(expectedChartPoints, actualDataPoints);
+
+            FormatterAssertMethod(chartPropertyControlViewModel, xAxisType, yAxisType, expectedChartPoints);
+        }
+
+        private static void FormatterAssertMethod(ChartPropertyControlViewModel chartPropertyControlViewModel, ChartAxisType xAxisType, ChartAxisType yAxisType, List<ChartPoint> expectedChartPoints)
+        {
+            // Assert Y axis formatter
+            for (var i = 0; i < expectedChartPoints.Count(); i++)
+            {
+                if (yAxisType == ChartAxisType.Percentage)
+                {
+                    Assert.AreEqual(
+                        chartPropertyControlViewModel.YAxisFormatter((double)expectedChartPoints[i].Y),
+                        PercentageYFormatter((double)expectedChartPoints[i].Y));
+                }
+                else
+                {
+                    Assert.AreEqual(
+                        chartPropertyControlViewModel.YAxisFormatter((double)expectedChartPoints[i].Y),
+                        NumberFormatter((double)expectedChartPoints[i].Y));
+                }
+            }
+
+            // Assert X axis formatter
+            for (var i = 0; i < expectedChartPoints.Count(); i++)
+            {
+                if (xAxisType == ChartAxisType.Number)
+                {
+                    Assert.AreEqual(
+                        chartPropertyControlViewModel.XAxisFormatter((double)expectedChartPoints[i].X),
+                        NumberFormatter((double)expectedChartPoints[i].X));
+                }
+                else
+                {
+                    double xAxisFactor = expectedChartPoints.Count > 1 ?
+                        Now.AddDays(1).Ticks - Now.Ticks :
+                        Now.Ticks;
+                    dateXFormatter = value => new DateTime((long)(value * xAxisFactor)).ToString(CultureInfo.InvariantCulture);
+
+                    Assert.AreEqual(
+                        chartPropertyControlViewModel.XAxisFormatter((double)((DateTime)expectedChartPoints[i].X).Ticks / xAxisFactor),
+                        dateXFormatter((double)((DateTime)expectedChartPoints[i].X).Ticks / xAxisFactor));
+                }
+            }
         }
 
         private static void AssertDateTimeChartPoints(List<ChartPoint> expectedChartPoints, List<LiveCharts.ChartPoint> actualDataPoints)

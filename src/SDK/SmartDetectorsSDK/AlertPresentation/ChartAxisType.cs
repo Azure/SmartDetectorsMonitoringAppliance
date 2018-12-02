@@ -28,6 +28,11 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.AlertPresentation
         /// <summary>
         /// Represents an axis of numeric labels
         /// </summary>
-        NumberAxis
+        NumberAxis,
+
+        /// <summary>
+        /// Represents an axis of percentages
+        /// </summary>
+        PercentageAxis
     }
 }
