@@ -9,6 +9,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
     using System;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
+    using System.IO;
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
@@ -593,14 +594,20 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
         /// <returns>The selected file path or null if no file was selected</returns>
         private static string GetEmulationRunSettingsFilePath()
         {
-            var dialog = new OpenFileDialog();
+            // Get the folder for the roaming current user
+            string appDataFolderPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
 
-            if (dialog.ShowDialog() == true)
+            if (Directory.Exists(Path.Combine(appDataFolderPath, "SmartAlertsEmulator")))
             {
-                return dialog.FileName;
+                appDataFolderPath = Path.Combine(appDataFolderPath, "SmartAlertsEmulator");
             }
 
-            return null;
+            var dialog = new OpenFileDialog()
+            {
+                InitialDirectory = appDataFolderPath
+            };
+
+            return dialog.ShowDialog() == true ? dialog.FileName : null;
         }
 
         /// <summary>

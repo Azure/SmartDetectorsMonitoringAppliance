@@ -43,25 +43,25 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
         /// <summary>
         /// Gets or sets the start time.
         /// </summary>
-        [JsonProperty("startTime", Required = Required.AllowNull)]
+        [JsonProperty("startTime", Required = Required.Always)]
         public DateTime StartTime { get; set; }
 
         /// <summary>
         /// Gets or sets the end time.
         /// </summary>
-        [JsonProperty("endTime", Required = Required.AllowNull)]
+        [JsonProperty("endTime", Required = Required.Always)]
         public DateTime EndTime { get; set; }
 
         /// <summary>
         /// Gets or sets the analysis cadence.
         /// </summary>
-        [JsonProperty("analysisCadence", Required = Required.AllowNull)]
+        [JsonProperty("analysisCadence", Required = Required.Always)]
         public SmartDetectorCadence AnalysisCadence { get; set; }
 
         /// <summary>
         /// Gets the Emulation Alerts collection.
         /// </summary>
-        [JsonProperty("emulationAlerts", Required = Required.AllowNull)]
+        [JsonProperty("emulationAlerts", Required = Required.Always)]
         public List<EmulationAlert> EmulationAlerts { get; }
 
         /// <summary>
@@ -112,19 +112,22 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
         /// <summary>
         /// Saves the emulation run settings to a file.
         /// </summary>
-        public void Save()
+        /// <param name="detectorName">The detector name.</param>
+        public void Save(string detectorName)
         {
             try
             {
                 string emulatorRunSettingsPath = Path.Combine(EmulationAlertsFilePath, $"{this.SubscriptionId}");
 
-                // Creates a folder for saving the emulation run settings
+                // Create a folder for saving the emulation run settings
                 Directory.CreateDirectory(emulatorRunSettingsPath);
 
-                // Creates the path of the file with the emulation run settings
-                string filePath = Path.Combine(emulatorRunSettingsPath, $"{this.StartTime:yyyy-MM-dd HH-mm-ss}_{this.EndTime:yyyy-MM-dd HH-mm-ss}_{this.AnalysisCadence.TimeSpan:hh'-'mm'-'ss}_{this.EmulationAlerts.Count}.json");
+                // Create file path with the emulation run settings
+                string filePath = (this.IterativeRunModeEnabled) ?
+                    Path.Combine(emulatorRunSettingsPath, $"{detectorName}_{this.StartTime:yyyy-MM-dd HH-mm-ss}_{this.EndTime:yyyy-MM-dd HH-mm-ss}_{this.AnalysisCadence.TimeSpan:hh'-'mm'-'ss}.json") :
+                    Path.Combine(emulatorRunSettingsPath, $"{detectorName}_{this.StartTime:yyyy-MM-dd HH-mm-ss}.json");
 
-                using (StreamWriter writer = File.CreateText(filePath))
+                using (StreamWriter writer = new StreamWriter(filePath, false))
                 {
                     JsonSerializer serializer = new JsonSerializer();
                     serializer.Serialize(writer, this);
