@@ -59,7 +59,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
         /// <param name="smartDetector">The Smart Detector.</param>
         /// <param name="analysisServicesFactory">The analysis services factory.</param>
         /// <param name="queryRunInfoProvider">The query run information provider.</param>
-        /// <param name="smartDetectorManifes">The Smart Detector manifest.</param>
+        /// <param name="smartDetectorManifest">The Smart Detector manifest.</param>
         /// <param name="stateRepositoryFactory">The state repository factory</param>
         /// <param name="azureResourceManagerClient">The Azure Resource Manager client</param>
         /// <param name="logArchive">The log archive.</param>
@@ -67,7 +67,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
             ISmartDetector smartDetector,
             IInternalAnalysisServicesFactory analysisServicesFactory,
             IQueryRunInfoProvider queryRunInfoProvider,
-            SmartDetectorManifest smartDetectorManifes,
+            SmartDetectorManifest smartDetectorManifest,
             IStateRepositoryFactory stateRepositoryFactory,
             IExtendedAzureResourceManagerClient azureResourceManagerClient,
             IPageableLogArchive logArchive)
@@ -75,7 +75,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
             this.smartDetector = smartDetector;
             this.analysisServicesFactory = analysisServicesFactory;
             this.queryRunInfoProvider = queryRunInfoProvider;
-            this.smartDetectorManifest = smartDetectorManifes;
+            this.smartDetectorManifest = smartDetectorManifest;
             this.logArchive = logArchive;
             this.IsSmartDetectorRunning = false;
             this.Alerts = new ObservableCollection<EmulationAlert>();

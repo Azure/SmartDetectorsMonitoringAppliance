@@ -13,6 +13,9 @@
             <lvc:CartesianChart.AxisX>
                 <lvc:Axis LabelFormatter="{Binding XAxisFormatter}"></lvc:Axis>
             </lvc:CartesianChart.AxisX>
+            <lvc:CartesianChart.AxisY>
+                <lvc:Axis LabelFormatter="{Binding YAxisFormatter}"></lvc:Axis>
+            </lvc:CartesianChart.AxisY>
         </lvc:CartesianChart>
     </Grid>
 </UserControl>

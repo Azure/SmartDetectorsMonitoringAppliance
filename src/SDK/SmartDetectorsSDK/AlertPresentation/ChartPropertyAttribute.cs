@@ -16,17 +16,17 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.AlertPresentation
         /// </summary>
         /// <param name="displayName">The display name to use when presenting the property's value.</param>
         /// <param name="chartType">The type of the chart</param>
-        /// <param name="xAxistype">The type of the X axis</param>
+        /// <param name="xAxisType">The type of the X axis</param>
         /// <param name="yAxisType">The type of the Y axis</param>
         public ChartPropertyAttribute(
             string displayName,
             ChartType chartType,
-            ChartAxisType xAxistype,
+            ChartAxisType xAxisType,
             ChartAxisType yAxisType)
             : base(displayName)
         {
             this.ChartType = chartType;
-            this.XAxisType = xAxistype;
+            this.XAxisType = xAxisType;
             this.YAxisType = yAxisType;
         }
 

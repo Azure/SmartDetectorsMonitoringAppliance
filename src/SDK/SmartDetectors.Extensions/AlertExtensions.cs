@@ -447,8 +447,10 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
                     return ContractsChartAxisType.Date;
                 case ChartAxisType.StringAxis:
                     return ContractsChartAxisType.String;
+                case ChartAxisType.PercentageAxis:
+                    return ContractsChartAxisType.Percentage;
                 default:
-                    throw new InvalidEnumArgumentException("Chart type can be Number, Date or String only");
+                    throw new InvalidEnumArgumentException($"Unsupported chart axis of type {chartAxisType}");
             }
         }
 

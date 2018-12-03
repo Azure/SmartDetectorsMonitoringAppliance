@@ -34,9 +34,9 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
         {
             this.Title = chartAlertProperty.DisplayName;
 
-            if (chartAlertProperty.YAxisType != ChartAxisType.Number)
+            if (chartAlertProperty.YAxisType != ChartAxisType.Number && chartAlertProperty.YAxisType != ChartAxisType.Percentage)
             {
-                throw new InvalidOperationException($"Charts with Y axis type other than {ChartAxisType.Number} are not supported.");
+                throw new InvalidOperationException($"Charts with Y axis type other than {ChartAxisType.Number} and {ChartAxisType.Percentage} are not supported.");
             }
 
             switch (chartAlertProperty.XAxisType)
@@ -72,9 +72,14 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
         }
 
         /// <summary>
-        /// Gets or sets the series collection.
+        /// Gets or sets the X axis formatter.
         /// </summary>
         public Func<double, string> XAxisFormatter { get; set; }
+
+        /// <summary>
+        /// Gets or sets the Y axis formatter.
+        /// </summary>
+        public Func<double, string> YAxisFormatter { get; set; }
 
         /// <summary>
         /// Gets the chart title.
@@ -150,6 +155,8 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
             this.AddSeries(chartAlertProperty.ChartType, chartValues);
 
             this.XAxisFormatter = value => new DateTime((long)(value * xAxisFactor)).ToString(CultureInfo.InvariantCulture);
+
+            this.SetYAxisFormat(chartAlertProperty);
         }
 
         /// <summary>
@@ -160,7 +167,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
         {
             var sortedNumericPoints = chartAlertProperty.DataPoints.OrderBy(point => point.X).ToList();
 
-            var chartDatePoints = sortedNumericPoints.Select(dataPoint =>
+            var chartPoints = sortedNumericPoints.Select(dataPoint =>
             {
                 double x = ConvertCoordinateValueToDouble(dataPoint.X, "X");
                 double y = ConvertCoordinateValueToDouble(dataPoint.Y, "Y");
@@ -168,17 +175,19 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
                 return new ChartDataPoint<double>(x, y);
             });
 
-            var chartValues = new ChartValues<ChartDataPoint<double>>(chartDatePoints);
+            var chartValues = new ChartValues<ChartDataPoint<double>>(chartPoints);
 
             CartesianMapper<ChartDataPoint<double>> pointMapperConfig = Mappers.Xy<ChartDataPoint<double>>()
-                .X(dateTimeDataPoint => dateTimeDataPoint.X)
-                .Y(dateTimeDataPoint => dateTimeDataPoint.Y);
+                .X(dataPoint => dataPoint.X)
+                .Y(dataPoint => dataPoint.Y);
 
             this.SeriesCollection = new SeriesCollection(pointMapperConfig);
 
             this.AddSeries(chartAlertProperty.ChartType, chartValues);
 
             this.XAxisFormatter = value => value.ToString(CultureInfo.InvariantCulture);
+
+            this.SetYAxisFormat(chartAlertProperty);
         }
 
         /// <summary>
@@ -206,6 +215,22 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
                     Stroke = SeriesColor,
                     Fill = SeriesColor
                 });
+            }
+        }
+
+        /// <summary>
+        /// Sets the Y axis format.
+        /// </summary>
+        /// <param name="chartAlertProperty">The chart alert property that should be displayed.</param>
+        private void SetYAxisFormat(ChartAlertProperty chartAlertProperty)
+        {
+            if (chartAlertProperty.YAxisType == ChartAxisType.Percentage)
+            {
+                this.YAxisFormatter = value => $"{value.ToString(CultureInfo.InvariantCulture)}%";
+            }
+            else
+            {
+                this.YAxisFormatter = value => value.ToString(CultureInfo.InvariantCulture);
             }
         }
     }

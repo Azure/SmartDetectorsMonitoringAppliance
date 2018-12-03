@@ -22,7 +22,7 @@
   <Import Project="$(NuProjPath)\NuProj.props" Condition="Exists('$(NuProjPath)\NuProj.props')" />
   <PropertyGroup Label="Configuration">
     <Id>Microsoft.Azure.Monitoring.SmartDetectors.Extensions</Id>
-    <Version>0.12.0.0</Version>
+    <Version>0.13.0.0</Version>
     <Title>Azure Smart Detectors Extensions</Title>
     <Authors>Microsoft</Authors>
     <Owners>Microsoft Corporation</Owners>
@@ -43,10 +43,10 @@
   </ItemGroup>
   <ItemGroup>
     <Dependency Include="Microsoft.Azure.Monitoring.SmartDetectors">
-      <Version>0.9.7</Version>
+      <Version>0.13.0.0</Version>
     </Dependency>
     <Dependency Include="Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts">
-      <Version>0.9.0</Version>
+      <Version>0.13.1</Version>
     </Dependency>
     <Dependency Include="Microsoft.CodeAnalysis.CSharp.Scripting">
       <Version>2.8.0</Version>
