@@ -127,7 +127,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
                     Path.Combine(emulatorRunSettingsPath, $"{detectorName}_{this.StartTime:yyyy-MM-dd HH-mm-ss}_{this.EndTime:yyyy-MM-dd HH-mm-ss}_{this.AnalysisCadence.TimeSpan:hh'-'mm'-'ss}.json") :
                     Path.Combine(emulatorRunSettingsPath, $"{detectorName}_{this.StartTime:yyyy-MM-dd HH-mm-ss}.json");
 
-                using (StreamWriter writer = new StreamWriter(filePath, false))
+                using (StreamWriter writer = File.CreateText(filePath))
                 {
                     JsonSerializer serializer = new JsonSerializer();
                     serializer.Serialize(writer, this);
