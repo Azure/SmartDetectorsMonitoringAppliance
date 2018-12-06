@@ -27,7 +27,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
             AlertPropertyType.LongText,
             AlertPropertyType.KeyValue,
             AlertPropertyType.Table,
-            //// AlertPropertyType.Chart
+            AlertPropertyType.Chart
         };
 
         private EmulationAlert alert;
@@ -65,17 +65,21 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
                     new AzureResourceProperty("Resource name", this.Alert.ResourceIdentifier.ResourceName)
                 });
 
-            // Project chart displayable properties
-            List<ChartAlertProperty> chartAlertProperties = this.Alert.ContractsAlert.AlertProperties.OfType<ChartAlertProperty>().ToList();
-
-            List<DisplayableAlertProperty> displayableAlertProperties = this.Alert.ContractsAlert.AlertProperties.OfType<DisplayableAlertProperty>()
-                .Where(prop => this.supportedPropertiesTypes.Contains(prop.Type))
+            // Project CAD chart displayable properties
+            List<ChartAlertProperty> cadChartAlertProperties = this.Alert.ContractsAlert.AlertProperties.OfType<ChartAlertProperty>()
+                .Where(chartProp => chartProp.DisplayName.Contains("_Value") || chartProp.DisplayName.Contains("_Low") || chartProp.DisplayName.Contains("_High") || chartProp.DisplayName.Contains("_Anomalies"))
                 .ToList();
 
-            // Group all chart properties by chart display name
+            // Project all other displayable properties
+            List<DisplayableAlertProperty> displayableAlertProperties = this.Alert.ContractsAlert.AlertProperties.OfType<DisplayableAlertProperty>()
+                .Where(prop => this.supportedPropertiesTypes.Contains(prop.Type))
+                .Where(prop => !prop.DisplayName.Contains("_Value") && !prop.DisplayName.Contains("_Low") && !prop.DisplayName.Contains("_High") && !prop.DisplayName.Contains("_Anomalies"))
+                .ToList();
+
+            // Group all CAD chart properties by chart display name
             Dictionary<string, List<ChartAlertProperty>> chartNamesToContainers = new Dictionary<string, List<ChartAlertProperty>>();
 
-            foreach (var chartProperty in chartAlertProperties)
+            foreach (var chartProperty in cadChartAlertProperties)
             {
                 char[] delimiterChars = { '_' };
                 string chartDisplayNamePrefix = chartProperty.DisplayName.Split(delimiterChars).First();
