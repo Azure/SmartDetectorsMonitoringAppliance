@@ -151,9 +151,9 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
                     Title = "Low",
                     Values = lowValues,
                     Stroke = BaselineColor,
-                    Fill = Brushes.Transparent,
-                    StrokeDashArray = null,
                     PointGeometrySize = 0,
+                    Fill = Brushes.Transparent,
+                    LabelPoint = this.LabelPoint
                 });
             }
 
@@ -164,9 +164,9 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
                     Title = "High",
                     Values = highValues,
                     Stroke = BaselineColor,
-                    Fill = Brushes.Transparent,
-                    StrokeDashArray = null,
                     PointGeometrySize = 0,
+                    Fill = Brushes.Transparent,
+                    LabelPoint = this.LabelPoint
                 });
             }
 
@@ -177,9 +177,9 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
                     Title = "Value",
                     Values = values,
                     Stroke = SeriesColor,
-                    Fill = Brushes.Transparent,
-                    StrokeDashArray = null,
                     PointGeometrySize = 4,
+                    Fill = Brushes.Transparent,
+                    LabelPoint = this.LabelPoint
                 });
             }
         }
@@ -325,7 +325,8 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
                 {
                     Values = chartValues,
                     Stroke = SeriesColor,
-                    Fill = Brushes.Transparent
+                    Fill = Brushes.Transparent,
+                    LabelPoint = this.LabelPoint
                 });
             }
             else
@@ -334,9 +335,20 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
                 {
                     Values = chartValues,
                     Stroke = SeriesColor,
-                    Fill = SeriesColor
+                    Fill = SeriesColor,
+                    LabelPoint = this.LabelPoint
                 });
             }
+        }
+
+        /// <summary>
+        /// Returns the point label - with thousands separator and up to 3 decimal digits
+        /// </summary>
+        /// <param name="p">The point</param>
+        /// <returns>The label</returns>
+        private string LabelPoint(LiveCharts.ChartPoint p)
+        {
+            return $"{p.Y:#,##0.###}";
         }
     }
 }
