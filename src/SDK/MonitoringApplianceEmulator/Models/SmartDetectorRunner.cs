@@ -167,6 +167,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
                 this.cancelSmartDetectorRunAction = () => cancellationTokenSource.Cancel();
                 var cancellationToken = cancellationTokenSource.Token;
                 IStateRepository stateRepository = this.stateRepositoryFactory.Create(this.smartDetectorManifest.Id, "EmulationAlertRule");
+                int currentRunNumber = 1;
 
                 this.Alerts.Clear();
                 try
@@ -178,7 +179,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
                     List<string> targetResourcesIds = targetResourcesForDetector.Select(resource => resource.ToResourceId()).ToList();
 
                     int totalRunsAmount = (int)((endTimeRange.Subtract(startTimeRange).Ticks / analysisCadence.Ticks) + 1);
-                    int currentRunNumber = 1;
+
                     for (var currentTime = startTimeRange; currentTime <= endTimeRange; currentTime = currentTime.Add(analysisCadence))
                     {
                         this.PageableLog = await this.logArchive.GetLogAsync(this.GetValidLogName(currentTime), 50);
@@ -236,6 +237,11 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
                             }
                         }
                     }
+                }
+                finally
+                {
+                    this.IsSmartDetectorRunning = false;
+                    this.cancelSmartDetectorRunAction = null;
 
                     EmulationRunSettings emulationRunSettings = new EmulationRunSettings(
                         startTimeRange,
@@ -247,12 +253,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
                         currentRunNumber > 2);
 
                     this.EmulationRunSettings = emulationRunSettings;
-                    emulationRunSettings.Save();
-                }
-                finally
-                {
-                    this.IsSmartDetectorRunning = false;
-                    this.cancelSmartDetectorRunAction = null;
+                    emulationRunSettings.Save(this.smartDetectorManifest.Name);
                 }
             }
         }
