@@ -4,7 +4,7 @@
 // </copyright>
 //-----------------------------------------------------------------------
 
-namespace Microsoft.Azure.Monitoring.SmartDetectors
+namespace Microsoft.Azure.Monitoring.SmartDetectors.AlertPresentation
 {
     using Newtonsoft.Json;
     using Newtonsoft.Json.Converters;
@@ -28,6 +28,11 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors
         /// <summary>
         /// Represents an axis of numeric labels
         /// </summary>
-        NumberAxis
+        NumberAxis,
+
+        /// <summary>
+        /// Represents an axis of percentages
+        /// </summary>
+        PercentageAxis
     }
 }

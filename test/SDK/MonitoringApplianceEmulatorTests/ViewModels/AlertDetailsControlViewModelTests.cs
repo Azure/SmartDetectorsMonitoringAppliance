@@ -8,11 +8,11 @@ namespace MonitoringApplianceEmulatorTests.ViewModels
 {
     using System.Collections.Generic;
     using Microsoft.Azure.Monitoring.SmartDetectors;
+    using Microsoft.Azure.Monitoring.SmartDetectors.AlertPresentation;
     using Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.Models;
     using Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.ViewModels;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Alert = Microsoft.Azure.Monitoring.SmartDetectors.Alert;
-    using AlertState = Microsoft.Azure.Monitoring.SmartDetectors.AlertState;
     using ResourceType = Microsoft.Azure.Monitoring.SmartDetectors.ResourceType;
 
     [TestClass]
@@ -68,7 +68,7 @@ namespace MonitoringApplianceEmulatorTests.ViewModels
         public class TestAlert : Alert
         {
             public TestAlert(ResourceIdentifier resourceIdentifier)
-                : base("Test title", resourceIdentifier, AlertState.Active)
+                : base("Test title", resourceIdentifier)
             {
                 this.TextProperty1 = "Ahlan world";
                 this.TextProperty2 = 5;
@@ -82,21 +82,21 @@ namespace MonitoringApplianceEmulatorTests.ViewModels
                 };
             }
 
-            [AlertPresentationKeyValue("PresidentsKeyValue", "First name", "Last name", Order = 3)]
+            [KeyValueProperty("PresidentsKeyValue", "First name", "Last name", Order = 3)]
             public IDictionary<string, string> KeyValue1 { get; }
 
-            [AlertPresentationKeyValue("PlayersKeyValue", Order = 4)]
+            [KeyValueProperty("PlayersKeyValue", Order = 4)]
             public IDictionary<string, string> KeyValue2 { get; }
 
-            [AlertPresentationText("Some string", Order = 2)]
+            [TextProperty("Some string", Order = 2)]
             public string TextProperty1 { get; }
 
-            [AlertPresentationText("Some numeric string", Order = 1)]
+            [TextProperty("Some numeric string", Order = 1)]
             public int TextProperty2 { get; }
 
             public string NoPresentation { get; }
 
-            [AlertPresentationMultiColumnTable("Some Table", Order = 5)]
+            [MultiColumnTableProperty("Some Table", Order = 5)]
             public List<TestTableAlertPropertyValue> TableProp { get; }
         }
     }

@@ -1,24 +1,24 @@
 ﻿//-----------------------------------------------------------------------
-// <copyright file="AlertPresentationKeyValueAttribute.cs" company="Microsoft Corporation">
+// <copyright file="KeyValuePropertyAttribute.cs" company="Microsoft Corporation">
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // </copyright>
 //-----------------------------------------------------------------------
 
-namespace Microsoft.Azure.Monitoring.SmartDetectors
+namespace Microsoft.Azure.Monitoring.SmartDetectors.AlertPresentation
 {
     using System;
 
     /// <summary>
-    /// An attribute defining the presentation of a key-value table property in an <see cref="Alert"/>.
+    /// An attribute defining the presentation of a key-value table property in an <see cref="Microsoft.Azure.Monitoring.SmartDetectors.Alert"/>.
     /// </summary>
-    public class AlertPresentationKeyValueAttribute : AlertPresentationPropertyV2Attribute
+    public class KeyValuePropertyAttribute : AlertPresentationPropertyV2Attribute
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="AlertPresentationKeyValueAttribute"/> class, for
+        /// Initializes a new instance of the <see cref="KeyValuePropertyAttribute"/> class, for
         /// displaying a key-value table with no headers.
         /// </summary>
         /// <param name="displayName">The display name to use when presenting the property's value</param>
-        public AlertPresentationKeyValueAttribute(string displayName)
+        public KeyValuePropertyAttribute(string displayName)
             : base(displayName)
         {
             this.ShowHeaders = false;
@@ -27,13 +27,13 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="AlertPresentationKeyValueAttribute"/> class, for
+        /// Initializes a new instance of the <see cref="KeyValuePropertyAttribute"/> class, for
         /// displaying a key-value table with headers.
         /// </summary>
         /// <param name="displayName">The display name to use when presenting the property's value</param>
         /// <param name="keyHeaderName">The header name of the values in the table</param>
         /// <param name="valueHeaderName">The header name of the keys in the table</param>
-        public AlertPresentationKeyValueAttribute(string displayName, string keyHeaderName, string valueHeaderName)
+        public KeyValuePropertyAttribute(string displayName, string keyHeaderName, string valueHeaderName)
             : base(displayName)
         {
             if (string.IsNullOrWhiteSpace(keyHeaderName))

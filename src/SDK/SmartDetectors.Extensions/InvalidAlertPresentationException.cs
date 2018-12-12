@@ -4,7 +4,7 @@
 // </copyright>
 //-----------------------------------------------------------------------
 
-namespace Microsoft.Azure.Monitoring.SmartDetectors.Presentation
+namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
 {
     using System;
     using System.Runtime.Serialization;
