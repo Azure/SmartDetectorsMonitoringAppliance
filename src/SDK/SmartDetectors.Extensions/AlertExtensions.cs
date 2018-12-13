@@ -48,46 +48,9 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
                 return null;
             }
 
-            // Create presentation elements for each alert property
-            #pragma warning disable CS0612 // Type or member is obsolete; Task to remove obsolete code #1312924
-            List<AlertPropertyLegacy> alertPropertiesLegacy = new List<AlertPropertyLegacy>();
-            #pragma warning restore CS0612 // Type or member is obsolete; Task to remove obsolete code #1312924
-            List<AlertProperty> alertProperties = new List<AlertProperty>();
+            // Extract the alert properties
             Dictionary<string, string> rawProperties = new Dictionary<string, string>();
-            List<string> alertBaseClassPropertiesNames = typeof(Alert).GetProperties().Select(p => p.Name).ToList();
-
-            foreach (PropertyInfo property in alert.GetType().GetProperties())
-            {
-                // Get the property value
-                object propertyValue = property.GetValue(alert);
-                string propertyStringValue = PropertyValueToString(alert, property, propertyValue);
-                if (string.IsNullOrWhiteSpace(propertyStringValue) || (propertyValue is ICollection value && value.Count == 0))
-                {
-                    // not accepting empty properties
-                    continue;
-                }
-
-                rawProperties[property.Name] = propertyStringValue;
-
-                // Get the v1 presentation attribute
-                AlertPresentationPropertyAttribute presentationAttribute = property.GetCustomAttribute<AlertPresentationPropertyAttribute>();
-                if (presentationAttribute != null)
-                {
-                    alertPropertiesLegacy.Add(CreateAlertPropertyLegacy(alert, presentationAttribute, queryRunInfo, propertyStringValue));
-                }
-
-                // Get the v2 presentation attribute
-                AlertPresentationPropertyV2Attribute presentationV2Attribute = property.GetCustomAttribute<AlertPresentationPropertyV2Attribute>();
-                if (presentationV2Attribute != null)
-                {
-                    alertProperties.Add(CreateAlertProperty(alert, property, presentationV2Attribute, propertyValue));
-                }
-                else if (!alertBaseClassPropertiesNames.Contains(property.Name))
-                {
-                    // Get the raw alert property - a property with no presentation
-                    alertProperties.Add(new RawAlertProperty(property.Name, propertyValue));
-                }
-            }
+            List<AlertProperty> alertProperties = ExtractProperties(alert, new Order(), rawProperties);
 
             string id = string.Join("##", alert.GetType().FullName, JsonConvert.SerializeObject(request), JsonConvert.SerializeObject(alert)).ToSha256Hash();
             string resourceId = alert.ResourceIdentifier.ToResourceId();
@@ -108,7 +71,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
                 SmartDetectorName = smartDetectorName,
                 AnalysisTimestamp = DateTime.UtcNow,
                 AnalysisWindowSizeInMinutes = (int)request.Cadence.TotalMinutes,
-                Properties = alertPropertiesLegacy,
+                Properties = new List<AlertPropertyLegacy>(),
                 AlertProperties = alertProperties,
                 RawProperties = rawProperties,
                 QueryRunInfo = queryRunInfo,
@@ -140,64 +103,57 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
             return predicates;
         }
 
-#pragma warning disable CS0612 // Type or member is obsolete; Task to remove obsolete code #1312924
-
         /// <summary>
-        /// Creates an <see cref="AlertPropertyLegacy"/> based on an alert presentation V1 property
+        /// Extract all alert properties from the specified object
         /// </summary>
-        /// <param name="alert">The alert</param>
-        /// <param name="presentationAttribute">The attribute defining the presentation V1 of the alert property</param>
-        /// <param name="queryRunInfo">The query run information</param>
-        /// <param name="propertyStringValue">The property string value</param>
-        /// <returns>An <see cref="AlertPropertyLegacy"/></returns>
-        private static AlertPropertyLegacy CreateAlertPropertyLegacy(Alert alert, AlertPresentationPropertyAttribute presentationAttribute, QueryRunInfo queryRunInfo, string propertyStringValue)
+        /// <param name="alert">The object from which to extract the properties</param>
+        /// <param name="order">The order to use</param>
+        /// <param name="rawProperties">The raw properties dictionary to update - can be null</param>
+        /// <returns>The extracted properties</returns>
+        private static List<AlertProperty> ExtractProperties(object alert, Order order, Dictionary<string, string> rawProperties = null)
         {
-            // Verify that if the entity is a chart or query, then query run information was provided
-            if (queryRunInfo == null && (presentationAttribute.Section == AlertPresentationSection.Chart || presentationAttribute.Section == AlertPresentationSection.AdditionalQuery))
+            // Collect all object properties
+            var propertyDetails = alert.GetType().GetProperties().Select(property =>
             {
-                throw new InvalidAlertPresentationException($"The presentation contains an item for the {presentationAttribute.Section} section, but no telemetry data client was provided");
+                // Get the property value
+                object propertyValue = property.GetValue(alert);
+                string propertyStringValue = PropertyValueToString(alert, property, propertyValue);
+                if (string.IsNullOrWhiteSpace(propertyStringValue) || (propertyValue is ICollection value && value.Count == 0))
+                {
+                    // skip empty properties
+                    return null;
+                }
+
+                // Add to raw properties
+                if (rawProperties != null)
+                {
+                    rawProperties[property.Name] = propertyStringValue;
+                }
+
+                // Get the presentation attribute
+                AlertPresentationPropertyV2Attribute presentationAttribute = property.GetCustomAttribute<AlertPresentationPropertyV2Attribute>();
+
+                return new { PresentationAttribute = presentationAttribute, Property = property, Value = propertyValue };
+            }).ToList();
+
+            // Go over the properties, in order
+            List<string> alertBaseClassPropertiesNames = typeof(Alert).GetProperties().Select(p => p.Name).ToList();
+            List<AlertProperty> alertProperties = new List<AlertProperty>();
+            foreach (var p in propertyDetails.Where(x => x != null).OrderBy(p => p.PresentationAttribute?.Order ?? -1).ThenBy(p => p.Property.Name))
+            {
+                if (p.PresentationAttribute != null)
+                {
+                    alertProperties.AddRange(CreateAlertProperty(alert, p.Property, p.PresentationAttribute, p.Value, order));
+                }
+                else if (!alertBaseClassPropertiesNames.Contains(p.Property.Name))
+                {
+                    // Get the raw alert property - a property with no presentation
+                    alertProperties.Add(new RawAlertProperty(p.Property.Name, p.Value));
+                }
             }
 
-            // Get the attribute title and information balloon - support interpolated strings
-            string attributeTitle = presentationAttribute.Title.EvaluateInterpolatedString(alert);
-            string attributeInfoBalloon = presentationAttribute.InfoBalloon.EvaluateInterpolatedString(alert);
-
-            // Add the presentation property
-            return new AlertPropertyLegacy()
-            {
-                Name = attributeTitle,
-                Value = propertyStringValue,
-                DisplayCategory = GetDisplayCategoryFromPresentationSection(presentationAttribute.Section),
-                InfoBalloon = attributeInfoBalloon,
-                Order = presentationAttribute.Order
-            };
+            return alertProperties;
         }
-
-        /// <summary>
-        /// Gets the display category enum value from the presentation section enum value
-        /// </summary>
-        /// <param name="presentationSection">The property presentation section</param>
-        /// <returns>The display category that coralline with the presentation section</returns>
-        private static AlertPropertyDisplayCategory GetDisplayCategoryFromPresentationSection(AlertPresentationSection presentationSection)
-        {
-            switch (presentationSection)
-            {
-                case AlertPresentationSection.AdditionalQuery:
-                    return AlertPropertyDisplayCategory.AdditionalQuery;
-
-                case AlertPresentationSection.Analysis:
-                    return AlertPropertyDisplayCategory.Analysis;
-
-                case AlertPresentationSection.Chart:
-                    return AlertPropertyDisplayCategory.Chart;
-
-                case AlertPresentationSection.Property:
-                default:
-                    return AlertPropertyDisplayCategory.Property;
-            }
-        }
-
-#pragma warning restore CS0612 // Type or member is obsolete; Task to remove obsolete code #1312924
 
         /// <summary>
         /// Creates an <see cref="AlertProperty"/> based on an alert presentation V2 property
@@ -206,8 +162,9 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
         /// <param name="property">The property info of the property to create</param>
         /// <param name="presentationAttribute">The attribute defining the presentation V2 of the alert property</param>
         /// <param name="propertyValue">The property value</param>
+        /// <param name="order">The current order</param>
         /// <returns>An <see cref="AlertProperty"/></returns>
-        private static AlertProperty CreateAlertProperty(Alert alert, PropertyInfo property, AlertPresentationPropertyV2Attribute presentationAttribute, object propertyValue)
+        private static IEnumerable<AlertProperty> CreateAlertProperty(object alert, PropertyInfo property, AlertPresentationPropertyV2Attribute presentationAttribute, object propertyValue, Order order)
         {
             // Get the attribute display name
             string displayName = presentationAttribute.DisplayName.EvaluateInterpolatedString(alert);
@@ -224,20 +181,34 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
                         throw new ArgumentException("An AlertPresentationChartAttribute can only be applied to properties of type IList<ChartPoint>");
                     }
 
-                    return new ChartAlertProperty(
+                    yield return new ChartAlertProperty(
                         propertyName,
                         displayName,
-                        presentationAttribute.Order,
+                        order.Next(),
                         ConvertChartTypeToContractsChartType(chartAttribute.ChartType),
                         ConvertChartAxisTypeToContractsChartType(chartAttribute.XAxisType),
                         ConvertChartAxisTypeToContractsChartType(chartAttribute.YAxisType),
                         listValues.Select(point => new ContractsChartPoint(point.X, point.Y)).ToList());
+                    break;
 
                 case LongTextPropertyAttribute _:
-                    return new LongTextAlertProprety(propertyName, displayName, presentationAttribute.Order, PropertyValueToString(alert, property, propertyValue));
+                    yield return new LongTextAlertProprety(propertyName, displayName, order.Next(), PropertyValueToString(alert, property, propertyValue));
+                    break;
 
                 case TextPropertyAttribute _:
-                    return new TextAlertProperty(propertyName, displayName, presentationAttribute.Order, PropertyValueToString(alert, property, propertyValue));
+                    if (propertyValue is IList list)
+                    {
+                        foreach (DisplayableAlertProperty p in CreateListOfAlertProperties(list, order))
+                        {
+                            yield return p;
+                        }
+                    }
+                    else
+                    {
+                        yield return new TextAlertProperty(propertyName, displayName, order.Next(), PropertyValueToString(alert, property, propertyValue));
+                    }
+
+                    break;
 
                 case KeyValuePropertyAttribute keyValueAttribute:
                     if (!(propertyValue is IDictionary<string, string> keyValuePropertyValue))
@@ -249,15 +220,18 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
                     {
                         string keyHeaderName = keyValueAttribute.KeyHeaderName.EvaluateInterpolatedString(alert);
                         string valueHeaderName = keyValueAttribute.ValueHeaderName.EvaluateInterpolatedString(alert);
-                        return new KeyValueAlertProperty(propertyName, displayName, presentationAttribute.Order, keyHeaderName, valueHeaderName, keyValuePropertyValue);
+                        yield return new KeyValueAlertProperty(propertyName, displayName, order.Next(), keyHeaderName, valueHeaderName, keyValuePropertyValue);
                     }
                     else
                     {
-                        return new KeyValueAlertProperty(propertyName, displayName, presentationAttribute.Order, keyValuePropertyValue);
+                        yield return new KeyValueAlertProperty(propertyName, displayName, order.Next(), keyValuePropertyValue);
                     }
 
+                    break;
+
                 case TablePropertyAttribute tableAttribute:
-                    return CreateTableAlertProperty(propertyValue, propertyName, displayName, tableAttribute);
+                    yield return CreateTableAlertProperty(propertyValue, propertyName, displayName, tableAttribute, order);
+                    break;
 
                 default:
                     throw new InvalidEnumArgumentException($"Unable to handle presentation attribute of type {presentationAttribute.GetType().Name}");
@@ -271,12 +245,14 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
         /// <param name="propertyName">The table property name.</param>
         /// <param name="displayName">The table property display name.</param>
         /// <param name="tableAttribute">The attribute applied to the table property.</param>
+        /// <param name="order">The current order</param>
         /// <returns>The newly created <see cref="TableAlertProperty{T}"/> instance.</returns>
         private static DisplayableAlertProperty CreateTableAlertProperty(
             object propertyValue,
             string propertyName,
             string displayName,
-            TablePropertyAttribute tableAttribute)
+            TablePropertyAttribute tableAttribute,
+            Order order)
         {
             // Validate we have a proper value
             if (!(propertyValue is IList tablePropertyValue))
@@ -298,12 +274,12 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
                     tablePropertyType,
                     propertyName,
                     displayName,
-                    tableAttribute.Order,
+                    order.Next(),
                     tableAttribute.ShowHeaders,
                     propertyValue);
             }
 
-            return CreateMultiColumnTableAlertProperty(tablePropertyValue, propertyName, displayName, tableRowType, tableAttribute);
+            return CreateMultiColumnTableAlertProperty(tablePropertyValue, propertyName, displayName, tableRowType, tableAttribute, order);
         }
 
         /// <summary>
@@ -314,13 +290,15 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
         /// <param name="tableDisplayName">The table property display name.</param>
         /// <param name="tableRowType">The type of the table's rows.</param>
         /// <param name="tableAttribute">The attribute applied to the table property.</param>
+        /// <param name="order">The current order</param>
         /// <returns>The newly created <see cref="TableAlertProperty{T}"/> instance.</returns>
         private static TableAlertProperty<Dictionary<string, string>> CreateMultiColumnTableAlertProperty(
             IList tableRows,
             string tablePropertyName,
             string tableDisplayName,
             Type tableRowType,
-            TablePropertyAttribute tableAttribute)
+            TablePropertyAttribute tableAttribute,
+            Order order)
         {
             var columns = new List<TableColumn>();
             var rows = new List<Dictionary<string, string>>(tableRows.Count);
@@ -350,7 +328,25 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
                 }
             }
 
-            return new TableAlertProperty<Dictionary<string, string>>(tablePropertyName, tableDisplayName, tableAttribute.Order, tableAttribute.ShowHeaders, columns, rows);
+            return new TableAlertProperty<Dictionary<string, string>>(tablePropertyName, tableDisplayName, order.Next(), tableAttribute.ShowHeaders, columns, rows);
+        }
+
+        /// <summary>
+        /// Create a list of properties, extracted from the objects in the specified list.
+        /// </summary>
+        /// <param name="list">The list of objects, from which to extract the properties</param>
+        /// <param name="order">The current order</param>
+        /// <returns>The newly created properties.</returns>
+        private static List<DisplayableAlertProperty> CreateListOfAlertProperties(IList list, Order order)
+        {
+            List<DisplayableAlertProperty> displayableAlertProperties = new List<DisplayableAlertProperty>();
+            foreach (object obj in list)
+            {
+                List<AlertProperty> objectProperties = ExtractProperties(obj, order);
+                displayableAlertProperties.AddRange(objectProperties.OfType<DisplayableAlertProperty>());
+            }
+
+            return displayableAlertProperties;
         }
 
         /// <summary>
@@ -464,6 +460,41 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
         {
             Type genericListInterface = type.GetInterfaces().Where(i => i.IsGenericType).FirstOrDefault(i => i.GetGenericTypeDefinition() == typeof(IList<>));
             return genericListInterface?.GetGenericArguments().Single();
+        }
+
+        /// <summary>
+        /// A helper class to keep track of the order of properties
+        /// </summary>
+        private class Order
+        {
+            private byte currentOrder;
+
+            /// <summary>
+            /// Initializes a new instance of the <see cref="Order"/> class
+            /// </summary>
+            public Order()
+            {
+                // Initialize the order to 0
+                this.currentOrder = 0;
+            }
+
+            /// <summary>
+            /// Get the next order
+            /// </summary>
+            /// <returns>The next order value</returns>
+            public byte Next()
+            {
+                if (this.currentOrder == byte.MaxValue)
+                {
+                    // The alert has too many properties - ignore the order from now on
+                    return this.currentOrder;
+                }
+                else
+                {
+                    // Return and increment
+                    return this.currentOrder++;
+                }
+            }
         }
     }
 }
