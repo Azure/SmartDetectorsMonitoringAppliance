@@ -663,7 +663,7 @@ namespace SmartDetectorsAnalysisTests
                 }
             }
 
-            [AlertPresentationProperty(AlertPresentationSection.Property, "Summary title", InfoBalloon = "Summary info")]
+            [TextProperty("Summary title")]
             public string Summary { get; } = "Summary value";
 
             [PredicateProperty]
