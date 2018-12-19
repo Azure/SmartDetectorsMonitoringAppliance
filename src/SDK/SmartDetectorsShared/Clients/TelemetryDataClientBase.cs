@@ -159,7 +159,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Clients
                     }
                 }
 
-                HttpResponseMessage response = await this.InternalRunQueryAsync(query, additionalTelemetryResourceIds, telemetryId, dataTimeSpan, this.queryUriFormat, cancellationToken);
+                HttpResponseMessage response = await this.InternalRunQueryAsync(query, additionalTelemetryResourceIds, telemetryId, dataTimeSpan, cancellationToken);
 
                 if (response.StatusCode == HttpStatusCode.BadRequest)
                 {
@@ -177,12 +177,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Clients
                     }
 
                     // Try again with filtered resources
-                    response = await this.InternalRunQueryAsync(query, filteredAdditionalTelemetryResourceIds, telemetryId, dataTimeSpan, this.queryUriFormat, cancellationToken);
-                }
-                else if (response.StatusCode == HttpStatusCode.NotFound)
-                {
-                    // Try again to AIMON
-                    response = await this.InternalRunQueryAsync(query, iterationTelemetryResourcesIds, telemetryId, dataTimeSpan, "https://api.aimon.applicationinsights.io/v1/apps/{0}/query", cancellationToken);
+                    response = await this.InternalRunQueryAsync(query, filteredAdditionalTelemetryResourceIds, telemetryId, dataTimeSpan, cancellationToken);
                 }
 
                 if (!response.IsSuccessStatusCode)
@@ -193,7 +188,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Clients
                 string responseContent = await response.Content.ReadAsStringAsync();
                 JObject responseObject = JObject.Parse(responseContent);
                 IList<DataTable> dataTables = ReadTables(responseObject);
-                this.tracer.TraceInformation($"Iteration {i + 1} out of {numberOfIterations}: query returned {dataTables.Count} table{(dataTables.Count == 1 ? string.Empty : "s")}, containing [{string.Join(",", dataTables.Select(dataTable => dataTable.Rows.Count))}] rows");
+                this.tracer.TraceInformation($"Iteration {i} out of {numberOfIterations}: query returned {dataTables.Count} table{(dataTables.Count == 1 ? string.Empty : "s")}, containing [{string.Join(",", dataTables.Select(dataTable => dataTable.Rows.Count))}] rows");
 
                 // Merge main data table with returned data table
                 if (dataTables.Count > 0)
@@ -390,12 +385,11 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Clients
         /// <param name="dataTimeSpan">
         /// An optional time span to use for limiting the query data range. If this contains <c>null</c> then no limitation will be applied.
         /// </param>
-        /// <param name="queryUriFormat">Query URL format.</param>
         /// <param name="cancellationToken">The cancellation token to use.</param>
         /// <returns>A <see cref="Task{TResult}"/>, returning HTTP response for the request.</returns>
-        private async Task<HttpResponseMessage> InternalRunQueryAsync(string query, IReadOnlyList<string> additionalTelemetryResourceIds, string singleTelemetryId, TimeSpan? dataTimeSpan, string queryUriFormat, CancellationToken cancellationToken)
+        private async Task<HttpResponseMessage> InternalRunQueryAsync(string query, IReadOnlyList<string> additionalTelemetryResourceIds, string singleTelemetryId, TimeSpan? dataTimeSpan, CancellationToken cancellationToken)
         {
-            var uri = new Uri(string.Format(CultureInfo.InvariantCulture, queryUriFormat, singleTelemetryId));
+            var uri = new Uri(string.Format(CultureInfo.InvariantCulture, this.queryUriFormat, singleTelemetryId));
 
             // Extract the host part of the URI as the credentials resource
             UriBuilder builder = new UriBuilder()
