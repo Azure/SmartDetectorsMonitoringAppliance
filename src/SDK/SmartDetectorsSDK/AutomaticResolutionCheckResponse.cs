@@ -42,9 +42,9 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors
         public bool ShouldBeResolved { get; }
 
         /// <summary>
-        /// Gets the parameters controlling the continued automatic resolution flow
-        /// for the alert. This value is ignored if <see cref="ShouldBeResolved"/> contains <c>true</c>,
-        /// and a <c>null</c> value indicates that the alert will never be automatically resolved.
+        /// Gets the parameters controlling the continued automatic resolution flow for the alert.
+        /// This value must be <c>null</c> if <see cref="ShouldBeResolved"/> is <c>true</c>.
+        /// If <see cref="ShouldBeResolved"/> is <c>false</c> - a <c>null</c> value will indicates that the alert will never be automatically resolved.
         /// </summary>
         public AutomaticResolutionParameters AutomaticResolutionParameters { get; }
     }
