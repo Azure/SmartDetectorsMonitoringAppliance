@@ -25,8 +25,8 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.Analysis
     using Microsoft.Azure.Monitoring.SmartDetectors.Tools;
     using Microsoft.Azure.Monitoring.SmartDetectors.Trace;
     using Alert = Microsoft.Azure.Monitoring.SmartDetectors.Alert;
-    using AutomaticResolutionCheckRequest = Microsoft.Azure.Monitoring.SmartDetectors.AutomaticResolutionCheckRequest;
-    using AutomaticResolutionCheckResponse = Microsoft.Azure.Monitoring.SmartDetectors.AutomaticResolutionCheckResponse;
+    using AlertResolutionCheckRequest = Microsoft.Azure.Monitoring.SmartDetectors.AlertResolutionCheckRequest;
+    using AlertResolutionCheckResponse = Microsoft.Azure.Monitoring.SmartDetectors.AlertResolutionCheckResponse;
     using ContractsAlert = Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts.Alert;
     using ContractsAlertResolutionCheckRequest = Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts.AlertResolutionCheckRequest;
     using ContractsAlertResolutionCheckResponse = Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts.AlertResolutionCheckResponse;
@@ -178,7 +178,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.Analysis
             }
 
             // Create results
-            bool detectorSupportsAutomaticResolution = smartDetector is IAutomaticResolutionSmartDetector;
+            bool detectorSupportsAlertResolution = smartDetector is IAlertResolutionSmartDetector;
             List<ContractsAlert> results = new List<ContractsAlert>();
             foreach (var alert in alerts)
             {
@@ -191,16 +191,16 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.Analysis
                     this.analysisServicesFactory.UsedMetricClient);
 
                 // Handle resolution parameters in the alerts:
-                // If the detector supports automatic resolution - save the predicates for the resolution checks
-                // If the detector doesn't support automatic resolution - drop the resolution parameters (since they are useless) and error trace
+                // If the detector supports resolution - save the predicates for the resolution checks
+                // If the detector doesn't support resolution - drop the resolution parameters (since they are useless) and error trace
                 if (contractsAlert.ResolutionParameters != null)
                 {
-                    if (detectorSupportsAutomaticResolution)
+                    if (detectorSupportsAlertResolution)
                     {
                         this.tracer.TraceInformation($"Alert {contractsAlert.Id} has resolution parameters, so saving alert details for later use");
                         await stateRepository.StoreStateAsync(
                             GetResolutionStateKey(contractsAlert.Id),
-                            new AutomaticResolutionState
+                            new ResolutionState
                             {
                                 AlertPredicates = alert.ExtractPredicates()
                             },
@@ -238,39 +238,38 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.Analysis
             CancellationToken cancellationToken)
         {
             // Check that the detector supports resolution
-            if (!(smartDetector is IAutomaticResolutionSmartDetector automaticResolutionSmartDetector))
+            if (!(smartDetector is IAlertResolutionSmartDetector alertResolutionSmartDetector))
             {
-                throw new AutomaticResolutionNotSupportedException($"Smart Detector {smartDetectorManifest.Name} does not support alert automatic resolution of alerts");
+                throw new ResolutionNotSupportedException($"Smart Detector {smartDetectorManifest.Name} does not support alert resolution of alerts");
             }
 
             // Create state repository
             IStateRepository stateRepository = this.stateRepositoryFactory.Create(request.OriginalAnalysisRequest.SmartDetectorId, request.OriginalAnalysisRequest.AlertRuleResourceId);
 
-            // Load the automatic resolution state from the repository
-            AutomaticResolutionState automaticResolutionState = await stateRepository.GetStateAsync<AutomaticResolutionState>(GetResolutionStateKey(request.AlertCorrelationHash), cancellationToken);
-            if (automaticResolutionState == null)
+            // Load the resolution state from the repository
+            ResolutionState resolutionState = await stateRepository.GetStateAsync<ResolutionState>(GetResolutionStateKey(request.AlertCorrelationHash), cancellationToken);
+            if (resolutionState == null)
             {
-                throw new AutomaticResolutionStateNotFoundException($"Resolution state for Alert with correlation {request.AlertCorrelationHash} was not found");
+                throw new ResolutionStateNotFoundException($"Resolution state for Alert with correlation {request.AlertCorrelationHash} was not found");
             }
 
             // Create the input for the Smart Detector
             AnalysisRequestParameters analysisRequestParameters = await this.CreateAnalysisRequestParametersAsync(request.OriginalAnalysisRequest, smartDetectorManifest, false, cancellationToken);
-            var automaticResolutionCheckRequest = new AutomaticResolutionCheckRequest(
+            var alertResolutionCheckRequest = new AlertResolutionCheckRequest(
                 analysisRequestParameters,
-                new AutomaticResolutionCheckRequestParameters(ResourceIdentifier.CreateFromResourceId(request.TargetResource), request.AlertFireTime, automaticResolutionState.AlertPredicates),
+                new AlertResolutionCheckRequestParameters(ResourceIdentifier.CreateFromResourceId(request.TargetResource), request.AlertFireTime, resolutionState.AlertPredicates),
                 this.analysisServicesFactory,
                 stateRepository);
 
             // Run the Smart Detector
-            this.tracer.TraceInformation($"Started running Smart Detector ID {smartDetectorManifest.Id}, Name {smartDetectorManifest.Name} for automatic resolution check");
+            this.tracer.TraceInformation($"Started running Smart Detector ID {smartDetectorManifest.Id}, Name {smartDetectorManifest.Name} for resolution check");
             try
             {
-                AutomaticResolutionCheckResponse automaticResolutionCheckResponse =
-                    await automaticResolutionSmartDetector.CheckForAutomaticResolutionAsync(automaticResolutionCheckRequest, detectorTracer, cancellationToken);
-                this.tracer.TraceInformation($"Completed running Smart Detector ID {smartDetectorManifest.Id}, Name {smartDetectorManifest.Name} for automatic resolution check");
+                AlertResolutionCheckResponse alertResolutionCheckResponse = await alertResolutionSmartDetector.CheckForResolutionAsync(alertResolutionCheckRequest, detectorTracer, cancellationToken);
+                this.tracer.TraceInformation($"Completed running Smart Detector ID {smartDetectorManifest.Id}, Name {smartDetectorManifest.Name} for resolution check");
 
                 // If the alert is resolved - delete the state
-                if (automaticResolutionCheckResponse.ShouldBeResolved)
+                if (alertResolutionCheckResponse.ShouldBeResolved)
                 {
                     await stateRepository.DeleteStateAsync(GetResolutionStateKey(request.AlertCorrelationHash), cancellationToken);
                 }
@@ -278,14 +277,14 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.Analysis
                 // Convert the result
                 return new ContractsAlertResolutionCheckResponse
                 {
-                    ShouldBeResolved = automaticResolutionCheckResponse.ShouldBeResolved,
-                    ResolutionParameters = automaticResolutionCheckResponse.ResolutionParameters?.CreateContractsResolutionParameters()
+                    ShouldBeResolved = alertResolutionCheckResponse.ShouldBeResolved,
+                    ResolutionParameters = alertResolutionCheckResponse.AlertResolutionParameters?.CreateContractsResolutionParameters()
                 };
             }
             catch (Exception e)
             {
-                this.tracer.TraceError($"Failed running Smart Detector ID {smartDetectorManifest.Id}, Name {smartDetectorManifest.Name} for automatic resolution check: {e}");
-                throw new FailedToRunSmartDetectorException($"Calling Smart Detector '{smartDetectorManifest.Name}' for automatic resolution check failed with exception of type {e.GetType()} and message: {e.Message}", e);
+                this.tracer.TraceError($"Failed running Smart Detector ID {smartDetectorManifest.Id}, Name {smartDetectorManifest.Name} for resolution check: {e}");
+                throw new FailedToRunSmartDetectorException($"Calling Smart Detector '{smartDetectorManifest.Name}' for resolution check failed with exception of type {e.GetType()} and message: {e.Message}", e);
             }
         }
 

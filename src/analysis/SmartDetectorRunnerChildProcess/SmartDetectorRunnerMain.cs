@@ -106,10 +106,10 @@ namespace SmartDetectorRunnerChildProcess
                 case UnidentifiedAlertResourceTypeException _:
                     return (int)HttpStatusCode.BadRequest;
 
-                case AutomaticResolutionNotSupportedException _:
+                case ResolutionNotSupportedException _:
                     return (int)HttpStatusCode.BadRequest;
 
-                case AutomaticResolutionStateNotFoundException _:
+                case ResolutionStateNotFoundException _:
                     return (int)HttpStatusCode.NotFound;
 
                 default:

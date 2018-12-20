@@ -9,7 +9,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
     using ContractsResolutionParameters = Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts.ResolutionParameters;
 
     /// <summary>
-    /// Extension methods for the <see cref="ResolutionParameters"/> class.
+    /// Extension methods for the <see cref="AlertResolutionParameters"/> class.
     /// </summary>
     public static class ResolutionParametersExtensions
     {
@@ -18,11 +18,11 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
         /// </summary>
         /// <param name="parameters">The Smart Detectors SDK resolution parameters.</param>
         /// <returns>The Runtime Environment contracts resolution parameters.</returns>
-        public static ContractsResolutionParameters CreateContractsResolutionParameters(this ResolutionParameters parameters)
+        public static ContractsResolutionParameters CreateContractsResolutionParameters(this AlertResolutionParameters parameters)
         {
             return new ContractsResolutionParameters
             {
-                CheckForResolutionAfter = parameters.CheckForAutomaticResolutionAfter
+                CheckForResolutionAfter = parameters.CheckForResolutionAfter
             };
         }
     }

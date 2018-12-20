@@ -113,7 +113,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
                 RawProperties = rawProperties,
                 QueryRunInfo = queryRunInfo,
                 SignalType = signalType,
-                ResolutionParameters = alert.ResolutionParameters?.CreateContractsResolutionParameters()
+                ResolutionParameters = alert.AlertResolutionParameters?.CreateContractsResolutionParameters()
             };
             #pragma warning restore CS0612 // Type or member is obsolete; Task to remove obsolete code #1312924
         }

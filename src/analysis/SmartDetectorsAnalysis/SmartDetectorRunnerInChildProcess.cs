@@ -89,7 +89,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.Analysis
                     throw new AnalysisFailedException((HttpStatusCode)e.ExitCode, e.Message, e);
                 }
 
-                throw new AnalysisFailedException($"Running Smart Detector automatic resolution check in child process failed with exit code {e.ExitCode} and message: {e.Message}", e);
+                throw new AnalysisFailedException($"Running Smart Detector resolution check in child process failed with exit code {e.ExitCode} and message: {e.Message}", e);
             }
         }
 
