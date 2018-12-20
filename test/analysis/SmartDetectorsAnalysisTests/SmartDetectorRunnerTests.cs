@@ -654,7 +654,7 @@ namespace SmartDetectorsAnalysisTests
             {
                 if (shouldAutoResolve)
                 {
-                    this.AlertResolutionParameters = new Microsoft.Azure.Monitoring.SmartDetectors.AlertResolutionParameters
+                    this.AlertResolutionParameters = new AlertResolutionParameters
                     {
                         CheckForResolutionAfter = TimeSpan.FromMinutes(5)
                     };
