@@ -276,7 +276,7 @@ namespace SmartDetectorsAnalysisTests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(ResolutionNotSupportedException))]
+        [ExpectedException(typeof(ResolutionCheckNotSupportedException))]
         public async Task WhenRunningSmartDetectorCheckResolutionForNonSupportingDetectorThenExceptionIsThrown()
         {
             // Initialize the resolution state

@@ -240,7 +240,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.Analysis
             // Check that the detector supports resolution
             if (!(smartDetector is IAlertResolutionSmartDetector alertResolutionSmartDetector))
             {
-                throw new ResolutionNotSupportedException($"Smart Detector {smartDetectorManifest.Name} does not support alert resolution of alerts");
+                throw new ResolutionCheckNotSupportedException($"Smart Detector {smartDetectorManifest.Name} does not support alert resolution of alerts");
             }
 
             // Create state repository
