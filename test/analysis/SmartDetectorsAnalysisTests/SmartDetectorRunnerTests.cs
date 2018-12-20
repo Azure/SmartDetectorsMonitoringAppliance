@@ -34,8 +34,8 @@ namespace SmartDetectorsAnalysisTests
     using AutomaticResolutionCheckResponse = Microsoft.Azure.Monitoring.SmartDetectors.AutomaticResolutionCheckResponse;
     using AutomaticResolutionParameters = Microsoft.Azure.Monitoring.SmartDetectors.AutomaticResolutionParameters;
     using ContractsAlert = Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts.Alert;
-    using ContractsAutomaticResolutionCheckRequest = Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts.AutomaticResolutionCheckRequest;
-    using ContractsAutomaticResolutionCheckResponse = Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts.AutomaticResolutionCheckResponse;
+    using ContractsAlertResolutionCheckRequest = Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts.AlertResolutionCheckRequest;
+    using ContractsAlertResolutionCheckResponse = Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts.AlertResolutionCheckResponse;
     using ResourceType = Microsoft.Azure.Monitoring.SmartDetectors.ResourceType;
 
     [TestClass]
@@ -46,7 +46,7 @@ namespace SmartDetectorsAnalysisTests
         private SmartDetectorPackage autoResolveSmartDetectorPackage;
         private List<string> resourceIds;
         private SmartDetectorAnalysisRequest analysisRequest;
-        private ContractsAutomaticResolutionCheckRequest automaticResolutionCheckRequest;
+        private ContractsAlertResolutionCheckRequest alertResolutionCheckRequest;
         private TestSmartDetector smartDetector;
         private TestAutoResolveSmartDetector autoResolveSmartDetector;
         private IUnityContainer testContainer;
@@ -72,7 +72,7 @@ namespace SmartDetectorsAnalysisTests
             Assert.IsNotNull(contractsAlerts, "Presentation list is null");
             Assert.AreEqual(1, contractsAlerts.Count);
             Assert.AreEqual("Test title", contractsAlerts.Single().Title);
-            Assert.IsNull(contractsAlerts.Single().AutomaticResolutionParameters);
+            Assert.IsNull(contractsAlerts.Single().ResolutionParameters);
 
             // Assert the detector's state
             Assert.AreEqual(1, this.stateRepository.Count);
@@ -103,7 +103,7 @@ namespace SmartDetectorsAnalysisTests
             Assert.IsNotNull(contractsAlerts, "Presentation list is null");
             Assert.AreEqual(1, contractsAlerts.Count);
             Assert.AreEqual("Test title", contractsAlerts.Single().Title);
-            Assert.IsNotNull(contractsAlerts.Single().AutomaticResolutionParameters);
+            Assert.IsNotNull(contractsAlerts.Single().ResolutionParameters);
 
             // Assert the detector's state
             Assert.AreEqual(2, this.stateRepository.Count);
@@ -202,11 +202,11 @@ namespace SmartDetectorsAnalysisTests
 
             // Run the Smart Detector and validate results
             ISmartDetectorRunner runner = this.testContainer.Resolve<ISmartDetectorRunner>();
-            ContractsAutomaticResolutionCheckResponse automaticResolutionCheckResponse =
-                await runner.CheckAutomaticResolutionAsync(this.automaticResolutionCheckRequest, true, default(CancellationToken));
+            ContractsAlertResolutionCheckResponse alertResolutionCheckResponse =
+                await runner.CheckResolutionAsync(this.alertResolutionCheckRequest, true, default(CancellationToken));
 
-            Assert.IsTrue(automaticResolutionCheckResponse.ShouldBeResolved);
-            Assert.IsNull(automaticResolutionCheckResponse.AutomaticResolutionParameters);
+            Assert.IsTrue(alertResolutionCheckResponse.ShouldBeResolved);
+            Assert.IsNull(alertResolutionCheckResponse.ResolutionParameters);
 
             // Assert the detector's state
             Assert.AreEqual(1, this.stateRepository.Count);
@@ -224,7 +224,7 @@ namespace SmartDetectorsAnalysisTests
 
             // Run the Smart Detector
             ISmartDetectorRunner runner = this.testContainer.Resolve<ISmartDetectorRunner>();
-            await runner.CheckAutomaticResolutionAsync(this.automaticResolutionCheckRequest, true, default(CancellationToken));
+            await runner.CheckResolutionAsync(this.alertResolutionCheckRequest, true, default(CancellationToken));
 
             Assert.IsTrue(((DisposableTestAutoResolveSmartDetector)this.autoResolveSmartDetector).WasDisposed);
         }
@@ -240,17 +240,17 @@ namespace SmartDetectorsAnalysisTests
 
             // Run the Smart Detector and validate results
             ISmartDetectorRunner runner = this.testContainer.Resolve<ISmartDetectorRunner>();
-            ContractsAutomaticResolutionCheckResponse automaticResolutionCheckResponse =
-                await runner.CheckAutomaticResolutionAsync(this.automaticResolutionCheckRequest, true, default(CancellationToken));
+            ContractsAlertResolutionCheckResponse alertResolutionCheckResponse =
+                await runner.CheckResolutionAsync(this.alertResolutionCheckRequest, true, default(CancellationToken));
 
-            Assert.IsFalse(automaticResolutionCheckResponse.ShouldBeResolved);
-            Assert.IsNotNull(automaticResolutionCheckResponse.AutomaticResolutionParameters);
-            Assert.AreEqual(TimeSpan.FromMinutes(15), automaticResolutionCheckResponse.AutomaticResolutionParameters.CheckForAutomaticResolutionAfter);
+            Assert.IsFalse(alertResolutionCheckResponse.ShouldBeResolved);
+            Assert.IsNotNull(alertResolutionCheckResponse.ResolutionParameters);
+            Assert.AreEqual(TimeSpan.FromMinutes(15), alertResolutionCheckResponse.ResolutionParameters.CheckForResolutionAfter);
 
             // Assert the detector's state
             Assert.AreEqual(2, this.stateRepository.Count);
             Assert.AreEqual("test state", this.stateRepository["test auto resolve key"]);
-            Assert.IsTrue(this.stateRepository.ContainsKey($"_autoResolve{this.automaticResolutionCheckRequest.AlertId}"));
+            Assert.IsTrue(this.stateRepository.ContainsKey($"_autoResolve{this.alertResolutionCheckRequest.AlertCorrelationHash}"));
         }
 
         [TestMethod]
@@ -265,7 +265,7 @@ namespace SmartDetectorsAnalysisTests
             // Run the Smart Detector asynchronously
             ISmartDetectorRunner runner = this.testContainer.Resolve<ISmartDetectorRunner>();
             CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
-            Task t = runner.CheckAutomaticResolutionAsync(this.automaticResolutionCheckRequest, true, cancellationTokenSource.Token);
+            Task t = runner.CheckResolutionAsync(this.alertResolutionCheckRequest, true, cancellationTokenSource.Token);
             SpinWait.SpinUntil(() => this.autoResolveSmartDetector.IsRunning);
 
             // Cancel and wait for expected result
@@ -284,11 +284,11 @@ namespace SmartDetectorsAnalysisTests
             this.InitializeAutomaticResolutionState();
 
             // Set the detector to be non supporting
-            this.automaticResolutionCheckRequest.OriginalAnalysisRequest.SmartDetectorId = "1";
+            this.alertResolutionCheckRequest.OriginalAnalysisRequest.SmartDetectorId = "1";
 
             // Run the Smart Detector and validate results
             ISmartDetectorRunner runner = this.testContainer.Resolve<ISmartDetectorRunner>();
-            await runner.CheckAutomaticResolutionAsync(this.automaticResolutionCheckRequest, true, default(CancellationToken));
+            await runner.CheckResolutionAsync(this.alertResolutionCheckRequest, true, default(CancellationToken));
         }
 
         [TestMethod]
@@ -297,7 +297,7 @@ namespace SmartDetectorsAnalysisTests
         {
             // Run the Smart Detector and validate results
             ISmartDetectorRunner runner = this.testContainer.Resolve<ISmartDetectorRunner>();
-            await runner.CheckAutomaticResolutionAsync(this.automaticResolutionCheckRequest, true, default(CancellationToken));
+            await runner.CheckResolutionAsync(this.alertResolutionCheckRequest, true, default(CancellationToken));
         }
 
         [TestMethod]
@@ -314,7 +314,7 @@ namespace SmartDetectorsAnalysisTests
             ISmartDetectorRunner runner = this.testContainer.Resolve<ISmartDetectorRunner>();
             try
             {
-                await runner.CheckAutomaticResolutionAsync(this.automaticResolutionCheckRequest, true, default(CancellationToken));
+                await runner.CheckResolutionAsync(this.alertResolutionCheckRequest, true, default(CancellationToken));
             }
             catch (FailedToRunSmartDetectorException e)
             {
@@ -337,7 +337,7 @@ namespace SmartDetectorsAnalysisTests
 
             // Run the Smart Detector
             ISmartDetectorRunner runner = this.testContainer.Resolve<ISmartDetectorRunner>();
-            await runner.CheckAutomaticResolutionAsync(this.automaticResolutionCheckRequest, true, default(CancellationToken));
+            await runner.CheckResolutionAsync(this.alertResolutionCheckRequest, true, default(CancellationToken));
         }
 
         #endregion
@@ -400,7 +400,7 @@ namespace SmartDetectorsAnalysisTests
                     { "param2", 2 },
                 }
             };
-            this.automaticResolutionCheckRequest = new ContractsAutomaticResolutionCheckRequest
+            this.alertResolutionCheckRequest = new ContractsAlertResolutionCheckRequest
             {
                 OriginalAnalysisRequest = new SmartDetectorAnalysisRequest
                 {
@@ -414,7 +414,6 @@ namespace SmartDetectorsAnalysisTests
                         { "param2", 2 },
                     }
                 },
-                AlertId = "alertId",
                 AlertCorrelationHash = "correlationHash",
                 TargetResource = resourceId.ToResourceId(),
                 AlertFireTime = new DateTime(1985, 7, 3)
@@ -519,7 +518,7 @@ namespace SmartDetectorsAnalysisTests
                 }
             };
 
-            this.stateRepository[$"_autoResolve{this.automaticResolutionCheckRequest.AlertId}"] = state;
+            this.stateRepository[$"_autoResolve{this.alertResolutionCheckRequest.AlertCorrelationHash}"] = state;
             this.autoResolveSmartDetector.ShouldResolve = true;
         }
 

@@ -22,9 +22,9 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.Analysis
         public SmartDetectorAnalysisRequest AnalysisRequest { get; set; }
 
         /// <summary>
-        /// Gets or sets the Automatic Resolution Check request. This should contain a not <c>null</c> value
-        /// if the child process should run the <see cref="ISmartDetectorRunner.CheckAutomaticResolutionAsync"/> flow.
+        /// Gets or sets the Alert Resolution Check request. This should contain a not <c>null</c> value
+        /// if the child process should run the <see cref="ISmartDetectorRunner.CheckResolutionAsync"/> flow.
         /// </summary>
-        public AutomaticResolutionCheckRequest AutomaticResolutionCheckRequest { get; set; }
+        public AlertResolutionCheckRequest AlertResolutionCheckRequest { get; set; }
     }
 }

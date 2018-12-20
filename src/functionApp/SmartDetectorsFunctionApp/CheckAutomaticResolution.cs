@@ -80,15 +80,15 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.Function
                     tracer.TraceAppCounters();
 
                     // Read the request
-                    AutomaticResolutionCheckRequest automaticResolutionCheckRequest = await request.Content.ReadAsAsync<AutomaticResolutionCheckRequest>(cancellationToken);
-                    tracer.AddCustomProperty("SmartDetectorId", automaticResolutionCheckRequest.OriginalAnalysisRequest.SmartDetectorId);
-                    tracer.TraceInformation($"CheckAutomaticResolution request received: {JsonConvert.SerializeObject(automaticResolutionCheckRequest)}");
+                    AlertResolutionCheckRequest alertResolutionCheckRequest = await request.Content.ReadAsAsync<AlertResolutionCheckRequest>(cancellationToken);
+                    tracer.AddCustomProperty("SmartDetectorId", alertResolutionCheckRequest.OriginalAnalysisRequest.SmartDetectorId);
+                    tracer.TraceInformation($"CheckAutomaticResolution request received: {JsonConvert.SerializeObject(alertResolutionCheckRequest)}");
 
                     // Process the request
                     ISmartDetectorRunner runner = childContainer.Resolve<ISmartDetectorRunner>();
                     bool shouldDetectorTrace = bool.Parse(ConfigurationReader.ReadConfig("ShouldDetectorTrace", required: true));
-                    AutomaticResolutionCheckResponse automaticResolutionCheckResponse =
-                        await runner.CheckAutomaticResolutionAsync(automaticResolutionCheckRequest, shouldDetectorTrace, cancellationToken);
+                    AlertResolutionCheckResponse automaticResolutionCheckResponse =
+                        await runner.CheckResolutionAsync(alertResolutionCheckRequest, shouldDetectorTrace, cancellationToken);
                     tracer.TraceInformation($"CheckAutomaticResolution completed, alert {(automaticResolutionCheckResponse.ShouldBeResolved ? "should" : "should not")} be resolved");
 
                     // Create the response with StringContent to prevent Json from serializing to a string

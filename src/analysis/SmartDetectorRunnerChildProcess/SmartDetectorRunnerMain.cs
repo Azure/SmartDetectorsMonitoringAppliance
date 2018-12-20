@@ -74,9 +74,9 @@ namespace SmartDetectorRunnerChildProcess
             {
                 return await smartDetectorRunner.AnalyzeAsync(request.AnalysisRequest, shouldDetectorTrace, cancellationToken);
             }
-            else if (request.AutomaticResolutionCheckRequest != null)
+            else if (request.AlertResolutionCheckRequest != null)
             {
-                return await smartDetectorRunner.CheckAutomaticResolutionAsync(request.AutomaticResolutionCheckRequest, shouldDetectorTrace, cancellationToken);
+                return await smartDetectorRunner.CheckResolutionAsync(request.AlertResolutionCheckRequest, shouldDetectorTrace, cancellationToken);
             }
 
             throw new ArgumentException("Unable to determine flow to run for Smart Detector", nameof(request));
