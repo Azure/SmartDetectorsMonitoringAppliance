@@ -32,7 +32,6 @@ namespace SmartDetectorsAnalysisTests
     using Alert = Microsoft.Azure.Monitoring.SmartDetectors.Alert;
     using AutomaticResolutionCheckRequest = Microsoft.Azure.Monitoring.SmartDetectors.AutomaticResolutionCheckRequest;
     using AutomaticResolutionCheckResponse = Microsoft.Azure.Monitoring.SmartDetectors.AutomaticResolutionCheckResponse;
-    using AutomaticResolutionParameters = Microsoft.Azure.Monitoring.SmartDetectors.AutomaticResolutionParameters;
     using ContractsAlert = Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts.Alert;
     using ContractsAlertResolutionCheckRequest = Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts.AlertResolutionCheckRequest;
     using ContractsAlertResolutionCheckResponse = Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts.AlertResolutionCheckResponse;
@@ -642,7 +641,7 @@ namespace SmartDetectorsAnalysisTests
 
                 return this.ShouldResolve
                     ? new AutomaticResolutionCheckResponse(true, null)
-                    : new AutomaticResolutionCheckResponse(false, new AutomaticResolutionParameters { CheckForAutomaticResolutionAfter = TimeSpan.FromMinutes(15) });
+                    : new AutomaticResolutionCheckResponse(false, new Microsoft.Azure.Monitoring.SmartDetectors.ResolutionParameters { CheckForAutomaticResolutionAfter = TimeSpan.FromMinutes(15) });
             }
 
             #endregion
@@ -655,7 +654,7 @@ namespace SmartDetectorsAnalysisTests
             {
                 if (shouldAutoResolve)
                 {
-                    this.AutomaticResolutionParameters = new AutomaticResolutionParameters
+                    this.ResolutionParameters = new Microsoft.Azure.Monitoring.SmartDetectors.ResolutionParameters
                     {
                         CheckForAutomaticResolutionAfter = TimeSpan.FromMinutes(5)
                     };

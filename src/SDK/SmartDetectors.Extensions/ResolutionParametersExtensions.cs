@@ -7,7 +7,6 @@
 namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
 {
     using ContractsResolutionParameters = Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts.ResolutionParameters;
-    using ResolutionParameters = Microsoft.Azure.Monitoring.SmartDetectors.AutomaticResolutionParameters;
 
     /// <summary>
     /// Extension methods for the <see cref="ResolutionParameters"/> class.

@@ -11,7 +11,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors
     /// <summary>
     /// Contains parameters used to handle alerts' automatic resolution
     /// </summary>
-    public class AutomaticResolutionParameters
+    public class ResolutionParameters
     {
         /// <summary>
         /// Gets or sets the duration after which the Alert will be checked for automatic

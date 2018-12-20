@@ -279,7 +279,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.Analysis
                 return new ContractsAlertResolutionCheckResponse
                 {
                     ShouldBeResolved = automaticResolutionCheckResponse.ShouldBeResolved,
-                    ResolutionParameters = automaticResolutionCheckResponse.AutomaticResolutionParameters?.CreateContractsResolutionParameters()
+                    ResolutionParameters = automaticResolutionCheckResponse.ResolutionParameters?.CreateContractsResolutionParameters()
                 };
             }
             catch (Exception e)

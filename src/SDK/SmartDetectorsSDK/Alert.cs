@@ -47,6 +47,6 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors
         /// provides this property must implement the <see cref="IAutomaticResolutionSmartDetector"/> interface
         /// in order to handle automatic resolution check requests sent by the Azure Monitoring back-end.
         /// </summary>
-        public AutomaticResolutionParameters AutomaticResolutionParameters { get; set; }
+        public ResolutionParameters ResolutionParameters { get; set; }
     }
 }
