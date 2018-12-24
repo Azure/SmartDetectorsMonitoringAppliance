@@ -1,10 +1,10 @@
 ﻿//-----------------------------------------------------------------------
-// <copyright file="AlertPresentationUrlFormatterAttribute.cs" company="Microsoft Corporation">
+// <copyright file="UrlFormatterAttribute.cs" company="Microsoft Corporation">
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // </copyright>
 //-----------------------------------------------------------------------
 
-namespace Microsoft.Azure.Monitoring.SmartDetectors
+namespace Microsoft.Azure.Monitoring.SmartDetectors.AlertPresentation
 {
     using System;
 
@@ -13,13 +13,13 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors
     /// Alert presentation properties.
     /// </summary>
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
-    public class AlertPresentationUrlFormatterAttribute : Attribute
+    public class UrlFormatterAttribute : Attribute
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="AlertPresentationUrlFormatterAttribute"/> class.
+        /// Initializes a new instance of the <see cref="UrlFormatterAttribute"/> class.
         /// </summary>
         /// <param name="linkText">The link display text</param>
-        public AlertPresentationUrlFormatterAttribute(string linkText)
+        public UrlFormatterAttribute(string linkText)
         {
             // Validate that the link text is not null of whitespaces
             if (string.IsNullOrWhiteSpace(linkText))

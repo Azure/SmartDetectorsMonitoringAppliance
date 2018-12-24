@@ -198,10 +198,11 @@ namespace SmartDetectorsSharedTests
 
             var resource = new ResourceIdentifier(ResourceType.VirtualMachine, "someSubscription", "someGroup", "someVM");
             var analysisRequest = new AnalysisRequest(
-                new List<ResourceIdentifier> { resource },
-                TimeSpan.FromDays(1),
-                null,
-                null,
+                new AnalysisRequestParameters(
+                    new List<ResourceIdentifier> { resource },
+                    TimeSpan.FromDays(1),
+                    null,
+                    null),
                 new Mock<IAnalysisServicesFactory>().Object,
                 new Mock<IStateRepository>().Object);
             List<Alert> alerts = await detector.AnalyzeResourcesAsync(analysisRequest, this.tracerMock.Object, default(CancellationToken));
@@ -221,10 +222,11 @@ namespace SmartDetectorsSharedTests
 
             var resource = new ResourceIdentifier(ResourceType.VirtualMachine, "someSubscription", "someGroup", "someVM");
             var analysisRequest = new AnalysisRequest(
-                new List<ResourceIdentifier> { resource },
-                TimeSpan.FromDays(1),
-                null,
-                null,
+                new AnalysisRequestParameters(
+                    new List<ResourceIdentifier> { resource },
+                    TimeSpan.FromDays(1),
+                    null,
+                    null),
                 new Mock<IAnalysisServicesFactory>().Object,
                 new Mock<IStateRepository>().Object);
             List<Alert> alerts = await detector.AnalyzeResourcesAsync(analysisRequest, this.tracerMock.Object, default(CancellationToken));
@@ -273,7 +275,7 @@ namespace SmartDetectorsSharedTests
         private class TestAlert : Alert
         {
             public TestAlert(string title, ResourceIdentifier resourceIdentifier)
-                : base(title, resourceIdentifier, AlertState.Active)
+                : base(title, resourceIdentifier)
             {
             }
         }
@@ -284,7 +286,7 @@ namespace SmartDetectorsSharedTests
             public Task<List<Alert>> AnalyzeResourcesAsync(AnalysisRequest analysisRequest, ITracer tracer, CancellationToken cancellationToken)
             {
                 List<Alert> alerts = new List<Alert>();
-                alerts.Add(new TestAlert("test test test", analysisRequest.TargetResources.Single()));
+                alerts.Add(new TestAlert("test test test", analysisRequest.RequestParameters.TargetResources.Single()));
                 return Task.FromResult(alerts);
             }
         }
@@ -307,7 +309,7 @@ namespace SmartDetectorsSharedTests
             public Task<List<Alert>> AnalyzeResourcesAsync(AnalysisRequest analysisRequest, ITracer tracer, CancellationToken cancellationToken)
             {
                 List<Alert> alerts = new List<Alert>();
-                alerts.Add(new TestAlert(this.message, analysisRequest.TargetResources.Single()));
+                alerts.Add(new TestAlert(this.message, analysisRequest.RequestParameters.TargetResources.Single()));
                 return Task.FromResult(alerts);
             }
         }
@@ -318,7 +320,7 @@ namespace SmartDetectorsSharedTests
             public Task<List<Alert>> AnalyzeResourcesAsync(AnalysisRequest analysisRequest, ITracer tracer, CancellationToken cancellationToken)
             {
                 List<Alert> alerts = new List<Alert>();
-                alerts.Add(new TestAlert(typeof(T).Name, analysisRequest.TargetResources.Single()));
+                alerts.Add(new TestAlert(typeof(T).Name, analysisRequest.RequestParameters.TargetResources.Single()));
                 return Task.FromResult(alerts);
             }
         }

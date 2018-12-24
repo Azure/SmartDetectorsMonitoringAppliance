@@ -92,6 +92,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
                     InlineUIContainer container = new InlineUIContainer(image);
 
                     hypertextTextBlock.Inlines.Add(container);
+                    hypertextTextBlock.Inlines.Add(" ");
                 }
                 else if (hypertext.StartsWith("↓", StringComparison.InvariantCulture))
                 {
@@ -106,9 +107,10 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
                     InlineUIContainer container = new InlineUIContainer(image);
 
                     hypertextTextBlock.Inlines.Add(container);
+                    hypertextTextBlock.Inlines.Add(" ");
                 }
 
-                hypertextTextBlock.Inlines.Add(" " + hypertext);
+                hypertextTextBlock.Inlines.Add(hypertext);
 
                 return;
             }

@@ -4,7 +4,7 @@
 // </copyright>
 //-----------------------------------------------------------------------
 
-namespace Microsoft.Azure.Monitoring.SmartDetectors
+namespace Microsoft.Azure.Monitoring.SmartDetectors.AlertPresentation
 {
     /// <summary>
     /// An enumeration of possible section where Alert properties can be presented.

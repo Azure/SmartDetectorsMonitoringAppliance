@@ -9,7 +9,6 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors
     using System;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
-    using System.Globalization;
     using System.Linq;
     using System.Text.RegularExpressions;
     using Newtonsoft.Json;
@@ -35,6 +34,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors
                     [ResourceType.KeyVault] = "Microsoft.KeyVault/vaults",
                     [ResourceType.ServiceBus] = "Microsoft.ServiceBus/namespaces",
                     [ResourceType.SqlServer] = "Microsoft.Sql/servers",
+                    [ResourceType.EventHub] = "Microsoft.EventHub/namespaces",
                 });
 
         private const string SubscriptionRegexPattern = "/subscriptions/(?<subscriptionId>[^/]*)";

@@ -69,5 +69,10 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors
         /// The Azure SQL Server resource type.
         /// </summary>
         SqlServer,
+
+        /// <summary>
+        /// The Azure Event Hub resource type
+        /// </summary>
+        EventHub,
     }
 }
