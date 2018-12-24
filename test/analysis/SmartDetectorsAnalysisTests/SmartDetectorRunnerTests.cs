@@ -79,6 +79,24 @@ namespace SmartDetectorsAnalysisTests
         }
 
         [TestMethod]
+        public async Task WhenRunningSmartDetectorAnalyzeAndNotReadyExceptionIsThrownThenNoAlertsAreReturned()
+        {
+            // Setup the exception to throw
+            this.smartDetector.ExceptionToThrow = new DetectorDataNotReadyException();
+            this.smartDetector.ShouldThrow = true;
+
+            // Run the Smart Detector and validate results
+            ISmartDetectorRunner runner = this.testContainer.Resolve<ISmartDetectorRunner>();
+            List<ContractsAlert> contractsAlerts = await runner.AnalyzeAsync(this.analysisRequest, true, default(CancellationToken));
+            Assert.IsNotNull(contractsAlerts, "Contract alerts list is null");
+            Assert.AreEqual(0, contractsAlerts.Count);
+
+            // Assert the detector's state
+            Assert.AreEqual(1, this.stateRepository.Count);
+            Assert.AreEqual("test state", this.stateRepository["test key"]);
+        }
+
+        [TestMethod]
         public async Task WhenRunningSmartDetectorAnalyzeItIsDisposedIfItImplementsIDisposable()
         {
             this.smartDetector = new DisposableTestSmartDetector { ExpectedResourceType = ResourceType.VirtualMachine };
@@ -537,6 +555,8 @@ namespace SmartDetectorsAnalysisTests
 
             public ResourceType ExpectedResourceType { get; set; }
 
+            public Exception ExceptionToThrow { get; set; }
+
             public async Task<List<Alert>> AnalyzeResourcesAsync(AnalysisRequest analysisRequest, ITracer tracer, CancellationToken cancellationToken)
             {
                 this.IsRunning = true;
@@ -560,7 +580,7 @@ namespace SmartDetectorsAnalysisTests
 
                 if (this.ShouldThrow)
                 {
-                    throw new DivideByZeroException();
+                    throw this.ExceptionToThrow ?? new DivideByZeroException();
                 }
 
                 if (this.ShouldThrowCustom)
