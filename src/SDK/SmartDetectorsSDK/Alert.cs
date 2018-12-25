@@ -44,7 +44,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors
         /// Gets or sets optional resolution parameters for this Alert.
         /// A Smart Detector can use this property to signal to the Azure Monitoring back-end the conditions
         /// under which the Alert can be resolved (without user interaction). A Smart Detector which
-        /// provides this property must implement the <see cref="IAlertResolutionSmartDetector"/> interface
+        /// provides this property must implement the <see cref="IResolvableAlertSmartDetector"/> interface
         /// in order to handle resolution check requests sent by the Azure Monitoring back-end.
         /// </summary>
         public AlertResolutionParameters AlertResolutionParameters { get; set; }

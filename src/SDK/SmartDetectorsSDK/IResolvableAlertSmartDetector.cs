@@ -1,5 +1,5 @@
 ﻿//-----------------------------------------------------------------------
-// <copyright file="IAlertResolutionSmartDetector.cs" company="Microsoft Corporation">
+// <copyright file="IResolvableAlertSmartDetector.cs" company="Microsoft Corporation">
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // </copyright>
 //-----------------------------------------------------------------------
@@ -12,7 +12,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors
     /// <summary>
     /// An interface to be implemented by Smart Detectors that support resolution of Alerts.
     /// </summary>
-    public interface IAlertResolutionSmartDetector : ISmartDetector
+    public interface IResolvableAlertSmartDetector : ISmartDetector
     {
         /// <summary>
         /// Checks if the alert indicated by <paramref name="alertResolutionCheckRequest"/> should be resolved.

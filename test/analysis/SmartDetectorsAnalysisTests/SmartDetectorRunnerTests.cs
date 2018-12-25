@@ -596,7 +596,7 @@ namespace SmartDetectorsAnalysisTests
             }
         }
 
-        public class TestAutoResolveSmartDetector : TestSmartDetector, IAlertResolutionSmartDetector
+        public class TestAutoResolveSmartDetector : TestSmartDetector, IResolvableAlertSmartDetector
         {
             public bool ShouldResolve { get; set; } = true;
 
