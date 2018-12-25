@@ -184,7 +184,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.Analysis
             }
 
             // Create results
-            bool detectorSupportsAlertResolution = smartDetector is IAlertResolutionSmartDetector;
+            bool detectorSupportsAlertResolution = smartDetector is IResolvableAlertSmartDetector;
             List<ContractsAlert> results = new List<ContractsAlert>();
             foreach (var alert in alerts)
             {
@@ -244,7 +244,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.Analysis
             CancellationToken cancellationToken)
         {
             // Check that the detector supports resolution
-            if (!(smartDetector is IAlertResolutionSmartDetector alertResolutionSmartDetector))
+            if (!(smartDetector is IResolvableAlertSmartDetector resolvableAlertSmartDetector))
             {
                 throw new ResolutionCheckNotSupportedException($"Smart Detector {smartDetectorManifest.Name} does not support alert resolution of alerts");
             }
@@ -271,7 +271,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.Analysis
             this.tracer.TraceInformation($"Started running Smart Detector ID {smartDetectorManifest.Id}, Name {smartDetectorManifest.Name} for resolution check");
             try
             {
-                AlertResolutionCheckResponse alertResolutionCheckResponse = await alertResolutionSmartDetector.CheckForResolutionAsync(alertResolutionCheckRequest, detectorTracer, cancellationToken);
+                AlertResolutionCheckResponse alertResolutionCheckResponse = await resolvableAlertSmartDetector.CheckForResolutionAsync(alertResolutionCheckRequest, detectorTracer, cancellationToken);
                 this.tracer.TraceInformation($"Completed running Smart Detector ID {smartDetectorManifest.Id}, Name {smartDetectorManifest.Name} for resolution check");
 
                 // If the alert is resolved - delete the state
