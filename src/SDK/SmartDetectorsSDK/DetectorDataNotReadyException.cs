@@ -10,7 +10,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors
     using System.Runtime.Serialization;
 
     /// <summary>
-    /// An exception used by the Smart Detector to indicate that the data it need for analysis
+    /// An exception used by the Smart Detector to indicate that the data it needs for analysis
     /// is not ready yet. The Runtime Environment may use <see cref="ShouldRetryAfter"/> to
     /// reschedule the analysis, but in any case throwing this exception will not register as
     /// a failure to run the Smart Detector.
