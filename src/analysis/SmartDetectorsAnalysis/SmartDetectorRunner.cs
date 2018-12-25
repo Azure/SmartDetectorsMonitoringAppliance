@@ -153,7 +153,13 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.Analysis
             try
             {
                 alerts = await smartDetector.AnalyzeResourcesAsync(analysisRequest, detectorTracer, cancellationToken);
-                this.tracer.TraceInformation($"Completed running Smart Detector ID {smartDetectorManifest.Id}, Name {smartDetectorManifest.Name}, returning {alerts.Count} alerts");
+                this.tracer.TraceInformation(
+                    $"Completed running Smart Detector ID {smartDetectorManifest.Id}, Name {smartDetectorManifest.Name}, returning {alerts.Count} alerts");
+            }
+            catch (DetectorDataNotReadyException ddnre)
+            {
+                this.tracer.TraceWarning($"Smart Detector data is not ready yet, aborting analysis: {ddnre.Message}");
+                return new List<ContractsAlert>();
             }
             catch (Exception e)
             {
