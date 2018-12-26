@@ -62,5 +62,10 @@
   <ItemGroup>
     <Content Include="build\net461\Microsoft.Azure.Monitoring.SmartDetectors.props" />
   </ItemGroup>
+  <ItemGroup>
+    <Dependency Include="Newtonsoft.Json">
+      <Version>11.0.2</Version>
+    </Dependency>
+  </ItemGroup>
   <Import Project="$(NuProjPath)\NuProj.targets" />
 </Project>
