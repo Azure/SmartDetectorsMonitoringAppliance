@@ -1,10 +1,10 @@
 ﻿//-----------------------------------------------------------------------
-// <copyright file="AlertPredicatePropertyAttribute.cs" company="Microsoft Corporation">
+// <copyright file="PredicatePropertyAttribute.cs" company="Microsoft Corporation">
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // </copyright>
 //-----------------------------------------------------------------------
 
-namespace Microsoft.Azure.Monitoring.SmartDetectors
+namespace Microsoft.Azure.Monitoring.SmartDetectors.AlertPresentation
 {
     using System;
 
@@ -13,7 +13,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors
     /// Predicate properties are used to determine if two Alerts are equivalent.
     /// </summary>
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
-    public class AlertPredicatePropertyAttribute : Attribute
+    public class PredicatePropertyAttribute : Attribute
     {
     }
 }

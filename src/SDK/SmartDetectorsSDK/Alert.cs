@@ -19,23 +19,15 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors
         /// </summary>
         /// <param name="title">The Alert's title.</param>
         /// <param name="resourceIdentifier">The resource identifier that this Alert applies to.</param>
-        /// <param name="state">The alert's state. A Smart Detector can auto-resolve
-        /// alerts that were created previously by passing <see cref="AlertState.Resolved"/> for this parameter.</param>
-        protected Alert(string title, ResourceIdentifier resourceIdentifier, AlertState state = AlertState.Active)
+        protected Alert(string title, ResourceIdentifier resourceIdentifier)
         {
             if (string.IsNullOrWhiteSpace(title))
             {
                 throw new ArgumentNullException(nameof(title));
             }
 
-            if (resourceIdentifier == null)
-            {
-                throw new ArgumentNullException(nameof(resourceIdentifier));
-            }
-
             this.Title = title;
             this.ResourceIdentifier = resourceIdentifier;
-            this.State = state;
         }
 
         /// <summary>
@@ -49,19 +41,12 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors
         public ResourceIdentifier ResourceIdentifier { get; }
 
         /// <summary>
-        /// Gets the alert's state.
+        /// Gets or sets optional resolution parameters for this Alert.
+        /// A Smart Detector can use this property to signal to the Azure Monitoring back-end the conditions
+        /// under which the Alert can be resolved (without user interaction). A Smart Detector which
+        /// provides this property must implement the <see cref="IResolvableAlertSmartDetector"/> interface
+        /// in order to handle resolution check requests sent by the Azure Monitoring back-end.
         /// </summary>
-        public AlertState State { get; private set; }
-
-        /// <summary>
-        /// Sets the alert state to "Resolved".
-        /// Note: for alert resolution to be registered in Azure Monitor - after the call to this method
-        /// the alert object needs to be included in alerts returned by <see cref="ISmartDetector.AnalyzeResourcesAsync"/>
-        /// method implementation in your Smart Detector.
-        /// </summary>
-        public void Resolve()
-        {
-            this.State = AlertState.Resolved;
-        }
+        public AlertResolutionParameters AlertResolutionParameters { get; set; }
     }
 }

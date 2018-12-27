@@ -1,5 +1,5 @@
 ﻿//-----------------------------------------------------------------------
-// <copyright file="Analyze.cs" company="Microsoft Corporation">
+// <copyright file="CheckResolution.cs" company="Microsoft Corporation">
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // </copyright>
 //-----------------------------------------------------------------------
@@ -15,7 +15,6 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.Function
     using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
-    using Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance;
     using Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.Analysis;
     using Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.Extensions;
     using Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.Security;
@@ -26,21 +25,20 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.Function
     using Microsoft.Azure.WebJobs.Host;
     using Newtonsoft.Json;
     using Unity;
-    using ContractsAlert = Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts.Alert;
     using ExecutionContext = Microsoft.Azure.WebJobs.ExecutionContext;
 
     /// <summary>
-    /// A class implementing the analysis endpoint
+    /// A class implementing the check for resolution endpoint.
     /// </summary>
-    public static class Analyze
+    public static class CheckResolution
     {
         private static readonly IUnityContainer Container;
 
         /// <summary>
-        /// Initializes static members of the <see cref="Analyze"/> class.
+        /// Initializes static members of the <see cref="CheckResolution"/> class.
         /// </summary>
         [SuppressMessage("Microsoft.Performance", "CA1810:InitializeReferenceTypeStaticFieldsInline", Justification = "This must be called at initialization")]
-        static Analyze()
+        static CheckResolution()
         {
             // To increase Azure calls performance we increase default connection limit (default is 2) and ThreadPool minimum threads to allow more open connections
             ServicePointManager.DefaultConnectionLimit = 100;
@@ -54,16 +52,16 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.Function
         }
 
         /// <summary>
-        /// Runs the analysis flow for the requested Smart Detector.
+        /// Runs the check for resolution flow for the requested Alert.
         /// </summary>
-        /// <param name="request">The request which initiated the analysis.</param>
+        /// <param name="request">The request which initiated the alert resolution check.</param>
         /// <param name="log">The Azure Function log writer.</param>
         /// <param name="context">The function's execution context.</param>
         /// <param name="cancellationToken">A cancellation token to control the function's execution.</param>
-        /// <returns>The analysis response.</returns>
-        [FunctionName("Analyze")]
+        /// <returns>The alert resolution check response.</returns>
+        [FunctionName("CheckResolution")]
         public static async Task<HttpResponseMessage> RunAsync(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "analyze")]HttpRequestMessage request,
+            [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "checkResolution")]HttpRequestMessage request,
             TraceWriter log,
             ExecutionContext context,
             CancellationToken cancellationToken)
@@ -72,7 +70,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.Function
             {
                 // Create a tracer for this run (that will also log to the specified TraceWriter)
                 IExtendedTracer tracer = childContainer.Resolve<IExtendedTracer>();
-                tracer.TraceInformation($"Analyze function request received with invocation Id {context.InvocationId}");
+                tracer.TraceInformation($"CheckResolution function request received with invocation Id {context.InvocationId}");
                 tracer.AddCustomProperty("FunctionName", context.FunctionName);
                 tracer.AddCustomProperty("InvocationId", context.InvocationId.ToString("N", CultureInfo.InvariantCulture));
 
@@ -82,19 +80,20 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.Function
                     tracer.TraceAppCounters();
 
                     // Read the request
-                    SmartDetectorAnalysisRequest smartDetectorExecutionRequest = await request.Content.ReadAsAsync<SmartDetectorAnalysisRequest>(cancellationToken);
-                    tracer.AddCustomProperty("SmartDetectorId", smartDetectorExecutionRequest.SmartDetectorId);
-                    tracer.TraceInformation($"Analyze request received: {JsonConvert.SerializeObject(smartDetectorExecutionRequest)}");
+                    AlertResolutionCheckRequest alertResolutionCheckRequest = await request.Content.ReadAsAsync<AlertResolutionCheckRequest>(cancellationToken);
+                    tracer.AddCustomProperty("SmartDetectorId", alertResolutionCheckRequest.OriginalAnalysisRequest.SmartDetectorId);
+                    tracer.TraceInformation($"CheckResolution request received: {JsonConvert.SerializeObject(alertResolutionCheckRequest)}");
 
                     // Process the request
                     ISmartDetectorRunner runner = childContainer.Resolve<ISmartDetectorRunner>();
                     bool shouldDetectorTrace = bool.Parse(ConfigurationReader.ReadConfig("ShouldDetectorTrace", required: true));
-                    List<ContractsAlert> alertPresentations = await runner.AnalyzeAsync(smartDetectorExecutionRequest, shouldDetectorTrace, cancellationToken);
-                    tracer.TraceInformation($"Analyze completed, returning {alertPresentations.Count} Alerts");
+                    AlertResolutionCheckResponse alertResolutionCheckResponse =
+                        await runner.CheckResolutionAsync(alertResolutionCheckRequest, shouldDetectorTrace, cancellationToken);
+                    tracer.TraceInformation($"CheckResolution completed, alert {(alertResolutionCheckResponse.ShouldBeResolved ? "should" : "should not")} be resolved");
 
                     // Create the response with StringContent to prevent Json from serializing to a string
                     var response = request.CreateResponse(HttpStatusCode.OK);
-                    response.Content = new StringContent(JsonConvert.SerializeObject(alertPresentations), Encoding.UTF8, "application/json");
+                    response.Content = new StringContent(JsonConvert.SerializeObject(alertResolutionCheckResponse), Encoding.UTF8, "application/json");
                     return response;
                 }
                 catch (AnalysisFailedException afe)

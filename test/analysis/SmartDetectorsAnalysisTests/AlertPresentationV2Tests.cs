@@ -11,17 +11,16 @@ namespace SmartDetectorsAnalysisTests
     using System.Diagnostics.CodeAnalysis;
     using System.Linq;
     using Microsoft.Azure.Monitoring.SmartDetectors;
-    using Microsoft.Azure.Monitoring.SmartDetectors.Presentation;
+    using Microsoft.Azure.Monitoring.SmartDetectors.AlertPresentation;
+    using Microsoft.Azure.Monitoring.SmartDetectors.Extensions;
     using Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Newtonsoft.Json;
     using Alert = Microsoft.Azure.Monitoring.SmartDetectors.Alert;
-    using AlertState = Microsoft.Azure.Monitoring.SmartDetectors.AlertState;
-    using ChartAxisType = Microsoft.Azure.Monitoring.SmartDetectors.ChartAxisType;
-    using ChartPoint = Microsoft.Azure.Monitoring.SmartDetectors.ChartPoint;
-    using ChartType = Microsoft.Azure.Monitoring.SmartDetectors.ChartType;
+    using ChartAxisType = Microsoft.Azure.Monitoring.SmartDetectors.AlertPresentation.ChartAxisType;
+    using ChartPoint = Microsoft.Azure.Monitoring.SmartDetectors.AlertPresentation.ChartPoint;
+    using ChartType = Microsoft.Azure.Monitoring.SmartDetectors.AlertPresentation.ChartType;
     using ContractsAlert = Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts.Alert;
-    using ContractsAlertState = Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts.AlertState;
     using ContractsChartAxisType = Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts.ChartAxisType;
     using ContractsChartType = Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts.ChartType;
     using ResourceType = Microsoft.Azure.Monitoring.SmartDetectors.ResourceType;
@@ -35,7 +34,6 @@ namespace SmartDetectorsAnalysisTests
         public void WhenProcessingAlertWithV2PresentationThenTheContractsAlertIsCreatedCorrectly()
         {
             ContractsAlert contractsAlert = CreateContractsV2Alert(new PresentationTestAlert());
-            Assert.AreEqual(ContractsAlertState.Active, contractsAlert.State);
             Assert.IsTrue(contractsAlert.AnalysisTimestamp <= DateTime.UtcNow, "Unexpected analysis timestamp in the future");
             Assert.IsTrue(contractsAlert.AnalysisTimestamp >= DateTime.UtcNow.AddMinutes(-1), "Unexpected analysis timestamp - too back in the past");
             Assert.AreEqual(24 * 60, contractsAlert.AnalysisWindowSizeInMinutes, "Unexpected analysis window size");
@@ -61,21 +59,15 @@ namespace SmartDetectorsAnalysisTests
         }
 
         [TestMethod]
-        public void WhenProcessingAlertWithStateResolvedThenTheContractsAlertIsCreatedWithCorrectState()
-        {
-            ContractsAlert contractsAlert = CreateContractsV2Alert(new PresentationTestAlert("AlertTitle", default(ResourceIdentifier), AlertState.Resolved));
-            Assert.AreEqual(ContractsAlertState.Resolved, contractsAlert.State);
-        }
-
-        [TestMethod]
         public void WhenAlertsHaveDifferentPredicatesThenTheCorrelationHashIsDifferent()
         {
             var alert1 = new PresentationTestAlert();
-            var alert2 = new PresentationTestAlert(state: AlertState.Resolved);
+            var alert2 = new PresentationTestAlert();
 
             var contractsAlert1 = CreateContractsV2Alert(alert1);
 
             // A non predicate property is different - correlation hash should be the same
+            alert2.RawProperty++;
             var contractsAlert2 = CreateContractsV2Alert(alert2);
             Assert.AreNotEqual(contractsAlert1.Id, contractsAlert2.Id);
             Assert.AreEqual(contractsAlert1.CorrelationHash, contractsAlert2.CorrelationHash);
@@ -238,36 +230,37 @@ namespace SmartDetectorsAnalysisTests
         [SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic", Justification = "Test code, approved")]
         public class PresentationTestAlert : Alert
         {
-            public PresentationTestAlert(string title = "AlertTitle", ResourceIdentifier resourceIdentifier = default(ResourceIdentifier), AlertState state = AlertState.Active)
-                : base(title, resourceIdentifier, state)
+            public PresentationTestAlert(string title = "AlertTitle", ResourceIdentifier resourceIdentifier = default(ResourceIdentifier))
+                : base(title, resourceIdentifier)
             {
+                this.RawProperty = 1;
             }
 
-            [AlertPredicateProperty]
+            [PredicateProperty]
             public string Predicate => this.Title;
 
-            public int RawProperty => 1;
+            public int RawProperty { get; set; }
 
-            [AlertPresentationLongTextAttribute("LongTextDisplayName", Order = 0, PropertyName = "LongTextPropertyName")]
+            [LongTextProperty("LongTextDisplayName", Order = 0, PropertyName = "LongTextPropertyName")]
             public string LongTextValue => "LongTextValue";
 
-            [AlertPresentationUrlFormatter("LinkText{RawProperty}")]
-            [AlertPresentationText("UrlDisplayName", Order = 1)]
+            [UrlFormatter("LinkText{RawProperty}")]
+            [TextProperty("UrlDisplayName", Order = 1)]
             public Uri UrlValue => new Uri("https://www.bing.com");
 
-            [AlertPresentationText("TextDisplayName", Order = 2)]
+            [TextProperty("TextDisplayName", Order = 2)]
             public string TextValue => "TextValue";
 
-            [AlertPresentationKeyValue("KeyValueDisplayName", Order = 3)]
+            [KeyValueProperty("KeyValueDisplayName", Order = 3)]
             public IDictionary<string, string> KeyValue => new Dictionary<string, string> { { "key1", "value1" } };
 
-            [AlertPresentationKeyValue("KeyValueWithHeadersDisplayName", "Keys", "Values{RawProperty}", Order = 4)]
+            [KeyValueProperty("KeyValueWithHeadersDisplayName", "Keys", "Values{RawProperty}", Order = 4)]
             public IDictionary<string, string> KeyValueWithHeaders => new Dictionary<string, string> { { "key1", "value1" } };
 
-            [AlertPresentationChart("ChartDisplayName", ChartType.LineChart, ChartAxisType.DateAxis, ChartAxisType.NumberAxis)]
+            [ChartProperty("ChartDisplayName", ChartType.LineChart, ChartAxisType.DateAxis, ChartAxisType.NumberAxis)]
             public List<ChartPoint> DataPoints => new List<ChartPoint>() { new ChartPoint(new DateTime(2018, 7, 9, 14, 31, 0, DateTimeKind.Utc), 5) };
 
-            [AlertPresentationMultiColumnTable("TableDisplayName", Order = 5, ShowHeaders = true)]
+            [MultiColumnTableProperty("TableDisplayName", Order = 5, ShowHeaders = true)]
             [SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays", Justification = "Test code, allowed")]
             public TableData[] Table => new TableData[]
             {
@@ -275,21 +268,21 @@ namespace SmartDetectorsAnalysisTests
                 new TableData { Prop1 = "p12", Prop2 = "p22", UriProp = new Uri("http://contoso.com"), NonDisplayProp = "NDP2" },
             };
 
-            [AlertPresentationSingleColumnTable("SingleColumnTableDisplayName", Order = 6, ShowHeaders = false)]
+            [SingleColumnTableProperty("SingleColumnTableDisplayName", Order = 6, ShowHeaders = false)]
             public List<string> SingleColumnTable => new List<string> { "value1", "value2", "value3" };
         }
 
         public class TableData
         {
             [JsonProperty("prop1")]
-            [AlertPresentationTableColumn("First Prop")]
+            [TableColumn("First Prop")]
             public string Prop1 { get; set; }
 
-            [AlertPresentationTableColumn("Second Prop")]
+            [TableColumn("Second Prop")]
             public string Prop2 { get; set; }
 
-            [AlertPresentationUrlFormatter("Link for {NonDisplayProp}")]
-            [AlertPresentationTableColumn("Uri Prop")]
+            [UrlFormatter("Link for {NonDisplayProp}")]
+            [TableColumn("Uri Prop")]
             public Uri UriProp { get; set; }
 
             public string NonDisplayProp { get; set; }

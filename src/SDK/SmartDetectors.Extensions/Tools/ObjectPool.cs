@@ -5,8 +5,9 @@
 //-----------------------------------------------------------------------
 
 using System.Runtime.CompilerServices;
+
 [assembly: InternalsVisibleTo("SmartDetectorsExtensionsTests")]
-namespace Microsoft.Azure.Monitoring.SmartDetectors.Tools
+namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions.Tools
 {
     using System;
     using System.Collections.Concurrent;

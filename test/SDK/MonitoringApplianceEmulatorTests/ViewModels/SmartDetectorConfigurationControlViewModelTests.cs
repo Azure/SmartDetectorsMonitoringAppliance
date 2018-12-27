@@ -371,6 +371,13 @@ namespace MonitoringApplianceEmulatorTests.ViewModels
         [TestMethod]
         public void WhenExecutingRunDetectorCommandWithIterativeModeDisabledThenTheDetectorIsRunningWithExpectedParameters()
         {
+            var subscriptionToSelect = new HierarchicalResource(
+                new ResourceIdentifier(ResourceType.Subscription, "subId1", string.Empty, string.Empty),
+                new List<HierarchicalResource>(),
+                "subDisplayName1");
+
+            this.smartDetectorConfigurationControlViewModel.SelectedSubscription = subscriptionToSelect;
+
             this.smartDetectorConfigurationControlViewModel.RunSmartDetectorCommand.Execute(parameter: null);
 
             Assert.IsTrue(this.smartDetectorConfigurationControlViewModel.ShouldShowStatusControl);
@@ -383,7 +390,7 @@ namespace MonitoringApplianceEmulatorTests.ViewModels
                     It.IsAny<DateTime>(),
                     It.IsAny<DateTime>(),
                     this.userSettings,
-                    "1"),
+                    "subId1"),
                 Times.Once());
         }
 

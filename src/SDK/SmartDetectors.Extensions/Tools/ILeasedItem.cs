@@ -4,7 +4,7 @@
 // </copyright>
 //-----------------------------------------------------------------------
 
-namespace Microsoft.Azure.Monitoring.SmartDetectors.Tools
+namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions.Tools
 {
     using System;
 

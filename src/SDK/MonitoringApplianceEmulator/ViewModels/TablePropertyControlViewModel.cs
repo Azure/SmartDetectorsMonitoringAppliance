@@ -18,6 +18,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
     /// <typeparam name="T">The row type of the table</typeparam>
     public class TablePropertyControlViewModel<T> : ObservableObject
     {
+        private string title;
         private DataTable table;
 
         /// <summary>
@@ -60,7 +61,22 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
                 table.Rows.Add(newRow);
             }
 
+            this.Title = tableAlertProperty.DisplayName;
             this.Table = table;
+        }
+
+        /// <summary>
+        /// Gets the chart title.
+        /// </summary>
+        public string Title
+        {
+            get => this.title;
+
+            private set
+            {
+                this.title = value;
+                this.OnPropertyChanged();
+            }
         }
 
         /// <summary>

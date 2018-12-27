@@ -6,7 +6,7 @@
 
 namespace MonitoringApplianceEmulatorTests
 {
-    using Microsoft.Azure.Monitoring.SmartDetectors;
+    using Microsoft.Azure.Monitoring.SmartDetectors.AlertPresentation;
     using Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts;
 
     /// <summary>
@@ -14,13 +14,13 @@ namespace MonitoringApplianceEmulatorTests
     /// </summary>
     public class TestTableAlertPropertyValue
     {
-        [AlertPresentationTableColumn("First Name")]
+        [TableColumn("First Name")]
         public string FirstName { get; set; }
 
-        [AlertPresentationTableColumn("Last Name")]
+        [TableColumn("Last Name")]
         public string LastName { get; set; }
 
-        [AlertPresentationTableColumn("Goals avg")]
+        [TableColumn("Goals avg")]
         public double Goals { get; set; }
     }
 }

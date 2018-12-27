@@ -9,7 +9,7 @@ namespace SmartDetectorsSharedTests
     using System;
     using System.Threading;
     using System.Threading.Tasks;
-    using Microsoft.Azure.Monitoring.SmartDetectors.Tools;
+    using Microsoft.Azure.Monitoring.SmartDetectors.Extensions.Tools;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     [TestClass]
