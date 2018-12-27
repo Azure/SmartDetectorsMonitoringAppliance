@@ -1,5 +1,5 @@
 ﻿//-----------------------------------------------------------------------
-// <copyright file="AutomaticResolutionParameters.cs" company="Microsoft Corporation">
+// <copyright file="AlertResolutionParameters.cs" company="Microsoft Corporation">
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // </copyright>
 //-----------------------------------------------------------------------
@@ -9,14 +9,14 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors
     using System;
 
     /// <summary>
-    /// Contains parameters used to handle alerts' automatic resolution
+    /// Contains parameters used to handle alerts' resolution
     /// </summary>
-    public class AutomaticResolutionParameters
+    public class AlertResolutionParameters
     {
         /// <summary>
-        /// Gets or sets the duration after which the Alert will be checked for automatic
+        /// Gets or sets the duration after which the Alert will be checked for
         /// resolution by querying the Runtime Environment.
         /// </summary>
-        public TimeSpan CheckForAutomaticResolutionAfter { get; set; }
+        public TimeSpan CheckForResolutionAfter { get; set; }
     }
 }

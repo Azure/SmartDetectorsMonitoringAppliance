@@ -1,5 +1,5 @@
 ﻿//-----------------------------------------------------------------------
-// <copyright file="CheckAutomaticResolution.cs" company="Microsoft Corporation">
+// <copyright file="CheckResolution.cs" company="Microsoft Corporation">
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // </copyright>
 //-----------------------------------------------------------------------
@@ -28,17 +28,17 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.Function
     using ExecutionContext = Microsoft.Azure.WebJobs.ExecutionContext;
 
     /// <summary>
-    /// A class implementing the check for automatic resolution endpoint.
+    /// A class implementing the check for resolution endpoint.
     /// </summary>
-    public static class CheckAutomaticResolution
+    public static class CheckResolution
     {
         private static readonly IUnityContainer Container;
 
         /// <summary>
-        /// Initializes static members of the <see cref="CheckAutomaticResolution"/> class.
+        /// Initializes static members of the <see cref="CheckResolution"/> class.
         /// </summary>
         [SuppressMessage("Microsoft.Performance", "CA1810:InitializeReferenceTypeStaticFieldsInline", Justification = "This must be called at initialization")]
-        static CheckAutomaticResolution()
+        static CheckResolution()
         {
             // To increase Azure calls performance we increase default connection limit (default is 2) and ThreadPool minimum threads to allow more open connections
             ServicePointManager.DefaultConnectionLimit = 100;
@@ -52,16 +52,16 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.Function
         }
 
         /// <summary>
-        /// Runs the check for automatic resolution flow for the requested Alert.
+        /// Runs the check for resolution flow for the requested Alert.
         /// </summary>
-        /// <param name="request">The request which initiated the automatic resolution check.</param>
+        /// <param name="request">The request which initiated the alert resolution check.</param>
         /// <param name="log">The Azure Function log writer.</param>
         /// <param name="context">The function's execution context.</param>
         /// <param name="cancellationToken">A cancellation token to control the function's execution.</param>
-        /// <returns>The automatic resolution check response.</returns>
-        [FunctionName("CheckAutomaticResolution")]
+        /// <returns>The alert resolution check response.</returns>
+        [FunctionName("CheckResolution")]
         public static async Task<HttpResponseMessage> RunAsync(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "checkAutomaticResolution")]HttpRequestMessage request,
+            [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "checkResolution")]HttpRequestMessage request,
             TraceWriter log,
             ExecutionContext context,
             CancellationToken cancellationToken)
@@ -70,7 +70,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.Function
             {
                 // Create a tracer for this run (that will also log to the specified TraceWriter)
                 IExtendedTracer tracer = childContainer.Resolve<IExtendedTracer>();
-                tracer.TraceInformation($"CheckAutomaticResolution function request received with invocation Id {context.InvocationId}");
+                tracer.TraceInformation($"CheckResolution function request received with invocation Id {context.InvocationId}");
                 tracer.AddCustomProperty("FunctionName", context.FunctionName);
                 tracer.AddCustomProperty("InvocationId", context.InvocationId.ToString("N", CultureInfo.InvariantCulture));
 
@@ -80,20 +80,20 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.Function
                     tracer.TraceAppCounters();
 
                     // Read the request
-                    AutomaticResolutionCheckRequest automaticResolutionCheckRequest = await request.Content.ReadAsAsync<AutomaticResolutionCheckRequest>(cancellationToken);
-                    tracer.AddCustomProperty("SmartDetectorId", automaticResolutionCheckRequest.OriginalAnalysisRequest.SmartDetectorId);
-                    tracer.TraceInformation($"CheckAutomaticResolution request received: {JsonConvert.SerializeObject(automaticResolutionCheckRequest)}");
+                    AlertResolutionCheckRequest alertResolutionCheckRequest = await request.Content.ReadAsAsync<AlertResolutionCheckRequest>(cancellationToken);
+                    tracer.AddCustomProperty("SmartDetectorId", alertResolutionCheckRequest.OriginalAnalysisRequest.SmartDetectorId);
+                    tracer.TraceInformation($"CheckResolution request received: {JsonConvert.SerializeObject(alertResolutionCheckRequest)}");
 
                     // Process the request
                     ISmartDetectorRunner runner = childContainer.Resolve<ISmartDetectorRunner>();
                     bool shouldDetectorTrace = bool.Parse(ConfigurationReader.ReadConfig("ShouldDetectorTrace", required: true));
-                    AutomaticResolutionCheckResponse automaticResolutionCheckResponse =
-                        await runner.CheckAutomaticResolutionAsync(automaticResolutionCheckRequest, shouldDetectorTrace, cancellationToken);
-                    tracer.TraceInformation($"CheckAutomaticResolution completed, alert {(automaticResolutionCheckResponse.ShouldBeResolved ? "should" : "should not")} be resolved");
+                    AlertResolutionCheckResponse alertResolutionCheckResponse =
+                        await runner.CheckResolutionAsync(alertResolutionCheckRequest, shouldDetectorTrace, cancellationToken);
+                    tracer.TraceInformation($"CheckResolution completed, alert {(alertResolutionCheckResponse.ShouldBeResolved ? "should" : "should not")} be resolved");
 
                     // Create the response with StringContent to prevent Json from serializing to a string
                     var response = request.CreateResponse(HttpStatusCode.OK);
-                    response.Content = new StringContent(JsonConvert.SerializeObject(automaticResolutionCheckResponse), Encoding.UTF8, "application/json");
+                    response.Content = new StringContent(JsonConvert.SerializeObject(alertResolutionCheckResponse), Encoding.UTF8, "application/json");
                     return response;
                 }
                 catch (AnalysisFailedException afe)
