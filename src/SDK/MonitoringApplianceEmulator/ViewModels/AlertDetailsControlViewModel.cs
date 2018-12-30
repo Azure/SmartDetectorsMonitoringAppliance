@@ -67,13 +67,13 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
 
             // Project CAD chart displayable properties
             List<ChartAlertProperty> cadChartAlertProperties = this.Alert.ContractsAlert.AlertProperties.OfType<ChartAlertProperty>()
-                .Where(chartProp => chartProp.DisplayName.Contains("_Value") || chartProp.DisplayName.Contains("_Low") || chartProp.DisplayName.Contains("_High") || chartProp.DisplayName.Contains("_Anomalies"))
+                .Where(chartProp => chartProp.DisplayName.EndsWith("_Value", StringComparison.InvariantCulture) || chartProp.DisplayName.EndsWith("_Low", StringComparison.InvariantCulture) || chartProp.DisplayName.EndsWith("_High", StringComparison.InvariantCulture) || chartProp.DisplayName.EndsWith("_Anomalies", StringComparison.InvariantCulture))
                 .ToList();
 
             // Project all other displayable properties
             List<DisplayableAlertProperty> displayableAlertProperties = this.Alert.ContractsAlert.AlertProperties.OfType<DisplayableAlertProperty>()
                 .Where(prop => this.supportedPropertiesTypes.Contains(prop.Type))
-                .Where(prop => !prop.DisplayName.Contains("_Value") && !prop.DisplayName.Contains("_Low") && !prop.DisplayName.Contains("_High") && !prop.DisplayName.Contains("_Anomalies"))
+                .Where(prop => !prop.DisplayName.EndsWith("_Value", StringComparison.InvariantCulture) && !prop.DisplayName.EndsWith("_Low", StringComparison.InvariantCulture) && !prop.DisplayName.EndsWith("_High", StringComparison.InvariantCulture) && !prop.DisplayName.EndsWith("_Anomalies", StringComparison.InvariantCulture))
                 .ToList();
 
             // Group all CAD chart properties by chart display name
@@ -81,8 +81,13 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
 
             foreach (var chartProperty in cadChartAlertProperties)
             {
-                char[] delimiterChars = { '_' };
-                string chartDisplayNamePrefix = chartProperty.DisplayName.Split(delimiterChars).First();
+                string chartDisplayNamePrefix = chartProperty.DisplayName;
+                int delimiterPosition = chartDisplayNamePrefix.LastIndexOf('_');
+                if (delimiterPosition >= 0)
+                {
+                    chartDisplayNamePrefix = chartDisplayNamePrefix.Substring(0, delimiterPosition);
+                }
+
                 if (chartNamesToContainers.ContainsKey(chartDisplayNamePrefix))
                 {
                     chartNamesToContainers[chartDisplayNamePrefix].Add(chartProperty);
