@@ -35,6 +35,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors
                     [ResourceType.ServiceBus] = "Microsoft.ServiceBus/namespaces",
                     [ResourceType.SqlServer] = "Microsoft.Sql/servers",
                     [ResourceType.EventHub] = "Microsoft.EventHub/namespaces",
+                    [ResourceType.WebSite] = "Microsoft.Web/sites",
                 });
 
         private const string SubscriptionRegexPattern = "/subscriptions/(?<subscriptionId>[^/]*)";
