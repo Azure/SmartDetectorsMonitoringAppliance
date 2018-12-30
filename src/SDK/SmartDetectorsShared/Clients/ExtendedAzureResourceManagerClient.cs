@@ -336,12 +336,21 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Clients
                 string responseContent = await response.Content.ReadAsStringAsync();
                 JObject responseObject = JObject.Parse(responseContent);
 
-                var returnedObjects = responseObject["value"].ToObject<List<JObject>>();
-                allItems.AddRange(returnedObjects);
+                const string valueKey = "value";
+                IList<JObject> returnedObjects = null;
+                if (responseObject.ContainsKey(valueKey))
+                {
+                    returnedObjects = responseObject[valueKey].ToObject<List<JObject>>();
+                    allItems.AddRange(returnedObjects);
+                }
+                else
+                {
+                    allItems.Add(responseObject);
+                }
 
                 // Link to next page
                 string nextLinkToken = responseObject.GetValue("nextLink", StringComparison.InvariantCulture)?.ToString();
-                nextLink = (string.IsNullOrWhiteSpace(nextLinkToken) || !returnedObjects.Any()) ? null : new Uri(nextLinkToken);
+                nextLink = (string.IsNullOrWhiteSpace(nextLinkToken) || !(returnedObjects?.Any() ?? false)) ? null : new Uri(nextLinkToken);
             }
 
             return allItems;

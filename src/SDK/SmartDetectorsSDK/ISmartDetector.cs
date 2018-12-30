@@ -27,6 +27,12 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors
         /// <returns>
         /// A <see cref="Task"/> that represents the asynchronous operation, returning the Alerts detected for the target resources.
         /// </returns>
+        /// <exception cref="DetectorDataNotReadyException">
+        /// A Smart Detector may throw this exception to indicate to the Runtime Environment that its input
+        /// is not ready yet. The Runtime Environment may use the exception's <see cref="DetectorDataNotReadyException.ShouldRetryAfter"/>
+        /// property to reschedule the analysis, but in any case throwing this exception will not register as
+        /// a failure to run the Smart Detector.
+        /// </exception>
         Task<List<Alert>> AnalyzeResourcesAsync(
             AnalysisRequest analysisRequest,
             ITracer tracer,
