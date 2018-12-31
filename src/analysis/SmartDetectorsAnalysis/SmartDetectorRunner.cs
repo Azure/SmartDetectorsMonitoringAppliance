@@ -156,9 +156,9 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.Analysis
                 this.tracer.TraceInformation(
                     $"Completed running Smart Detector ID {smartDetectorManifest.Id}, Name {smartDetectorManifest.Name}, returning {alerts.Count} alerts");
             }
-            catch (DetectorNotReadyException ddnre)
+            catch (DetectorNotReadyException dnre)
             {
-                this.tracer.TraceWarning($"Smart Detector is not ready to run analysis yet, aborting analysis: {ddnre.Message}");
+                this.tracer.TraceWarning($"Smart Detector is not ready to run analysis yet, aborting analysis: {dnre.Message}");
                 return new List<ContractsAlert>();
             }
             catch (Exception e)
