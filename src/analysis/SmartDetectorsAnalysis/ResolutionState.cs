@@ -6,6 +6,7 @@
 
 namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.Analysis
 {
+    using System;
     using System.Collections.Generic;
 
     /// <summary>
@@ -14,6 +15,11 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.Analysis
     /// </summary>
     public class ResolutionState
     {
+        /// <summary>
+        /// Gets or sets the original time the analysis request was received from Azure Monitor back-end.
+        /// </summary>
+        public DateTime AnalysisRequestTime { get; set; }
+
         /// <summary>
         /// Gets or sets the alert predicates this state relates to.
         /// </summary>
