@@ -199,6 +199,7 @@ namespace SmartDetectorsSharedTests
             var resource = new ResourceIdentifier(ResourceType.VirtualMachine, "someSubscription", "someGroup", "someVM");
             var analysisRequest = new AnalysisRequest(
                 new AnalysisRequestParameters(
+                    DateTime.UtcNow,
                     new List<ResourceIdentifier> { resource },
                     TimeSpan.FromDays(1),
                     null,
@@ -223,6 +224,7 @@ namespace SmartDetectorsSharedTests
             var resource = new ResourceIdentifier(ResourceType.VirtualMachine, "someSubscription", "someGroup", "someVM");
             var analysisRequest = new AnalysisRequest(
                 new AnalysisRequestParameters(
+                    DateTime.UtcNow,
                     new List<ResourceIdentifier> { resource },
                     TimeSpan.FromDays(1),
                     null,

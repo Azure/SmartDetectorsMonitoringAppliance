@@ -170,7 +170,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
 
                                 ExtendedDateTime.SetEmulatedUtcNow(currentTime);
                                 var analysisRequest = new AnalysisRequest(
-                                    new AnalysisRequestParameters(targetResourcesForDetector, analysisCadence, null, null), this.analysisServicesFactory, stateRepository);
+                                    new AnalysisRequestParameters(DateTime.UtcNow, targetResourcesForDetector, analysisCadence, null, null), this.analysisServicesFactory, stateRepository);
 
                                 // Run the detector in a different context by using "Task.Run()". This will prevent the detector execution from blocking the UI
                                 List<Alert> newAlerts = await Task.Run(() =>
