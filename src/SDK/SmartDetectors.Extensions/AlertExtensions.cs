@@ -36,11 +36,10 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
         /// <param name="alert">The alert</param>
         /// <param name="request">The Smart Detector request</param>
         /// <param name="smartDetectorName">The Smart Detector name</param>
-        /// <param name="queryRunInfo">The query run information</param>
         /// <param name="usedLogAnalysisClient">Indicates whether a log analysis client was used to create the alert</param>
         /// <param name="usedMetricClient">Indicates whether a metric client was used to create the alert</param>
         /// <returns>The presentation</returns>
-        public static ContractsAlert CreateContractsAlert(this Alert alert, SmartDetectorAnalysisRequest request, string smartDetectorName, QueryRunInfo queryRunInfo, bool usedLogAnalysisClient, bool usedMetricClient)
+        public static ContractsAlert CreateContractsAlert(this Alert alert, SmartDetectorAnalysisRequest request, string smartDetectorName, bool usedLogAnalysisClient, bool usedMetricClient)
         {
             // A null alert has null presentation
             if (alert == null)
@@ -49,11 +48,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
             }
 
             // Create presentation elements for each alert property
-            #pragma warning disable CS0612 // Type or member is obsolete; Task to remove obsolete code #1312924
-            List<AlertPropertyLegacy> alertPropertiesLegacy = new List<AlertPropertyLegacy>();
-            #pragma warning restore CS0612 // Type or member is obsolete; Task to remove obsolete code #1312924
             List<AlertProperty> alertProperties = new List<AlertProperty>();
-            Dictionary<string, string> rawProperties = new Dictionary<string, string>();
             List<string> alertBaseClassPropertiesNames = typeof(Alert).GetProperties().Select(p => p.Name).ToList();
 
             foreach (PropertyInfo property in alert.GetType().GetProperties())
@@ -67,13 +62,11 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
                     continue;
                 }
 
-                rawProperties[property.Name] = propertyStringValue;
-
                 // Get the presentation attribute
-                AlertPresentationPropertyV2Attribute presentationV2Attribute = property.GetCustomAttribute<AlertPresentationPropertyV2Attribute>();
-                if (presentationV2Attribute != null)
+                AlertPresentationPropertyAttribute presentationAttribute = property.GetCustomAttribute<AlertPresentationPropertyAttribute>();
+                if (presentationAttribute != null)
                 {
-                    alertProperties.Add(CreateAlertProperty(alert, property, presentationV2Attribute, propertyValue));
+                    alertProperties.Add(CreateAlertProperty(alert, property, presentationAttribute, propertyValue));
                 }
                 else if (!alertBaseClassPropertiesNames.Contains(property.Name))
                 {
@@ -90,7 +83,6 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
             SignalType signalType = GetSignalType(usedLogAnalysisClient, usedMetricClient);
 
             // Return the presentation object
-            #pragma warning disable CS0612 // Type or member is obsolete; Task to remove obsolete code #1312924
             return new ContractsAlert
             {
                 Id = id,
@@ -101,14 +93,10 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
                 SmartDetectorName = smartDetectorName,
                 AnalysisTimestamp = DateTime.UtcNow,
                 AnalysisWindowSizeInMinutes = (int)request.Cadence.TotalMinutes,
-                Properties = alertPropertiesLegacy,
                 AlertProperties = alertProperties,
-                RawProperties = rawProperties,
-                QueryRunInfo = queryRunInfo,
                 SignalType = signalType,
                 AutomaticResolutionParameters = alert.AutomaticResolutionParameters?.CreateContractsAutomaticResolutionParameters()
             };
-            #pragma warning restore CS0612 // Type or member is obsolete; Task to remove obsolete code #1312924
         }
 
         /// <summary>
@@ -134,14 +122,14 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
         }
 
         /// <summary>
-        /// Creates an <see cref="AlertProperty"/> based on an alert presentation V2 property
+        /// Creates an <see cref="AlertProperty"/> based on an alert presentation property
         /// </summary>
         /// <param name="alert">The alert</param>
         /// <param name="property">The property info of the property to create</param>
-        /// <param name="presentationAttribute">The attribute defining the presentation V2 of the alert property</param>
+        /// <param name="presentationAttribute">The attribute defining the presentation of the alert property</param>
         /// <param name="propertyValue">The property value</param>
         /// <returns>An <see cref="AlertProperty"/></returns>
-        private static AlertProperty CreateAlertProperty(Alert alert, PropertyInfo property, AlertPresentationPropertyV2Attribute presentationAttribute, object propertyValue)
+        private static AlertProperty CreateAlertProperty(Alert alert, PropertyInfo property, AlertPresentationPropertyAttribute presentationAttribute, object propertyValue)
         {
             // Get the attribute display name
             string displayName = presentationAttribute.DisplayName.EvaluateInterpolatedString(alert);

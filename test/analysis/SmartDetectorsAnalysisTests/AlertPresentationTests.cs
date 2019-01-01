@@ -1,5 +1,5 @@
 ﻿//-----------------------------------------------------------------------
-// <copyright file="AlertPresentationV2Tests.cs" company="Microsoft Corporation">
+// <copyright file="AlertPresentationTests.cs" company="Microsoft Corporation">
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // </copyright>
 //-----------------------------------------------------------------------
@@ -23,17 +23,16 @@ namespace SmartDetectorsAnalysisTests
     using ContractsAlert = Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts.Alert;
     using ContractsChartAxisType = Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts.ChartAxisType;
     using ContractsChartType = Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts.ChartType;
-    using ResourceType = Microsoft.Azure.Monitoring.SmartDetectors.ResourceType;
 
     [TestClass]
-    public class AlertPresentationV2Tests
+    public class AlertPresentationTests
     {
         private const string SmartDetectorName = "smartDetectorName";
 
         [TestMethod]
-        public void WhenProcessingAlertWithV2PresentationThenTheContractsAlertIsCreatedCorrectly()
+        public void WhenProcessingAlertThenTheContractsAlertIsCreatedCorrectly()
         {
-            ContractsAlert contractsAlert = CreateContractsV2Alert(new PresentationTestAlert());
+            ContractsAlert contractsAlert = SetupContractsAlert(new PresentationTestAlert());
             Assert.IsTrue(contractsAlert.AnalysisTimestamp <= DateTime.UtcNow, "Unexpected analysis timestamp in the future");
             Assert.IsTrue(contractsAlert.AnalysisTimestamp >= DateTime.UtcNow.AddMinutes(-1), "Unexpected analysis timestamp - too back in the past");
             Assert.AreEqual(24 * 60, contractsAlert.AnalysisWindowSizeInMinutes, "Unexpected analysis window size");
@@ -64,17 +63,17 @@ namespace SmartDetectorsAnalysisTests
             var alert1 = new PresentationTestAlert();
             var alert2 = new PresentationTestAlert();
 
-            var contractsAlert1 = CreateContractsV2Alert(alert1);
+            var contractsAlert1 = SetupContractsAlert(alert1);
 
             // A non predicate property is different - correlation hash should be the same
             alert2.RawProperty++;
-            var contractsAlert2 = CreateContractsV2Alert(alert2);
+            var contractsAlert2 = SetupContractsAlert(alert2);
             Assert.AreNotEqual(contractsAlert1.Id, contractsAlert2.Id);
             Assert.AreEqual(contractsAlert1.CorrelationHash, contractsAlert2.CorrelationHash);
 
             // A predicate property is different - correlation hash should be the different
             alert2 = new PresentationTestAlert("AlertTitle2");
-            contractsAlert2 = CreateContractsV2Alert(alert2);
+            contractsAlert2 = SetupContractsAlert(alert2);
             Assert.AreNotEqual(contractsAlert1.Id, contractsAlert2.Id);
             Assert.AreNotEqual(contractsAlert1.CorrelationHash, contractsAlert2.CorrelationHash);
         }
@@ -82,36 +81,26 @@ namespace SmartDetectorsAnalysisTests
         [TestMethod]
         public void WhenProcessingAlertAndMetricClientWasUsedThenTheSignalTypeIsCorrect()
         {
-            ContractsAlert contractsAlert = CreateContractsV2Alert(new PresentationTestAlert(), usedMetricClient: true);
+            ContractsAlert contractsAlert = SetupContractsAlert(new PresentationTestAlert(), usedMetricClient: true);
             Assert.AreEqual(SignalType.Metric, contractsAlert.SignalType, "Unexpected signal type");
         }
 
         [TestMethod]
         public void WhenProcessingAlertAndLogClientWasUsedThenTheSignalTypeIsCorrect()
         {
-            ContractsAlert contractsAlert = CreateContractsV2Alert(new PresentationTestAlert(), usedLogAnalysisClient: true);
+            ContractsAlert contractsAlert = SetupContractsAlert(new PresentationTestAlert(), usedLogAnalysisClient: true);
             Assert.AreEqual(SignalType.Log, contractsAlert.SignalType, "Unexpected signal type");
         }
 
         [TestMethod]
         public void WhenProcessingAlertAndLogAndMetricClientsWereUsedThenTheSignalTypeIsCorrect()
         {
-            ContractsAlert contractsAlert = CreateContractsV2Alert(new PresentationTestAlert(), usedLogAnalysisClient: true, usedMetricClient: true);
+            ContractsAlert contractsAlert = SetupContractsAlert(new PresentationTestAlert(), usedLogAnalysisClient: true, usedMetricClient: true);
             Assert.AreEqual(SignalType.Multiple, contractsAlert.SignalType, "Unexpected signal type");
         }
 
-        private static ContractsAlert CreateContractsV2Alert(Alert alert, bool nullQueryRunInfo = false, bool usedLogAnalysisClient = false, bool usedMetricClient = false)
+        private static ContractsAlert SetupContractsAlert(Alert alert, bool usedLogAnalysisClient = false, bool usedMetricClient = false)
         {
-            QueryRunInfo queryRunInfo = null;
-            if (!nullQueryRunInfo)
-            {
-                queryRunInfo = new QueryRunInfo
-                {
-                    Type = alert.ResourceIdentifier.ResourceType == ResourceType.ApplicationInsights ? TelemetryDbType.ApplicationInsights : TelemetryDbType.LogAnalytics,
-                    ResourceIds = new List<string>() { "resourceId1", "resourceId2" }
-                };
-            }
-
             string resourceId = "resourceId";
             var request = new SmartDetectorAnalysisRequest
             {
@@ -120,7 +109,7 @@ namespace SmartDetectorsAnalysisTests
                 Cadence = TimeSpan.FromDays(1),
             };
 
-            return alert.CreateContractsAlert(request, SmartDetectorName, queryRunInfo, usedLogAnalysisClient, usedMetricClient);
+            return alert.CreateContractsAlert(request, SmartDetectorName, usedLogAnalysisClient, usedMetricClient);
         }
 
         private static void VerifyPresentationTestAlertDisplayedProperty(List<AlertProperty> properties, string propertyName, string displayName, byte order)

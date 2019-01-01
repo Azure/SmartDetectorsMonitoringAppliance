@@ -21,7 +21,6 @@ namespace SmartDetectorsAnalysisTests
     using Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.Analysis;
     using Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.Exceptions;
     using Microsoft.Azure.Monitoring.SmartDetectors.Package;
-    using Microsoft.Azure.Monitoring.SmartDetectors.Presentation;
     using Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts;
     using Microsoft.Azure.Monitoring.SmartDetectors.State;
     using Microsoft.Azure.Monitoring.SmartDetectors.Trace;
@@ -488,8 +487,6 @@ namespace SmartDetectorsAnalysisTests
                 .Setup(x => x.GetAllResourcesInResourceGroupAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<IEnumerable<ResourceType>>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync((string subscriptionId, string resourceGroupName, IEnumerable<ResourceType> resourceTypes, CancellationToken cancellationToken) => new List<ResourceIdentifier>() { new ResourceIdentifier(ResourceType.VirtualMachine, subscriptionId, resourceGroupName, "resourceName") });
             this.testContainer.RegisterInstance(azureResourceManagerClientMock.Object);
-
-            this.testContainer.RegisterInstance(new Mock<IQueryRunInfoProvider>().Object);
 
             this.stateRepository = new Dictionary<string, object>();
             this.stateRepositoryMock = new Mock<IStateRepository>();

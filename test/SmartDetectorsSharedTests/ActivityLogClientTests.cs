@@ -14,7 +14,6 @@ namespace SmartDetectorsSharedTests
     using Microsoft.Azure.Monitoring.SmartDetectors;
     using Microsoft.Azure.Monitoring.SmartDetectors.ActivityLog;
     using Microsoft.Azure.Monitoring.SmartDetectors.Clients;
-    using Microsoft.Azure.Monitoring.SmartDetectors.Presentation;
     using Microsoft.Azure.Monitoring.SmartDetectors.Trace;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Moq;
@@ -27,7 +26,6 @@ namespace SmartDetectorsSharedTests
         private Mock<ICredentialsFactory> credentialsFactoryMock;
         private Mock<IHttpClientWrapper> httpClientWrapperMock;
         private IExtendedAzureResourceManagerClient azureResourceManagerClient;
-        private Mock<IQueryRunInfoProvider> queryRunInfoProviderMock;
 
         [TestInitialize]
         public void TestInitialize()
@@ -37,13 +35,12 @@ namespace SmartDetectorsSharedTests
             this.credentialsFactoryMock.Setup(x => x.Create(It.IsAny<string>())).Returns(() => new EmptyCredentials());
             this.httpClientWrapperMock = new Mock<IHttpClientWrapper>();
             this.azureResourceManagerClient = new ExtendedAzureResourceManagerClient(this.httpClientWrapperMock.Object, this.credentialsFactoryMock.Object, this.tracerMock.Object);
-            this.queryRunInfoProviderMock = new Mock<IQueryRunInfoProvider>();
         }
 
         [TestMethod]
         public async Task WhenCallingActivityLogClientWithVmResourceTypeThenTheCorrectUriIsCreated()
         {
-            IAnalysisServicesFactory factory = new AnalysisServicesFactory(this.tracerMock.Object, this.httpClientWrapperMock.Object, this.credentialsFactoryMock.Object, this.azureResourceManagerClient, this.queryRunInfoProviderMock.Object);
+            IAnalysisServicesFactory factory = new AnalysisServicesFactory(this.tracerMock.Object, this.httpClientWrapperMock.Object, this.credentialsFactoryMock.Object, this.azureResourceManagerClient);
             var resource = new ResourceIdentifier(ResourceType.VirtualMachine, "subscriptionId", "resourceGroupName", "resourceName");
             IActivityLogClient client = await factory.CreateActivityLogClientAsync(default(CancellationToken));
 
@@ -66,7 +63,7 @@ namespace SmartDetectorsSharedTests
         [TestMethod]
         public async Task WhenCallingActivityLogClientWithResourceGroupResourceTypeThenTheCorrectUriIsCreated()
         {
-            IAnalysisServicesFactory factory = new AnalysisServicesFactory(this.tracerMock.Object, this.httpClientWrapperMock.Object, this.credentialsFactoryMock.Object, this.azureResourceManagerClient, this.queryRunInfoProviderMock.Object);
+            IAnalysisServicesFactory factory = new AnalysisServicesFactory(this.tracerMock.Object, this.httpClientWrapperMock.Object, this.credentialsFactoryMock.Object, this.azureResourceManagerClient);
             var resource = new ResourceIdentifier(ResourceType.ResourceGroup, "subscriptionId", "resourceGroupName", string.Empty);
             IActivityLogClient client = await factory.CreateActivityLogClientAsync(default(CancellationToken));
 
@@ -89,7 +86,7 @@ namespace SmartDetectorsSharedTests
         [TestMethod]
         public async Task WhenCallingActivityLogClientWithSubscriptionResourceTypeThenTheCorrectUriIsCreated()
         {
-            IAnalysisServicesFactory factory = new AnalysisServicesFactory(this.tracerMock.Object, this.httpClientWrapperMock.Object, this.credentialsFactoryMock.Object, this.azureResourceManagerClient, this.queryRunInfoProviderMock.Object);
+            IAnalysisServicesFactory factory = new AnalysisServicesFactory(this.tracerMock.Object, this.httpClientWrapperMock.Object, this.credentialsFactoryMock.Object, this.azureResourceManagerClient);
             var resource = new ResourceIdentifier(ResourceType.Subscription, "subscriptionId", string.Empty, string.Empty);
             IActivityLogClient client = await factory.CreateActivityLogClientAsync(default(CancellationToken));
 
@@ -112,7 +109,7 @@ namespace SmartDetectorsSharedTests
         [TestMethod]
         public async Task WhenCallingActivityLogClientWithMultiplePagesThenTheCorrectResponseIsReturned()
         {
-            IAnalysisServicesFactory factory = new AnalysisServicesFactory(this.tracerMock.Object, this.httpClientWrapperMock.Object, this.credentialsFactoryMock.Object, this.azureResourceManagerClient, this.queryRunInfoProviderMock.Object);
+            IAnalysisServicesFactory factory = new AnalysisServicesFactory(this.tracerMock.Object, this.httpClientWrapperMock.Object, this.credentialsFactoryMock.Object, this.azureResourceManagerClient);
             var resource = new ResourceIdentifier(ResourceType.Subscription, "subscriptionId", string.Empty, string.Empty);
             IActivityLogClient client = await factory.CreateActivityLogClientAsync(default(CancellationToken));
 

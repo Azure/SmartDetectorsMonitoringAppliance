@@ -12,7 +12,6 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.Analysis
     using Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.AzureStorage;
     using Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.ChildProcess;
     using Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.State;
-    using Microsoft.Azure.Monitoring.SmartDetectors.Presentation;
     using Microsoft.Azure.Monitoring.SmartDetectors.State;
     using Microsoft.Azure.Monitoring.SmartDetectors.Trace;
     using Unity;
@@ -32,7 +31,6 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.Analysis
         {
             container = container
                 .RegisterType<IInternalAnalysisServicesFactory, AnalysisServicesFactory>()
-                .RegisterType<IQueryRunInfoProvider, QueryRunInfoProvider>()
                 .RegisterType<IStateRepositoryFactory, BlobStateRepositoryFactory>()
                 .RegisterType<ICloudStorageProviderFactory, CloudStorageProviderFactory>();
 
