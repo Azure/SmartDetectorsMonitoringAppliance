@@ -68,7 +68,7 @@ namespace MonitoringApplianceEmulatorTests.ViewModels
         public class TestAlert : Alert
         {
             public TestAlert(ResourceIdentifier resourceIdentifier)
-                : base("Test title", resourceIdentifier)
+                : base("Test title", resourceIdentifier, ExtendedDateTime.UtcNow)
             {
                 this.TextProperty1 = "Ahlan world";
                 this.TextProperty2 = 5;

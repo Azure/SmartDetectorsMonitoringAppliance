@@ -19,7 +19,8 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors
         /// </summary>
         /// <param name="title">The Alert's title.</param>
         /// <param name="resourceIdentifier">The resource identifier that this Alert applies to.</param>
-        protected Alert(string title, ResourceIdentifier resourceIdentifier)
+        /// <param name="occurenceTime">The exact time at which the issue that caused the alert has occured. If this is a continuous issue - pass the issue start time.</param>
+        protected Alert(string title, ResourceIdentifier resourceIdentifier, DateTime occurenceTime)
         {
             if (string.IsNullOrWhiteSpace(title))
             {
@@ -28,6 +29,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors
 
             this.Title = title;
             this.ResourceIdentifier = resourceIdentifier;
+            this.OccurenceTime = occurenceTime;
         }
 
         /// <summary>
@@ -39,6 +41,11 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors
         /// Gets the resource identifier that this Alert applies to.
         /// </summary>
         public ResourceIdentifier ResourceIdentifier { get; }
+
+        /// <summary>
+        /// Gets the exact time at which the issue that caused the alert has occured or an issue start time in case of a continuous issue.
+        /// </summary>
+        public DateTime OccurenceTime { get; }
 
         /// <summary>
         /// Gets or sets optional resolution parameters for this Alert.

@@ -12,7 +12,8 @@
         /// </summary>
         /// <param name="title">The Alert's title.</param>
         /// <param name="resourceIdentifier">The resource identifier that this Alert applies to.</param>
-        public $alertName$(string title, ResourceIdentifier resourceIdentifier) : base(title, resourceIdentifier)
+        /// <param name="occurenceTime">The exact time at which the issue that caused the alert has occured. If this is a continuous issue - pass the issue start time.</param>
+        public $alertName$(string title, ResourceIdentifier resourceIdentifier, DateTime occurenceTime) : base(title, resourceIdentifier, occurenceTime)
         {
         }
     }

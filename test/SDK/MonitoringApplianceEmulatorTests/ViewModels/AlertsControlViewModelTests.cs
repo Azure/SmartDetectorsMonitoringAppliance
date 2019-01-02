@@ -6,6 +6,7 @@
 
 namespace MonitoringApplianceEmulatorTests.ViewModels
 {
+    using System;
     using Microsoft.Azure.Monitoring.SmartDetectors;
     using Microsoft.Azure.Monitoring.SmartDetectors.Clients;
     using Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.Models;
@@ -85,7 +86,7 @@ namespace MonitoringApplianceEmulatorTests.ViewModels
         private class TestAlert : Alert
         {
             public TestAlert()
-                : base("Test title", new ResourceIdentifier(ResourceType.VirtualMachine, "someSubscription", "someGroup", "someVM"))
+                : base("Test title", new ResourceIdentifier(ResourceType.VirtualMachine, "someSubscription", "someGroup", "someVM"), DateTime.UtcNow)
             {
             }
         }

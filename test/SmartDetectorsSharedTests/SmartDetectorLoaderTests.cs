@@ -277,7 +277,7 @@ namespace SmartDetectorsSharedTests
         private class TestAlert : Alert
         {
             public TestAlert(string title, ResourceIdentifier resourceIdentifier)
-                : base(title, resourceIdentifier)
+                : base(title, resourceIdentifier, DateTime.UtcNow)
             {
             }
         }

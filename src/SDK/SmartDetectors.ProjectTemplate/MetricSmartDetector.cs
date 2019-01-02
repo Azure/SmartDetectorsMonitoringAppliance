@@ -51,7 +51,7 @@
             List<Alert> alerts = new List<Alert>();
             if (metrics.Count() > 0)
             {
-                alerts.Add(new $alertName$("title", analysisRequest.TargetResources.First()));
+                alerts.Add(new $alertName$("title", analysisRequest.TargetResources.First(), ExtendedDateTime.UtcNow));
             }
 
             tracer.TraceInformation($"Created {alerts.Count()} alerts");

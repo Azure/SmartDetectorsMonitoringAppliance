@@ -102,6 +102,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
             {
                 Id = id,
                 Title = alert.Title,
+                OccurenceTime = alert.OccurenceTime,
                 ResourceId = resourceId,
                 CorrelationHash = correlationHash,
                 SmartDetectorId = request.SmartDetectorId,
