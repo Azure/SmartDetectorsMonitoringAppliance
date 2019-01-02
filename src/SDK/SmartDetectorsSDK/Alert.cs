@@ -20,15 +20,8 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors
         /// <param name="title">The Alert's title.</param>
         /// <param name="resourceIdentifier">The resource identifier that this Alert applies to.</param>
         protected Alert(string title, ResourceIdentifier resourceIdentifier)
+            : this(title, resourceIdentifier, ExtendedDateTime.UtcNow)
         {
-            if (string.IsNullOrWhiteSpace(title))
-            {
-                throw new ArgumentNullException(nameof(title));
-            }
-
-            this.Title = title;
-            this.ResourceIdentifier = resourceIdentifier;
-            this.OccurenceTime = ExtendedDateTime.UtcNow;
         }
 
         /// <summary>
