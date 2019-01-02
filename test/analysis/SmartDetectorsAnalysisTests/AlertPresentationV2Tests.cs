@@ -55,7 +55,7 @@ namespace SmartDetectorsAnalysisTests
             VerifyPresentationTestAlertDisplayedProperty(contractsAlert.AlertProperties, "KeyValueWithHeaders", "KeyValueWithHeadersDisplayName", 4);
             VerifyPresentationTestAlertDisplayedProperty(contractsAlert.AlertProperties, "Table", "TableDisplayName", 5);
             VerifyPresentationTestAlertDisplayedProperty(contractsAlert.AlertProperties, "SingleColumnTable", "SingleColumnTableDisplayName", 6);
-            VerifyPresentationTestAlertDisplayedProperty(contractsAlert.AlertProperties, "DataPoints", "ChartDisplayName", byte.MaxValue);
+            VerifyPresentationTestAlertDisplayedProperty(contractsAlert.AlertProperties, "DataPoints", "ChartDisplayName", 7);
         }
 
         [TestMethod]

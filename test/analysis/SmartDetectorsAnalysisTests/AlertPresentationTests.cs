@@ -19,6 +19,7 @@ namespace SmartDetectorsAnalysisTests
     using ContractsAlert = Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts.Alert;
     using ResourceType = Microsoft.Azure.Monitoring.SmartDetectors.ResourceType;
 
+    [Ignore]
     [TestClass]
     public class AlertPresentationTests
     {
