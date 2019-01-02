@@ -43,7 +43,7 @@
             List<Alert> alerts = new List<Alert>();
             if (dataTables[0].Rows.Count > 0)
             {
-                alerts.Add(new $alertName$("Title", analysisRequest.TargetResources.First(), Convert.ToInt32(dataTables[0].Rows[0]["Count"]), ExtendedDateTime.UtcNow));
+                alerts.Add(new $alertName$("Title", analysisRequest.TargetResources.First(), Convert.ToInt32(dataTables[0].Rows[0]["Count"])));
             }
 
             tracer.TraceInformation($"Created {alerts.Count()} alerts");

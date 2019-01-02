@@ -231,7 +231,7 @@ namespace SmartDetectorsAnalysisTests
         public class PresentationTestAlert : Alert
         {
             public PresentationTestAlert(string title = "AlertTitle", ResourceIdentifier resourceIdentifier = default(ResourceIdentifier))
-                : base(title, resourceIdentifier, DateTime.UtcNow)
+                : base(title, resourceIdentifier)
             {
                 this.RawProperty = 1;
             }

@@ -154,7 +154,7 @@ namespace SmartDetectorsAnalysisTests
         public class TestAlertNoSummary : Alert
         {
             public TestAlertNoSummary()
-                : base("Test title", default(ResourceIdentifier), DateTime.UtcNow)
+                : base("Test title", default(ResourceIdentifier))
             {
                 this.Value = 22.4;
                 this.MachineName = "strongOne";

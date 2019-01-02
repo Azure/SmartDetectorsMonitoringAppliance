@@ -30,7 +30,7 @@
         {
             var alerts = new List<Alert>
             {
-                { new $alertName$("title", analysisRequest.TargetResources.First(), ExtendedDateTime.UtcNow) }
+                { new $alertName$("title", analysisRequest.TargetResources.First()) }
             };
 
             return Task.FromResult(alerts);

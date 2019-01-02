@@ -19,6 +19,23 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors
         /// </summary>
         /// <param name="title">The Alert's title.</param>
         /// <param name="resourceIdentifier">The resource identifier that this Alert applies to.</param>
+        protected Alert(string title, ResourceIdentifier resourceIdentifier)
+        {
+            if (string.IsNullOrWhiteSpace(title))
+            {
+                throw new ArgumentNullException(nameof(title));
+            }
+
+            this.Title = title;
+            this.ResourceIdentifier = resourceIdentifier;
+            this.OccurenceTime = ExtendedDateTime.UtcNow;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Alert"/> class.
+        /// </summary>
+        /// <param name="title">The Alert's title.</param>
+        /// <param name="resourceIdentifier">The resource identifier that this Alert applies to.</param>
         /// <param name="occurenceTime">The exact time at which the issue that caused the alert has occured. If this is a continuous issue - pass the issue start time.</param>
         protected Alert(string title, ResourceIdentifier resourceIdentifier, DateTime occurenceTime)
         {

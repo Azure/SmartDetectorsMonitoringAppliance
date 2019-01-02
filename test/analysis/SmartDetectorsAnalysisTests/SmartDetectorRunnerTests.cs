@@ -678,7 +678,7 @@ namespace SmartDetectorsAnalysisTests
         public class TestAlert : Alert
         {
             public TestAlert(ResourceIdentifier resourceIdentifier, bool shouldAutoResolve)
-                : base("Test title", resourceIdentifier, DateTime.UtcNow)
+                : base("Test title", resourceIdentifier)
             {
                 if (shouldAutoResolve)
                 {
