@@ -83,7 +83,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Clients
             // Mark that a log signal was used to create the alert
             this.UsedLogAnalysisClient = true;
 
-            // Get the query run info, and verify it
+            // Get the resource IDs
             IReadOnlyList<string> resourceIds = await this.GetResourceIdsForLogAnalyticsAsync(resources, cancellationToken);
 
             // Create the client
@@ -114,7 +114,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Clients
             // Verify there are not too many resources
             if (resources.Count > MaxNumberOfResourcesInQuery)
             {
-                throw new TooManyResourcesInQueryException($"Cannot run analysis on more than {MaxNumberOfResourcesInQuery} applications");
+                throw new TelemetryDataClientCreationException($"Cannot run analysis on more than {MaxNumberOfResourcesInQuery} applications");
             }
 
             List<string> resourceIds = resources.Select(application => application.ToResourceId()).ToList();
@@ -203,14 +203,14 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Clients
                 workspaces = workspacesList;
                 if (workspaces.Count == 0)
                 {
-                    throw new InvalidOperationException("No log analytics workspaces were found");
+                    throw new TelemetryDataClientCreationException("No log analytics workspaces were found");
                 }
             }
 
-            // Verify there are not too many resources
-            if (resources.Count > MaxNumberOfResourcesInQuery)
+            // Verify there aren't too many resources
+            if (workspaces.Count > MaxNumberOfResourcesInQuery)
             {
-                throw new TooManyResourcesInQueryException($"Cannot run analysis on more than {MaxNumberOfResourcesInQuery} applications");
+                throw new TelemetryDataClientCreationException($"Cannot run analysis on more than {MaxNumberOfResourcesInQuery} applications");
             }
 
             List<string> workspacesResourceIds = workspaces.Select(workspace => workspace.ToResourceId()).ToList();

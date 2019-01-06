@@ -184,7 +184,7 @@ namespace SmartDetectorsSharedTests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(InvalidOperationException))]
+        [ExpectedException(typeof(TelemetryDataClientCreationException))]
         public async Task WhenCreatingLogAnalyticsClientWithoutLogAnalyticsResourcesThenAnExceptionIsThrown()
         {
             var resources = new List<ResourceIdentifier>()
@@ -201,7 +201,7 @@ namespace SmartDetectorsSharedTests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(TooManyResourcesInQueryException))]
+        [ExpectedException(typeof(TelemetryDataClientCreationException))]
         public async Task WhenCreatingLogAnalyticsClientWithTooManyResourcesThenAnExceptionIsThrown()
         {
             List<ResourceIdentifier> resources = Enumerable.Range(1, TooManyResourcesCount)
@@ -211,7 +211,7 @@ namespace SmartDetectorsSharedTests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(TooManyResourcesInQueryException))]
+        [ExpectedException(typeof(TelemetryDataClientCreationException))]
         public async Task WhenCreatingApplicationInsightsClientWithTooManyResourcesThenAnExceptionIsThrown()
         {
             List<ResourceIdentifier> resources = Enumerable.Range(1, TooManyResourcesCount)
