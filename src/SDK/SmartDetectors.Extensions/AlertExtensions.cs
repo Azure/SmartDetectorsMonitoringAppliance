@@ -30,6 +30,8 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
     /// </summary>
     public static class AlertExtensions
     {
+        private static readonly IReadOnlyList<string> AlertBaseClassPropertiesNames = typeof(Alert).GetProperties().Select(p => p.Name).ToList();
+
         /// <summary>
         /// Creates a presentation from an alert
         /// </summary>
@@ -49,7 +51,6 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
 
             // Create presentation elements for each alert property
             List<AlertProperty> alertProperties = new List<AlertProperty>();
-            List<string> alertBaseClassPropertiesNames = typeof(Alert).GetProperties().Select(p => p.Name).ToList();
 
             foreach (PropertyInfo property in alert.GetType().GetProperties())
             {
@@ -68,7 +69,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
                 {
                     alertProperties.Add(CreateAlertProperty(alert, property, presentationAttribute, propertyValue));
                 }
-                else if (!alertBaseClassPropertiesNames.Contains(property.Name))
+                else if (!AlertBaseClassPropertiesNames.Contains(property.Name))
                 {
                     // Get the raw alert property - a property with no presentation
                     alertProperties.Add(new RawAlertProperty(property.Name, propertyValue));
