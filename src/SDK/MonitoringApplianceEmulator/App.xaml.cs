@@ -87,8 +87,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator
                 IExtendedAzureResourceManagerClient azureResourceManagerClient = new ExtendedAzureResourceManagerClient(httpClientWrapper, credentialsFactory, consoleTracer);
 
                 // Create analysis service factory
-                var queryRunInfoProvider = new QueryRunInfoProvider(azureResourceManagerClient);
-                IInternalAnalysisServicesFactory analysisServicesFactory = new AnalysisServicesFactory(consoleTracer, httpClientWrapper, credentialsFactory, azureResourceManagerClient, queryRunInfoProvider);
+                IInternalAnalysisServicesFactory analysisServicesFactory = new AnalysisServicesFactory(consoleTracer, httpClientWrapper, credentialsFactory, azureResourceManagerClient);
 
                 // Create state repository factory
                 IStateRepositoryFactory stateRepositoryFactory = new EmulationStateRepositoryFactory();
@@ -101,7 +100,6 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator
                 IEmulationSmartDetectorRunner smartDetectorRunner = new SmartDetectorRunner(
                     detector,
                     analysisServicesFactory,
-                    queryRunInfoProvider,
                     smartDetectorManifest,
                     stateRepositoryFactory,
                     azureResourceManagerClient,

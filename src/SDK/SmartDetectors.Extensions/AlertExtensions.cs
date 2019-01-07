@@ -30,17 +30,18 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
     /// </summary>
     public static class AlertExtensions
     {
+        private static readonly IReadOnlyList<string> AlertBaseClassPropertiesNames = typeof(Alert).GetProperties().Select(p => p.Name).ToList();
+
         /// <summary>
         /// Creates a presentation from an alert
         /// </summary>
         /// <param name="alert">The alert</param>
         /// <param name="request">The Smart Detector request</param>
         /// <param name="smartDetectorName">The Smart Detector name</param>
-        /// <param name="queryRunInfo">The query run information</param>
         /// <param name="usedLogAnalysisClient">Indicates whether a log analysis client was used to create the alert</param>
         /// <param name="usedMetricClient">Indicates whether a metric client was used to create the alert</param>
         /// <returns>The presentation</returns>
-        public static ContractsAlert CreateContractsAlert(this Alert alert, SmartDetectorAnalysisRequest request, string smartDetectorName, QueryRunInfo queryRunInfo, bool usedLogAnalysisClient, bool usedMetricClient)
+        public static ContractsAlert CreateContractsAlert(this Alert alert, SmartDetectorAnalysisRequest request, string smartDetectorName, bool usedLogAnalysisClient, bool usedMetricClient)
         {
             // A null alert has null presentation
             if (alert == null)
@@ -49,12 +50,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
             }
 
             // Create presentation elements for each alert property
-            #pragma warning disable CS0612 // Type or member is obsolete; Task to remove obsolete code #1312924
-            List<AlertPropertyLegacy> alertPropertiesLegacy = new List<AlertPropertyLegacy>();
-            #pragma warning restore CS0612 // Type or member is obsolete; Task to remove obsolete code #1312924
             List<AlertProperty> alertProperties = new List<AlertProperty>();
-            Dictionary<string, string> rawProperties = new Dictionary<string, string>();
-            List<string> alertBaseClassPropertiesNames = typeof(Alert).GetProperties().Select(p => p.Name).ToList();
 
             foreach (PropertyInfo property in alert.GetType().GetProperties())
             {
@@ -67,22 +63,13 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
                     continue;
                 }
 
-                rawProperties[property.Name] = propertyStringValue;
-
-                // Get the v1 presentation attribute
+                // Get the presentation attribute
                 AlertPresentationPropertyAttribute presentationAttribute = property.GetCustomAttribute<AlertPresentationPropertyAttribute>();
                 if (presentationAttribute != null)
                 {
-                    alertPropertiesLegacy.Add(CreateAlertPropertyLegacy(alert, presentationAttribute, queryRunInfo, propertyStringValue));
+                    alertProperties.Add(CreateAlertProperty(alert, property, presentationAttribute, propertyValue));
                 }
-
-                // Get the v2 presentation attribute
-                AlertPresentationPropertyV2Attribute presentationV2Attribute = property.GetCustomAttribute<AlertPresentationPropertyV2Attribute>();
-                if (presentationV2Attribute != null)
-                {
-                    alertProperties.Add(CreateAlertProperty(alert, property, presentationV2Attribute, propertyValue));
-                }
-                else if (!alertBaseClassPropertiesNames.Contains(property.Name))
+                else if (!AlertBaseClassPropertiesNames.Contains(property.Name))
                 {
                     // Get the raw alert property - a property with no presentation
                     alertProperties.Add(new RawAlertProperty(property.Name, propertyValue));
@@ -97,7 +84,6 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
             SignalType signalType = GetSignalType(usedLogAnalysisClient, usedMetricClient);
 
             // Return the presentation object
-            #pragma warning disable CS0612 // Type or member is obsolete; Task to remove obsolete code #1312924
             return new ContractsAlert
             {
                 Id = id,
@@ -109,14 +95,10 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
                 SmartDetectorName = smartDetectorName,
                 AnalysisTimestamp = DateTime.UtcNow,
                 AnalysisWindowSizeInMinutes = (int)request.Cadence.TotalMinutes,
-                Properties = alertPropertiesLegacy,
                 AlertProperties = alertProperties,
-                RawProperties = rawProperties,
-                QueryRunInfo = queryRunInfo,
                 SignalType = signalType,
                 ResolutionParameters = alert.AlertResolutionParameters?.CreateContractsResolutionParameters()
             };
-            #pragma warning restore CS0612 // Type or member is obsolete; Task to remove obsolete code #1312924
         }
 
         /// <summary>
@@ -141,74 +123,15 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
             return predicates;
         }
 
-#pragma warning disable CS0612 // Type or member is obsolete; Task to remove obsolete code #1312924
-
         /// <summary>
-        /// Creates an <see cref="AlertPropertyLegacy"/> based on an alert presentation V1 property
-        /// </summary>
-        /// <param name="alert">The alert</param>
-        /// <param name="presentationAttribute">The attribute defining the presentation V1 of the alert property</param>
-        /// <param name="queryRunInfo">The query run information</param>
-        /// <param name="propertyStringValue">The property string value</param>
-        /// <returns>An <see cref="AlertPropertyLegacy"/></returns>
-        private static AlertPropertyLegacy CreateAlertPropertyLegacy(Alert alert, AlertPresentationPropertyAttribute presentationAttribute, QueryRunInfo queryRunInfo, string propertyStringValue)
-        {
-            // Verify that if the entity is a chart or query, then query run information was provided
-            if (queryRunInfo == null && (presentationAttribute.Section == AlertPresentationSection.Chart || presentationAttribute.Section == AlertPresentationSection.AdditionalQuery))
-            {
-                throw new InvalidAlertPresentationException($"The presentation contains an item for the {presentationAttribute.Section} section, but no telemetry data client was provided");
-            }
-
-            // Get the attribute title and information balloon - support interpolated strings
-            string attributeTitle = presentationAttribute.Title.EvaluateInterpolatedString(alert);
-            string attributeInfoBalloon = presentationAttribute.InfoBalloon.EvaluateInterpolatedString(alert);
-
-            // Add the presentation property
-            return new AlertPropertyLegacy()
-            {
-                Name = attributeTitle,
-                Value = propertyStringValue,
-                DisplayCategory = GetDisplayCategoryFromPresentationSection(presentationAttribute.Section),
-                InfoBalloon = attributeInfoBalloon,
-                Order = presentationAttribute.Order
-            };
-        }
-
-        /// <summary>
-        /// Gets the display category enum value from the presentation section enum value
-        /// </summary>
-        /// <param name="presentationSection">The property presentation section</param>
-        /// <returns>The display category that coralline with the presentation section</returns>
-        private static AlertPropertyDisplayCategory GetDisplayCategoryFromPresentationSection(AlertPresentationSection presentationSection)
-        {
-            switch (presentationSection)
-            {
-                case AlertPresentationSection.AdditionalQuery:
-                    return AlertPropertyDisplayCategory.AdditionalQuery;
-
-                case AlertPresentationSection.Analysis:
-                    return AlertPropertyDisplayCategory.Analysis;
-
-                case AlertPresentationSection.Chart:
-                    return AlertPropertyDisplayCategory.Chart;
-
-                case AlertPresentationSection.Property:
-                default:
-                    return AlertPropertyDisplayCategory.Property;
-            }
-        }
-
-#pragma warning restore CS0612 // Type or member is obsolete; Task to remove obsolete code #1312924
-
-        /// <summary>
-        /// Creates an <see cref="AlertProperty"/> based on an alert presentation V2 property
+        /// Creates an <see cref="AlertProperty"/> based on an alert presentation property
         /// </summary>
         /// <param name="alert">The alert</param>
         /// <param name="property">The property info of the property to create</param>
-        /// <param name="presentationAttribute">The attribute defining the presentation V2 of the alert property</param>
+        /// <param name="presentationAttribute">The attribute defining the presentation of the alert property</param>
         /// <param name="propertyValue">The property value</param>
         /// <returns>An <see cref="AlertProperty"/></returns>
-        private static AlertProperty CreateAlertProperty(Alert alert, PropertyInfo property, AlertPresentationPropertyV2Attribute presentationAttribute, object propertyValue)
+        private static AlertProperty CreateAlertProperty(Alert alert, PropertyInfo property, AlertPresentationPropertyAttribute presentationAttribute, object propertyValue)
         {
             // Get the attribute display name
             string displayName = presentationAttribute.DisplayName.EvaluateInterpolatedString(alert);

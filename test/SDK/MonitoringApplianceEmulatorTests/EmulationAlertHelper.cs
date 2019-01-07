@@ -33,12 +33,6 @@ namespace MonitoringApplianceEmulatorTests
                 appInsightsResourceId :
                 virtualMachineResourceId;
 
-            QueryRunInfo queryRunInfo = new QueryRunInfo
-            {
-                Type = alert.ResourceIdentifier.ResourceType == ResourceType.ApplicationInsights ? TelemetryDbType.ApplicationInsights : TelemetryDbType.LogAnalytics,
-                ResourceIds = new List<string> { resourceId }
-            };
-
             var request = new SmartDetectorAnalysisRequest
             {
                 ResourceIds = new List<string> { resourceId },
@@ -46,7 +40,7 @@ namespace MonitoringApplianceEmulatorTests
                 Cadence = TimeSpan.FromDays(1),
             };
 
-            ContractsAlert contractsAlert = alert.CreateContractsAlert(request, "smartDetectorName", queryRunInfo, usedLogAnalysisClient: false, usedMetricClient: false);
+            ContractsAlert contractsAlert = alert.CreateContractsAlert(request, "smartDetectorName", usedLogAnalysisClient: false, usedMetricClient: false);
 
             return new EmulationAlert(contractsAlert, ExtendedDateTime.UtcNow);
         }

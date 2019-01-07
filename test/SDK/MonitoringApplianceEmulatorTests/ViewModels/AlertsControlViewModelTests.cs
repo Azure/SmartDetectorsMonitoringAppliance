@@ -30,7 +30,6 @@ namespace MonitoringApplianceEmulatorTests.ViewModels
             this.smartDetectorRunner = new SmartDetectorRunner(
                 new Mock<ISmartDetector>().Object,
                 new Mock<IInternalAnalysisServicesFactory>().Object,
-                new QueryRunInfoProvider(azureResourceManagerClientMock.Object),
                 null,
                 new Mock<IStateRepositoryFactory>().Object,
                 azureResourceManagerClientMock.Object,

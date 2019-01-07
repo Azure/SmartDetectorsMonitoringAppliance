@@ -21,7 +21,6 @@ namespace SmartDetectorsAnalysisTests
     using Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.Analysis;
     using Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.Exceptions;
     using Microsoft.Azure.Monitoring.SmartDetectors.Package;
-    using Microsoft.Azure.Monitoring.SmartDetectors.Presentation;
     using Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts;
     using Microsoft.Azure.Monitoring.SmartDetectors.State;
     using Microsoft.Azure.Monitoring.SmartDetectors.Trace;
@@ -505,8 +504,6 @@ namespace SmartDetectorsAnalysisTests
                 .ReturnsAsync((string subscriptionId, string resourceGroupName, IEnumerable<ResourceType> resourceTypes, CancellationToken cancellationToken) => new List<ResourceIdentifier>() { new ResourceIdentifier(ResourceType.VirtualMachine, subscriptionId, resourceGroupName, "resourceName") });
             this.testContainer.RegisterInstance(azureResourceManagerClientMock.Object);
 
-            this.testContainer.RegisterInstance(new Mock<IQueryRunInfoProvider>().Object);
-
             this.stateRepository = new Dictionary<string, object>();
             this.stateRepositoryMock = new Mock<IStateRepository>();
             this.stateRepositoryMock
@@ -689,7 +686,7 @@ namespace SmartDetectorsAnalysisTests
                 }
             }
 
-            [AlertPresentationProperty(AlertPresentationSection.Property, "Summary title", InfoBalloon = "Summary info")]
+            [TextProperty("Summary title")]
             public string Summary { get; } = "Summary value";
 
             [PredicateProperty]

@@ -19,7 +19,6 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.Analysis
     using Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.Exceptions;
     using Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.Trace;
     using Microsoft.Azure.Monitoring.SmartDetectors.Package;
-    using Microsoft.Azure.Monitoring.SmartDetectors.Presentation;
     using Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts;
     using Microsoft.Azure.Monitoring.SmartDetectors.State;
     using Microsoft.Azure.Monitoring.SmartDetectors.Tools;
@@ -41,7 +40,6 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.Analysis
         private readonly ISmartDetectorLoader smartDetectorLoader;
         private readonly IInternalAnalysisServicesFactory analysisServicesFactory;
         private readonly IExtendedAzureResourceManagerClient azureResourceManagerClient;
-        private readonly IQueryRunInfoProvider queryRunInfoProvider;
         private readonly IStateRepositoryFactory stateRepositoryFactory;
         private readonly IExtendedTracer tracer;
 
@@ -52,7 +50,6 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.Analysis
         /// <param name="smartDetectorLoader">The Smart Detector loader</param>
         /// <param name="analysisServicesFactory">The analysis services factory</param>
         /// <param name="azureResourceManagerClient">The Azure Resource Manager client</param>
-        /// <param name="queryRunInfoProvider">The query run information provider</param>
         /// <param name="stateRepositoryFactory">The state repository factory</param>
         /// <param name="tracer">The tracer</param>
         public SmartDetectorRunner(
@@ -60,7 +57,6 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.Analysis
             ISmartDetectorLoader smartDetectorLoader,
             IInternalAnalysisServicesFactory analysisServicesFactory,
             IExtendedAzureResourceManagerClient azureResourceManagerClient,
-            IQueryRunInfoProvider queryRunInfoProvider,
             IStateRepositoryFactory stateRepositoryFactory,
             IExtendedTracer tracer)
         {
@@ -68,7 +64,6 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.Analysis
             this.smartDetectorLoader = Diagnostics.EnsureArgumentNotNull(() => smartDetectorLoader);
             this.analysisServicesFactory = Diagnostics.EnsureArgumentNotNull(() => analysisServicesFactory);
             this.azureResourceManagerClient = Diagnostics.EnsureArgumentNotNull(() => azureResourceManagerClient);
-            this.queryRunInfoProvider = Diagnostics.EnsureArgumentNotNull(() => queryRunInfoProvider);
             this.stateRepositoryFactory = Diagnostics.EnsureArgumentNotNull(() => stateRepositoryFactory);
             this.tracer = tracer;
         }
@@ -188,11 +183,9 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.Analysis
             List<ContractsAlert> results = new List<ContractsAlert>();
             foreach (var alert in alerts)
             {
-                QueryRunInfo queryRunInfo = await this.queryRunInfoProvider.GetQueryRunInfoAsync(new List<ResourceIdentifier>() { alert.ResourceIdentifier }, cancellationToken);
                 ContractsAlert contractsAlert = alert.CreateContractsAlert(
                     request,
                     smartDetectorManifest.Name,
-                    queryRunInfo,
                     this.analysisServicesFactory.UsedLogAnalysisClient,
                     this.analysisServicesFactory.UsedMetricClient);
 
