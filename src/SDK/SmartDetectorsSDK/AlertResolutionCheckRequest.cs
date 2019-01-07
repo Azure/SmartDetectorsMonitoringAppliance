@@ -1,5 +1,5 @@
 ﻿//-----------------------------------------------------------------------
-// <copyright file="AutomaticResolutionCheckRequest.cs" company="Microsoft Corporation">
+// <copyright file="AlertResolutionCheckRequest.cs" company="Microsoft Corporation">
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // </copyright>
 //-----------------------------------------------------------------------
@@ -10,20 +10,20 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors
     using Microsoft.Azure.Monitoring.SmartDetectors.State;
 
     /// <summary>
-    /// Represents a request sent to the Smart Detector to check if a previously fired alert can be automatically resolved.
+    /// Represents a request sent to the Smart Detector to check if a previously fired alert can be resolved.
     /// </summary>
-    public class AutomaticResolutionCheckRequest
+    public class AlertResolutionCheckRequest
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="AutomaticResolutionCheckRequest"/> class.
+        /// Initializes a new instance of the <see cref="AlertResolutionCheckRequest"/> class.
         /// </summary>
         /// <param name="originalAnalysisRequestParameters">The original analysis request parameters as received from the Azure Monitoring back-end.</param>
         /// <param name="requestParameters">The request parameters as received from the Azure Monitoring back-end.</param>
         /// <param name="analysisServicesFactory">The analysis services factory to be used for querying the resources telemetry.</param>
         /// <param name="stateRepository">The persistent state repository for storing state between analysis runs</param>
-        public AutomaticResolutionCheckRequest(
+        public AlertResolutionCheckRequest(
             AnalysisRequestParameters originalAnalysisRequestParameters,
-            AutomaticResolutionCheckRequestParameters requestParameters,
+            AlertResolutionCheckRequestParameters requestParameters,
             IAnalysisServicesFactory analysisServicesFactory,
             IStateRepository stateRepository)
         {
@@ -51,7 +51,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors
         /// <summary>
         /// Gets the request parameters as received from the Azure Monitoring back-end.
         /// </summary>
-        public AutomaticResolutionCheckRequestParameters RequestParameters { get; }
+        public AlertResolutionCheckRequestParameters RequestParameters { get; }
 
         /// <summary>
         /// Gets the analysis services factory to be used for querying the resources telemetry.

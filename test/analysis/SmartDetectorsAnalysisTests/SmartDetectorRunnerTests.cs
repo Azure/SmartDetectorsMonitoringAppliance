@@ -29,12 +29,11 @@ namespace SmartDetectorsAnalysisTests
     using Newtonsoft.Json;
     using Unity;
     using Alert = Microsoft.Azure.Monitoring.SmartDetectors.Alert;
-    using AutomaticResolutionCheckRequest = Microsoft.Azure.Monitoring.SmartDetectors.AutomaticResolutionCheckRequest;
-    using AutomaticResolutionCheckResponse = Microsoft.Azure.Monitoring.SmartDetectors.AutomaticResolutionCheckResponse;
-    using AutomaticResolutionParameters = Microsoft.Azure.Monitoring.SmartDetectors.AutomaticResolutionParameters;
+    using AlertResolutionCheckRequest = Microsoft.Azure.Monitoring.SmartDetectors.AlertResolutionCheckRequest;
+    using AlertResolutionCheckResponse = Microsoft.Azure.Monitoring.SmartDetectors.AlertResolutionCheckResponse;
     using ContractsAlert = Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts.Alert;
-    using ContractsAutomaticResolutionCheckRequest = Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts.AutomaticResolutionCheckRequest;
-    using ContractsAutomaticResolutionCheckResponse = Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts.AutomaticResolutionCheckResponse;
+    using ContractsAlertResolutionCheckRequest = Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts.AlertResolutionCheckRequest;
+    using ContractsAlertResolutionCheckResponse = Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts.AlertResolutionCheckResponse;
     using ResourceType = Microsoft.Azure.Monitoring.SmartDetectors.ResourceType;
 
     [TestClass]
@@ -45,7 +44,7 @@ namespace SmartDetectorsAnalysisTests
         private SmartDetectorPackage autoResolveSmartDetectorPackage;
         private List<string> resourceIds;
         private SmartDetectorAnalysisRequest analysisRequest;
-        private ContractsAutomaticResolutionCheckRequest automaticResolutionCheckRequest;
+        private ContractsAlertResolutionCheckRequest alertResolutionCheckRequest;
         private TestSmartDetector smartDetector;
         private TestAutoResolveSmartDetector autoResolveSmartDetector;
         private IUnityContainer testContainer;
@@ -71,7 +70,25 @@ namespace SmartDetectorsAnalysisTests
             Assert.IsNotNull(contractsAlerts, "Presentation list is null");
             Assert.AreEqual(1, contractsAlerts.Count);
             Assert.AreEqual("Test title", contractsAlerts.Single().Title);
-            Assert.IsNull(contractsAlerts.Single().AutomaticResolutionParameters);
+            Assert.IsNull(contractsAlerts.Single().ResolutionParameters);
+
+            // Assert the detector's state
+            Assert.AreEqual(1, this.stateRepository.Count);
+            Assert.AreEqual("test state", this.stateRepository["test key"]);
+        }
+
+        [TestMethod]
+        public async Task WhenRunningSmartDetectorAnalyzeAndNotReadyExceptionIsThrownThenNoAlertsAreReturned()
+        {
+            // Setup the exception to throw
+            this.smartDetector.ExceptionToThrow = new DetectorNotReadyException();
+            this.smartDetector.ShouldThrow = true;
+
+            // Run the Smart Detector and validate results
+            ISmartDetectorRunner runner = this.testContainer.Resolve<ISmartDetectorRunner>();
+            List<ContractsAlert> contractsAlerts = await runner.AnalyzeAsync(this.analysisRequest, true, default(CancellationToken));
+            Assert.IsNotNull(contractsAlerts, "Contract alerts list is null");
+            Assert.AreEqual(0, contractsAlerts.Count);
 
             // Assert the detector's state
             Assert.AreEqual(1, this.stateRepository.Count);
@@ -91,7 +108,7 @@ namespace SmartDetectorsAnalysisTests
         }
 
         [TestMethod]
-        public async Task WhenRunningSmartDetectorAnalyzeWithAutomaticResolutionForSupportingDetectorThenTheCorrectAlertIsReturned()
+        public async Task WhenRunningSmartDetectorAnalyzeWithResolutionForSupportingDetectorThenTheCorrectAlertIsReturned()
         {
             this.autoResolveSmartDetector.ShouldAutoResolve = true;
             this.analysisRequest.SmartDetectorId = "2";
@@ -102,15 +119,15 @@ namespace SmartDetectorsAnalysisTests
             Assert.IsNotNull(contractsAlerts, "Presentation list is null");
             Assert.AreEqual(1, contractsAlerts.Count);
             Assert.AreEqual("Test title", contractsAlerts.Single().Title);
-            Assert.IsNotNull(contractsAlerts.Single().AutomaticResolutionParameters);
+            Assert.IsNotNull(contractsAlerts.Single().ResolutionParameters);
 
             // Assert the detector's state
             Assert.AreEqual(2, this.stateRepository.Count);
             Assert.AreEqual("test state", this.stateRepository["test key"]);
-            Assert.IsInstanceOfType(this.stateRepository[$"_autoResolve{contractsAlerts.Single().Id}"], typeof(AutomaticResolutionState));
-            var automaticResolutionState = (AutomaticResolutionState)this.stateRepository[$"_autoResolve{contractsAlerts.Single().Id}"];
-            Assert.AreEqual(1, automaticResolutionState.AlertPredicates.Count);
-            Assert.AreEqual("Predicate value", automaticResolutionState.AlertPredicates["Predicate"]);
+            Assert.IsInstanceOfType(this.stateRepository[$"_autoResolve{contractsAlerts.Single().Id}"], typeof(ResolutionState));
+            var resolutionState = (ResolutionState)this.stateRepository[$"_autoResolve{contractsAlerts.Single().Id}"];
+            Assert.AreEqual(1, resolutionState.AlertPredicates.Count);
+            Assert.AreEqual("Predicate value", resolutionState.AlertPredicates["Predicate"]);
         }
 
         [TestMethod]
@@ -188,24 +205,24 @@ namespace SmartDetectorsAnalysisTests
 
         #endregion
 
-        #region CheckAutomaticResolution tests
+        #region CheckResolution tests
 
         [TestMethod]
-        public async Task WhenRunningSmartDetectorCheckAutomaticResolutionAndAlertIsResolvedThenTheCorrectResponseIsReturned()
+        public async Task WhenRunningSmartDetectorCheckResolutionAndAlertIsResolvedThenTheCorrectResponseIsReturned()
         {
-            // Initialize the automatic resolution state
-            this.InitializeAutomaticResolutionState();
+            // Initialize the resolution state
+            this.InitializeResolutionState();
 
             // Setup the detector to resolve the alert
             this.autoResolveSmartDetector.ShouldResolve = true;
 
             // Run the Smart Detector and validate results
             ISmartDetectorRunner runner = this.testContainer.Resolve<ISmartDetectorRunner>();
-            ContractsAutomaticResolutionCheckResponse automaticResolutionCheckResponse =
-                await runner.CheckAutomaticResolutionAsync(this.automaticResolutionCheckRequest, true, default(CancellationToken));
+            ContractsAlertResolutionCheckResponse alertResolutionCheckResponse =
+                await runner.CheckResolutionAsync(this.alertResolutionCheckRequest, true, default(CancellationToken));
 
-            Assert.IsTrue(automaticResolutionCheckResponse.ShouldBeResolved);
-            Assert.IsNull(automaticResolutionCheckResponse.AutomaticResolutionParameters);
+            Assert.IsTrue(alertResolutionCheckResponse.ShouldBeResolved);
+            Assert.IsNull(alertResolutionCheckResponse.ResolutionParameters);
 
             // Assert the detector's state
             Assert.AreEqual(1, this.stateRepository.Count);
@@ -213,50 +230,50 @@ namespace SmartDetectorsAnalysisTests
         }
 
         [TestMethod]
-        public async Task WhenRunningSmartDetectorCheckAutomaticResolutionItIsDisposedIfItImplementsIDisposable()
+        public async Task WhenRunningSmartDetectorCheckResolutionItIsDisposedIfItImplementsIDisposable()
         {
-            // Initialize the automatic resolution state
-            this.InitializeAutomaticResolutionState();
+            // Initialize the resolution state
+            this.InitializeResolutionState();
 
             // Make the detector  a disposable one
             this.autoResolveSmartDetector = new DisposableTestAutoResolveSmartDetector { ExpectedResourceType = ResourceType.VirtualMachine };
 
             // Run the Smart Detector
             ISmartDetectorRunner runner = this.testContainer.Resolve<ISmartDetectorRunner>();
-            await runner.CheckAutomaticResolutionAsync(this.automaticResolutionCheckRequest, true, default(CancellationToken));
+            await runner.CheckResolutionAsync(this.alertResolutionCheckRequest, true, default(CancellationToken));
 
             Assert.IsTrue(((DisposableTestAutoResolveSmartDetector)this.autoResolveSmartDetector).WasDisposed);
         }
 
         [TestMethod]
-        public async Task WhenRunningSmartDetectorCheckAutomaticResolutionAndAlertIsNotResolvedThenTheCorrectResponseIsReturned()
+        public async Task WhenRunningSmartDetectorCheckResolutionAndAlertIsNotResolvedThenTheCorrectResponseIsReturned()
         {
-            // Initialize the automatic resolution state
-            this.InitializeAutomaticResolutionState();
+            // Initialize the resolution state
+            this.InitializeResolutionState();
 
             // Setup the detector to not resolve the alert
             this.autoResolveSmartDetector.ShouldResolve = false;
 
             // Run the Smart Detector and validate results
             ISmartDetectorRunner runner = this.testContainer.Resolve<ISmartDetectorRunner>();
-            ContractsAutomaticResolutionCheckResponse automaticResolutionCheckResponse =
-                await runner.CheckAutomaticResolutionAsync(this.automaticResolutionCheckRequest, true, default(CancellationToken));
+            ContractsAlertResolutionCheckResponse alertResolutionCheckResponse =
+                await runner.CheckResolutionAsync(this.alertResolutionCheckRequest, true, default(CancellationToken));
 
-            Assert.IsFalse(automaticResolutionCheckResponse.ShouldBeResolved);
-            Assert.IsNotNull(automaticResolutionCheckResponse.AutomaticResolutionParameters);
-            Assert.AreEqual(TimeSpan.FromMinutes(15), automaticResolutionCheckResponse.AutomaticResolutionParameters.CheckForAutomaticResolutionAfter);
+            Assert.IsFalse(alertResolutionCheckResponse.ShouldBeResolved);
+            Assert.IsNotNull(alertResolutionCheckResponse.ResolutionParameters);
+            Assert.AreEqual(TimeSpan.FromMinutes(15), alertResolutionCheckResponse.ResolutionParameters.CheckForResolutionAfter);
 
             // Assert the detector's state
             Assert.AreEqual(2, this.stateRepository.Count);
             Assert.AreEqual("test state", this.stateRepository["test auto resolve key"]);
-            Assert.IsTrue(this.stateRepository.ContainsKey($"_autoResolve{this.automaticResolutionCheckRequest.AlertId}"));
+            Assert.IsTrue(this.stateRepository.ContainsKey($"_autoResolve{this.alertResolutionCheckRequest.AlertCorrelationHash}"));
         }
 
         [TestMethod]
-        public async Task WhenRunningSmartDetectorCheckAutomaticResolutionThenCancellationIsHandledGracefully()
+        public async Task WhenRunningSmartDetectorCheckResolutionThenCancellationIsHandledGracefully()
         {
-            // Initialize the automatic resolution state
-            this.InitializeAutomaticResolutionState();
+            // Initialize the resolution state
+            this.InitializeResolutionState();
 
             // Notify the Smart Detector that it should get stuck and wait for cancellation
             this.autoResolveSmartDetector.ShouldStuck = true;
@@ -264,7 +281,7 @@ namespace SmartDetectorsAnalysisTests
             // Run the Smart Detector asynchronously
             ISmartDetectorRunner runner = this.testContainer.Resolve<ISmartDetectorRunner>();
             CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
-            Task t = runner.CheckAutomaticResolutionAsync(this.automaticResolutionCheckRequest, true, cancellationTokenSource.Token);
+            Task t = runner.CheckResolutionAsync(this.alertResolutionCheckRequest, true, cancellationTokenSource.Token);
             SpinWait.SpinUntil(() => this.autoResolveSmartDetector.IsRunning);
 
             // Cancel and wait for expected result
@@ -276,35 +293,35 @@ namespace SmartDetectorsAnalysisTests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(AutomaticResolutionNotSupportedException))]
-        public async Task WhenRunningSmartDetectorCheckAutomaticResolutionForNonSupportingDetectorThenExceptionIsThrown()
+        [ExpectedException(typeof(ResolutionCheckNotSupportedException))]
+        public async Task WhenRunningSmartDetectorCheckResolutionForNonSupportingDetectorThenExceptionIsThrown()
         {
-            // Initialize the automatic resolution state
-            this.InitializeAutomaticResolutionState();
+            // Initialize the resolution state
+            this.InitializeResolutionState();
 
             // Set the detector to be non supporting
-            this.automaticResolutionCheckRequest.OriginalAnalysisRequest.SmartDetectorId = "1";
+            this.alertResolutionCheckRequest.OriginalAnalysisRequest.SmartDetectorId = "1";
 
             // Run the Smart Detector and validate results
             ISmartDetectorRunner runner = this.testContainer.Resolve<ISmartDetectorRunner>();
-            await runner.CheckAutomaticResolutionAsync(this.automaticResolutionCheckRequest, true, default(CancellationToken));
+            await runner.CheckResolutionAsync(this.alertResolutionCheckRequest, true, default(CancellationToken));
         }
 
         [TestMethod]
-        [ExpectedException(typeof(AutomaticResolutionStateNotFoundException))]
-        public async Task WhenRunningSmartDetectorCheckAutomaticResolutionAndStateIsNotFoundThenExceptionIsThrown()
+        [ExpectedException(typeof(ResolutionStateNotFoundException))]
+        public async Task WhenRunningSmartDetectorCheckResolutionAndStateIsNotFoundThenExceptionIsThrown()
         {
             // Run the Smart Detector and validate results
             ISmartDetectorRunner runner = this.testContainer.Resolve<ISmartDetectorRunner>();
-            await runner.CheckAutomaticResolutionAsync(this.automaticResolutionCheckRequest, true, default(CancellationToken));
+            await runner.CheckResolutionAsync(this.alertResolutionCheckRequest, true, default(CancellationToken));
         }
 
         [TestMethod]
         [ExpectedException(typeof(FailedToRunSmartDetectorException))]
-        public async Task WhenRunningSmartDetectorCheckAutomaticResolutionThenExceptionsAreHandledCorrectly()
+        public async Task WhenRunningSmartDetectorCheckResolutionThenExceptionsAreHandledCorrectly()
         {
-            // Initialize the automatic resolution state
-            this.InitializeAutomaticResolutionState();
+            // Initialize the resolution state
+            this.InitializeResolutionState();
 
             // Notify the Smart Detector that it should throw an exception
             this.autoResolveSmartDetector.ShouldThrow = true;
@@ -313,7 +330,7 @@ namespace SmartDetectorsAnalysisTests
             ISmartDetectorRunner runner = this.testContainer.Resolve<ISmartDetectorRunner>();
             try
             {
-                await runner.CheckAutomaticResolutionAsync(this.automaticResolutionCheckRequest, true, default(CancellationToken));
+                await runner.CheckResolutionAsync(this.alertResolutionCheckRequest, true, default(CancellationToken));
             }
             catch (FailedToRunSmartDetectorException e)
             {
@@ -326,17 +343,17 @@ namespace SmartDetectorsAnalysisTests
 
         [TestMethod]
         [ExpectedException(typeof(FailedToRunSmartDetectorException))]
-        public async Task WhenRunningSmartDetectorCheckAutomaticResolutionThenCustomExceptionsAreHandledCorrectly()
+        public async Task WhenRunningSmartDetectorCheckResolutionThenCustomExceptionsAreHandledCorrectly()
         {
-            // Initialize the automatic resolution state
-            this.InitializeAutomaticResolutionState();
+            // Initialize the resolution state
+            this.InitializeResolutionState();
 
             // Notify the Smart Detector that it should throw a custom exception
             this.autoResolveSmartDetector.ShouldThrowCustom = true;
 
             // Run the Smart Detector
             ISmartDetectorRunner runner = this.testContainer.Resolve<ISmartDetectorRunner>();
-            await runner.CheckAutomaticResolutionAsync(this.automaticResolutionCheckRequest, true, default(CancellationToken));
+            await runner.CheckResolutionAsync(this.alertResolutionCheckRequest, true, default(CancellationToken));
         }
 
         #endregion
@@ -399,7 +416,7 @@ namespace SmartDetectorsAnalysisTests
                     { "param2", 2 },
                 }
             };
-            this.automaticResolutionCheckRequest = new ContractsAutomaticResolutionCheckRequest
+            this.alertResolutionCheckRequest = new ContractsAlertResolutionCheckRequest
             {
                 OriginalAnalysisRequest = new SmartDetectorAnalysisRequest
                 {
@@ -413,7 +430,6 @@ namespace SmartDetectorsAnalysisTests
                         { "param2", 2 },
                     }
                 },
-                AlertId = "alertId",
                 AlertCorrelationHash = "correlationHash",
                 TargetResource = resourceId.ToResourceId(),
                 AlertFireTime = new DateTime(1985, 7, 3)
@@ -495,8 +511,8 @@ namespace SmartDetectorsAnalysisTests
                 .Callback<string, object, CancellationToken>((key, value, token) => this.stateRepository[key] = value)
                 .Returns(Task.CompletedTask);
             this.stateRepositoryMock
-                .Setup(m => m.GetStateAsync<AutomaticResolutionState>(It.IsAny<string>(), It.IsAny<CancellationToken>()))
-                .Returns<string, CancellationToken>((key, token) => Task.FromResult((AutomaticResolutionState)(this.stateRepository.ContainsKey(key) ? this.stateRepository[key] : null)));
+                .Setup(m => m.GetStateAsync<ResolutionState>(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                .Returns<string, CancellationToken>((key, token) => Task.FromResult((ResolutionState)(this.stateRepository.ContainsKey(key) ? this.stateRepository[key] : null)));
             this.stateRepositoryMock
                 .Setup(m => m.DeleteStateAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
                 .Callback<string, CancellationToken>((key, token) => this.stateRepository.Remove(key))
@@ -506,17 +522,18 @@ namespace SmartDetectorsAnalysisTests
             this.testContainer.RegisterInstance(this.stateRepositoryFactoryMock.Object);
         }
 
-        private void InitializeAutomaticResolutionState()
+        private void InitializeResolutionState()
         {
-            var state = new AutomaticResolutionState
+            var state = new ResolutionState
             {
+                AnalysisRequestTime = new DateTime(1999, 12, 30, 7, 0, 0),
                 AlertPredicates = new Dictionary<string, object>
                 {
                     ["Predicate"] = "Predicate value"
                 }
             };
 
-            this.stateRepository[$"_autoResolve{this.automaticResolutionCheckRequest.AlertId}"] = state;
+            this.stateRepository[$"_autoResolve{this.alertResolutionCheckRequest.AlertCorrelationHash}"] = state;
             this.autoResolveSmartDetector.ShouldResolve = true;
         }
 
@@ -536,11 +553,13 @@ namespace SmartDetectorsAnalysisTests
 
             public ResourceType ExpectedResourceType { get; set; }
 
+            public Exception ExceptionToThrow { get; set; }
+
             public async Task<List<Alert>> AnalyzeResourcesAsync(AnalysisRequest analysisRequest, ITracer tracer, CancellationToken cancellationToken)
             {
                 this.IsRunning = true;
 
-                this.AssertAnalysisRequestParameters(analysisRequest.RequestParameters);
+                this.AssertAnalysisRequestParameters(analysisRequest.RequestParameters, assertRequestTime: true);
 
                 await analysisRequest.StateRepository.StoreStateAsync("test key", "test state", cancellationToken);
 
@@ -559,7 +578,7 @@ namespace SmartDetectorsAnalysisTests
 
                 if (this.ShouldThrow)
                 {
-                    throw new DivideByZeroException();
+                    throw this.ExceptionToThrow ?? new DivideByZeroException();
                 }
 
                 if (this.ShouldThrowCustom)
@@ -573,8 +592,14 @@ namespace SmartDetectorsAnalysisTests
                 };
             }
 
-            protected void AssertAnalysisRequestParameters(AnalysisRequestParameters analysisRequestParameters)
+            protected void AssertAnalysisRequestParameters(AnalysisRequestParameters analysisRequestParameters, bool assertRequestTime)
             {
+                if (assertRequestTime)
+                {
+                    Assert.IsTrue(analysisRequestParameters.RequestTime <= DateTime.UtcNow, "Request time is in the future");
+                    Assert.IsTrue(analysisRequestParameters.RequestTime > DateTime.UtcNow.AddMinutes(-1), "Request time is too much in the past");
+                }
+
                 Assert.IsNotNull(analysisRequestParameters.TargetResources, "Resources list is null");
                 Assert.AreEqual(1, analysisRequestParameters.TargetResources.Count);
                 Assert.AreEqual(this.ExpectedResourceType, analysisRequestParameters.TargetResources.Single().ResourceType);
@@ -595,25 +620,26 @@ namespace SmartDetectorsAnalysisTests
             }
         }
 
-        public class TestAutoResolveSmartDetector : TestSmartDetector, IAutomaticResolutionSmartDetector
+        public class TestAutoResolveSmartDetector : TestSmartDetector, IResolvableAlertSmartDetector
         {
             public bool ShouldResolve { get; set; } = true;
 
-            #region Implementation of IAutomaticResolutionSmartDetector
+            #region Implementation of IAlertResolutionSmartDetector
 
-            public async Task<AutomaticResolutionCheckResponse> CheckForAutomaticResolutionAsync(
-                AutomaticResolutionCheckRequest automaticResolutionCheckRequest, ITracer tracer, CancellationToken cancellationToken)
+            public async Task<AlertResolutionCheckResponse> CheckForResolutionAsync(
+                AlertResolutionCheckRequest alertResolutionCheckRequest, ITracer tracer, CancellationToken cancellationToken)
             {
                 this.IsRunning = true;
 
-                this.AssertAnalysisRequestParameters(automaticResolutionCheckRequest.OriginalAnalysisRequestParameters);
-                Assert.AreEqual(automaticResolutionCheckRequest.OriginalAnalysisRequestParameters.TargetResources.Single(), automaticResolutionCheckRequest.RequestParameters.ResourceIdentifier);
-                Assert.AreEqual(new DateTime(1985, 7, 3), automaticResolutionCheckRequest.RequestParameters.AlertFireTime);
-                Assert.AreEqual(1, automaticResolutionCheckRequest.RequestParameters.AlertPredicates.Count);
-                Assert.AreEqual("Predicate", automaticResolutionCheckRequest.RequestParameters.AlertPredicates.Single().Key);
-                Assert.AreEqual("Predicate value", automaticResolutionCheckRequest.RequestParameters.AlertPredicates.Single().Value);
+                Assert.AreEqual(new DateTime(1999, 12, 30, 7, 0, 0), alertResolutionCheckRequest.OriginalAnalysisRequestParameters.RequestTime);
+                this.AssertAnalysisRequestParameters(alertResolutionCheckRequest.OriginalAnalysisRequestParameters, assertRequestTime: false);
+                Assert.AreEqual(alertResolutionCheckRequest.OriginalAnalysisRequestParameters.TargetResources.Single(), alertResolutionCheckRequest.RequestParameters.ResourceIdentifier);
+                Assert.AreEqual(new DateTime(1985, 7, 3), alertResolutionCheckRequest.RequestParameters.AlertFireTime);
+                Assert.AreEqual(1, alertResolutionCheckRequest.RequestParameters.AlertPredicates.Count);
+                Assert.AreEqual("Predicate", alertResolutionCheckRequest.RequestParameters.AlertPredicates.Single().Key);
+                Assert.AreEqual("Predicate value", alertResolutionCheckRequest.RequestParameters.AlertPredicates.Single().Value);
 
-                await automaticResolutionCheckRequest.StateRepository.StoreStateAsync("test auto resolve key", "test state", cancellationToken);
+                await alertResolutionCheckRequest.StateRepository.StoreStateAsync("test auto resolve key", "test state", cancellationToken);
 
                 if (this.ShouldStuck)
                 {
@@ -639,8 +665,8 @@ namespace SmartDetectorsAnalysisTests
                 }
 
                 return this.ShouldResolve
-                    ? new AutomaticResolutionCheckResponse(true, null)
-                    : new AutomaticResolutionCheckResponse(false, new AutomaticResolutionParameters { CheckForAutomaticResolutionAfter = TimeSpan.FromMinutes(15) });
+                    ? new AlertResolutionCheckResponse(true, null)
+                    : new AlertResolutionCheckResponse(false, new AlertResolutionParameters { CheckForResolutionAfter = TimeSpan.FromMinutes(15) });
             }
 
             #endregion
@@ -653,9 +679,9 @@ namespace SmartDetectorsAnalysisTests
             {
                 if (shouldAutoResolve)
                 {
-                    this.AutomaticResolutionParameters = new AutomaticResolutionParameters
+                    this.AlertResolutionParameters = new AlertResolutionParameters
                     {
-                        CheckForAutomaticResolutionAfter = TimeSpan.FromMinutes(5)
+                        CheckForResolutionAfter = TimeSpan.FromMinutes(5)
                     };
                 }
             }

@@ -88,6 +88,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
             {
                 Id = id,
                 Title = alert.Title,
+                OccurenceTime = alert.OccurenceTime,
                 ResourceId = resourceId,
                 CorrelationHash = correlationHash,
                 SmartDetectorId = request.SmartDetectorId,
@@ -96,7 +97,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
                 AnalysisWindowSizeInMinutes = (int)request.Cadence.TotalMinutes,
                 AlertProperties = alertProperties,
                 SignalType = signalType,
-                AutomaticResolutionParameters = alert.AutomaticResolutionParameters?.CreateContractsAutomaticResolutionParameters()
+                ResolutionParameters = alert.AlertResolutionParameters?.CreateContractsResolutionParameters()
             };
         }
 
