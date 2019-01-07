@@ -9,10 +9,15 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
     using System;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
+    using System.IO;
     using System.Linq;
+    using System.Windows;
+    using System.Windows.Media;
+    using System.Windows.Media.Imaging;
     using Controls;
     using Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.Models;
     using Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts;
+    using Microsoft.Win32;
     using Unity.Attributes;
     using Unity.Interception.Utilities;
 
@@ -121,6 +126,8 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
             {
                 alertDetailsControlClosed.Invoke();
             });
+
+            this.SaveAsImageControlCommand = new CommandHandler(SaveControlAsImage);
         }
 
         #endregion
@@ -186,6 +193,55 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
         /// Gets the command that runs the Smart Detector.
         /// </summary>
         public CommandHandler CloseControlCommand { get; }
+
+        /// <summary>
+        /// Gets the command that saves the details as image
+        /// </summary>
+        public CommandHandler SaveAsImageControlCommand { get; }
+
+        #endregion
+
+        #region Private methods
+
+        /// <summary>
+        /// Saves teh specified control to an image file
+        /// </summary>
+        /// <param name="obj">The control</param>
+        private static void SaveControlAsImage(object obj)
+        {
+            if (!(obj is UIElement control))
+            {
+                return;
+            }
+
+            // Select image file path
+            var dialog = new SaveFileDialog();
+            dialog.Filter = "Jpeg Files (*.jpg)|*.jpg";
+            if (dialog.ShowDialog() == false)
+            {
+                return;
+            }
+
+            // Capture the control in a DrawingVisual object
+            Rect bounds = VisualTreeHelper.GetDescendantBounds(control);
+            DrawingVisual drawingVisual = new DrawingVisual();
+            using (DrawingContext drawingContext = drawingVisual.RenderOpen())
+            {
+                drawingContext.DrawRectangle(new VisualBrush(control), null, new Rect(new Point(0, 0), bounds.Size));
+            }
+
+            // Render the visual to a bitmap
+            RenderTargetBitmap renderTargetBitmap = new RenderTargetBitmap((int)bounds.Width, (int)bounds.Height, 96, 96, PixelFormats.Pbgra32);
+            renderTargetBitmap.Render(drawingVisual);
+
+            // Convert the bitmap to a jpg file
+            BitmapEncoder encoder = new JpegBitmapEncoder();
+            encoder.Frames.Add(BitmapFrame.Create(renderTargetBitmap));
+            using (Stream s = new FileStream(dialog.FileName, FileMode.Create))
+            {
+                encoder.Save(s);
+            }
+        }
 
         #endregion
     }

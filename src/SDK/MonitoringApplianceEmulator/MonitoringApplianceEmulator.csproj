@@ -117,6 +117,7 @@
     <Resource Include="Media\ic_power_settings_new_white_48dp_1x.png" />
     <Resource Include="Media\ic_power_settings_new_white_48dp_2x.png" />
     <Resource Include="Media\ic_close.png" />
+    <Resource Include="Media\ic_photo_camera.png" />
     <Resource Include="Media\app_insights.png" />
     <Resource Include="Media\log_analytics.png" />
     <Resource Include="Media\resource_default.png" />

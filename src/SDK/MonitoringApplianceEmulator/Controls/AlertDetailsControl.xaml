@@ -28,14 +28,18 @@
         <Grid>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="20"/>
+                <ColumnDefinition Width="30"/>
+                <ColumnDefinition Width="30"/>
             </Grid.ColumnDefinitions>
             <TextBlock Grid.Column="0" Style="{StaticResource SectionHeader}" Text="DETAILS"/>
             <StackPanel Grid.Column="1">
-                <Button Style="{StaticResource CloseControlBottonStyle}" Command="{Binding CloseControlCommand}" Margin="0,0,5,0"/>
+                <Button ToolTip="Save as image" Style="{StaticResource SaveAsImageControlBottonStyle}" Command="{Binding SaveAsImageControlCommand}" CommandParameter="{Binding ElementName=DetailsPanel}" Margin="0,0,0,0"/>
+            </StackPanel>
+            <StackPanel Grid.Column="2">
+                <Button Style="{StaticResource CloseControlBottonStyle}" Command="{Binding CloseControlCommand}" Margin="0,0,0,0"/>
             </StackPanel>
         </Grid>
-        <StackPanel>
+        <StackPanel Name="DetailsPanel">
             <Expander Style="{StaticResource AlertDetailsExpander}">
                 <Expander.Header>
                     <TextBlock Style="{StaticResource AlertDetailsSectionHeader}" Text="ESSENTIALS"/>

@@ -136,7 +136,15 @@
             </Style>
 
             <Image x:Key="CloseIcon" Source="../Media/ic_close.png" Height="20" />
-            
+            <Image x:Key="SaveAsImageIcon" Source="../Media/ic_photo_camera.png" Height="20" />
+
+            <Style TargetType="Button" x:Key="SaveAsImageControlBottonStyle">
+                <Setter Property="Content" Value="{StaticResource SaveAsImageIcon}"/>
+                <Setter Property="Height" Value="25"/>
+                <Setter Property="BorderThickness" Value="0"/>
+                <Setter Property="Background" Value="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=Control}, Path=Background}"/>
+            </Style>
+
             <Style TargetType="Button" x:Key="CloseControlBottonStyle">
                 <Setter Property="Content" Value="{StaticResource CloseIcon}"/>
                 <Setter Property="Height" Value="25"/>
