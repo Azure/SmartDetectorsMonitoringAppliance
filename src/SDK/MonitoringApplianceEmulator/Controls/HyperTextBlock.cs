@@ -13,9 +13,10 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
     using System.Windows.Controls;
     using System.Windows.Documents;
     using System.Windows.Media.Imaging;
+    using Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.Models;
 
     /// <summary>
-    /// An extension of <see cref="TextBlock"/> control that displays hypertext. The hypertext should be transfered using the <see cref="HyperText"/> dependency property.
+    /// An extension of <see cref="TextBlock"/> control that displays hypertext. The hypertext should be transferred using the <see cref="HyperText"/> dependency property.
     /// This control supports only links in the following format '<a href="https://msdn.microsoft.com">Developer Network</a>'.
     /// </summary>
     public class HyperTextBlock : TextBlock
@@ -30,10 +31,28 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
             typeof(HyperTextBlock),
             new FrameworkPropertyMetadata(
                 string.Empty,
-                new PropertyChangedCallback(OnHypertextPropertyChanged)),
+                OnHypertextPropertyChanged),
             HypertextValidateCallback);
 
         private static readonly Regex HtmlHyperlinkRegex = new Regex("<a [^>]*href[\\s]*=[\\s]*(?<href>(?:'.*?')|(?:\".*?\"))[ ]*>(?<linkText>[^<]*)</a>");
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="HyperTextBlock"/> class
+        /// </summary>
+        public HyperTextBlock()
+        {
+            ContextMenu contextMenu = new ContextMenu();
+            contextMenu.Items.Add(new MenuItem()
+            {
+                Header = "Copy",
+                Command = new CommandHandler(() =>
+                {
+                    Clipboard.SetText(this.HyperText);
+                })
+            });
+
+            this.ContextMenu = contextMenu;
+        }
 
         #region Dependency Properties
 
@@ -78,7 +97,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
             // In case there are no links in the text, just add it
             if (!match.Success)
             {
-                // only for CAD scenarios, replace arrows asci chart with image
+                // Only for CAD scenarios, replace arrows ascii chart with image
                 if (hypertext.StartsWith("↑", StringComparison.InvariantCulture))
                 {
                     hypertext = hypertext.Trim('↑');
@@ -150,11 +169,11 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
             if (previousMatch != null)
             {
                 int remainingTextStartIndex = previousMatch.Index + previousMatch.Length;
-                string textAfterLaftMatch = hypertext.Substring(remainingTextStartIndex);
+                string textAfterLastMatch = hypertext.Substring(remainingTextStartIndex);
 
-                if (!string.IsNullOrEmpty(textAfterLaftMatch))
+                if (!string.IsNullOrEmpty(textAfterLastMatch))
                 {
-                    hypertextTextBlock.Inlines.Add(textAfterLaftMatch);
+                    hypertextTextBlock.Inlines.Add(textAfterLastMatch);
                 }
             }
         }
