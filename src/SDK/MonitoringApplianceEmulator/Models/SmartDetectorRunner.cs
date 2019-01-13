@@ -9,17 +9,14 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
     using System;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
-    using System.Data;
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.Azure.Monitoring.SmartDetectors;
-    using Microsoft.Azure.Monitoring.SmartDetectors.Arm;
     using Microsoft.Azure.Monitoring.SmartDetectors.Clients;
     using Microsoft.Azure.Monitoring.SmartDetectors.Extensions;
     using Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.Trace;
     using Microsoft.Azure.Monitoring.SmartDetectors.Package;
-    using Microsoft.Azure.Monitoring.SmartDetectors.Presentation;
     using Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts;
     using Microsoft.Azure.Monitoring.SmartDetectors.State;
     using Alert = Microsoft.Azure.Monitoring.SmartDetectors.Alert;
@@ -37,11 +34,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
 
         private readonly IInternalAnalysisServicesFactory analysisServicesFactory;
 
-        private readonly IQueryRunInfoProvider queryRunInfoProvider;
-
         private readonly SmartDetectorManifest smartDetectorManifest;
-
-        private readonly IExtendedAzureResourceManagerClient azureResourceManagerClient;
 
         private readonly IPageableLogArchive logArchive;
 
@@ -53,36 +46,30 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
 
         private EmulationRunSettings emulationRunSettings;
 
-        private Action cancelSmartDetectorRunAction = null;
+        private Action cancelSmartDetectorRunAction;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SmartDetectorRunner"/> class.
         /// </summary>
         /// <param name="smartDetector">The Smart Detector.</param>
         /// <param name="analysisServicesFactory">The analysis services factory.</param>
-        /// <param name="queryRunInfoProvider">The query run information provider.</param>
         /// <param name="smartDetectorManifest">The Smart Detector manifest.</param>
         /// <param name="stateRepositoryFactory">The state repository factory</param>
-        /// <param name="azureResourceManagerClient">The Azure Resource Manager client</param>
         /// <param name="logArchive">The log archive.</param>
         public SmartDetectorRunner(
             ISmartDetector smartDetector,
             IInternalAnalysisServicesFactory analysisServicesFactory,
-            IQueryRunInfoProvider queryRunInfoProvider,
             SmartDetectorManifest smartDetectorManifest,
             IStateRepositoryFactory stateRepositoryFactory,
-            IExtendedAzureResourceManagerClient azureResourceManagerClient,
             IPageableLogArchive logArchive)
         {
             this.smartDetector = smartDetector;
             this.analysisServicesFactory = analysisServicesFactory;
-            this.queryRunInfoProvider = queryRunInfoProvider;
             this.smartDetectorManifest = smartDetectorManifest;
             this.logArchive = logArchive;
             this.IsSmartDetectorRunning = false;
             this.Alerts = new ObservableCollection<EmulationAlert>();
             this.stateRepositoryFactory = stateRepositoryFactory;
-            this.azureResourceManagerClient = azureResourceManagerClient;
         }
 
         #region Binded Properties
@@ -192,7 +179,9 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
 
                                 ExtendedDateTime.SetEmulatedUtcNow(currentTime);
                                 var analysisRequest = new AnalysisRequest(
-                                    new AnalysisRequestParameters(targetResourcesForDetector, analysisCadence, null, null), this.analysisServicesFactory, stateRepository);
+                                    new AnalysisRequestParameters(ExtendedDateTime.UtcNow, targetResourcesForDetector, analysisCadence, null, null),
+                                    this.analysisServicesFactory,
+                                    stateRepository);
 
                                 // Run the detector in a different context by using "Task.Run()". This will prevent the detector execution from blocking the UI
                                 List<Alert> newAlerts = await Task.Run(() =>
@@ -208,18 +197,11 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
                                     Cadence = analysisCadence,
                                 };
 
-                                var lazyResourceToWorkspaceResourceIdMapping =
-                                    new Lazy<Task<Dictionary<ResourceIdentifier, ResourceIdentifier>>>(() =>
-                                        this.GetResourceToWorkspaceResourceIdMappingAsync(
-                                            targetResourcesForDetector, cancellationToken));
-
                                 foreach (Alert newAlert in newAlerts)
                                 {
-                                    QueryRunInfo queryRunInfo = await this.CreateQueryRunInfoForAlertAsync(newAlert, lazyResourceToWorkspaceResourceIdMapping, cancellationToken);
                                     ContractsAlert contractsAlert = newAlert.CreateContractsAlert(
                                         smartDetectorExecutionRequest,
                                         this.smartDetectorManifest.Name,
-                                        queryRunInfo,
                                         this.analysisServicesFactory.UsedLogAnalysisClient,
                                         this.analysisServicesFactory.UsedMetricClient);
                                     this.Alerts.Add(new EmulationAlert(contractsAlert, currentTime));
@@ -245,7 +227,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
                     this.IsSmartDetectorRunning = false;
                     this.cancelSmartDetectorRunAction = null;
 
-                    EmulationRunSettings emulationRunSettings = new EmulationRunSettings(
+                    EmulationRunSettings settings = new EmulationRunSettings(
                         startTimeRange,
                         endTimeRange,
                         new SmartDetectorCadence(analysisCadence),
@@ -254,8 +236,8 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
                         subscriptionId,
                         currentRunNumber > 2);
 
-                    this.EmulationRunSettings = emulationRunSettings;
-                    emulationRunSettings.Save(this.smartDetectorManifest.Name);
+                    this.EmulationRunSettings = settings;
+                    settings.Save(this.smartDetectorManifest.Name);
                 }
             }
         }
@@ -316,139 +298,6 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
             }
 
             return targetResourcesForDetector;
-        }
-
-        /// <summary>
-        /// Creates <see cref="QueryRunInfo"/> for alert based on alert resource id and a mapping between resources and workspaces
-        /// </summary>
-        /// <param name="alert">The alert</param>
-        /// <param name="lazyResourceToWorkspaceResourceIdMapping">Lazily computed mapping between resources and workspaces</param>
-        /// <param name="cancellationToken">A cancellation token controlling the asynchronous operation</param>
-        /// <returns>A task returning <see cref="QueryRunInfo"/> for alert</returns>
-        private Task<QueryRunInfo> CreateQueryRunInfoForAlertAsync(
-            Alert alert,
-            Lazy<Task<Dictionary<ResourceIdentifier, ResourceIdentifier>>> lazyResourceToWorkspaceResourceIdMapping,
-            CancellationToken cancellationToken)
-        {
-            ////try
-            ////{
-            ////    // Get mapping from log analytics (valid only for VMs)
-            ////    if (alert.ResourceIdentifier.ResourceType == ResourceType.VirtualMachine ||
-            ////        alert.ResourceIdentifier.ResourceType == ResourceType.VirtualMachineScaleSet)
-            ////    {
-            ////        Dictionary<ResourceIdentifier, ResourceIdentifier> resourceToWorkspaceResourceIdMapping =
-            ////            await lazyResourceToWorkspaceResourceIdMapping.Value;
-            ////        if (resourceToWorkspaceResourceIdMapping.ContainsKey(alert.ResourceIdentifier))
-            ////        {
-            ////            return new QueryRunInfo
-            ////            {
-            ////                ResourceIds = new List<string> { resourceToWorkspaceResourceIdMapping[alert.ResourceIdentifier].ToResourceId() },
-            ////                Type = TelemetryDbType.LogAnalytics
-            ////            };
-            ////        }
-            ////    }
-
-            ////    // Get mapping from the provider
-            ////    return await this.queryRunInfoProvider.GetQueryRunInfoAsync(
-            ////        new List<ResourceIdentifier>() { alert.ResourceIdentifier },
-            ////        cancellationToken);
-            ////}
-            ////catch (Exception)
-            ////{
-            ////    return new QueryRunInfo();
-            ////}
-
-            Console.WriteLine(alert.ToString() + lazyResourceToWorkspaceResourceIdMapping.ToString() + cancellationToken.ToString() + this.Alerts.ToString());
-            return Task.FromResult(new QueryRunInfo());
-        }
-
-        /// <summary>
-        /// Creates a mapping between resources and workspaces
-        /// </summary>
-        /// <param name="detectorResources">Resources that were provided to Smart Detector execution</param>
-        /// <param name="cancellationToken">The cancellation token</param>
-        /// <returns>A task returning a mapping between resources and workspaces</returns>
-        private async Task<Dictionary<ResourceIdentifier, ResourceIdentifier>> GetResourceToWorkspaceResourceIdMappingAsync(IReadOnlyList<ResourceIdentifier> detectorResources, CancellationToken cancellationToken)
-        {
-            Dictionary<ResourceIdentifier, string> resourceToWorkspaceIdMapping = await this.CreateResourceToWorkspaceIdMappingAsync(detectorResources, cancellationToken);
-
-            QueryRunInfo detectorResourcesQueryRunInfo = await this.queryRunInfoProvider.GetQueryRunInfoAsync(detectorResources, cancellationToken);
-            List<ResourceIdentifier> workspaces = detectorResourcesQueryRunInfo.ResourceIds.Select(ResourceIdentifier.CreateFromResourceId).ToList();
-
-            Dictionary<string, ResourceIdentifier> workspaceIdToWorkspaceResourceIdMapping = await this.CreateWorkspaceIdToWorkspaceResourceIdMappingAsync(workspaces, cancellationToken);
-
-            Dictionary<ResourceIdentifier, ResourceIdentifier> resourceToWorkspaceResourceIdMapping
-                = resourceToWorkspaceIdMapping
-                .Where(pair => workspaceIdToWorkspaceResourceIdMapping.ContainsKey(pair.Value))
-                .ToDictionary(pair => pair.Key, pair => workspaceIdToWorkspaceResourceIdMapping[pair.Value]);
-
-            return resourceToWorkspaceResourceIdMapping;
-        }
-
-        /// <summary>
-        /// Creates a mapping between resources and workspace ids that these resources are connected to.
-        /// The workspaces must be located in scopes defined by <paramref name="resources"/> in order for them (and resources connected to them) to appear in the mapping.
-        /// </summary>
-        /// <param name="resources">The resources</param>
-        /// <param name="cancellationToken">The cancellation token</param>
-        /// <returns>A task returning a mapping between resources and workspace ids that these resources are connected to</returns>
-        private async Task<Dictionary<ResourceIdentifier, string>> CreateResourceToWorkspaceIdMappingAsync(IReadOnlyList<ResourceIdentifier> resources, CancellationToken cancellationToken)
-        {
-            ITelemetryDataClient dataClient = await this.analysisServicesFactory.CreateLogAnalyticsTelemetryDataClientAsync(resources, cancellationToken);
-
-            Dictionary<ResourceIdentifier, string> resourceToWorkspaceIdMapping = new Dictionary<ResourceIdentifier, string>();
-
-            string query = $@"
-                            Heartbeat
-                            | where TimeGenerated >= datetime({ExtendedDateTime.UtcNow.AddDays(-1):u}) and TimeGenerated <= datetime({ExtendedDateTime.UtcNow:u}) 
-                            | where isnotempty(SubscriptionId) and isnotempty(ResourceGroup) and isnotempty(Resource)
-                            | parse Resource with ResourcePrefix '_' *
-                            | extend ResourceName = iff(isnotempty(ResourcePrefix), ResourcePrefix, Resource)
-                            | extend ResourceType = iff(isnotempty(ResourcePrefix), '{ResourceType.VirtualMachineScaleSet.ToString()}', '{ResourceType.VirtualMachine.ToString()}')
-                            | extend WorkspaceId = TenantId
-                            | summarize by WorkspaceId = tolower(WorkspaceId), SubscriptionId = tolower(SubscriptionId), ResourceGroup = tolower(ResourceGroup), ResourceName = tolower(ResourceName), ResourceType";
-
-            IList<DataTable> dataTables = await dataClient.RunQueryAsync(query, cancellationToken);
-            foreach (DataRow row in dataTables[0].Rows)
-            {
-                var resorceIdentifier = new ResourceIdentifier(
-                    (ResourceType)Enum.Parse(typeof(ResourceType), row["ResourceType"].ToString()),
-                    row["SubscriptionId"].ToString(),
-                    row["ResourceGroup"].ToString(),
-                    row["ResourceName"].ToString());
-
-                string workspaceId = row["WorkspaceId"].ToString();
-
-                resourceToWorkspaceIdMapping[resorceIdentifier] = workspaceId;
-            }
-
-            return resourceToWorkspaceIdMapping;
-        }
-
-        /// <summary>
-        /// Creates a mapping between workspace ids and workspace resource ids
-        /// </summary>
-        /// <param name="workspaces">The workspaces to map</param>
-        /// <param name="cancellationToken">The cancellation token</param>
-        /// <returns>A task returning a mapping between workspace ids and workspace resource ids</returns>
-        private async Task<Dictionary<string, ResourceIdentifier>> CreateWorkspaceIdToWorkspaceResourceIdMappingAsync(IReadOnlyList<ResourceIdentifier> workspaces, CancellationToken cancellationToken)
-        {
-            Dictionary<string, ResourceIdentifier> workspaceIdToWorkspaceResourceIdMapping = new Dictionary<string, ResourceIdentifier>();
-
-            foreach (var workspace in workspaces)
-            {
-                try
-                {
-                    string workspaceId = await this.azureResourceManagerClient.GetLogAnalyticsWorkspaceIdAsync(workspace, cancellationToken);
-                    workspaceIdToWorkspaceResourceIdMapping[workspaceId] = workspace;
-                }
-                catch (AzureResourceManagerClientException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
-                {
-                    // ignore missing workspaces
-                }
-            }
-
-            return workspaceIdToWorkspaceResourceIdMapping;
         }
 
         /// <summary>

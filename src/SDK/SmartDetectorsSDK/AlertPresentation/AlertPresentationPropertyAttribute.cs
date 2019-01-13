@@ -9,48 +9,41 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.AlertPresentation
     using System;
 
     /// <summary>
-    /// An attribute defining the presentation of a specific property in an Alert.
-    /// The attribute determines which section the property will be presented in, the display title for the
-    /// property and an optional info balloon.
+    /// An attribute defining the presentation of a specific property in an <see cref="Microsoft.Azure.Monitoring.SmartDetectors.Alert"/>.
+    /// The attribute determines the type of the presentation, the display name of the
+    /// property and its order.
     /// </summary>
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
-    public class AlertPresentationPropertyAttribute : Attribute
+    public abstract class AlertPresentationPropertyAttribute : Attribute
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="AlertPresentationPropertyAttribute"/> class.
         /// </summary>
-        /// <param name="section">The section in which the property will be presented.</param>
-        /// <param name="title">The title to use when presenting the property's value.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="title"/> is null or contains only white-spaces.</exception>
-        public AlertPresentationPropertyAttribute(AlertPresentationSection section, string title)
+        /// <param name="displayName">The display name to use when presenting the property's value</param>
+        /// <exception cref="ArgumentNullException"><paramref name="displayName"/> is null or contains only white-spaces.</exception>
+        protected AlertPresentationPropertyAttribute(string displayName)
         {
-            if (string.IsNullOrWhiteSpace(title))
+            if (string.IsNullOrWhiteSpace(displayName))
             {
-                throw new ArgumentNullException(nameof(title), "A property cannot be presented without a title");
+                throw new ArgumentNullException(nameof(displayName), "A property cannot be presented without a display name");
             }
 
-            this.Section = section;
-            this.Title = title;
+            this.DisplayName = displayName;
         }
 
         /// <summary>
-        /// Gets the section in which the property will be presented.
+        /// Gets the display name of the property
         /// </summary>
-        public AlertPresentationSection Section { get; }
+        public string DisplayName { get; }
 
         /// <summary>
-        /// Gets the title to use when presenting the property's value.
-        /// </summary>
-        public string Title { get; }
-
-        /// <summary>
-        /// Gets or sets an (optional) info balloon to show when hovering over the property's presentation.
-        /// </summary>
-        public string InfoBalloon { get; set; }
-
-        /// <summary>
-        /// Gets or sets the order (optional) in which the property will be presented.
+        /// Gets or sets the order in which the property will be presented (optional)
         /// </summary>
         public byte Order { get; set; } = byte.MaxValue;
+
+        /// <summary>
+        /// Gets or sets the property name (optional)
+        /// </summary>
+        public string PropertyName { get; set; }
     }
 }

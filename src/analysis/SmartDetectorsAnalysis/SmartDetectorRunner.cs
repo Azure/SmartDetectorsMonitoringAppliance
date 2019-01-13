@@ -19,7 +19,6 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.Analysis
     using Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.Exceptions;
     using Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.Trace;
     using Microsoft.Azure.Monitoring.SmartDetectors.Package;
-    using Microsoft.Azure.Monitoring.SmartDetectors.Presentation;
     using Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts;
     using Microsoft.Azure.Monitoring.SmartDetectors.State;
     using Microsoft.Azure.Monitoring.SmartDetectors.Tools;
@@ -41,7 +40,6 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.Analysis
         private readonly ISmartDetectorLoader smartDetectorLoader;
         private readonly IInternalAnalysisServicesFactory analysisServicesFactory;
         private readonly IExtendedAzureResourceManagerClient azureResourceManagerClient;
-        private readonly IQueryRunInfoProvider queryRunInfoProvider;
         private readonly IStateRepositoryFactory stateRepositoryFactory;
         private readonly IExtendedTracer tracer;
 
@@ -52,7 +50,6 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.Analysis
         /// <param name="smartDetectorLoader">The Smart Detector loader</param>
         /// <param name="analysisServicesFactory">The analysis services factory</param>
         /// <param name="azureResourceManagerClient">The Azure Resource Manager client</param>
-        /// <param name="queryRunInfoProvider">The query run information provider</param>
         /// <param name="stateRepositoryFactory">The state repository factory</param>
         /// <param name="tracer">The tracer</param>
         public SmartDetectorRunner(
@@ -60,7 +57,6 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.Analysis
             ISmartDetectorLoader smartDetectorLoader,
             IInternalAnalysisServicesFactory analysisServicesFactory,
             IExtendedAzureResourceManagerClient azureResourceManagerClient,
-            IQueryRunInfoProvider queryRunInfoProvider,
             IStateRepositoryFactory stateRepositoryFactory,
             IExtendedTracer tracer)
         {
@@ -68,7 +64,6 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.Analysis
             this.smartDetectorLoader = Diagnostics.EnsureArgumentNotNull(() => smartDetectorLoader);
             this.analysisServicesFactory = Diagnostics.EnsureArgumentNotNull(() => analysisServicesFactory);
             this.azureResourceManagerClient = Diagnostics.EnsureArgumentNotNull(() => azureResourceManagerClient);
-            this.queryRunInfoProvider = Diagnostics.EnsureArgumentNotNull(() => queryRunInfoProvider);
             this.stateRepositoryFactory = Diagnostics.EnsureArgumentNotNull(() => stateRepositoryFactory);
             this.tracer = tracer;
         }
@@ -144,7 +139,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.Analysis
             IStateRepository stateRepository = this.stateRepositoryFactory.Create(request.SmartDetectorId, request.AlertRuleResourceId);
 
             // Create the input for the Smart Detector
-            AnalysisRequestParameters analysisRequestParameters = await this.CreateAnalysisRequestParametersAsync(request, smartDetectorManifest, true, cancellationToken);
+            AnalysisRequestParameters analysisRequestParameters = await this.CreateAnalysisRequestParametersAsync(DateTime.UtcNow, request, smartDetectorManifest, true, cancellationToken);
             var analysisRequest = new AnalysisRequest(analysisRequestParameters, this.analysisServicesFactory, stateRepository);
 
             // Run the Smart Detector
@@ -156,9 +151,9 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.Analysis
                 this.tracer.TraceInformation(
                     $"Completed running Smart Detector ID {smartDetectorManifest.Id}, Name {smartDetectorManifest.Name}, returning {alerts.Count} alerts");
             }
-            catch (DetectorDataNotReadyException ddnre)
+            catch (DetectorNotReadyException dnre)
             {
-                this.tracer.TraceWarning($"Smart Detector data is not ready yet, aborting analysis: {ddnre.Message}");
+                this.tracer.TraceWarning($"Smart Detector is not ready to run analysis yet, aborting analysis: {dnre.Message}");
                 return new List<ContractsAlert>();
             }
             catch (Exception e)
@@ -188,11 +183,9 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.Analysis
             List<ContractsAlert> results = new List<ContractsAlert>();
             foreach (var alert in alerts)
             {
-                QueryRunInfo queryRunInfo = await this.queryRunInfoProvider.GetQueryRunInfoAsync(new List<ResourceIdentifier>() { alert.ResourceIdentifier }, cancellationToken);
                 ContractsAlert contractsAlert = alert.CreateContractsAlert(
                     request,
                     smartDetectorManifest.Name,
-                    queryRunInfo,
                     this.analysisServicesFactory.UsedLogAnalysisClient,
                     this.analysisServicesFactory.UsedMetricClient);
 
@@ -208,6 +201,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.Analysis
                             GetResolutionStateKey(contractsAlert.Id),
                             new ResolutionState
                             {
+                                AnalysisRequestTime = analysisRequestParameters.RequestTime,
                                 AlertPredicates = alert.ExtractPredicates()
                             },
                             cancellationToken);
@@ -260,7 +254,12 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.Analysis
             }
 
             // Create the input for the Smart Detector
-            AnalysisRequestParameters analysisRequestParameters = await this.CreateAnalysisRequestParametersAsync(request.OriginalAnalysisRequest, smartDetectorManifest, false, cancellationToken);
+            AnalysisRequestParameters analysisRequestParameters = await this.CreateAnalysisRequestParametersAsync(
+                resolutionState.AnalysisRequestTime,
+                request.OriginalAnalysisRequest,
+                smartDetectorManifest,
+                false,
+                cancellationToken);
             var alertResolutionCheckRequest = new AlertResolutionCheckRequest(
                 analysisRequestParameters,
                 new AlertResolutionCheckRequestParameters(ResourceIdentifier.CreateFromResourceId(request.TargetResource), request.AlertFireTime, resolutionState.AlertPredicates),
@@ -339,19 +338,25 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.Analysis
         /// <summary>
         /// Creates a new instance of the <see cref="AnalysisRequestParameters"/> class, based on <paramref name="request"/>.
         /// </summary>
+        /// <param name="requestTime">The original time the analysis request was received from Azure Monitor back-end.</param>
         /// <param name="request">The analysis request received from Azure Monitoring back-end.</param>
         /// <param name="smartDetectorManifest">The Smart Detector's manifest, used for validations of the request.</param>
         /// <param name="shouldValidateResources">A value indicating whether we should validate that the request's resources are supported by the detector.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A <see cref="Task{TResult}"/>, returning the analysis request parameters.</returns>
-        private async Task<AnalysisRequestParameters> CreateAnalysisRequestParametersAsync(SmartDetectorAnalysisRequest request, SmartDetectorManifest smartDetectorManifest, bool shouldValidateResources, CancellationToken cancellationToken)
+        private async Task<AnalysisRequestParameters> CreateAnalysisRequestParametersAsync(
+            DateTime requestTime,
+            SmartDetectorAnalysisRequest request,
+            SmartDetectorManifest smartDetectorManifest,
+            bool shouldValidateResources,
+            CancellationToken cancellationToken)
         {
             // Get the resources on which to run the Smart Detector
             List<ResourceIdentifier> resources = shouldValidateResources
                 ? await this.GetResourcesForSmartDetector(request.ResourceIds, smartDetectorManifest, cancellationToken)
                 : request.ResourceIds.Select(ResourceIdentifier.CreateFromResourceId).ToList();
 
-            return new AnalysisRequestParameters(resources, request.Cadence, request.AlertRuleResourceId, request.DetectorParameters);
+            return new AnalysisRequestParameters(requestTime, resources, request.Cadence, request.AlertRuleResourceId, request.DetectorParameters);
         }
 
         /// <summary>

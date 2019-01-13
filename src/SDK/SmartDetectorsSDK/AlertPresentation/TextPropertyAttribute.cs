@@ -9,7 +9,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.AlertPresentation
     /// <summary>
     /// An attribute defining the presentation of a (short) text property in an <see cref="Microsoft.Azure.Monitoring.SmartDetectors.Alert"/>.
     /// </summary>
-    public class TextPropertyAttribute : AlertPresentationPropertyV2Attribute
+    public class TextPropertyAttribute : AlertPresentationPropertyAttribute
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="TextPropertyAttribute"/> class.

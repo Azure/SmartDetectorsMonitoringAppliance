@@ -11,7 +11,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.AlertPresentation
     /// <summary>
     /// An attribute defining the presentation of a key-value table property in an <see cref="Microsoft.Azure.Monitoring.SmartDetectors.Alert"/>.
     /// </summary>
-    public class KeyValuePropertyAttribute : AlertPresentationPropertyV2Attribute
+    public class KeyValuePropertyAttribute : AlertPresentationPropertyAttribute
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="KeyValuePropertyAttribute"/> class, for

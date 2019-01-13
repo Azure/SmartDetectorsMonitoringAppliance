@@ -25,15 +25,11 @@ namespace MonitoringApplianceEmulatorTests.ViewModels
         [TestInitialize]
         public void Setup()
         {
-            Mock<IExtendedAzureResourceManagerClient> azureResourceManagerClientMock = new Mock<IExtendedAzureResourceManagerClient>();
-
             this.smartDetectorRunner = new SmartDetectorRunner(
                 new Mock<ISmartDetector>().Object,
                 new Mock<IInternalAnalysisServicesFactory>().Object,
-                new QueryRunInfoProvider(azureResourceManagerClientMock.Object),
                 null,
                 new Mock<IStateRepositoryFactory>().Object,
-                azureResourceManagerClientMock.Object,
                 new Mock<IPageableLogArchive>().Object);
         }
 

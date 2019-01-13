@@ -18,11 +18,13 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors
         /// <summary>
         /// Initializes a new instance of the <see cref="AnalysisRequestParameters"/> class.
         /// </summary>
+        /// <param name="requestTime">The original time the analysis request was received from Azure Monitor back-end.</param>
         /// <param name="targetResources">The list of resource identifiers to analyze.</param>
         /// <param name="analysisCadence">The analysis cadence defined in the Alert Rule which initiated the Smart Detector's analysis.</param>
         /// <param name="alertRuleResourceId">The Alert Rule resource ID.</param>
         /// <param name="detectorParameters">The detector parameters as specified in the Alert Rule.</param>
         public AnalysisRequestParameters(
+            DateTime requestTime,
             List<ResourceIdentifier> targetResources,
             TimeSpan analysisCadence,
             string alertRuleResourceId,
@@ -43,11 +45,17 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors
                 throw new ArgumentException("The analysis cadence must represent a positive time span", nameof(analysisCadence));
             }
 
+            this.RequestTime = requestTime;
             this.TargetResources = targetResources;
             this.AnalysisCadence = analysisCadence;
             this.AlertRuleResourceId = alertRuleResourceId;
             this.DetectorParameters = detectorParameters ?? new Dictionary<string, object>();
         }
+
+        /// <summary>
+        /// Gets the original time the analysis request was received from Azure Monitor back-end.
+        /// </summary>
+        public DateTime RequestTime { get; }
 
         /// <summary>
         /// Gets the list of resource identifiers to analyze.

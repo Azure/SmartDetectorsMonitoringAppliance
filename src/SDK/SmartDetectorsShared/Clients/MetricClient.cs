@@ -207,11 +207,11 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Clients
 
             // Check if teh deprecated string appears in the metric name - check both the value and the localized value
             bool isDeprecated = false;
-            if (definition.Name.Value.IndexOf(DeprecatedString, StringComparison.CurrentCultureIgnoreCase) >= 0)
+            if (definition.Name.Value?.IndexOf(DeprecatedString, StringComparison.CurrentCultureIgnoreCase) >= 0)
             {
                 isDeprecated = true;
             }
-            else if (definition.Name.LocalizedValue.IndexOf(DeprecatedString, StringComparison.CurrentCultureIgnoreCase) >= 0)
+            else if (definition.Name.LocalizedValue?.IndexOf(DeprecatedString, StringComparison.CurrentCultureIgnoreCase) >= 0)
             {
                 isDeprecated = true;
             }

@@ -21,7 +21,6 @@ namespace SmartDetectorsAnalysisTests
     using Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.Analysis;
     using Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.Exceptions;
     using Microsoft.Azure.Monitoring.SmartDetectors.Package;
-    using Microsoft.Azure.Monitoring.SmartDetectors.Presentation;
     using Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts;
     using Microsoft.Azure.Monitoring.SmartDetectors.State;
     using Microsoft.Azure.Monitoring.SmartDetectors.Trace;
@@ -82,7 +81,7 @@ namespace SmartDetectorsAnalysisTests
         public async Task WhenRunningSmartDetectorAnalyzeAndNotReadyExceptionIsThrownThenNoAlertsAreReturned()
         {
             // Setup the exception to throw
-            this.smartDetector.ExceptionToThrow = new DetectorDataNotReadyException();
+            this.smartDetector.ExceptionToThrow = new DetectorNotReadyException();
             this.smartDetector.ShouldThrow = true;
 
             // Run the Smart Detector and validate results
@@ -505,8 +504,6 @@ namespace SmartDetectorsAnalysisTests
                 .ReturnsAsync((string subscriptionId, string resourceGroupName, IEnumerable<ResourceType> resourceTypes, CancellationToken cancellationToken) => new List<ResourceIdentifier>() { new ResourceIdentifier(ResourceType.VirtualMachine, subscriptionId, resourceGroupName, "resourceName") });
             this.testContainer.RegisterInstance(azureResourceManagerClientMock.Object);
 
-            this.testContainer.RegisterInstance(new Mock<IQueryRunInfoProvider>().Object);
-
             this.stateRepository = new Dictionary<string, object>();
             this.stateRepositoryMock = new Mock<IStateRepository>();
             this.stateRepositoryMock
@@ -529,6 +526,7 @@ namespace SmartDetectorsAnalysisTests
         {
             var state = new ResolutionState
             {
+                AnalysisRequestTime = new DateTime(1999, 12, 30, 7, 0, 0),
                 AlertPredicates = new Dictionary<string, object>
                 {
                     ["Predicate"] = "Predicate value"
@@ -561,7 +559,7 @@ namespace SmartDetectorsAnalysisTests
             {
                 this.IsRunning = true;
 
-                this.AssertAnalysisRequestParameters(analysisRequest.RequestParameters);
+                this.AssertAnalysisRequestParameters(analysisRequest.RequestParameters, assertRequestTime: true);
 
                 await analysisRequest.StateRepository.StoreStateAsync("test key", "test state", cancellationToken);
 
@@ -594,8 +592,14 @@ namespace SmartDetectorsAnalysisTests
                 };
             }
 
-            protected void AssertAnalysisRequestParameters(AnalysisRequestParameters analysisRequestParameters)
+            protected void AssertAnalysisRequestParameters(AnalysisRequestParameters analysisRequestParameters, bool assertRequestTime)
             {
+                if (assertRequestTime)
+                {
+                    Assert.IsTrue(analysisRequestParameters.RequestTime <= DateTime.UtcNow, "Request time is in the future");
+                    Assert.IsTrue(analysisRequestParameters.RequestTime > DateTime.UtcNow.AddMinutes(-1), "Request time is too much in the past");
+                }
+
                 Assert.IsNotNull(analysisRequestParameters.TargetResources, "Resources list is null");
                 Assert.AreEqual(1, analysisRequestParameters.TargetResources.Count);
                 Assert.AreEqual(this.ExpectedResourceType, analysisRequestParameters.TargetResources.Single().ResourceType);
@@ -627,7 +631,8 @@ namespace SmartDetectorsAnalysisTests
             {
                 this.IsRunning = true;
 
-                this.AssertAnalysisRequestParameters(alertResolutionCheckRequest.OriginalAnalysisRequestParameters);
+                Assert.AreEqual(new DateTime(1999, 12, 30, 7, 0, 0), alertResolutionCheckRequest.OriginalAnalysisRequestParameters.RequestTime);
+                this.AssertAnalysisRequestParameters(alertResolutionCheckRequest.OriginalAnalysisRequestParameters, assertRequestTime: false);
                 Assert.AreEqual(alertResolutionCheckRequest.OriginalAnalysisRequestParameters.TargetResources.Single(), alertResolutionCheckRequest.RequestParameters.ResourceIdentifier);
                 Assert.AreEqual(new DateTime(1985, 7, 3), alertResolutionCheckRequest.RequestParameters.AlertFireTime);
                 Assert.AreEqual(1, alertResolutionCheckRequest.RequestParameters.AlertPredicates.Count);
@@ -681,7 +686,7 @@ namespace SmartDetectorsAnalysisTests
                 }
             }
 
-            [AlertPresentationProperty(AlertPresentationSection.Property, "Summary title", InfoBalloon = "Summary info")]
+            [TextProperty("Summary title")]
             public string Summary { get; } = "Summary value";
 
             [PredicateProperty]

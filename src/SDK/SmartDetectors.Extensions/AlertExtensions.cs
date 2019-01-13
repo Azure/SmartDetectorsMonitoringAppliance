@@ -30,17 +30,18 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
     /// </summary>
     public static class AlertExtensions
     {
+        private static readonly HashSet<string> AlertBaseClassPropertiesNames = new HashSet<string>(typeof(Alert).GetProperties().Select(p => p.Name));
+
         /// <summary>
         /// Creates a presentation from an alert
         /// </summary>
         /// <param name="alert">The alert</param>
         /// <param name="request">The Smart Detector request</param>
         /// <param name="smartDetectorName">The Smart Detector name</param>
-        /// <param name="queryRunInfo">The query run information</param>
         /// <param name="usedLogAnalysisClient">Indicates whether a log analysis client was used to create the alert</param>
         /// <param name="usedMetricClient">Indicates whether a metric client was used to create the alert</param>
         /// <returns>The presentation</returns>
-        public static ContractsAlert CreateContractsAlert(this Alert alert, SmartDetectorAnalysisRequest request, string smartDetectorName, QueryRunInfo queryRunInfo, bool usedLogAnalysisClient, bool usedMetricClient)
+        public static ContractsAlert CreateContractsAlert(this Alert alert, SmartDetectorAnalysisRequest request, string smartDetectorName, bool usedLogAnalysisClient, bool usedMetricClient)
         {
             // A null alert has null presentation
             if (alert == null)
@@ -49,8 +50,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
             }
 
             // Extract the alert properties
-            Dictionary<string, string> rawProperties = new Dictionary<string, string>();
-            List<AlertProperty> alertProperties = ExtractProperties(alert, new Order(), rawProperties);
+            List<AlertProperty> alertProperties = ExtractProperties(alert, new Order());
 
             string id = string.Join("##", alert.GetType().FullName, JsonConvert.SerializeObject(request), JsonConvert.SerializeObject(alert)).ToSha256Hash();
             string resourceId = alert.ResourceIdentifier.ToResourceId();
@@ -60,7 +60,6 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
             SignalType signalType = GetSignalType(usedLogAnalysisClient, usedMetricClient);
 
             // Return the presentation object
-            #pragma warning disable CS0612 // Type or member is obsolete; Task to remove obsolete code #1312924
             return new ContractsAlert
             {
                 Id = id,
@@ -71,14 +70,10 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
                 SmartDetectorName = smartDetectorName,
                 AnalysisTimestamp = DateTime.UtcNow,
                 AnalysisWindowSizeInMinutes = (int)request.Cadence.TotalMinutes,
-                Properties = new List<AlertPropertyLegacy>(),
                 AlertProperties = alertProperties,
-                RawProperties = rawProperties,
-                QueryRunInfo = queryRunInfo,
                 SignalType = signalType,
                 ResolutionParameters = alert.AlertResolutionParameters?.CreateContractsResolutionParameters()
             };
-            #pragma warning restore CS0612 // Type or member is obsolete; Task to remove obsolete code #1312924
         }
 
         /// <summary>
@@ -108,9 +103,8 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
         /// </summary>
         /// <param name="alert">The object from which to extract the properties</param>
         /// <param name="order">The order to use</param>
-        /// <param name="rawProperties">The raw properties dictionary to update - can be null</param>
         /// <returns>The extracted properties</returns>
-        private static List<AlertProperty> ExtractProperties(object alert, Order order, Dictionary<string, string> rawProperties = null)
+        private static List<AlertProperty> ExtractProperties(object alert, Order order)
         {
             // Collect all object properties, and sort them by order
             var propertyDetails = alert.GetType().GetProperties().Select(property =>
@@ -124,14 +118,8 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
                         return null;
                     }
 
-                    // Add to raw properties
-                    if (rawProperties != null)
-                    {
-                        rawProperties[property.Name] = propertyStringValue;
-                    }
-
                     // Get the presentation attribute
-                    AlertPresentationPropertyV2Attribute presentationAttribute = property.GetCustomAttribute<AlertPresentationPropertyV2Attribute>();
+                    AlertPresentationPropertyAttribute presentationAttribute = property.GetCustomAttribute<AlertPresentationPropertyAttribute>();
 
                     return new { PresentationAttribute = presentationAttribute, Property = property, Value = propertyValue };
                 })
@@ -141,7 +129,6 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
                 .ToList();
 
             // Go over the properties, in order
-            HashSet<string> alertBaseClassPropertiesNames = new HashSet<string>(typeof(Alert).GetProperties().Select(p => p.Name));
             List<AlertProperty> alertProperties = new List<AlertProperty>();
             foreach (var p in propertyDetails)
             {
@@ -149,7 +136,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
                 {
                     alertProperties.AddRange(CreateAlertProperty(alert, p.Property, p.PresentationAttribute, p.Value, order));
                 }
-                else if (!alertBaseClassPropertiesNames.Contains(p.Property.Name))
+                else if (!AlertBaseClassPropertiesNames.Contains(p.Property.Name))
                 {
                     // Get the raw alert property - a property with no presentation
                     alertProperties.Add(new RawAlertProperty(p.Property.Name, p.Value));
@@ -168,7 +155,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
         /// <param name="propertyValue">The property value</param>
         /// <param name="order">The current order</param>
         /// <returns>An <see cref="AlertProperty"/></returns>
-        private static IEnumerable<AlertProperty> CreateAlertProperty(object alert, PropertyInfo property, AlertPresentationPropertyV2Attribute presentationAttribute, object propertyValue, Order order)
+        private static IEnumerable<AlertProperty> CreateAlertProperty(object alert, PropertyInfo property, AlertPresentationPropertyAttribute presentationAttribute, object propertyValue, Order order)
         {
             // Get the attribute display name
             string displayName = presentationAttribute.DisplayName.EvaluateInterpolatedString(alert);

@@ -7,6 +7,7 @@
 namespace Microsoft.Azure.Monitoring.SmartDetectors.Clients
 {
     using System;
+    using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Globalization;
     using System.Linq;
@@ -16,20 +17,20 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Clients
     using Microsoft.Azure.Monitoring.SmartDetectors.ActivityLog;
     using Microsoft.Azure.Monitoring.SmartDetectors.Arm;
     using Microsoft.Azure.Monitoring.SmartDetectors.Metric;
-    using Microsoft.Azure.Monitoring.SmartDetectors.Presentation;
-    using Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts;
     using Microsoft.Azure.Monitoring.SmartDetectors.Trace;
+    using ResourceType = Microsoft.Azure.Monitoring.SmartDetectors.ResourceType;
 
     /// <summary>
     /// An implementation of the <see cref="IAnalysisServicesFactory"/> interface.
     /// </summary>
     public class AnalysisServicesFactory : IInternalAnalysisServicesFactory
     {
+        private const int MaxNumberOfResourcesInQuery = 100;
+        private readonly ConcurrentDictionary<string, IList<ResourceIdentifier>> subscriptionIdToWorkspaces = new ConcurrentDictionary<string, IList<ResourceIdentifier>>(StringComparer.CurrentCultureIgnoreCase);
         private readonly IExtendedTracer tracer;
         private readonly IHttpClientWrapper httpClientWrapper;
         private readonly ICredentialsFactory credentialsFactory;
         private readonly IExtendedAzureResourceManagerClient azureResourceManagerClient;
-        private readonly IQueryRunInfoProvider queryRunInfoProvider;
         private readonly TimeSpan queryTimeout;
 
         /// <summary>
@@ -39,14 +40,12 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Clients
         /// <param name="httpClientWrapper">The HTTP client wrapper.</param>
         /// <param name="credentialsFactory">The credentials factory.</param>
         /// <param name="azureResourceManagerClient">The Azure Resource Manager client.</param>
-        /// <param name="queryRunInfoProvider">The query run information provider.</param>
-        public AnalysisServicesFactory(IExtendedTracer tracer, IHttpClientWrapper httpClientWrapper, ICredentialsFactory credentialsFactory, IExtendedAzureResourceManagerClient azureResourceManagerClient, IQueryRunInfoProvider queryRunInfoProvider)
+        public AnalysisServicesFactory(IExtendedTracer tracer, IHttpClientWrapper httpClientWrapper, ICredentialsFactory credentialsFactory, IExtendedAzureResourceManagerClient azureResourceManagerClient)
         {
             this.tracer = tracer;
             this.httpClientWrapper = httpClientWrapper;
             this.credentialsFactory = credentialsFactory;
             this.azureResourceManagerClient = azureResourceManagerClient;
-            this.queryRunInfoProvider = queryRunInfoProvider;
 
             // string timeoutString = ConfigurationReader.ReadConfig("AnalyticsQueryTimeoutInMinutes", required: true);
             string timeoutString = "15";
@@ -75,15 +74,20 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Clients
         /// <returns>The telemetry data client, that can be used to run queries on log analytics workspaces.</returns>
         public async Task<ITelemetryDataClient> CreateLogAnalyticsTelemetryDataClientAsync(IReadOnlyList<ResourceIdentifier> resources, CancellationToken cancellationToken)
         {
+            // Verify that there are no Application Insights resources
+            if (resources.Any(resource => resource.ResourceType == ResourceType.ApplicationInsights))
+            {
+                throw new TelemetryDataClientCreationException($"Telemetry client creation failed - resources shouldn't contain resources of the type {ResourceType.ApplicationInsights}");
+            }
+
             // Mark that a log signal was used to create the alert
             this.UsedLogAnalysisClient = true;
 
-            // Get the query run info, and verify it
-            QueryRunInfo runInfo = await this.queryRunInfoProvider.GetQueryRunInfoAsync(resources, cancellationToken);
-            VerifyRunInfo(runInfo, TelemetryDbType.LogAnalytics);
+            // Get the resource IDs
+            IReadOnlyList<string> resourceIds = await this.GetResourceIdsForLogAnalyticsAsync(resources, cancellationToken);
 
             // Create the client
-            return new LogAnalyticsTelemetryDataClient(this.tracer, this.httpClientWrapper, this.credentialsFactory, this.azureResourceManagerClient, runInfo.ResourceIds, this.queryTimeout);
+            return new LogAnalyticsTelemetryDataClient(this.tracer, this.httpClientWrapper, this.credentialsFactory, this.azureResourceManagerClient, resourceIds, this.queryTimeout);
         }
 
         /// <summary>
@@ -93,17 +97,34 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Clients
         /// <param name="cancellationToken">The cancellation token</param>
         /// <exception cref="TelemetryDataClientCreationException">An Application Insights telemetry data client could not be created for the specified resources.</exception>
         /// <returns>The telemetry data client, that can be used to run queries on Application Insights.</returns>
-        public async Task<ITelemetryDataClient> CreateApplicationInsightsTelemetryDataClientAsync(IReadOnlyList<ResourceIdentifier> resources, CancellationToken cancellationToken)
+        public Task<ITelemetryDataClient> CreateApplicationInsightsTelemetryDataClientAsync(IReadOnlyList<ResourceIdentifier> resources, CancellationToken cancellationToken)
         {
+            // Verify that there are resources
+            if (!resources.Any())
+            {
+                throw new TelemetryDataClientCreationException("No resources provided");
+            }
+
+            // Verify that all resources are of type ApplicationInsights
+            if (resources.Any(resource => resource.ResourceType != ResourceType.ApplicationInsights))
+            {
+                throw new TelemetryDataClientCreationException($"Telemetry client creation failed - all resources must be of type {ResourceType.ApplicationInsights}");
+            }
+
+            // Verify there are not too many resources
+            if (resources.Count > MaxNumberOfResourcesInQuery)
+            {
+                throw new TelemetryDataClientCreationException($"Cannot run analysis on more than {MaxNumberOfResourcesInQuery} applications");
+            }
+
+            List<string> resourceIds = resources.Select(application => application.ToResourceId()).ToList();
+
             // Mark that a log signal was used to create the alert
             this.UsedLogAnalysisClient = true;
 
-            // Get the query run info, and verify it
-            QueryRunInfo runInfo = await this.queryRunInfoProvider.GetQueryRunInfoAsync(resources, cancellationToken);
-            VerifyRunInfo(runInfo, TelemetryDbType.ApplicationInsights);
-
             // Create the client
-            return new ApplicationInsightsTelemetryDataClient(this.tracer, this.httpClientWrapper, this.credentialsFactory, this.azureResourceManagerClient, runInfo.ResourceIds, this.queryTimeout);
+            return Task.FromResult<ITelemetryDataClient>(new ApplicationInsightsTelemetryDataClient(
+                this.tracer, this.httpClientWrapper, this.credentialsFactory, this.azureResourceManagerClient, resourceIds, this.queryTimeout));
         }
 
         /// <summary>
@@ -143,23 +164,57 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Clients
         }
 
         /// <summary>
-        /// Perform basic validations on the specified query run information.
+        /// Gets IDs of Log Analytics resources.
         /// </summary>
-        /// <param name="runInfo">The query run information</param>
-        /// <param name="expectedType">The expected telemetry DB type</param>
-        private static void VerifyRunInfo(QueryRunInfo runInfo, TelemetryDbType expectedType)
+        /// <param name="resources">The resources</param>
+        /// <param name="cancellationToken">The cancellation token</param>
+        /// <returns>A <see cref="Task{TResult}"/>, returning the resource IDs</returns>
+        private async Task<IReadOnlyList<string>> GetResourceIdsForLogAnalyticsAsync(IReadOnlyList<ResourceIdentifier> resources, CancellationToken cancellationToken)
         {
-            // Verify the telemetry DB type
-            if (runInfo.Type != expectedType)
+            // Verify that there are resources
+            if (!resources.Any())
             {
-                throw new TelemetryDataClientCreationException($"Telemetry client creation failed - telemetry resource type is {runInfo.Type}");
+                throw new TelemetryDataClientCreationException("No resources provided");
             }
 
-            // Verify that the resource IDs are not empty
-            if (!runInfo.ResourceIds.Any())
+            IReadOnlyList<ResourceIdentifier> workspaces;
+            if (resources.All(resource => resource.ResourceType == ResourceType.LogAnalytics))
             {
-                throw new TelemetryDataClientCreationException("Telemetry client creation failed - no resources found");
+                // All resources are of type LogAnalytics. Create a client that queries all these workspaces.
+                workspaces = resources;
             }
+            else
+            {
+                // Since we do not know where the telemetry of each resource is, create a client that queries all workspaces in the subscription.
+                var workspacesList = new List<ResourceIdentifier>();
+                foreach (string subscriptionId in resources.Select(resource => resource.SubscriptionId).Distinct(StringComparer.CurrentCultureIgnoreCase))
+                {
+                    // Try to get the workspaces list from the cache, and if it isn't there, use the Azure Resource Manager client
+                    IList<ResourceIdentifier> subscriptionWorkspaces;
+                    if (!this.subscriptionIdToWorkspaces.TryGetValue(subscriptionId, out subscriptionWorkspaces))
+                    {
+                        subscriptionWorkspaces = await this.azureResourceManagerClient.GetAllResourcesInSubscriptionAsync(subscriptionId, new[] { ResourceType.LogAnalytics }, cancellationToken);
+                        this.subscriptionIdToWorkspaces[subscriptionId] = subscriptionWorkspaces;
+                    }
+
+                    workspacesList.AddRange(subscriptionWorkspaces);
+                }
+
+                workspaces = workspacesList;
+                if (workspaces.Count == 0)
+                {
+                    throw new TelemetryDataClientCreationException("No log analytics workspaces were found");
+                }
+            }
+
+            // Verify there aren't too many resources
+            if (workspaces.Count > MaxNumberOfResourcesInQuery)
+            {
+                throw new TelemetryDataClientCreationException($"Cannot run analysis on more than {MaxNumberOfResourcesInQuery} workspaces");
+            }
+
+            List<string> workspacesResourceIds = workspaces.Select(workspace => workspace.ToResourceId()).ToList();
+            return workspacesResourceIds;
         }
     }
 }
