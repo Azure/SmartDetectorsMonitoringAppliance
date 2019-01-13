@@ -112,34 +112,38 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
         /// <returns>The extracted properties</returns>
         private static List<AlertProperty> ExtractProperties(object alert, Order order, Dictionary<string, string> rawProperties = null)
         {
-            // Collect all object properties
+            // Collect all object properties, and sort them by order
             var propertyDetails = alert.GetType().GetProperties().Select(property =>
-            {
-                // Get the property value
-                object propertyValue = property.GetValue(alert);
-                string propertyStringValue = PropertyValueToString(alert, property, propertyValue);
-                if (string.IsNullOrWhiteSpace(propertyStringValue) || (propertyValue is ICollection value && value.Count == 0))
                 {
-                    // skip empty properties
-                    return null;
-                }
+                    // Get the property value
+                    object propertyValue = property.GetValue(alert);
+                    string propertyStringValue = PropertyValueToString(alert, property, propertyValue);
+                    if (string.IsNullOrWhiteSpace(propertyStringValue) || (propertyValue is ICollection value && value.Count == 0))
+                    {
+                        // skip empty properties
+                        return null;
+                    }
 
-                // Add to raw properties
-                if (rawProperties != null)
-                {
-                    rawProperties[property.Name] = propertyStringValue;
-                }
+                    // Add to raw properties
+                    if (rawProperties != null)
+                    {
+                        rawProperties[property.Name] = propertyStringValue;
+                    }
 
-                // Get the presentation attribute
-                AlertPresentationPropertyV2Attribute presentationAttribute = property.GetCustomAttribute<AlertPresentationPropertyV2Attribute>();
+                    // Get the presentation attribute
+                    AlertPresentationPropertyV2Attribute presentationAttribute = property.GetCustomAttribute<AlertPresentationPropertyV2Attribute>();
 
-                return new { PresentationAttribute = presentationAttribute, Property = property, Value = propertyValue };
-            }).ToList();
+                    return new { PresentationAttribute = presentationAttribute, Property = property, Value = propertyValue };
+                })
+                .Where(x => x != null)
+                .OrderBy(p => p.PresentationAttribute?.Order ?? -1)
+                .ThenBy(p => p.Property.Name)
+                .ToList();
 
             // Go over the properties, in order
-            List<string> alertBaseClassPropertiesNames = typeof(Alert).GetProperties().Select(p => p.Name).ToList();
+            HashSet<string> alertBaseClassPropertiesNames = new HashSet<string>(typeof(Alert).GetProperties().Select(p => p.Name));
             List<AlertProperty> alertProperties = new List<AlertProperty>();
-            foreach (var p in propertyDetails.Where(x => x != null).OrderBy(p => p.PresentationAttribute?.Order ?? -1).ThenBy(p => p.Property.Name))
+            foreach (var p in propertyDetails)
             {
                 if (p.PresentationAttribute != null)
                 {
@@ -260,10 +264,20 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
                 throw new ArgumentException("An AlertPresentationTableAttribute can only be applied to properties of type IList");
             }
 
-            Type tableRowType = GetGenericListType(propertyValue.GetType());
-            if (tableRowType == null)
+            // Empty table  - this should have been taken care of in ExtractProperties, but we check here also just in case
+            if (tablePropertyValue.Count == 0)
             {
-                throw new ArgumentException("An AlertPresentationTableAttribute can only be applied to properties of type IList<>");
+                throw new ArgumentException("An AlertPresentationTableAttribute cannot be applied to an empty list");
+            }
+
+            // Get element type, and verify that all elements are of the same type
+            Type tableRowType = tablePropertyValue[0].GetType();
+            foreach (object item in tablePropertyValue)
+            {
+                if (item.GetType() != tableRowType)
+                {
+                    throw new ArgumentException("All items in a list with AlertPresentationTableAttribute must have the same type");
+                }
             }
 
             // Easy way out if we're handling a single-column table
@@ -448,18 +462,6 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
                 default:
                     throw new InvalidEnumArgumentException($"Unsupported chart axis of type {chartAxisType}");
             }
-        }
-
-        /// <summary>
-        /// Checks if <paramref name="type"/> implements the <see cref="IList{T}"/> interface, and if so returns
-        /// the element type of that list. Otherwise returns <c>null</c>.
-        /// </summary>
-        /// <param name="type">The type to check.</param>
-        /// <returns>The element type of the list, or <c>null</c> if <paramref name="type"/> is not a list.</returns>
-        private static Type GetGenericListType(Type type)
-        {
-            Type genericListInterface = type.GetInterfaces().Where(i => i.IsGenericType).FirstOrDefault(i => i.GetGenericTypeDefinition() == typeof(IList<>));
-            return genericListInterface?.GetGenericArguments().Single();
         }
 
         /// <summary>

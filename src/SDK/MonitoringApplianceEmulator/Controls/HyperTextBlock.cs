@@ -34,7 +34,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
                 OnHypertextPropertyChanged),
             HypertextValidateCallback);
 
-        private static readonly Regex HtmlHyperlinkRegex = new Regex("<a [^>]*href[\\s]*=[\\s]*(?<href>(?:'.*?')|(?:\".*?\"))[ ]*>(?<linkText>[^<]*)</a>");
+        private static readonly Regex HtmlHyperlinkRegex = new Regex("<a [^>]*href[\\s]*=[\\s]*(?<href>(?:'.*?')|(?:\".*?\"))[ ]*>(?<linkText>[^<]*)</a>", RegexOptions.IgnoreCase);
 
         /// <summary>
         /// Initializes a new instance of the <see cref="HyperTextBlock"/> class

@@ -169,7 +169,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
         }
 
         /// <summary>
-        /// Gets the alert properties' view mmodels.
+        /// Gets the alert properties' view models.
         /// </summary>
         public ObservableCollection<DisplayableAlertProperty> DisplayableProperties
         {
@@ -215,8 +215,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
             }
 
             // Select image file path
-            var dialog = new SaveFileDialog();
-            dialog.Filter = "Jpeg Files (*.jpg)|*.jpg";
+            var dialog = new SaveFileDialog { Filter = "Jpeg Files (*.jpg)|*.jpg" };
             if (dialog.ShowDialog() == false)
             {
                 return;

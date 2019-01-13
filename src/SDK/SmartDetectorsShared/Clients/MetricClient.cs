@@ -94,7 +94,9 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Clients
                 "GetResourceMetricDefinitions",
                 () => this.monitorManagementClient.MetricDefinitions.ListAsync(
                     resourceUri: resourceUri,
-                    cancellationToken: cancellationToken))).ToList();
+                    cancellationToken: cancellationToken)))
+                .Where(IsNotDeprecated)
+                .ToList();
 
             this.tracer.TraceInformation($"Running GetResourceMetricDefinitions completed. Total Definitions: {definitions.Count}.");
             return definitions.Select(ConvertMetricDefinition);
@@ -192,6 +194,29 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Clients
             }
 
             return uri;
+        }
+
+        /// <summary>
+        /// Check if the specified metric definition is deprecated
+        /// </summary>
+        /// <param name="definition">The metric definition</param>
+        /// <returns>True if the definition is deprecated, false otherwise</returns>
+        private static bool IsNotDeprecated(Management.Monitor.Fluent.Models.MetricDefinition definition)
+        {
+            const string DeprecatedString = "(Deprecated)";
+
+            // Check if teh deprecated string appears in the metric name - check both the value and the localized value
+            bool isDeprecated = false;
+            if (definition.Name.Value.IndexOf(DeprecatedString, StringComparison.CurrentCultureIgnoreCase) >= 0)
+            {
+                isDeprecated = true;
+            }
+            else if (definition.Name.LocalizedValue.IndexOf(DeprecatedString, StringComparison.CurrentCultureIgnoreCase) >= 0)
+            {
+                isDeprecated = true;
+            }
+
+            return !isDeprecated;
         }
 
         /// <summary>
