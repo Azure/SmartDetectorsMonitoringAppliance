@@ -361,6 +361,9 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
 
                 if (value != null)
                 {
+                    // Refresh the filter
+                    this.resourcesHierarchicalCollection.ContainedResources.Filter = this.ShouldDisplayResource;
+
                     // Load selected resource from user settings if necessary
                     if (this.ShouldSelectResourcesAccordingToUserSettings && this.userSettings.SelectedResourceType != null && this.userSettings.SelectedResource != null)
                     {

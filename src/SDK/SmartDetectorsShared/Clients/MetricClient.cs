@@ -205,7 +205,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Clients
         {
             const string DeprecatedString = "(Deprecated)";
 
-            // Check if teh deprecated string appears in the metric name - check both the value and the localized value
+            // Check if the deprecated string appears in the metric name - check both the value and the localized value
             bool isDeprecated = false;
             if (definition.Name.Value?.IndexOf(DeprecatedString, StringComparison.CurrentCultureIgnoreCase) >= 0)
             {

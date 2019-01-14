@@ -189,6 +189,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
                 case TextPropertyAttribute _:
                     if (propertyValue is IList list)
                     {
+                        // TODO: Define a PropertyListAttribute
                         foreach (DisplayableAlertProperty p in CreateListOfAlertProperties(list, order))
                         {
                             yield return p;
