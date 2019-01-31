@@ -263,16 +263,18 @@ namespace SmartDetectorsAnalysisTests
 
         public class TableData
         {
-            [JsonProperty("prop1")]
-            [TableColumn("First Prop")]
-            public string Prop1 { get; set; }
-
-            [TableColumn("Second Prop")]
+            [TableColumn("Second Prop", Order = 2)]
             public string Prop2 { get; set; }
 
             [UrlFormatter("Link for {NonDisplayProp}")]
             [TableColumn("Uri Prop")]
             public Uri UriProp { get; set; }
+
+            // The properties are sorted like this to ensure that
+            // the Order property is taken into account
+            [JsonProperty("prop1")]
+            [TableColumn("First Prop", Order = 1)]
+            public string Prop1 { get; set; }
 
             public string NonDisplayProp { get; set; }
         }
