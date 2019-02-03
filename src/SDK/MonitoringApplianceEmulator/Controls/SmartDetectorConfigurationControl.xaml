@@ -67,11 +67,18 @@
 
                         <TextBlock Grid.Row="1" Grid.Column="0" Style="{StaticResource ControlText}" Text="Filter by subscription" Margin="0,5,0,0" />
                         <ComboBox Grid.Row="1" Grid.Column="1" Margin="0,0,0,20"  
-                            HorizontalAlignment="Left" MinWidth="130"
-                            ItemsSource="{Binding Path=ReadSubscriptionsTask.Result, NotifyOnTargetUpdated=True}"  
-                            SelectedItem="{Binding Path=SelectedSubscription, Mode=TwoWay}"
-                            DisplayMemberPath="Name" 
-                            IsEnabled="{Binding Path=ReadSubscriptionsTask.Result, Converter={StaticResource EmptyListToBooleanConverter}}" />
+                                  HorizontalAlignment="Left" MinWidth="130"
+                                  ItemsSource="{Binding Path=ReadSubscriptionsTask.Result, NotifyOnTargetUpdated=True}"
+                                  SelectedItem="{Binding Path=SelectedSubscription, Mode=TwoWay}"
+                                  DisplayMemberPath="Name"
+                                  IsEnabled="{Binding Path=ReadSubscriptionsTask.Result, Converter={StaticResource EmptyListToBooleanConverter}}"
+                                  Loaded="OnSubscriptionComboBoxLoaded">
+                            <ComboBox.ItemContainerStyle>
+                                <Style  TargetType="{x:Type ComboBoxItem}" BasedOn="{StaticResource MaterialDesignComboBoxItemStyle}">
+                                    <Setter Property="Control.ToolTip" Value="{Binding ResourceIdentifier.SubscriptionId}" />
+                                </Style>
+                            </ComboBox.ItemContainerStyle>
+                        </ComboBox>
                         <ProgressBar  Grid.Row="1" Grid.Column="1" Margin="115,0,0,20"
                             Style="{StaticResource MaterialDesignCircularProgressBar}" Value="0" IsIndeterminate="True" 
                             Visibility="{Binding Path=ReadSubscriptionsTask.IsRunning, Converter={StaticResource BooleanToVisibilityConverter}}"/>
