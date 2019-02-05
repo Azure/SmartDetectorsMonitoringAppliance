@@ -15,9 +15,8 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.AlertPresentation
         /// <summary>
         /// Initializes a new instance of the <see cref="ListPropertyAttribute"/> class.
         /// </summary>
-        /// <param name="displayName">The display name to use when presenting the property's value.</param>
-        public ListPropertyAttribute(string displayName)
-            : base(displayName)
+        public ListPropertyAttribute()
+            : base("N/A")
         {
         }
     }

@@ -282,7 +282,7 @@ namespace SmartDetectorsAnalysisTests
             [SingleColumnTableProperty("SingleColumnTableDisplayName", Order = 6, ShowHeaders = false)]
             public List<string> SingleColumnTable => new List<string> { "value1", "value2", "value3" };
 
-            [ListProperty("Additional data", Order = 7)]
+            [ListProperty(Order = 7)]
             public IList<object> AdditionalData => new List<object>()
             {
                 new ListData1(),
@@ -327,7 +327,7 @@ namespace SmartDetectorsAnalysisTests
             [TextProperty("Link2", Order = 2)]
             public Uri Uri2 => new Uri("https://darwinawards.com/");
 
-            [ListProperty("List2", Order = 3)]
+            [ListProperty(Order = 3)]
             public IList<ListData1> MoreData => new List<ListData1>()
             {
                 new ListData1(),

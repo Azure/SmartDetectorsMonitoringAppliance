@@ -117,10 +117,12 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
                 {
                     // Get the property value
                     object propertyValue = property.GetValue(propertiesOwner);
-                    string propertyStringValue = PropertyValueToString(propertiesOwner, property, propertyValue);
-                    if (string.IsNullOrWhiteSpace(propertyStringValue) || (propertyValue is ICollection value && value.Count == 0))
+
+                    // Skip the property if it is empty
+                    if (propertyValue == null ||
+                        (propertyValue is string stringValue && string.IsNullOrWhiteSpace(stringValue)) ||
+                        (propertyValue is ICollection collectionValue && collectionValue.Count == 0))
                     {
-                        // Skip empty properties
                         return null;
                     }
 
