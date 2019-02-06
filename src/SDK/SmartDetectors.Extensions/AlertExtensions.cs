@@ -50,7 +50,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
             }
 
             // Create presentation elements for each alert property
-            List<AlertProperty> alertProperties = ExtractProperties(alert, new Order());
+            List<AlertProperty> alertProperties = ExtractProperties(alert);
 
             string id = string.Join("##", alert.GetType().FullName, JsonConvert.SerializeObject(request), JsonConvert.SerializeObject(alert)).ToSha256Hash();
             string resourceId = alert.ResourceIdentifier.ToResourceId();
@@ -104,12 +104,20 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
         /// </summary>
         /// <param name="propertiesOwner">The object from which to extract the properties</param>
         /// <param name="order">The order to use</param>
+        /// <param name="parentPropertyName">The parent property name</param>
         /// <returns>The extracted properties</returns>
-        private static List<AlertProperty> ExtractProperties(object propertiesOwner, Order order)
+        private static List<AlertProperty> ExtractProperties(object propertiesOwner, Order order = null, string parentPropertyName = null)
         {
+            // The null object has no properties
             if (propertiesOwner == null)
             {
                 return new List<AlertProperty>();
+            }
+
+            // Initialize order if needed
+            if (order == null)
+            {
+                order = new Order();
             }
 
             // Collect all object properties, and sort them by order
@@ -142,7 +150,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
             {
                 if (p.PresentationAttribute != null)
                 {
-                    alertProperties.AddRange(CreateAlertProperties(propertiesOwner, p.Property, p.PresentationAttribute, p.Value, order));
+                    alertProperties.AddRange(CreateAlertProperties(propertiesOwner, p.Property, p.PresentationAttribute, p.Value, order, parentPropertyName));
                 }
                 else if (!AlertBaseClassPropertiesNames.Contains(p.Property.Name))
                 {
@@ -162,14 +170,19 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
         /// <param name="presentationAttribute">The attribute defining the presentation of the alert property</param>
         /// <param name="propertyValue">The property value</param>
         /// <param name="order">The order to use</param>
+        /// <param name="parentPropertyName">The parent property name</param>
         /// <returns>The <see cref="AlertProperty"/> objects</returns>
-        private static IEnumerable<AlertProperty> CreateAlertProperties(object propertyOwner, PropertyInfo property, AlertPresentationPropertyAttribute presentationAttribute, object propertyValue, Order order)
+        private static IEnumerable<AlertProperty> CreateAlertProperties(object propertyOwner, PropertyInfo property, AlertPresentationPropertyAttribute presentationAttribute, object propertyValue, Order order, string parentPropertyName)
         {
             // Get the attribute display name
             string displayName = presentationAttribute.DisplayName.EvaluateInterpolatedString(propertyOwner);
 
-            // Get the property name
+            // Get the property name (and add the parent property name as prefix, if provided)
             string propertyName = string.IsNullOrWhiteSpace(presentationAttribute.PropertyName) ? property.Name : presentationAttribute.PropertyName;
+            if (!string.IsNullOrWhiteSpace(parentPropertyName))
+            {
+                propertyName = $"{parentPropertyName}.{propertyName}";
+            }
 
             // Return the presentation property according to the property type
             switch (presentationAttribute)
@@ -204,7 +217,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
                         throw new ArgumentException("A ListPropertyAttribute can only be applied to properties of type IList");
                     }
 
-                    foreach (AlertProperty p in CreateAlertPropertiesFromList(list, order))
+                    foreach (AlertProperty p in CreateAlertPropertiesFromList(propertyName, list, order))
                     {
                         yield return p;
                     }
@@ -345,15 +358,16 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
         /// <summary>
         /// Create a list of properties, extracted from the objects in the specified list.
         /// </summary>
+        /// <param name="listPropertyName">The list property name</param>
         /// <param name="list">The list of objects, from which to extract the properties</param>
         /// <param name="order">The order to use</param>
         /// <returns>The newly created properties.</returns>
-        private static List<AlertProperty> CreateAlertPropertiesFromList(IList list, Order order)
+        private static List<AlertProperty> CreateAlertPropertiesFromList(string listPropertyName, IList list, Order order)
         {
             List<AlertProperty> alertProperties = new List<AlertProperty>();
-            foreach (object obj in list)
+            for (int i = 0; i < list.Count; i++)
             {
-                List<AlertProperty> objectProperties = ExtractProperties(obj, order);
+                List<AlertProperty> objectProperties = ExtractProperties(list[i], order, $"{listPropertyName}[{i}]");
                 alertProperties.AddRange(objectProperties);
             }
 

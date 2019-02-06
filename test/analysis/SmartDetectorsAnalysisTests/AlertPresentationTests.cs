@@ -54,14 +54,14 @@ namespace SmartDetectorsAnalysisTests
             VerifyPresentationTestAlertDisplayedProperty(contractsAlert.AlertProperties, "KeyValueWithHeaders", "KeyValueWithHeadersDisplayName", 4);
             VerifyPresentationTestAlertDisplayedProperty(contractsAlert.AlertProperties, "Table", "TableDisplayName", 5);
             VerifyPresentationTestAlertDisplayedProperty(contractsAlert.AlertProperties, "SingleColumnTable", "SingleColumnTableDisplayName", 6);
-            VerifyPresentationTestAlertDisplayedProperty(contractsAlert.AlertProperties, "Name1", "First name title", 7);
-            VerifyPresentationTestAlertDisplayedProperty(contractsAlert.AlertProperties, "Uri1", "First link", 8);
-            VerifyPresentationTestAlertDisplayedProperty(contractsAlert.AlertProperties, "Name2", "Second name title", 9);
-            VerifyPresentationTestAlertDisplayedProperty(contractsAlert.AlertProperties, "Uri2", "Second link", 10);
-            VerifyPresentationTestAlertDisplayedProperty(contractsAlert.AlertProperties, "Name1", "First name title", 11);
-            VerifyPresentationTestAlertDisplayedProperty(contractsAlert.AlertProperties, "Uri1", "First link", 12);
-            VerifyPresentationTestAlertDisplayedProperty(contractsAlert.AlertProperties, "Name1", "First name title", 13);
-            VerifyPresentationTestAlertDisplayedProperty(contractsAlert.AlertProperties, "Uri1", "First link", 14);
+            VerifyPresentationTestAlertDisplayedProperty(contractsAlert.AlertProperties, "AdditionalData[0].Name1", "First name title", 7);
+            VerifyPresentationTestAlertDisplayedProperty(contractsAlert.AlertProperties, "AdditionalData[0].Uri1", "First link", 8);
+            VerifyPresentationTestAlertDisplayedProperty(contractsAlert.AlertProperties, "AdditionalData[1].Name2", "Second name title", 9);
+            VerifyPresentationTestAlertDisplayedProperty(contractsAlert.AlertProperties, "AdditionalData[1].Uri2", "Second link", 10);
+            VerifyPresentationTestAlertDisplayedProperty(contractsAlert.AlertProperties, "AdditionalData[1].MoreData[0].Name1", "First name title", 11);
+            VerifyPresentationTestAlertDisplayedProperty(contractsAlert.AlertProperties, "AdditionalData[1].MoreData[0].Uri1", "First link", 12);
+            VerifyPresentationTestAlertDisplayedProperty(contractsAlert.AlertProperties, "AdditionalData[1].MoreData[1].Name1", "First name title", 13);
+            VerifyPresentationTestAlertDisplayedProperty(contractsAlert.AlertProperties, "AdditionalData[1].MoreData[1].Uri1", "First link", 14);
             VerifyPresentationTestAlertDisplayedProperty(contractsAlert.AlertProperties, "DataPoints", "ChartDisplayName", 15);
         }
 
@@ -201,19 +201,19 @@ namespace SmartDetectorsAnalysisTests
 
                 Assert.AreEqual(0, alertProperty.Columns.Count);
             }
-            else if (propertyName == "Name1")
+            else if (propertyName.EndsWith(".Name1", StringComparison.InvariantCulture))
             {
                 Assert.AreEqual("First name", ((TextAlertProperty)property).Value);
             }
-            else if (propertyName == "Name2")
+            else if (propertyName.EndsWith(".Name2", StringComparison.InvariantCulture))
             {
                 Assert.AreEqual("Second name", ((TextAlertProperty)property).Value);
             }
-            else if (propertyName == "Uri1")
+            else if (propertyName.EndsWith(".Uri1", StringComparison.InvariantCulture))
             {
                 Assert.AreEqual("<a href=\"https://xkcd.com/\" target=\"_blank\">Link to data 1</a>", ((TextAlertProperty)property).Value);
             }
-            else if (propertyName == "Uri2")
+            else if (propertyName.EndsWith(".Uri2", StringComparison.InvariantCulture))
             {
                 Assert.AreEqual("<a href=\"https://darwinawards.com/\" target=\"_blank\">Link to data 2</a>", ((TextAlertProperty)property).Value);
             }
