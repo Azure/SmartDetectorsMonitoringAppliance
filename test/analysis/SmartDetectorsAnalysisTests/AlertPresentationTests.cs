@@ -54,14 +54,14 @@ namespace SmartDetectorsAnalysisTests
             VerifyPresentationTestAlertDisplayedProperty(contractsAlert.AlertProperties, "KeyValueWithHeaders", "KeyValueWithHeadersDisplayName", 4);
             VerifyPresentationTestAlertDisplayedProperty(contractsAlert.AlertProperties, "Table", "TableDisplayName", 5);
             VerifyPresentationTestAlertDisplayedProperty(contractsAlert.AlertProperties, "SingleColumnTable", "SingleColumnTableDisplayName", 6);
-            VerifyPresentationTestAlertDisplayedProperty(contractsAlert.AlertProperties, "Name1", "Name1", 7);
-            VerifyPresentationTestAlertDisplayedProperty(contractsAlert.AlertProperties, "Uri1", "Link1", 8);
-            VerifyPresentationTestAlertDisplayedProperty(contractsAlert.AlertProperties, "Name2", "Name2", 9);
-            VerifyPresentationTestAlertDisplayedProperty(contractsAlert.AlertProperties, "Uri2", "Link2", 10);
-            VerifyPresentationTestAlertDisplayedProperty(contractsAlert.AlertProperties, "Name1", "Name1", 11);
-            VerifyPresentationTestAlertDisplayedProperty(contractsAlert.AlertProperties, "Uri1", "Link1", 12);
-            VerifyPresentationTestAlertDisplayedProperty(contractsAlert.AlertProperties, "Name1", "Name1", 13);
-            VerifyPresentationTestAlertDisplayedProperty(contractsAlert.AlertProperties, "Uri1", "Link1", 14);
+            VerifyPresentationTestAlertDisplayedProperty(contractsAlert.AlertProperties, "Name1", "First name title", 7);
+            VerifyPresentationTestAlertDisplayedProperty(contractsAlert.AlertProperties, "Uri1", "First link", 8);
+            VerifyPresentationTestAlertDisplayedProperty(contractsAlert.AlertProperties, "Name2", "Second name title", 9);
+            VerifyPresentationTestAlertDisplayedProperty(contractsAlert.AlertProperties, "Uri2", "Second link", 10);
+            VerifyPresentationTestAlertDisplayedProperty(contractsAlert.AlertProperties, "Name1", "First name title", 11);
+            VerifyPresentationTestAlertDisplayedProperty(contractsAlert.AlertProperties, "Uri1", "First link", 12);
+            VerifyPresentationTestAlertDisplayedProperty(contractsAlert.AlertProperties, "Name1", "First name title", 13);
+            VerifyPresentationTestAlertDisplayedProperty(contractsAlert.AlertProperties, "Uri1", "First link", 14);
             VerifyPresentationTestAlertDisplayedProperty(contractsAlert.AlertProperties, "DataPoints", "ChartDisplayName", 15);
         }
 
@@ -203,11 +203,11 @@ namespace SmartDetectorsAnalysisTests
             }
             else if (propertyName == "Name1")
             {
-                Assert.AreEqual("Name1", ((TextAlertProperty)property).Value);
+                Assert.AreEqual("First name", ((TextAlertProperty)property).Value);
             }
             else if (propertyName == "Name2")
             {
-                Assert.AreEqual("Name2", ((TextAlertProperty)property).Value);
+                Assert.AreEqual("Second name", ((TextAlertProperty)property).Value);
             }
             else if (propertyName == "Uri1")
             {
@@ -309,22 +309,22 @@ namespace SmartDetectorsAnalysisTests
         [SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic", Justification = "Test code, approved")]
         public class ListData1
         {
-            [TextProperty("Name1", Order = 1)]
-            public string Name1 => "Name1";
+            [TextProperty("First name title", Order = 1)]
+            public string Name1 => "First name";
 
             [UrlFormatter("Link to data 1")]
-            [TextProperty("Link1", Order = 2)]
+            [TextProperty("First link", Order = 2)]
             public Uri Uri1 => new Uri("https://xkcd.com/");
         }
 
         [SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic", Justification = "Test code, approved")]
         public class ListData2
         {
-            [TextProperty("Name2", Order = 1)]
-            public string Name2 => "Name2";
+            [TextProperty("Second name title", Order = 1)]
+            public string Name2 => "Second name";
 
             [UrlFormatter("Link to data 2")]
-            [TextProperty("Link2", Order = 2)]
+            [TextProperty("Second link", Order = 2)]
             public Uri Uri2 => new Uri("https://darwinawards.com/");
 
             [ListProperty(Order = 3)]
@@ -333,6 +333,9 @@ namespace SmartDetectorsAnalysisTests
                 new ListData1(),
                 new ListData1()
             };
+
+            [ListProperty(Order = 4)]
+            public IList<ListData1> EmptyList => new List<ListData1>();
         }
     }
 }

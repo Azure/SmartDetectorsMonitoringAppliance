@@ -204,7 +204,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
                         throw new ArgumentException("A ListPropertyAttribute can only be applied to properties of type IList");
                     }
 
-                    foreach (AlertProperty p in ProcessListOfObjectsWithAlertProperties(list, order))
+                    foreach (AlertProperty p in CreateAlertPropertiesFromList(list, order))
                     {
                         yield return p;
                     }
@@ -259,6 +259,12 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
             if (!(propertyValue is IList tablePropertyValue))
             {
                 throw new ArgumentException("An AlertPresentationTableAttribute can only be applied to properties of type IList");
+            }
+
+            // Validate the table is not empty (shouldn't happen, empty tables are ignored by ExtractProperties)
+            if (tablePropertyValue.Count == 0)
+            {
+                throw new ArgumentException("Unexpected empty list encountered");
             }
 
             // Get element type, and verify that all elements are of the same type
@@ -342,7 +348,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
         /// <param name="list">The list of objects, from which to extract the properties</param>
         /// <param name="order">The order to use</param>
         /// <returns>The newly created properties.</returns>
-        private static List<AlertProperty> ProcessListOfObjectsWithAlertProperties(IList list, Order order)
+        private static List<AlertProperty> CreateAlertPropertiesFromList(IList list, Order order)
         {
             List<AlertProperty> alertProperties = new List<AlertProperty>();
             foreach (object obj in list)
