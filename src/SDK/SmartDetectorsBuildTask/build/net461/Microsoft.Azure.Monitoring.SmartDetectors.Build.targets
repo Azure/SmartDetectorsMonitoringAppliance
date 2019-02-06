@@ -2,8 +2,9 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <RunPostBuildEvent>Always</RunPostBuildEvent>
-    <SmartDetectorsTaskPackagePath Condition="Exists('$(OutDir)')">$(OutDir)</SmartDetectorsTaskPackagePath>
-    <SmartDetectorsTaskPackagePath Condition="!Exists('$(OutDir)')">$(ProjectDir)$(OutDir)</SmartDetectorsTaskPackagePath>
+    <IsOutDirAbsolutePath>$([System.IO.Path]::IsPathRooted('$(OutDir)'))</IsOutDirAbsolutePath>
+    <SmartDetectorsTaskPackagePath Condition=" '$(IsOutDirAbsolutePath)'=='True' ">$(OutDir)</SmartDetectorsTaskPackagePath>
+    <SmartDetectorsTaskPackagePath Condition=" '$(IsOutDirAbsolutePath)'=='False' ">$(ProjectDir)$(OutDir)</SmartDetectorsTaskPackagePath>
     <SmartDetectorsTaskPackageName>$(ProjectName).package</SmartDetectorsTaskPackageName>
   </PropertyGroup>
   <UsingTask TaskName="Microsoft.Azure.Monitoring.SmartDetectors.Build.PackageSmartDetector" AssemblyFile="$(_SmartDetectorsTaskAssemblyFullPath)"/>
