@@ -50,17 +50,26 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
 
                 string searchText = textBox.Text;
 
-                if (targetComboBox.Tag.ToString() == SelectionState)
+                // Store the current tag and set new tag
+                string oldTag = targetComboBox.Tag.ToString();
+                targetComboBox.Tag = $"{TextInputState}_{searchText}";
+
+                if (oldTag == SelectionState)
                 {
                     // An item was just selected - show all items
-                    targetComboBox.Tag = TextInputState;
                     targetComboBox.Items.Filter = item => true;
                 }
                 else
                 {
+                    // If the text didn't actually changed, do nothing
+                    if (targetComboBox.Tag.ToString() == oldTag)
+                    {
+                        return;
+                    }
+
+                    // Clear the selected item
                     if (targetComboBox.SelectionBoxItem != null)
                     {
-                        // Clear the selected item
                         targetComboBox.SelectedItem = null;
                     }
 
@@ -68,7 +77,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
                     {
                         // Empty string - show all items
                         targetComboBox.Items.Filter = item => true;
-                        targetComboBox.SelectedItem = default(object);
+                        targetComboBox.SelectedItem = null;
                     }
                     else
                     {
