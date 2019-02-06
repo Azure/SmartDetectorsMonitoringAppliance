@@ -181,7 +181,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
             string propertyName = string.IsNullOrWhiteSpace(presentationAttribute.PropertyName) ? property.Name : presentationAttribute.PropertyName;
             if (!string.IsNullOrWhiteSpace(parentPropertyName))
             {
-                propertyName = $"{parentPropertyName}.{propertyName}";
+                propertyName = $"{parentPropertyName}_{propertyName}";
             }
 
             // Return the presentation property according to the property type
@@ -367,7 +367,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
             List<AlertProperty> alertProperties = new List<AlertProperty>();
             for (int i = 0; i < list.Count; i++)
             {
-                List<AlertProperty> objectProperties = ExtractProperties(list[i], order, $"{listPropertyName}[{i}]");
+                List<AlertProperty> objectProperties = ExtractProperties(list[i], order, $"{listPropertyName}_{i}");
                 alertProperties.AddRange(objectProperties);
             }
 
