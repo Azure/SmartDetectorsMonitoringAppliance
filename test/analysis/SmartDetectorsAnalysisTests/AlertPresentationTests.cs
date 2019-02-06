@@ -165,23 +165,27 @@ namespace SmartDetectorsAnalysisTests
                 Assert.AreEqual(true, alertProperty.ShowHeaders);
 
                 Assert.AreEqual(2, alertProperty.Values.Count);
-                Assert.AreEqual(3, alertProperty.Values[0].Count);
+                Assert.AreEqual(4, alertProperty.Values[0].Count);
                 Assert.AreEqual("p11", alertProperty.Values[0]["Prop1"]);
                 Assert.AreEqual("p21", alertProperty.Values[0]["Prop2"]);
+                Assert.AreEqual("p31", alertProperty.Values[0]["Prop3"]);
                 Assert.AreEqual("<a href=\"http://microsoft.com/\" target=\"_blank\">Link for NDP1</a>", alertProperty.Values[0]["UriProp"]);
 
-                Assert.AreEqual(3, alertProperty.Values[1].Count);
+                Assert.AreEqual(4, alertProperty.Values[1].Count);
                 Assert.AreEqual("p12", alertProperty.Values[1]["Prop1"]);
                 Assert.AreEqual("p22", alertProperty.Values[1]["Prop2"]);
+                Assert.AreEqual("p32", alertProperty.Values[1]["Prop3"]);
                 Assert.AreEqual("<a href=\"http://contoso.com/\" target=\"_blank\">Link for NDP2</a>", alertProperty.Values[1]["UriProp"]);
 
-                Assert.AreEqual(3, alertProperty.Columns.Count);
+                Assert.AreEqual(4, alertProperty.Columns.Count);
                 Assert.AreEqual("Prop1", alertProperty.Columns[0].PropertyName);
                 Assert.AreEqual("First Prop", alertProperty.Columns[0].DisplayName);
                 Assert.AreEqual("Prop2", alertProperty.Columns[1].PropertyName);
                 Assert.AreEqual("Second Prop", alertProperty.Columns[1].DisplayName);
                 Assert.AreEqual("UriProp", alertProperty.Columns[2].PropertyName);
                 Assert.AreEqual("Uri Prop", alertProperty.Columns[2].DisplayName);
+                Assert.AreEqual("Prop3", alertProperty.Columns[3].PropertyName);
+                Assert.AreEqual("Third Prop, without order", alertProperty.Columns[3].DisplayName);
             }
             else if (propertyName == "SingleColumnTable")
             {
@@ -253,8 +257,8 @@ namespace SmartDetectorsAnalysisTests
             [SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays", Justification = "Test code, allowed")]
             public TableData[] Table => new TableData[]
             {
-                new TableData { Prop1 = "p11", Prop2 = "p21", UriProp = new Uri("http://microsoft.com"), NonDisplayProp = "NDP1" },
-                new TableData { Prop1 = "p12", Prop2 = "p22", UriProp = new Uri("http://contoso.com"), NonDisplayProp = "NDP2" },
+                new TableData { Prop1 = "p11", Prop2 = "p21", Prop3 = "p31", UriProp = new Uri("http://microsoft.com"), NonDisplayProp = "NDP1" },
+                new TableData { Prop1 = "p12", Prop2 = "p22", Prop3 = "p32", UriProp = new Uri("http://contoso.com"), NonDisplayProp = "NDP2" },
             };
 
             [SingleColumnTableProperty("SingleColumnTableDisplayName", Order = 6, ShowHeaders = false)]
@@ -263,11 +267,15 @@ namespace SmartDetectorsAnalysisTests
 
         public class TableData
         {
+            [JsonProperty("prop3")]
+            [TableColumn("Third Prop, without order")]
+            public string Prop3 { get; set; }
+
             [TableColumn("Second Prop", Order = 2)]
             public string Prop2 { get; set; }
 
             [UrlFormatter("Link for {NonDisplayProp}")]
-            [TableColumn("Uri Prop")]
+            [TableColumn("Uri Prop", Order = 3)]
             public Uri UriProp { get; set; }
 
             // The properties are sorted like this to ensure that
