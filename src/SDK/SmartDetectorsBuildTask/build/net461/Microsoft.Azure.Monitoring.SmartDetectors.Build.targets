@@ -2,12 +2,15 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <RunPostBuildEvent>Always</RunPostBuildEvent>
+    <SmartDetectorsTaskPackagePath Condition="Exists('$(OutDir)')">$(OutDir)</SmartDetectorsTaskPackagePath>
+    <SmartDetectorsTaskPackagePath Condition="!Exists('$(OutDir)')">$(ProjectDir)$(OutDir)</SmartDetectorsTaskPackagePath>
+    <SmartDetectorsTaskPackageName>$(ProjectName).package</SmartDetectorsTaskPackageName>
   </PropertyGroup>
   <UsingTask TaskName="Microsoft.Azure.Monitoring.SmartDetectors.Build.PackageSmartDetector" AssemblyFile="$(_SmartDetectorsTaskAssemblyFullPath)"/>
   <Target Name="PackageSmartDetectorAfterBuild" AfterTargets="AfterBuild" Condition="$(BuildingInsideVisualStudio)!=''">
-    <PackageSmartDetector PackagePath="$(ProjectDir)$(OutDir)" PackageName="$(ProjectName).package"/>
+    <PackageSmartDetector PackagePath="$(SmartDetectorsTaskPackagePath)" PackageName="$(SmartDetectorsTaskPackageName)"/>
   </Target>
   <Target Name="RemovePackage" BeforeTargets="Clean">
-    <Delete Files="$(ProjectDir)$(OutDir)$(ProjectName).package" />
+    <Delete Files="$(SmartDetectorsTaskPackagePath)$(SmartDetectorsTaskPackageName)" />
   </Target>
 </Project>
