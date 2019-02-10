@@ -40,7 +40,7 @@ namespace SmartDetectorsAnalysisTests
             Assert.AreEqual("AlertTitle", contractsAlert.Title, "Unexpected title");
             Assert.AreEqual(default(ResourceIdentifier).ToResourceId(), contractsAlert.ResourceId, "Unexpected ResourceId");
             Assert.AreEqual(SignalType.Log, contractsAlert.SignalType, "Unexpected signal type");
-            Assert.AreEqual(10, contractsAlert.AlertProperties.Count, "Unexpected number of properties");
+            Assert.AreEqual(18, contractsAlert.AlertProperties.Count, "Unexpected number of properties");
 
             // Verify raw alert properties
             VerifyPresentationTestAlertRawProperty(contractsAlert.AlertProperties, "Predicate");
@@ -54,7 +54,15 @@ namespace SmartDetectorsAnalysisTests
             VerifyPresentationTestAlertDisplayedProperty(contractsAlert.AlertProperties, "KeyValueWithHeaders", "KeyValueWithHeadersDisplayName", 4);
             VerifyPresentationTestAlertDisplayedProperty(contractsAlert.AlertProperties, "Table", "TableDisplayName", 5);
             VerifyPresentationTestAlertDisplayedProperty(contractsAlert.AlertProperties, "SingleColumnTable", "SingleColumnTableDisplayName", 6);
-            VerifyPresentationTestAlertDisplayedProperty(contractsAlert.AlertProperties, "DataPoints", "ChartDisplayName", byte.MaxValue);
+            VerifyPresentationTestAlertDisplayedProperty(contractsAlert.AlertProperties, "AdditionalData_0_Name1", "First name title", 7);
+            VerifyPresentationTestAlertDisplayedProperty(contractsAlert.AlertProperties, "AdditionalData_0_Uri1", "First link", 8);
+            VerifyPresentationTestAlertDisplayedProperty(contractsAlert.AlertProperties, "AdditionalData_1_Name2", "Second name title", 9);
+            VerifyPresentationTestAlertDisplayedProperty(contractsAlert.AlertProperties, "AdditionalData_1_Uri2", "Second link", 10);
+            VerifyPresentationTestAlertDisplayedProperty(contractsAlert.AlertProperties, "AdditionalData_1_MoreData_0_Name1", "First name title", 11);
+            VerifyPresentationTestAlertDisplayedProperty(contractsAlert.AlertProperties, "AdditionalData_1_MoreData_0_Uri1", "First link", 12);
+            VerifyPresentationTestAlertDisplayedProperty(contractsAlert.AlertProperties, "AdditionalData_1_MoreData_1_Name1", "First name title", 13);
+            VerifyPresentationTestAlertDisplayedProperty(contractsAlert.AlertProperties, "AdditionalData_1_MoreData_1_Uri1", "First link", 14);
+            VerifyPresentationTestAlertDisplayedProperty(contractsAlert.AlertProperties, "DataPoints", "ChartDisplayName", 15);
         }
 
         [TestMethod]
@@ -114,12 +122,10 @@ namespace SmartDetectorsAnalysisTests
 
         private static void VerifyPresentationTestAlertDisplayedProperty(List<AlertProperty> properties, string propertyName, string displayName, byte order)
         {
-            var property = properties.SingleOrDefault(p => p.PropertyName == propertyName);
+            var property = properties.OfType<DisplayableAlertProperty>().SingleOrDefault(p => p.PropertyName == propertyName && p.Order == order);
             Assert.IsNotNull(property, $"Property {propertyName} not found");
 
-            Assert.IsInstanceOfType(property, typeof(DisplayableAlertProperty));
-            Assert.AreEqual(order, ((DisplayableAlertProperty)property).Order);
-            Assert.AreEqual(displayName, ((DisplayableAlertProperty)property).DisplayName);
+            Assert.AreEqual(displayName, property.DisplayName);
 
             if (propertyName == "LongTextPropertyName")
             {
@@ -195,6 +201,22 @@ namespace SmartDetectorsAnalysisTests
 
                 Assert.AreEqual(0, alertProperty.Columns.Count);
             }
+            else if (propertyName.EndsWith("_Name1", StringComparison.InvariantCulture))
+            {
+                Assert.AreEqual("First name", ((TextAlertProperty)property).Value);
+            }
+            else if (propertyName.EndsWith("_Name2", StringComparison.InvariantCulture))
+            {
+                Assert.AreEqual("Second name", ((TextAlertProperty)property).Value);
+            }
+            else if (propertyName.EndsWith("_Uri1", StringComparison.InvariantCulture))
+            {
+                Assert.AreEqual("<a href=\"https://xkcd.com/\" target=\"_blank\">Link to data 1</a>", ((TextAlertProperty)property).Value);
+            }
+            else if (propertyName.EndsWith("_Uri2", StringComparison.InvariantCulture))
+            {
+                Assert.AreEqual("<a href=\"https://darwinawards.com/\" target=\"_blank\">Link to data 2</a>", ((TextAlertProperty)property).Value);
+            }
             else
             {
                 Assert.Fail($"Unknown property '{propertyName}'");
@@ -251,7 +273,7 @@ namespace SmartDetectorsAnalysisTests
 
             [MultiColumnTableProperty("TableDisplayName", Order = 5, ShowHeaders = true)]
             [SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays", Justification = "Test code, allowed")]
-            public TableData[] Table => new TableData[]
+            public TableData[] Table => new[]
             {
                 new TableData { Prop1 = "p11", Prop2 = "p21", UriProp = new Uri("http://microsoft.com"), NonDisplayProp = "NDP1" },
                 new TableData { Prop1 = "p12", Prop2 = "p22", UriProp = new Uri("http://contoso.com"), NonDisplayProp = "NDP2" },
@@ -259,6 +281,13 @@ namespace SmartDetectorsAnalysisTests
 
             [SingleColumnTableProperty("SingleColumnTableDisplayName", Order = 6, ShowHeaders = false)]
             public List<string> SingleColumnTable => new List<string> { "value1", "value2", "value3" };
+
+            [ListProperty(Order = 7)]
+            public IList<object> AdditionalData => new List<object>()
+            {
+                new ListData1(),
+                new ListData2()
+            };
         }
 
         public class TableData
@@ -275,6 +304,38 @@ namespace SmartDetectorsAnalysisTests
             public Uri UriProp { get; set; }
 
             public string NonDisplayProp { get; set; }
+        }
+
+        [SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic", Justification = "Test code, approved")]
+        public class ListData1
+        {
+            [TextProperty("First name title", Order = 1)]
+            public string Name1 => "First name";
+
+            [UrlFormatter("Link to data 1")]
+            [TextProperty("First link", Order = 2)]
+            public Uri Uri1 => new Uri("https://xkcd.com/");
+        }
+
+        [SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic", Justification = "Test code, approved")]
+        public class ListData2
+        {
+            [TextProperty("Second name title", Order = 1)]
+            public string Name2 => "Second name";
+
+            [UrlFormatter("Link to data 2")]
+            [TextProperty("Second link", Order = 2)]
+            public Uri Uri2 => new Uri("https://darwinawards.com/");
+
+            [ListProperty(Order = 3)]
+            public IList<ListData1> MoreData => new List<ListData1>()
+            {
+                new ListData1(),
+                new ListData1()
+            };
+
+            [ListProperty(Order = 4)]
+            public IList<ListData1> EmptyList => new List<ListData1>();
         }
     }
 }
