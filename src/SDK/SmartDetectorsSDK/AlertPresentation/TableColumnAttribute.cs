@@ -32,5 +32,10 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.AlertPresentation
         /// Gets the display name of the column
         /// </summary>
         public string DisplayName { get; }
+
+        /// <summary>
+        /// Gets or sets the order of the column in the table
+        /// </summary>
+        public byte Order { get; set; } = byte.MaxValue;
     }
 }

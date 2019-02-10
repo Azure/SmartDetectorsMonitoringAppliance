@@ -35,6 +35,8 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors
                     [ResourceType.ServiceBus] = "Microsoft.ServiceBus/namespaces",
                     [ResourceType.SqlServer] = "Microsoft.Sql/servers",
                     [ResourceType.EventHub] = "Microsoft.EventHub/namespaces",
+                    [ResourceType.WebSite] = "Microsoft.Web/sites",
+                    [ResourceType.LogicApps] = "Microsoft.Logic/workflows",
                 });
 
         private const string SubscriptionRegexPattern = "/subscriptions/(?<subscriptionId>[^/]*)";
@@ -301,6 +303,15 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors
             pattern = pattern.Replace("(?<resourceName>[^/]*)", this.ResourceName);
 
             return pattern;
+        }
+
+        /// <summary>
+        /// Returns the resource ID that represents the resource identified by this <see cref="ResourceIdentifier"/> structure
+        /// </summary>
+        /// <returns>The resource ID.</returns>
+        public override string ToString()
+        {
+            return this.ToResourceId();
         }
 
         #endregion

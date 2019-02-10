@@ -74,5 +74,15 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors
         /// The Azure Event Hub resource type
         /// </summary>
         EventHub,
+
+        /// <summary>
+        /// The Azure Web Site resource type
+        /// </summary>
+        WebSite,
+
+        /// <summary>
+        /// The Logic Apps resource type
+        /// </summary>
+        LogicApps,
     }
 }

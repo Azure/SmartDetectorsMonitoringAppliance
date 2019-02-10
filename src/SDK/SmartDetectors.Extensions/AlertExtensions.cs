@@ -324,7 +324,6 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
             TablePropertyAttribute tableAttribute,
             Order order)
         {
-            var columns = new List<TableColumn>();
             var rows = new List<Dictionary<string, string>>(tableRows.Count);
 
             // Initialize the table rows with new dictionaries
@@ -334,6 +333,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
             }
 
             // We scan the table by columns to we'll handle a single property at a time
+            var columnsWithOrder = new List<Tuple<TableColumn, byte>>();
             foreach (PropertyInfo columnProperty in tableRowType.GetProperties())
             {
                 // Handle only table column properties
@@ -348,9 +348,13 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
                             columnProperty.GetValue(tableRows[i]));
                     }
 
-                    columns.Add(new TableColumn(columnProperty.Name, tableColumnAttribute.DisplayName));
+                    // Store the column and its order
+                    columnsWithOrder.Add(Tuple.Create(new TableColumn(columnProperty.Name, tableColumnAttribute.DisplayName), tableColumnAttribute.Order));
                 }
             }
+
+            // Get the columns in order
+            List<TableColumn> columns = columnsWithOrder.OrderBy(t => t.Item2).Select(t => t.Item1).ToList();
 
             return new TableAlertProperty<Dictionary<string, string>>(tablePropertyName, tableDisplayName, order.Next(), tableAttribute.ShowHeaders, columns, rows);
         }
