@@ -18,6 +18,7 @@ namespace SmartDetectorsExtensionsTests
     using Microsoft.Azure.Monitoring.SmartDetectors.Extensions;
     using Microsoft.Azure.Monitoring.SmartDetectors.Extensions.Clients;
     using Microsoft.Azure.Monitoring.SmartDetectors.Metric;
+    using Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.Models;
     using Microsoft.Rest.Azure;
     using Microsoft.Rest.Azure.OData;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -148,6 +149,34 @@ namespace SmartDetectorsExtensionsTests
             {
                 Assert.IsTrue(MetricClient.MapAzureServiceTypeToPresentationInUri.Keys.Contains(serviceType), $"Service {serviceType} is missing in service mapping dictionary");
             }
+        }
+
+        [Ignore]
+        [TestMethod]
+        public async Task WhenSendingMetricQueryThenTheResultsAreAsExpected()
+        {
+            // Authenticate (set real values in resourceIdentifier to run this test).
+            var authenticationServices = new AuthenticationServices();
+            authenticationServices.AuthenticateUser();
+            ICredentialsFactory credentialsFactory = new ActiveDirectoryCredentialsFactory(authenticationServices);
+
+            var resourceId = $"/subscriptions/{this.resourceIdentifier.SubscriptionId}/resourceGroups/{this.resourceIdentifier.ResourceGroupName}/providers/Microsoft.Storage/storageAccounts/{this.resourceIdentifier.ResourceName}/queueServices/default";
+            MetricClient client = new MetricClient(this.tracerMock.Object, credentialsFactory, this.resourceIdentifier.SubscriptionId);
+
+            var parameters = new QueryParameters()
+            {
+                StartTime = DateTime.UtcNow.Date.AddDays(-1),
+                EndTime = DateTime.UtcNow.Date,
+                Aggregations = new List<Aggregation> { Aggregation.Total },
+                MetricNames = new List<string>() { "QueueMessageCount" },
+                Interval = TimeSpan.FromMinutes(60)
+            };
+
+            var metrics1 = (await client.GetResourceMetricsAsync(resourceId, parameters)).ToList();
+            var metrics2 = (await client.GetResourceMetricsAsync(this.resourceIdentifier, ServiceType.AzureStorageQueue, parameters)).ToList();
+            Assert.IsTrue(metrics1.Any() && metrics2.Any(), "Lists are not full with data");
+            Assert.IsTrue(metrics1.First().Timeseries.Any() && metrics2.First().Timeseries.Any(), "Metrics do not contain Time series");
+            Assert.IsTrue(metrics1[0].Timeseries[0].Data.Any() && metrics2[0].Timeseries[0].Data.Any(), "Time series are not full with data");
         }
 
         /// <summary>

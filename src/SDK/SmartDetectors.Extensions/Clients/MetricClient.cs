@@ -146,7 +146,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions.Clients
                     metricnames: queryParameters.MetricNames == null ? string.Empty : string.Join(",", queryParameters.MetricNames),
                     aggregation: queryParameters.Aggregations != null ? string.Join(",", queryParameters.Aggregations) : null,
                     top: queryParameters.Top,
-                    @orderby: queryParameters.Orderby,
+                    orderby: queryParameters.Orderby,
                     odataQuery: queryParameters.Filter,
                     resultType: null,
                     cancellationToken: cancellationToken));
