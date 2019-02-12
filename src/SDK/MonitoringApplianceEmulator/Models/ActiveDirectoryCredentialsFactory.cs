@@ -6,7 +6,7 @@
 
 namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.Models
 {
-    using Microsoft.Azure.Monitoring.SmartDetectors.Clients;
+    using Microsoft.Azure.Monitoring.SmartDetectors.Extensions.Clients;
     using Microsoft.Rest;
 
     /// <summary>

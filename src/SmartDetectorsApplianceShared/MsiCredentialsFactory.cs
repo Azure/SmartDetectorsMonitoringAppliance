@@ -7,7 +7,8 @@
 namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance
 {
     using Microsoft.Azure.Monitoring.SmartDetectors.Clients;
-    using Microsoft.Azure.Monitoring.SmartDetectors.Trace;
+    using Microsoft.Azure.Monitoring.SmartDetectors.Extensions;
+    using Microsoft.Azure.Monitoring.SmartDetectors.Extensions.Clients;
     using Microsoft.Rest;
 
     /// <summary>

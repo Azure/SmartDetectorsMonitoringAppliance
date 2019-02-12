@@ -15,11 +15,11 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.Function
     using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
+    using Microsoft.Azure.Monitoring.SmartDetectors.Extensions;
     using Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.Analysis;
     using Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.Extensions;
     using Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.Security;
     using Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts;
-    using Microsoft.Azure.Monitoring.SmartDetectors.Trace;
     using Microsoft.Azure.WebJobs;
     using Microsoft.Azure.WebJobs.Extensions.Http;
     using Microsoft.Azure.WebJobs.Host;

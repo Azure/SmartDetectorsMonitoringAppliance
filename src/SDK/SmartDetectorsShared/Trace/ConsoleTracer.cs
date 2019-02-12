@@ -8,6 +8,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Trace
 {
     using System;
     using System.Collections.Generic;
+    using Microsoft.Azure.Monitoring.SmartDetectors.Extensions;
 
     /// <summary>
     /// Implementation of the <see cref="IExtendedTracer"/> interface that traces to the console.

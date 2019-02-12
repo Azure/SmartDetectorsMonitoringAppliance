@@ -11,7 +11,6 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
     using System.Net;
     using System.Net.Http;
     using System.Threading.Tasks;
-    using Microsoft.Azure.Monitoring.SmartDetectors.Trace;
     using Polly;
 
     /// <summary>

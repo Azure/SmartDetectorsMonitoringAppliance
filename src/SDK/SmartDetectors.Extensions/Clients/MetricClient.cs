@@ -4,7 +4,7 @@
 // </copyright>
 //-----------------------------------------------------------------------
 
-namespace Microsoft.Azure.Monitoring.SmartDetectors.Clients
+namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions.Clients
 {
     using System;
     using System.Collections.Generic;
@@ -15,10 +15,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Clients
     using System.Threading.Tasks;
     using Microsoft.Azure.Management.Monitor.Fluent;
     using Microsoft.Azure.Management.Monitor.Fluent.Models;
-    using Microsoft.Azure.Monitoring.SmartDetectors.Extensions;
     using Microsoft.Azure.Monitoring.SmartDetectors.Metric;
-    using Microsoft.Azure.Monitoring.SmartDetectors.Tools;
-    using Microsoft.Azure.Monitoring.SmartDetectors.Trace;
     using Polly;
     using MetricDefinition = Microsoft.Azure.Monitoring.SmartDetectors.Metric.MetricDefinition;
 
@@ -58,11 +55,24 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Clients
         /// <param name="monitorManagementClient">Monitor management client to use to fetch metric data</param>
         public MetricClient(IExtendedTracer tracer, string subscriptionId, IMonitorManagementClient monitorManagementClient)
         {
-            this.tracer = Diagnostics.EnsureArgumentNotNull(() => tracer);
+            if (tracer == null)
+            {
+                throw new ArgumentNullException(nameof(tracer));
+            }
 
+            if (subscriptionId == null)
+            {
+                throw new ArgumentNullException(nameof(subscriptionId));
+            }
+
+            if (monitorManagementClient == null)
+            {
+                throw new ArgumentNullException(nameof(monitorManagementClient));
+            }
+
+            this.tracer = tracer;
             this.monitorManagementClient = monitorManagementClient;
             this.monitorManagementClient.SubscriptionId = subscriptionId;
-            this.tracer = tracer;
             this.retryPolicy = PolicyExtensions.CreateDefaultPolicy(this.tracer, DependencyName);
         }
 
@@ -136,7 +146,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Clients
                     metricnames: queryParameters.MetricNames == null ? string.Empty : string.Join(",", queryParameters.MetricNames),
                     aggregation: queryParameters.Aggregations != null ? string.Join(",", queryParameters.Aggregations) : null,
                     top: queryParameters.Top,
-                    orderby: queryParameters.Orderby,
+                    @orderby: queryParameters.Orderby,
                     odataQuery: queryParameters.Filter,
                     resultType: null,
                     cancellationToken: cancellationToken));

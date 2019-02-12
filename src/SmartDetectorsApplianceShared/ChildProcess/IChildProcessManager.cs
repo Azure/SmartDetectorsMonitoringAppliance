@@ -10,8 +10,8 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.ChildPro
     using System.Collections.Generic;
     using System.Threading;
     using System.Threading.Tasks;
+    using Microsoft.Azure.Monitoring.SmartDetectors.Extensions;
     using Microsoft.Azure.Monitoring.SmartDetectors.Loader;
-    using Microsoft.Azure.Monitoring.SmartDetectors.Trace;
 
     /// <summary>
     /// An interface of a class that manages running a task in a separate process

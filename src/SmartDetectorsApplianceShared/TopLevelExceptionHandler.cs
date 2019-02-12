@@ -8,7 +8,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance
 {
     using System;
     using System.Linq;
-    using Microsoft.Azure.Monitoring.SmartDetectors.Trace;
+    using Microsoft.Azure.Monitoring.SmartDetectors.Extensions;
     using Microsoft.Azure.WebJobs.Host;
 
     /// <summary>
