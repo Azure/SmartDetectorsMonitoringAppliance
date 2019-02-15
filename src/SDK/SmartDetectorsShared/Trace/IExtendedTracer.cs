@@ -4,7 +4,7 @@
 // </copyright>
 //-----------------------------------------------------------------------
 
-namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
+namespace Microsoft.Azure.Monitoring.SmartDetectors.Trace
 {
     using System;
     using System.Collections.Generic;

@@ -7,7 +7,7 @@
 namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.Extensions
 {
     using System;
-    using Microsoft.Azure.Monitoring.SmartDetectors.Extensions;
+    using Microsoft.Azure.Monitoring.SmartDetectors.Trace;
     using Newtonsoft.Json;
     using Newtonsoft.Json.Linq;
 

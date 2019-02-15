@@ -6,10 +6,10 @@
 
 namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.State
 {
-    using Microsoft.Azure.Monitoring.SmartDetectors.Extensions;
     using Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.AzureStorage;
     using Microsoft.Azure.Monitoring.SmartDetectors.State;
     using Microsoft.Azure.Monitoring.SmartDetectors.Tools;
+    using Microsoft.Azure.Monitoring.SmartDetectors.Trace;
 
     /// <summary>
     /// Represents a factory for creating blob state repository for a Smart Detector.

@@ -12,9 +12,8 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Clients
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.Azure.Monitoring.SmartDetectors;
-    using Microsoft.Azure.Monitoring.SmartDetectors.Extensions;
-    using Microsoft.Azure.Monitoring.SmartDetectors.Extensions.Clients;
     using Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts;
+    using Microsoft.Azure.Monitoring.SmartDetectors.Trace;
 
     /// <summary>
     /// An implementation of <see cref="ITelemetryDataClient"/> to access Application Insights resources.

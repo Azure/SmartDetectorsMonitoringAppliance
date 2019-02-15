@@ -10,9 +10,9 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Loader
     using System.Collections.Generic;
     using System.IO;
     using System.Reflection;
-    using Microsoft.Azure.Monitoring.SmartDetectors.Extensions;
     using Microsoft.Azure.Monitoring.SmartDetectors.Package;
     using Microsoft.Azure.Monitoring.SmartDetectors.Tools;
+    using Microsoft.Azure.Monitoring.SmartDetectors.Trace;
 
     /// <summary>
     /// Implementation of the <see cref="ISmartDetectorLoader"/> interface. This class is

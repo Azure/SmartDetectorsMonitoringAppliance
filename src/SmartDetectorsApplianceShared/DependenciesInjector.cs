@@ -12,6 +12,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance
     using Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.AzureStorage;
     using Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.ChildProcess;
     using Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.Trace;
+    using Microsoft.Azure.Monitoring.SmartDetectors.Trace;
     using Microsoft.Azure.WebJobs.Host;
     using Unity;
 

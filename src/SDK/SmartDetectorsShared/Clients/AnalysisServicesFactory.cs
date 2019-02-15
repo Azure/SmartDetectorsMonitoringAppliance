@@ -16,9 +16,8 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Clients
     using Microsoft.Azure.Monitoring.SmartDetectors;
     using Microsoft.Azure.Monitoring.SmartDetectors.ActivityLog;
     using Microsoft.Azure.Monitoring.SmartDetectors.Arm;
-    using Microsoft.Azure.Monitoring.SmartDetectors.Extensions;
-    using Microsoft.Azure.Monitoring.SmartDetectors.Extensions.Clients;
     using Microsoft.Azure.Monitoring.SmartDetectors.Metric;
+    using Microsoft.Azure.Monitoring.SmartDetectors.Trace;
     using ResourceType = Microsoft.Azure.Monitoring.SmartDetectors.ResourceType;
 
     /// <summary>
@@ -140,7 +139,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Clients
             this.UsedMetricClient = true;
 
             // Create the client
-            return Task.FromResult<IMetricClient>(new MetricClient(this.tracer, this.credentialsFactory, subscriptionId));
+            return Task.FromResult<IMetricClient>(new ExtendedMetricClient(this.tracer, this.credentialsFactory));
         }
 
         /// <summary>

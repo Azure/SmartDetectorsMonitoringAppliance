@@ -4,7 +4,7 @@
 // </copyright>
 //-----------------------------------------------------------------------
 
-namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions.Clients
+namespace Microsoft.Azure.Monitoring.SmartDetectors.Clients
 {
     using Microsoft.Rest;
 
