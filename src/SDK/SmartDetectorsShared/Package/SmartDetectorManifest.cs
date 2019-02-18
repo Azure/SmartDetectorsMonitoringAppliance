@@ -8,8 +8,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Package
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
-    using Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts;
+        using Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts;
     using Newtonsoft.Json;
     using Newtonsoft.Json.Converters;
     using ResourceType = Microsoft.Azure.Monitoring.SmartDetectors.ResourceType;

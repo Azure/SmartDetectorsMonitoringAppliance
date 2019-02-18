@@ -9,12 +9,8 @@ namespace MonitoringApplianceEmulatorTests.ViewModels
     using System.Collections.Generic;
     using System.Data;
     using System.Globalization;
-    using Microsoft.Azure.Monitoring.SmartDetectors;
-    using Microsoft.Azure.Monitoring.SmartDetectors.Clients;
-    using Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.Models;
     using Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.ViewModels;
-    using Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts;
-    using Microsoft.Azure.Monitoring.SmartDetectors.State;
+    using Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts.AlertProperties;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Moq;
     using Alert = Microsoft.Azure.Monitoring.SmartDetectors.Alert;

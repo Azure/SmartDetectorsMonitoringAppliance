@@ -14,7 +14,6 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Clients
     using Microsoft.Azure.Monitoring.SmartDetectors;
     using Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts;
     using Microsoft.Azure.Monitoring.SmartDetectors.Trace;
-    using Newtonsoft.Json.Linq;
 
     /// <summary>
     /// An implementation of <see cref="ITelemetryDataClient"/> to access Application Insights resources.

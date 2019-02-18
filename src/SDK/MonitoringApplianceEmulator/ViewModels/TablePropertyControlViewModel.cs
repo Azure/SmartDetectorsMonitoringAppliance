@@ -7,7 +7,7 @@
 namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.ViewModels
 {
     using System.Data;
-    using Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts;
+    using Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts.AlertProperties;
 
     /// <summary>
     /// The view model class for the <see cref="TablePropertyControlViewModel{T}"/> control.

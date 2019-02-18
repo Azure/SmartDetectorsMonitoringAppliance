@@ -11,7 +11,7 @@ namespace MonitoringApplianceEmulatorTests.Converters
     using System.Globalization;
     using Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.Converters;
     using Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.ViewModels;
-    using Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts;
+    using Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts.AlertProperties;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     [TestClass]
