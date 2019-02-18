@@ -80,13 +80,13 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
         /// </summary>
         public void AuthenticateUser()
         {
-            this.authenticationResult = this.authenticationContext.AcquireToken(
+            this.authenticationResult = this.authenticationContext.AcquireTokenAsync(
                 this.resourceId,
                 this.clientId,
                 this.redirectUri,
-                PromptBehavior.Auto,
+                new PlatformParameters(PromptBehavior.Auto, null),
                 UserIdentifier.AnyUser,
-                "prompt=consent");
+                "prompt=consent").Result;
 
             this.AuthenticatedUserName = this.authenticationResult.UserInfo.GivenName;
         }
@@ -106,7 +106,8 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
                     // Check again
                     if (this.IsAccessTokenAboutToExpire)
                     {
-                        this.authenticationResult = this.authenticationContext.AcquireTokenByRefreshToken(this.authenticationResult.RefreshToken, this.clientId);
+                        // This should be fixed. opened bug for tracking #3942846
+                        //// this.authenticationResult = this.authenticationContext.AcquireTokenByRefreshToken(this.authenticationResult.RefreshToken, this.clientId);
                     }
                 }
             }

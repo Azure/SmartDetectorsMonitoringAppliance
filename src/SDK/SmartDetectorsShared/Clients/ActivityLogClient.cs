@@ -54,7 +54,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Clients
             this.tracer = Diagnostics.EnsureArgumentNotNull(() => tracer);
             this.baseUri = new Uri(ConfigurationManager.AppSettings["ResourceManagerBaseUri"] ?? "https://management.azure.com/");
             Diagnostics.EnsureArgumentNotNull(() => credentialsFactory);
-            this.credentials = credentialsFactory.Create(ConfigurationManager.AppSettings["ResourceManagerCredentialsResource"] ?? "https://management.azure.com/");
+            this.credentials = credentialsFactory.CreateServiceClientCredentials(ConfigurationManager.AppSettings["ResourceManagerCredentialsResource"] ?? "https://management.azure.com/");
 
             this.httpRetryPolicy = PolicyExtensions.CreateTransientHttpErrorPolicy(this.tracer, DependencyName);
         }

@@ -1,5 +1,5 @@
 ﻿//-----------------------------------------------------------------------
-// <copyright file="ExtendedMetricClient.cs" company="Microsoft Corporation">
+// <copyright file="MetricClient.cs" company="Microsoft Corporation">
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // </copyright>
 //-----------------------------------------------------------------------
@@ -13,17 +13,19 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Clients
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.Azure.Management.Monitor.Fluent;
+    using Microsoft.Azure.Management.Monitor.Fluent.Models;
+    using Microsoft.Azure.Management.ResourceManager.Fluent;
+    using Microsoft.Azure.Management.ResourceManager.Fluent.Core;
     using Microsoft.Azure.Monitoring.SmartDetectors.Extensions;
-    using Microsoft.Azure.Monitoring.SmartDetectors.Extensions.Clients;
     using Microsoft.Azure.Monitoring.SmartDetectors.Metric;
-    using Microsoft.Azure.Monitoring.SmartDetectors.Tools;
     using Microsoft.Azure.Monitoring.SmartDetectors.Trace;
     using Polly;
+    using MetricDefinition = Microsoft.Azure.Monitoring.SmartDetectors.Metric.MetricDefinition;
 
     /// <summary>
-    /// An extended metric client that implements <see cref="IMetricClient"/> that wrapped by retry policy and tracks the results and.
+    /// A metric client that implements <see cref="IMetricClient"/>.
     /// </summary>
-    public class ExtendedMetricClient : IMetricClient
+    public class MetricClient : IMetricClient
     {
         /// <summary>
         /// The dependency name, for telemetry
@@ -31,17 +33,17 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Clients
         private const string DependencyName = "Metric";
 
         private readonly IExtendedTracer tracer;
-        private readonly IMetricClient metricClient;
         private readonly Policy retryPolicy;
 
+        private readonly IMonitorManagementClient monitorManagementClient;
+
         /// <summary>
-        /// Initializes a new instance of the <see cref="ExtendedMetricClient"/> class
+        /// Initializes a new instance of the <see cref="MetricClient"/> class
         /// </summary>
         /// <param name="tracer">The tracer</param>
         /// <param name="monitorManagementClient">Monitor management client to use to fetch metric data</param>
-        public ExtendedMetricClient(IExtendedTracer tracer, IMonitorManagementClient monitorManagementClient)
+        public MetricClient(IExtendedTracer tracer, IMonitorManagementClient monitorManagementClient)
         {
-            this.tracer = Diagnostics.EnsureArgumentNotNull(() => tracer);
             if (tracer == null)
             {
                 throw new ArgumentNullException(nameof(tracer));
@@ -53,17 +55,19 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Clients
             }
 
             this.tracer = tracer;
-            this.metricClient = new MetricClient(monitorManagementClient);
+            this.monitorManagementClient = monitorManagementClient;
             this.retryPolicy = PolicyExtensions.CreateDefaultPolicy(this.tracer, DependencyName);
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ExtendedMetricClient"/> class
+        /// Initializes a new instance of the <see cref="MetricClient"/> class
         /// </summary>
         /// <param name="tracer">The tracer</param>
         /// <param name="credentialsFactory">The credentials factory</param>
-        public ExtendedMetricClient(IExtendedTracer tracer, ICredentialsFactory credentialsFactory)
-            : this(tracer, new MonitorManagementClient(credentialsFactory.Create("https://management.azure.com/")))
+        public MetricClient(IExtendedTracer tracer, ICredentialsFactory credentialsFactory)
+            : this(tracer, new MonitorManagementClient(RestClient.Configure()
+                .WithEnvironment(AzureEnvironment.AzureGlobalCloud)
+                .WithCredentials(credentialsFactory.CreateAzureCredentials("https://management.azure.com/")).Build()))
         {
         }
 
@@ -78,16 +82,16 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Clients
         public async Task<IEnumerable<MetricDefinition>> GetResourceMetricDefinitionsAsync(string resourceUri, CancellationToken cancellationToken)
         {
             this.tracer.TraceInformation($"Running GetResourceMetricDefinitions with an instance of {this.GetType().Name}");
-            List<MetricDefinition> definitions = (await this.retryPolicy.RunAndTrackDependencyAsync(
+            List<Management.Monitor.Fluent.Models.MetricDefinition> definitions = (await this.retryPolicy.RunAndTrackDependencyAsync(
                 this.tracer,
                 DependencyName,
                 "GetResourceMetricDefinitions",
-                () => this.metricClient.GetResourceMetricDefinitionsAsync(
+                () => this.monitorManagementClient.MetricDefinitions.ListAsync(
                     resourceUri: resourceUri,
                     cancellationToken: cancellationToken))).ToList();
 
             this.tracer.TraceInformation($"Running GetResourceMetricDefinitions completed. Total Definitions: {definitions.Count}.");
-            return definitions;
+            return definitions.Select(definition => definition.ConvertToSmartDetectorsMetricDefinition());
         }
 
         /// <summary>
@@ -99,7 +103,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Clients
         /// <returns>A <see cref="Task{TResult}"/> object that represents the asynchronous operation, returning the list of metric definitions</returns>
         public async Task<IEnumerable<MetricDefinition>> GetResourceMetricDefinitionsAsync(ResourceIdentifier resource, ServiceType azureResourceService, CancellationToken cancellationToken)
         {
-            string resourceFullUri = MetricClient.GetResourceFullUri(resource, azureResourceService);
+            string resourceFullUri = resource.GetResourceFullUri(azureResourceService);
             return await this.GetResourceMetricDefinitionsAsync(resourceFullUri, cancellationToken);
         }
 
@@ -108,26 +112,33 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Clients
         /// </summary>
         /// <param name="resourceUri">The Uri to the resource metrics API.
         ///                           E.g. for queues: "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroup}/providers/Microsoft.Storage/storageAccounts/{storageName}/queueServices/default"</param>
-        /// <param name="queryParameters">Query parameters to be used when fetching metric data. All fields are optional</param>
+        /// <param name="queryParameters">Query properties to be used when fetching metric data. All fields are optional</param>
         /// <param name="cancellationToken">Cancellation Token for the async operation</param>
         /// <returns>A <see cref="Task{TResult}"/> object that represents the asynchronous operation, returning the list metrics</returns>
         [SuppressMessage("Microsoft.Design", "CA1054:UriParametersShouldNotBeStrings", Justification = "Keeping alignment with the Microsoft.Azure.Management.Monitor.Fluent.MetricDefinitionsOperationsExtensions API")]
-        public async Task<IEnumerable<MetricQueryResult>> GetResourceMetricsAsync(string resourceUri, QueryParameters queryParameters, CancellationToken cancellationToken)
+        public async Task<IEnumerable<MetricQueryResult>> GetResourceMetricsAsync(string resourceUri, QueryParameters queryParameters, CancellationToken cancellationToken = default(CancellationToken))
         {
             this.tracer.TraceInformation($"Running GetResourceMetrics with an instance of {this.GetType().Name}, with params: {queryParameters}");
-
-            List<MetricQueryResult> metrics = (await this.retryPolicy.RunAndTrackDependencyAsync(
+            ResponseInner metrics = await this.retryPolicy.RunAndTrackDependencyAsync(
                 this.tracer,
                 DependencyName,
-                "GetResourceMetricsAsync",
-                () => this.metricClient.GetResourceMetricsAsync(
-                    resourceUri,
-                    queryParameters,
-                    cancellationToken))).ToList();
+                "GetResourceMetrics",
+                () => this.monitorManagementClient.Metrics.ListAsync(
+                    resourceUri: resourceUri,
+                    timespan: queryParameters.TimeRange,
+                    interval: queryParameters.Interval,
+                    metricnames: queryParameters.MetricNames == null ? string.Empty : string.Join(",", queryParameters.MetricNames),
+                    aggregation: queryParameters.Aggregations != null ? string.Join(",", queryParameters.Aggregations) : null,
+                    top: queryParameters.Top,
+                    @orderby: queryParameters.Orderby,
+                    odataQuery: queryParameters.Filter,
+                    resultType: null,
+                    cancellationToken: cancellationToken));
 
-            this.tracer.TraceInformation($"Running GetResourceMetrics completed. Total Metrics: {metrics.Count}.");
+            this.tracer.TraceInformation($"Running GetResourceMetrics completed. Total Metrics: {metrics.Value.Count}.");
+            IList<MetricQueryResult> result = metrics.ConvertToSmartDetectorsMetricQueryResult();
 
-            return metrics;
+            return result;
         }
 
         /// <summary>
@@ -135,12 +146,12 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Clients
         /// </summary>
         /// <param name="resource">The Azure resource for which we want to fetch metrics</param>
         /// <param name="azureResourceService">The Azure resource's service type</param>
-        /// <param name="queryParameters">Query parameters to be used when fetching metric data. All fields are optional</param>
+        /// <param name="queryParameters">Query properties to be used when fetching metric data. All fields are optional</param>
         /// <param name="cancellationToken">Cancellation Token for the async operation</param>
         /// <returns>A <see cref="Task{TResult}"/> object that represents the asynchronous operation, returning the list metrics</returns>
-        public async Task<IEnumerable<MetricQueryResult>> GetResourceMetricsAsync(ResourceIdentifier resource, ServiceType azureResourceService, QueryParameters queryParameters, CancellationToken cancellationToken)
+        public async Task<IEnumerable<MetricQueryResult>> GetResourceMetricsAsync(ResourceIdentifier resource, ServiceType azureResourceService, QueryParameters queryParameters, CancellationToken cancellationToken = default(CancellationToken))
         {
-            string resourceFullUri = MetricClient.GetResourceFullUri(resource, azureResourceService);
+            string resourceFullUri = resource.GetResourceFullUri(azureResourceService);
             return await this.GetResourceMetricsAsync(resourceFullUri, queryParameters, cancellationToken);
         }
     }

@@ -32,7 +32,7 @@ namespace SmartDetectorsSharedTests
         {
             this.tracerMock = new Mock<IExtendedTracer>();
             this.credentialsFactoryMock = new Mock<ICredentialsFactory>();
-            this.credentialsFactoryMock.Setup(x => x.Create(It.IsAny<string>())).Returns(() => new EmptyCredentials());
+            this.credentialsFactoryMock.Setup(x => x.CreateServiceClientCredentials(It.IsAny<string>())).Returns(() => new EmptyCredentials());
             this.httpClientWrapperMock = new Mock<IHttpClientWrapper>();
             this.azureResourceManagerClient = new ExtendedAzureResourceManagerClient(this.httpClientWrapperMock.Object, this.credentialsFactoryMock.Object, this.tracerMock.Object);
         }
