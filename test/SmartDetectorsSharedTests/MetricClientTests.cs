@@ -51,12 +51,11 @@ namespace SmartDetectorsSharedTests
         [TestMethod]
         public async Task WhenCallingGetResourceMetricsWithServiceTypeHappyFlow()
         {
-            var timestamp = DateTime.UtcNow;
             string expectedUri = "/subscriptions/SUBSCRIPTION_ID/resourceGroups/RESOURCE_GROUP_NAME/providers/Microsoft.Storage/storageAccounts/STORAGE_NAME/queueServices/default";
 
             var azureResponse = new AzureOperationResponse<ResponseInner>()
             {
-                Body = new ResponseInner("timespan", GetMetricList(timestamp)),
+                Body = new ResponseInner("timespan", GetMetricList()),
                 Request = new HttpRequestMessage(),
                 RequestId = "RequestId",
                 Response = new HttpResponseMessage()
@@ -108,7 +107,7 @@ namespace SmartDetectorsSharedTests
         {
             // Authenticate (set real values in resourceIdentifier to run this test).
             var authenticationServices = new AuthenticationServices();
-            authenticationServices.AuthenticateUser();
+            await authenticationServices.AuthenticateUserAsync();
             ICredentialsFactory credentialsFactory = new ActiveDirectoryCredentialsFactory(authenticationServices);
 
             var resourceId = $"/subscriptions/{this.resourceIdentifier.SubscriptionId}/resourceGroups/{this.resourceIdentifier.ResourceGroupName}/providers/Microsoft.Storage/storageAccounts/{this.resourceIdentifier.ResourceName}/queueServices/default";
@@ -133,9 +132,8 @@ namespace SmartDetectorsSharedTests
         /// <summary>
         /// Returns a synthetic metric list for test purposes
         /// </summary>
-        /// <param name="timestamp">The time stamp to be used in the metric's timeseries</param>
         /// <returns>A synthetic metric list for test purposes</returns>
-        private static List<Metric> GetMetricList(DateTime timestamp)
+        private static List<Metric> GetMetricList()
         {
             return new List<Metric>
             {

@@ -21,7 +21,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
         /// </summary>
         /// <param name="definition">The metric definition</param>
         /// <returns>The conversion result</returns>
-        public static MetricDefinition ConvertToSmartDetectorsMetricDefinition(this Management.Monitor.Fluent.Models.MetricDefinition definition)
+        public static MetricDefinition ToSmartDetectorsMetricDefinition(this Management.Monitor.Fluent.Models.MetricDefinition definition)
         {
             return new MetricDefinition(
                 definition.Name.Value,

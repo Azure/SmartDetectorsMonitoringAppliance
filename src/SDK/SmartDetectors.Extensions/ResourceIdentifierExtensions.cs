@@ -19,7 +19,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
         /// <summary>
         /// A dictionary, mapping <see cref="ServiceType"/> enumeration values to matching presentation in URI
         /// </summary>
-        public static readonly ReadOnlyDictionary<ServiceType, string> MapAzureServiceTypeToPresentationInUri =
+        private static readonly ReadOnlyDictionary<ServiceType, string> MapAzureServiceTypeToPresentationInUri =
             new ReadOnlyDictionary<ServiceType, string>(
                 new Dictionary<ServiceType, string>()
                 {

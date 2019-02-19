@@ -17,15 +17,6 @@ namespace SmartDetectorsExtensionsTests
     public class ResourceIdentifierExtensionsTests
     {
         [TestMethod]
-        public void AllServiceTypesExistInMappingDictionary()
-        {
-            foreach (ServiceType serviceType in Enum.GetValues(typeof(ServiceType)).Cast<ServiceType>().Where(t => t != ServiceType.None))
-            {
-                Assert.IsTrue(ResourceIdentifierExtensions.MapAzureServiceTypeToPresentationInUri.Keys.Contains(serviceType), $"Service {serviceType} is missing in service mapping dictionary");
-            }
-        }
-
-        [TestMethod]
         public void WhenGettingUrlForAzureStorageResourcesWithSupportedServiceTypeThenTheCorrectUrlWasCreated()
         {
             var resourceIdentifier = new ResourceIdentifier(

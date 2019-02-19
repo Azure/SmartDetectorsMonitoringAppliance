@@ -39,7 +39,7 @@ namespace SmartDetectorsExtensionsTests
                     new LocalizableString("dim3"),
                 });
 
-            VerifyMetricDefinitionConversion(definition1, definition1.ConvertToSmartDetectorsMetricDefinition());
+            VerifyMetricDefinitionConversion(definition1, definition1.ToSmartDetectorsMetricDefinition());
 
             var definition2 = new Microsoft.Azure.Management.Monitor.Fluent.Models.MetricDefinition(
                 isDimensionRequired: null,
@@ -54,7 +54,7 @@ namespace SmartDetectorsExtensionsTests
                 id: "id2",
                 dimensions: new List<LocalizableString>());
 
-            VerifyMetricDefinitionConversion(definition2, definition2.ConvertToSmartDetectorsMetricDefinition());
+            VerifyMetricDefinitionConversion(definition2, definition2.ToSmartDetectorsMetricDefinition());
         }
 
         private static void VerifyMetricDefinitionConversion(

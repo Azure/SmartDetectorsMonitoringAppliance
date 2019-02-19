@@ -23,7 +23,7 @@ namespace SmartDetectorsExtensionsTests
             var timestamp = DateTime.UtcNow;
             var responseInner = new ResponseInner("timespan", GetMetricList(timestamp));
 
-            List<MetricQueryResult> metrics = responseInner.ConvertToSmartDetectorsMetricQueryResult().ToList();
+            List<MetricQueryResult> metrics = responseInner.ToMetricQueryResult().ToList();
 
             // Validate first metric was converted successfully
             Assert.AreEqual("MetricName1", metrics[0].Name, "First metric name isn't correct");

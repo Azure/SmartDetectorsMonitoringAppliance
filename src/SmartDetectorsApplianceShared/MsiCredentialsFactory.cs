@@ -48,7 +48,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance
         /// <returns>The credentials</returns>
         public AzureCredentials CreateAzureCredentials(string resource)
         {
-            var msiCredentials = new MsiCredentials(this.httpClientWrapper, resource, this.tracer);
+            var msiCredentials = this.CreateServiceClientCredentials(resource);
 
             return new AzureCredentials(
                 armCredentials: msiCredentials,

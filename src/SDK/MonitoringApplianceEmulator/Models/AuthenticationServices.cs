@@ -9,6 +9,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
     using System;
     using System.Configuration;
     using System.Linq;
+    using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.Azure.Monitoring.SmartDetectors.Tools;
     using Microsoft.IdentityModel.Clients.ActiveDirectory;
@@ -18,6 +19,9 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
     /// </summary>
     public class AuthenticationServices : IAuthenticationServices
     {
+        // Used to update expired AuthenticationResult in a thread safe way
+        private static readonly SemaphoreSlim AuthenticationSemaphoreSlim = new SemaphoreSlim(1, 1);
+
         // The resource ID used for authentication requests.
         private readonly string resourceId;
 
@@ -29,9 +33,6 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
 
         // The authentication context used to authenticate with AAD
         private readonly AuthenticationContext authenticationContext;
-
-        // The lock, used to update expired AuthenticationResult in a thread safe way
-        private readonly object authenticationResultLock = new object();
 
         // The AAD authetication result
         private AuthenticationResult authenticationResult;
@@ -78,15 +79,16 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
         /// Authenticates the user with their organization's AAD.
         /// This method is not thread safe.
         /// </summary>
-        public void AuthenticateUser()
+        /// <returns>A <see cref="Task"/> running the async operation.</returns>
+        public async Task AuthenticateUserAsync()
         {
-            this.authenticationResult = this.authenticationContext.AcquireTokenAsync(
+            this.authenticationResult = await this.authenticationContext.AcquireTokenAsync(
                 this.resourceId,
                 this.clientId,
                 this.redirectUri,
                 new PlatformParameters(PromptBehavior.Auto, null),
                 UserIdentifier.AnyUser,
-                "prompt=consent").Result;
+                "prompt=consent");
 
             this.AuthenticatedUserName = this.authenticationResult.UserInfo.GivenName;
         }
@@ -96,19 +98,23 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
         /// This method is thread safe.
         /// </summary>
         /// <param name="resource">The resource</param>
-        /// <returns>A task that returns the resource's access token</returns>
+        /// <returns>A <see cref="Task"/> that returns the resource's access token</returns>
         public async Task<string> GetResourceTokenAsync(string resource)
         {
             if (this.IsAccessTokenAboutToExpire)
             {
-                lock (this.authenticationResultLock)
+                await AuthenticationSemaphoreSlim.WaitAsync(TimeSpan.FromMinutes(1));
+                try
                 {
                     // Check again
                     if (this.IsAccessTokenAboutToExpire)
                     {
-                        // This should be fixed. opened bug for tracking #3942846
-                        //// this.authenticationResult = this.authenticationContext.AcquireTokenByRefreshToken(this.authenticationResult.RefreshToken, this.clientId);
+                        await this.AuthenticateUserAsync();
                     }
+                }
+                finally
+                {
+                    AuthenticationSemaphoreSlim.Release();
                 }
             }
 

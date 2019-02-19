@@ -21,7 +21,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
         /// </summary>
         /// <param name="queryResponse">The metric query response as returned by Azure Monitoring</param>
         /// <returns>A list of metric query results</returns>
-        public static IList<MetricQueryResult> ConvertToSmartDetectorsMetricQueryResult(this ResponseInner queryResponse)
+        public static IList<MetricQueryResult> ToMetricQueryResult(this ResponseInner queryResponse)
         {
             var queryResults = new List<MetricQueryResult>();
 

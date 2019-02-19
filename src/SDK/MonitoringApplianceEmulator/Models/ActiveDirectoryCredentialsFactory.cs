@@ -44,7 +44,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
         /// <returns>The credentials</returns>
         public AzureCredentials CreateAzureCredentials(string resource)
         {
-            var activeDirectoryCredentials = new ActiveDirectoryCredentials(this.authenticationServices, resource);
+            var activeDirectoryCredentials = this.CreateServiceClientCredentials(resource);
 
             return new AzureCredentials(
                 armCredentials: activeDirectoryCredentials,

@@ -91,7 +91,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Clients
                     cancellationToken: cancellationToken))).ToList();
 
             this.tracer.TraceInformation($"Running GetResourceMetricDefinitions completed. Total Definitions: {definitions.Count}.");
-            return definitions.Select(definition => definition.ConvertToSmartDetectorsMetricDefinition());
+            return definitions.Select(definition => definition.ToSmartDetectorsMetricDefinition());
         }
 
         /// <summary>
@@ -130,13 +130,13 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Clients
                     metricnames: queryParameters.MetricNames == null ? string.Empty : string.Join(",", queryParameters.MetricNames),
                     aggregation: queryParameters.Aggregations != null ? string.Join(",", queryParameters.Aggregations) : null,
                     top: queryParameters.Top,
-                    @orderby: queryParameters.Orderby,
+                    orderby: queryParameters.Orderby,
                     odataQuery: queryParameters.Filter,
                     resultType: null,
                     cancellationToken: cancellationToken));
 
             this.tracer.TraceInformation($"Running GetResourceMetrics completed. Total Metrics: {metrics.Value.Count}.");
-            IList<MetricQueryResult> result = metrics.ConvertToSmartDetectorsMetricQueryResult();
+            IList<MetricQueryResult> result = metrics.ToMetricQueryResult();
 
             return result;
         }
