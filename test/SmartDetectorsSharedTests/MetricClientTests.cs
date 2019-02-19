@@ -164,8 +164,8 @@ namespace SmartDetectorsSharedTests
         {
             return new List<Microsoft.Azure.Management.Monitor.Fluent.Models.MetricDefinition>()
             {
-                new Microsoft.Azure.Management.Monitor.Fluent.Models.MetricDefinition(),
-                new Microsoft.Azure.Management.Monitor.Fluent.Models.MetricDefinition()
+                new Microsoft.Azure.Management.Monitor.Fluent.Models.MetricDefinition(name: new LocalizableString("StorageSize")),
+                new Microsoft.Azure.Management.Monitor.Fluent.Models.MetricDefinition(name: new LocalizableString("AviranStorage"))
             };
         }
     }
