@@ -63,7 +63,6 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
             // Return the presentation object
             return new ContractsAlert
             {
-                Id = id,
                 Title = alert.Title,
                 OccurenceTime = alert.OccurenceTime,
                 ResourceId = resourceId,

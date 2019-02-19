@@ -196,9 +196,9 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.Analysis
                 {
                     if (detectorSupportsAlertResolution)
                     {
-                        this.tracer.TraceInformation($"Alert {contractsAlert.Id} has resolution parameters, so saving alert details for later use");
+                        this.tracer.TraceInformation($"Alert {contractsAlert.CorrelationHash} has resolution parameters, so saving alert details for later use");
                         await stateRepository.StoreStateAsync(
-                            GetResolutionStateKey(contractsAlert.Id),
+                            GetResolutionStateKey(contractsAlert.CorrelationHash),
                             new ResolutionState
                             {
                                 AnalysisRequestTime = analysisRequestParameters.RequestTime,
@@ -208,7 +208,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.Analysis
                     }
                     else
                     {
-                        this.tracer.TraceError($"Dropping resolution parameters from alert {contractsAlert.Id}");
+                        this.tracer.TraceError($"Dropping resolution parameters from alert {contractsAlert.CorrelationHash}");
                         contractsAlert.ResolutionParameters = null;
                     }
                 }
