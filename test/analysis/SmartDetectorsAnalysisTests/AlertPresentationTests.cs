@@ -77,13 +77,11 @@ namespace SmartDetectorsAnalysisTests
             // A non predicate property is different - correlation hash should be the same
             alert2.RawProperty++;
             var contractsAlert2 = SetupContractsAlert(alert2);
-            Assert.AreNotEqual(contractsAlert1.ResourceId, contractsAlert2.ResourceId);
             Assert.AreEqual(contractsAlert1.CorrelationHash, contractsAlert2.CorrelationHash);
 
             // A predicate property is different - correlation hash should be the different
             alert2 = new PresentationTestAlert("AlertTitle2");
             contractsAlert2 = SetupContractsAlert(alert2);
-            Assert.AreNotEqual(contractsAlert1.ResourceId, contractsAlert2.ResourceId);
             Assert.AreNotEqual(contractsAlert1.CorrelationHash, contractsAlert2.CorrelationHash);
         }
 
