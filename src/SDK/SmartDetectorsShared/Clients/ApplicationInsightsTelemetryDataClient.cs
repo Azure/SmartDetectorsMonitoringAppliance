@@ -45,7 +45,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Clients
                 azureResourceManagerClient,
                 ConfigurationManager.AppSettings["ApplicationInsightsUriFormat"] ?? UriFormat,
                 queryTimeout,
-                TelemetryDbType.ApplicationInsights,
+                "ApplicationInsights",
                 applicationsResourceIds)
         {
         }
