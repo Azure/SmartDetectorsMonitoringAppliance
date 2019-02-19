@@ -13,6 +13,8 @@ namespace SmartDetectorsSharedTests
     using System.Net.Http;
     using System.Threading;
     using System.Threading.Tasks;
+    using Microsoft.Azure.Management.ResourceManager.Fluent;
+    using Microsoft.Azure.Management.ResourceManager.Fluent.Authentication;
     using Microsoft.Azure.Monitoring.SmartDetectors;
     using Microsoft.Azure.Monitoring.SmartDetectors.Arm;
     using Microsoft.Azure.Monitoring.SmartDetectors.Clients;
@@ -35,7 +37,8 @@ namespace SmartDetectorsSharedTests
             this.tracerMock = new Mock<IExtendedTracer>();
 
             this.credentialsFactoryMock = new Mock<ICredentialsFactory>();
-            this.credentialsFactoryMock.Setup(x => x.Create(It.IsAny<string>())).Returns(new EmptyCredentials());
+            this.credentialsFactoryMock.Setup(x => x.CreateServiceClientCredentials(It.IsAny<string>())).Returns(new EmptyCredentials());
+            this.credentialsFactoryMock.Setup(x => x.CreateAzureCredentials(It.IsAny<string>())).Returns(() => new AzureCredentials(new EmptyCredentials(), new EmptyCredentials(), "tenantId", AzureEnvironment.AzureGlobalCloud));
         }
 
         [TestMethod]

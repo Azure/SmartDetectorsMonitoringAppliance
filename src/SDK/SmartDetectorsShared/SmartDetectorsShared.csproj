@@ -20,8 +20,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.Azure.Management.Monitor.Fluent" Version="1.11.1" />
-    <PackageReference Include="Microsoft.Azure.Management.ResourceManager.Fluent" Version="1.11.1" />
+    <PackageReference Include="Microsoft.Azure.Management.Monitor.Fluent" Version="1.19.0" />
+    <PackageReference Include="Microsoft.Azure.Management.ResourceManager.Fluent" Version="1.19.0" />
     <PackageReference Include="Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts" Version="0.16.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Scripting" Version="2.8.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.6.2" />
@@ -32,6 +32,7 @@
     <PackageReference Include="System.Net.Http" Version="4.3.3" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\SmartDetectors.Extensions\SmartDetectors.Extensions.csproj" />
     <ProjectReference Include="..\SmartDetectorsSDK\SmartDetectorsSDK.csproj" />
   </ItemGroup>
   <ItemGroup>

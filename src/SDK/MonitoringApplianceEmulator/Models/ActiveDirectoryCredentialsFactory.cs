@@ -6,6 +6,8 @@
 
 namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.Models
 {
+    using Microsoft.Azure.Management.ResourceManager.Fluent;
+    using Microsoft.Azure.Management.ResourceManager.Fluent.Authentication;
     using Microsoft.Azure.Monitoring.SmartDetectors.Clients;
     using Microsoft.Rest;
 
@@ -30,9 +32,25 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
         /// </summary>
         /// <param name="resource">The resource for which to create the credentials</param>
         /// <returns>The credentials</returns>
-        public ServiceClientCredentials Create(string resource)
+        public ServiceClientCredentials CreateServiceClientCredentials(string resource)
         {
             return new ActiveDirectoryCredentials(this.authenticationServices, resource);
+        }
+
+        /// <summary>
+        /// Create an instance of the <see cref="AzureCredentials"/> class.
+        /// </summary>
+        /// <param name="resource">The resource for which to create the credentials</param>
+        /// <returns>The credentials</returns>
+        public AzureCredentials CreateAzureCredentials(string resource)
+        {
+            var activeDirectoryCredentials = this.CreateServiceClientCredentials(resource);
+
+            return new AzureCredentials(
+                armCredentials: activeDirectoryCredentials,
+                graphCredentials: activeDirectoryCredentials,
+                tenantId: "microsoft.com",
+                environment: AzureEnvironment.AzureGlobalCloud);
         }
     }
 }

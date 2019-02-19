@@ -81,7 +81,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator
 
                 // Authenticate the user to Active Directory
                 IAuthenticationServices authenticationServices = new AuthenticationServices();
-                authenticationServices.AuthenticateUser();
+                authenticationServices.AuthenticateUserAsync().Wait();
                 ICredentialsFactory credentialsFactory = new ActiveDirectoryCredentialsFactory(authenticationServices);
                 IHttpClientWrapper httpClientWrapper = new HttpClientWrapper();
                 IExtendedAzureResourceManagerClient azureResourceManagerClient = new ExtendedAzureResourceManagerClient(httpClientWrapper, credentialsFactory, consoleTracer);

@@ -6,6 +6,8 @@
 
 namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance
 {
+    using Microsoft.Azure.Management.ResourceManager.Fluent;
+    using Microsoft.Azure.Management.ResourceManager.Fluent.Authentication;
     using Microsoft.Azure.Monitoring.SmartDetectors.Clients;
     using Microsoft.Azure.Monitoring.SmartDetectors.Trace;
     using Microsoft.Rest;
@@ -34,9 +36,25 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance
         /// </summary>
         /// <param name="resource">The resource for which to create the credentials</param>
         /// <returns>The credentials</returns>
-        public ServiceClientCredentials Create(string resource)
+        public ServiceClientCredentials CreateServiceClientCredentials(string resource)
         {
             return new MsiCredentials(this.httpClientWrapper, resource, this.tracer);
+        }
+
+        /// <summary>
+        /// Create an instance of the <see cref="AzureCredentials"/> class.
+        /// </summary>
+        /// <param name="resource">The resource for which to create the credentials</param>
+        /// <returns>The credentials</returns>
+        public AzureCredentials CreateAzureCredentials(string resource)
+        {
+            var msiCredentials = this.CreateServiceClientCredentials(resource);
+
+            return new AzureCredentials(
+                armCredentials: msiCredentials,
+                graphCredentials: msiCredentials,
+                tenantId: "microsoft.com",
+                environment: AzureEnvironment.AzureGlobalCloud);
         }
     }
 }

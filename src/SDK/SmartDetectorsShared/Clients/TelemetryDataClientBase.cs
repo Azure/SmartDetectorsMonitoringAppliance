@@ -398,7 +398,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Clients
                 Host = uri.Host
             };
 
-            var credentials = this.credentialsFactory.Create(builder.Uri.ToString());
+            var credentials = this.credentialsFactory.CreateServiceClientCredentials(builder.Uri.ToString());
 
             string requestId = Guid.NewGuid().ToString();
 
