@@ -21,7 +21,8 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
         /// <summary>
         /// Authenticates the user.
         /// </summary>
-        void AuthenticateUser();
+        /// <returns>A <see cref="Task"/> running the async operation.</returns>
+        Task AuthenticateUserAsync();
 
         /// <summary>
         /// Get access token for a resource.

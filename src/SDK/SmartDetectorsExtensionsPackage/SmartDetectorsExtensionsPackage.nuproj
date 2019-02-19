@@ -43,6 +43,9 @@
     <ProjectReference Include="..\SmartDetectorsPackage\SmartDetectorsPackage.nuproj" />
   </ItemGroup>
   <ItemGroup>
+    <Dependency Include="Microsoft.Azure.Management.Monitor.Fluent">
+      <Version>1.19.0</Version>
+    </Dependency>
     <Dependency Include="Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts">
       <Version>1.0.10.1</Version>
     </Dependency>

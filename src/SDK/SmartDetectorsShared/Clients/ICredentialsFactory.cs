@@ -6,6 +6,7 @@
 
 namespace Microsoft.Azure.Monitoring.SmartDetectors.Clients
 {
+    using Microsoft.Azure.Management.ResourceManager.Fluent.Authentication;
     using Microsoft.Rest;
 
     /// <summary>
@@ -18,6 +19,13 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Clients
         /// </summary>
         /// <param name="resource">The resource for which to create the credentials</param>
         /// <returns>The credentials</returns>
-        ServiceClientCredentials Create(string resource);
+        ServiceClientCredentials CreateServiceClientCredentials(string resource);
+
+        /// <summary>
+        /// Create an instance of the <see cref="AzureCredentials"/> class.
+        /// </summary>
+        /// <param name="resource">The resource for which to create the credentials</param>
+        /// <returns>The credentials</returns>
+        AzureCredentials CreateAzureCredentials(string resource);
     }
 }

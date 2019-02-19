@@ -18,6 +18,8 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Clients
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.Azure.Management.ResourceManager.Fluent;
+    using Microsoft.Azure.Management.ResourceManager.Fluent.Authentication;
+    using Microsoft.Azure.Management.ResourceManager.Fluent.Core;
     using Microsoft.Azure.Management.ResourceManager.Fluent.Models;
     using Microsoft.Azure.Monitoring.SmartDetectors;
     using Microsoft.Azure.Monitoring.SmartDetectors.Arm;
@@ -47,7 +49,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Clients
 
         private static readonly ConcurrentDictionary<string, ProviderInner> ProvidersCache = new ConcurrentDictionary<string, ProviderInner>(StringComparer.CurrentCultureIgnoreCase);
 
-        private readonly ServiceClientCredentials credentials;
+        private readonly AzureCredentials credentials;
         private readonly IExtendedTracer tracer;
         private readonly Policy retryPolicy;
         private readonly Policy<HttpResponseMessage> httpRetryPolicy;
@@ -65,7 +67,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Clients
             this.httpClientWrapper = Diagnostics.EnsureArgumentNotNull(() => httpClientWrapper);
             Diagnostics.EnsureArgumentNotNull(() => credentialsFactory);
             this.baseUri = new Uri(ConfigurationManager.AppSettings["ResourceManagerBaseUri"] ?? "https://management.azure.com/");
-            this.credentials = credentialsFactory.Create(ConfigurationManager.AppSettings["ResourceManagerCredentialsResource"] ?? "https://management.azure.com/");
+            this.credentials = credentialsFactory.CreateAzureCredentials(ConfigurationManager.AppSettings["ResourceManagerCredentialsResource"] ?? "https://management.azure.com/");
             this.tracer = Diagnostics.EnsureArgumentNotNull(() => tracer);
             this.tracer = tracer;
             this.retryPolicy = Policy
@@ -434,7 +436,9 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Clients
         /// <returns>The subscription client</returns>
         private SubscriptionClient GetSubscriptionClient()
         {
-            return new SubscriptionClient(this.credentials) { BaseUri = this.baseUri };
+            var restClient = RestClient.Configure().WithBaseUri(this.baseUri.ToString()).WithCredentials(this.credentials).Build();
+
+            return new SubscriptionClient(restClient);
         }
 
         /// <summary>
@@ -444,7 +448,9 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Clients
         /// <returns>The resource manager client</returns>
         private ResourceManagementClient GetResourceManagementClient(string subscriptionId)
         {
-            return new ResourceManagementClient(this.credentials) { SubscriptionId = subscriptionId, BaseUri = this.baseUri };
+            var restClient = RestClient.Configure().WithBaseUri(this.baseUri.ToString()).WithCredentials(this.credentials).Build();
+
+            return new ResourceManagementClient(restClient) { SubscriptionId = subscriptionId };
         }
 
         /// <summary>

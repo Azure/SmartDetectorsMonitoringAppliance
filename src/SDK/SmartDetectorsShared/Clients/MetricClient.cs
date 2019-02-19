@@ -8,16 +8,16 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Clients
 {
     using System;
     using System.Collections.Generic;
-    using System.Collections.ObjectModel;
     using System.Diagnostics.CodeAnalysis;
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.Azure.Management.Monitor.Fluent;
     using Microsoft.Azure.Management.Monitor.Fluent.Models;
+    using Microsoft.Azure.Management.ResourceManager.Fluent;
+    using Microsoft.Azure.Management.ResourceManager.Fluent.Core;
     using Microsoft.Azure.Monitoring.SmartDetectors.Extensions;
     using Microsoft.Azure.Monitoring.SmartDetectors.Metric;
-    using Microsoft.Azure.Monitoring.SmartDetectors.Tools;
     using Microsoft.Azure.Monitoring.SmartDetectors.Trace;
     using Polly;
     using MetricDefinition = Microsoft.Azure.Monitoring.SmartDetectors.Metric.MetricDefinition;
@@ -27,19 +27,6 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Clients
     /// </summary>
     public class MetricClient : IMetricClient
     {
-        /// <summary>
-        /// A dictionary, mapping <see cref="ServiceType"/> enumeration values to matching presentation in URI
-        /// </summary>
-        public static readonly ReadOnlyDictionary<ServiceType, string> MapAzureServiceTypeToPresentationInUri =
-            new ReadOnlyDictionary<ServiceType, string>(
-                new Dictionary<ServiceType, string>()
-                {
-                    [ServiceType.AzureStorageBlob] = "blobServices/default",
-                    [ServiceType.AzureStorageTable] = "tableServices/default",
-                    [ServiceType.AzureStorageQueue] = "queueServices/default",
-                    [ServiceType.AzureStorageFile] = "fileServices/default",
-                });
-
         /// <summary>
         /// The dependency name, for telemetry
         /// </summary>
@@ -54,15 +41,21 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Clients
         /// Initializes a new instance of the <see cref="MetricClient"/> class
         /// </summary>
         /// <param name="tracer">The tracer</param>
-        /// <param name="subscriptionId">The subscription Id</param>
         /// <param name="monitorManagementClient">Monitor management client to use to fetch metric data</param>
-        public MetricClient(IExtendedTracer tracer, string subscriptionId, IMonitorManagementClient monitorManagementClient)
+        public MetricClient(IExtendedTracer tracer, IMonitorManagementClient monitorManagementClient)
         {
-            this.tracer = Diagnostics.EnsureArgumentNotNull(() => tracer);
+            if (tracer == null)
+            {
+                throw new ArgumentNullException(nameof(tracer));
+            }
 
-            this.monitorManagementClient = monitorManagementClient;
-            this.monitorManagementClient.SubscriptionId = subscriptionId;
+            if (monitorManagementClient == null)
+            {
+                throw new ArgumentNullException(nameof(monitorManagementClient));
+            }
+
             this.tracer = tracer;
+            this.monitorManagementClient = monitorManagementClient;
             this.retryPolicy = PolicyExtensions.CreateDefaultPolicy(this.tracer, DependencyName);
         }
 
@@ -71,9 +64,10 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Clients
         /// </summary>
         /// <param name="tracer">The tracer</param>
         /// <param name="credentialsFactory">The credentials factory</param>
-        /// <param name="subscriptionId">The subscription Id</param>
-        public MetricClient(IExtendedTracer tracer, ICredentialsFactory credentialsFactory, string subscriptionId)
-            : this(tracer, subscriptionId, new MonitorManagementClient(credentialsFactory.Create("https://management.azure.com/")))
+        public MetricClient(IExtendedTracer tracer, ICredentialsFactory credentialsFactory)
+            : this(tracer, new MonitorManagementClient(RestClient.Configure()
+                .WithEnvironment(AzureEnvironment.AzureGlobalCloud)
+                .WithCredentials(credentialsFactory.CreateAzureCredentials("https://management.azure.com/")).Build()))
         {
         }
 
@@ -97,7 +91,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Clients
                     cancellationToken: cancellationToken))).ToList();
 
             this.tracer.TraceInformation($"Running GetResourceMetricDefinitions completed. Total Definitions: {definitions.Count}.");
-            return definitions.Select(ConvertMetricDefinition);
+            return definitions.Select(definition => definition.ToSmartDetectorsMetricDefinition());
         }
 
         /// <summary>
@@ -109,7 +103,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Clients
         /// <returns>A <see cref="Task{TResult}"/> object that represents the asynchronous operation, returning the list of metric definitions</returns>
         public async Task<IEnumerable<MetricDefinition>> GetResourceMetricDefinitionsAsync(ResourceIdentifier resource, ServiceType azureResourceService, CancellationToken cancellationToken)
         {
-            string resourceFullUri = GetResourceFullUri(resource, azureResourceService);
+            string resourceFullUri = resource.GetResourceFullUri(azureResourceService);
             return await this.GetResourceMetricDefinitionsAsync(resourceFullUri, cancellationToken);
         }
 
@@ -142,7 +136,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Clients
                     cancellationToken: cancellationToken));
 
             this.tracer.TraceInformation($"Running GetResourceMetrics completed. Total Metrics: {metrics.Value.Count}.");
-            IList<MetricQueryResult> result = this.ConvertResponseToQueryResult(metrics);
+            IList<MetricQueryResult> result = metrics.ToMetricQueryResult();
 
             return result;
         }
@@ -157,91 +151,8 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Clients
         /// <returns>A <see cref="Task{TResult}"/> object that represents the asynchronous operation, returning the list metrics</returns>
         public async Task<IEnumerable<MetricQueryResult>> GetResourceMetricsAsync(ResourceIdentifier resource, ServiceType azureResourceService, QueryParameters queryParameters, CancellationToken cancellationToken = default(CancellationToken))
         {
-            string resourceFullUri = GetResourceFullUri(resource, azureResourceService);
+            string resourceFullUri = resource.GetResourceFullUri(azureResourceService);
             return await this.GetResourceMetricsAsync(resourceFullUri, queryParameters, cancellationToken);
         }
-
-        /// <summary>
-        /// Converts a metric definition response to an internal DTO and returns it
-        /// </summary>
-        /// <param name="definition">The metric definition</param>
-        /// <returns>The conversion result</returns>
-        private static MetricDefinition ConvertMetricDefinition(Management.Monitor.Fluent.Models.MetricDefinition definition)
-        {
-            return new MetricDefinition(
-                definition.Name.Value,
-                definition.Dimensions?.Select(x => x.Value).ToList(),
-                definition.IsDimensionRequired,
-                definition.MetricAvailabilities?.Select(x => Tuple.Create(x.Retention, x.TimeGrain)).ToList(),
-                definition.Unit?.ToString(),
-                definition.PrimaryAggregationType.HasValue ? (Aggregation?)Enum.Parse(typeof(Aggregation), definition.PrimaryAggregationType.ToString()) : null);
-        }
-
-        /// <summary>
-        /// Builds the full Resource metrics Uri based on <see cref="ServiceType"/>.
-        /// </summary>
-        /// <param name="resource">The Azure resource for which we want to fetch metrics</param>
-        /// <param name="azureResourceService">The Azure resource's service type</param>
-        /// <returns>The full Resource metrics Uri</returns>
-        private static string GetResourceFullUri(ResourceIdentifier resource, ServiceType azureResourceService)
-        {
-            string uri = resource.ToResourceId();
-            if (azureResourceService != ServiceType.None)
-            {
-                uri += "/" + MapAzureServiceTypeToPresentationInUri[azureResourceService];
-            }
-
-            return uri;
-        }
-
-        /// <summary>
-        /// Converts a metric query response to an internal DTO and returns it
-        /// </summary>
-        /// <param name="queryResponse">The metric query response as returned by Azure Monitoring</param>
-        /// <returns>A list of metric query results</returns>
-        private IList<MetricQueryResult> ConvertResponseToQueryResult(ResponseInner queryResponse)
-        {
-            var queryResults = new List<MetricQueryResult>();
-
-            // Convert each metric (a single metric is created per metric name)
-            foreach (Metric metric in queryResponse.Value)
-            {
-                List<MetricTimeSeries> timeSeriesList = new List<MetricTimeSeries>();
-
-                if (metric.Timeseries != null)
-                {
-                    // Convert the time series. A time series is created per filtered dimension.
-                    // The info regarding the relevant dimension is set int he MetaData field
-                    foreach (TimeSeriesElement timeSeries in metric.Timeseries)
-                    {
-                        var data = new List<MetricValues>();
-                        var metaData = new List<KeyValuePair<string, string>>();
-
-                        if (timeSeries.Data != null)
-                        {
-                            // Convert all metric values
-                            data = timeSeries.Data.Select(metricValue =>
-                                new MetricValues(metricValue.TimeStamp, metricValue.Average, metricValue.Minimum, metricValue.Maximum, metricValue.Total, metricValue.Count)).ToList();
-                        }
-
-                        if (timeSeries.Metadatavalues != null)
-                        {
-                            // Convert metadata
-                            metaData = timeSeries.Metadatavalues.Select(metaDataValue =>
-                                new KeyValuePair<string, string>(metaDataValue.Name.Value, metaDataValue.Value)).ToList();
-                        }
-
-                        timeSeriesList.Add(new MetricTimeSeries(data, metaData));
-                    }
-                }
-
-                var queryResult = new MetricQueryResult(metric.Name.Value, metric.Unit.ToString(), timeSeriesList);
-
-                queryResults.Add(queryResult);
-                this.tracer.TraceInformation($"Metric converted successfully. Name: {queryResult.Name}, Timeseries count: {queryResult.Timeseries.Count}, Total series length: {queryResult.Timeseries.Sum(timeSeries => timeSeries.Data.Count)}");
-            }
-
-            return queryResults;
-        }
-   }
+    }
 }
