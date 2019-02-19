@@ -61,7 +61,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Clients
             IExtendedAzureResourceManagerClient azureResourceManagerClient,
             string queryUriFormat,
             TimeSpan queryTimeout,
-            TelemetryDbType telemetryDbType,
+            string telemetryDbType,
             IEnumerable<string> telemetryResourceIds)
         {
             this.tracer = Diagnostics.EnsureArgumentNotNull(() => tracer);
@@ -75,7 +75,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Clients
             int maximumNumberOfTelemetryResources = int.Parse(ConfigurationManager.AppSettings["MaximumNumberOfTelemetryResources"] ?? "300", CultureInfo.InvariantCulture);
             this.TelemetryResourceIds = telemetryResourceIds?.Take(maximumNumberOfTelemetryResources).ToList() ?? new List<string>();
 
-            this.retryPolicy = PolicyExtensions.CreateTransientHttpErrorPolicy(this.tracer, this.TelemetryDbType.ToString());
+            this.retryPolicy = PolicyExtensions.CreateTransientHttpErrorPolicy(this.tracer, this.TelemetryDbType);
         }
 
         /// <summary>
@@ -86,7 +86,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Clients
         /// <summary>
         /// Gets the type of telemetry DB that this data client accesses.
         /// </summary>
-        public TelemetryDbType TelemetryDbType { get; }
+        public string TelemetryDbType { get; }
 
         /// <summary>
         /// Gets the telemetry resource IDs - the IDs of the resources
@@ -406,7 +406,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Clients
             Stopwatch queryStopwatch = Stopwatch.StartNew();
             HttpResponseMessage response = await this.retryPolicy.RunAndTrackDependencyAsync(
                 this.tracer,
-                this.TelemetryDbType.ToString(),
+                this.TelemetryDbType,
                 "RunQuery",
                 async () =>
                 {
