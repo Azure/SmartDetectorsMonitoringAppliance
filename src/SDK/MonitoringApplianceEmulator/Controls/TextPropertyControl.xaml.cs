@@ -8,7 +8,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
 {
     using System.Windows;
     using System.Windows.Controls;
-    using RuntimeEnvironment.Contracts.AlertProperties;
+    using Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts.AlertProperties;
 
     /// <summary>
     /// Interaction logic for TextPropertyControl.xaml
