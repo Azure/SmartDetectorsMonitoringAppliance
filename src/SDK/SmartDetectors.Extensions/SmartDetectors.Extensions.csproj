@@ -7,10 +7,10 @@
     <StyleCopTreatErrorsAsWarnings>False</StyleCopTreatErrorsAsWarnings>
     <CodeAnalysisRuleSet>$(SolutionDir)SmartDetectorsMonitoringAppliance.ruleset</CodeAnalysisRuleSet>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-  </PropertyGroup>  
+  </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.Azure.Management.Monitor.Fluent" Version="1.19.0" />
-    <PackageReference Include="Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts" Version="0.16.0" />
+    <PackageReference Include="Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts" Version="1.0.11" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Scripting" Version="2.8.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.6.2" />
     <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />

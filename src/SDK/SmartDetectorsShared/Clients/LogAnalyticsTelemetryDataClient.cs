@@ -45,7 +45,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Clients
                 azureResourceManagerClient,
                 ConfigurationManager.AppSettings["LogAnalyticsUriFormat"] ?? UriFormat,
                 queryTimeout,
-                TelemetryDbType.LogAnalytics,
+                "LogAnalytics",
                 workspacesResourceIds)
         {
         }
