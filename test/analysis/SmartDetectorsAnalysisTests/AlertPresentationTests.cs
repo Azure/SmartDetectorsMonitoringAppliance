@@ -17,13 +17,20 @@ namespace SmartDetectorsAnalysisTests
     using Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts.AlertProperties;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Newtonsoft.Json;
+    using AggregationType = Microsoft.Azure.Monitoring.SmartDetectors.AlertPresentation.AggregationType;
     using Alert = Microsoft.Azure.Monitoring.SmartDetectors.Alert;
     using ChartAxisType = Microsoft.Azure.Monitoring.SmartDetectors.AlertPresentation.ChartAxisType;
     using ChartPoint = Microsoft.Azure.Monitoring.SmartDetectors.AlertPresentation.ChartPoint;
     using ChartType = Microsoft.Azure.Monitoring.SmartDetectors.AlertPresentation.ChartType;
+    using ContractsAggregationType = Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts.AlertProperties.AggregationType;
     using ContractsAlert = Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts.Alert;
     using ContractsChartAxisType = Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts.AlertProperties.ChartAxisType;
     using ContractsChartType = Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts.AlertProperties.ChartType;
+    using ContractsThresholdType = Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts.AlertProperties.ThresholdType;
+    using DynamicThreshold = Microsoft.Azure.Monitoring.SmartDetectors.AlertPresentation.DynamicThreshold;
+    using DynamicThresholdFailingPeriodsSettings = Microsoft.Azure.Monitoring.SmartDetectors.AlertPresentation.DynamicThresholdFailingPeriodsSettings;
+    using StaticThreshold = Microsoft.Azure.Monitoring.SmartDetectors.AlertPresentation.StaticThreshold;
+    using ThresholdType = Microsoft.Azure.Monitoring.SmartDetectors.AlertPresentation.ThresholdType;
 
     [TestClass]
     public class AlertPresentationTests
@@ -41,7 +48,7 @@ namespace SmartDetectorsAnalysisTests
             Assert.AreEqual("AlertTitle", contractsAlert.Title, "Unexpected title");
             Assert.AreEqual(default(ResourceIdentifier).ToResourceId(), contractsAlert.ResourceId, "Unexpected ResourceId");
             Assert.AreEqual(SignalType.Log, contractsAlert.SignalType, "Unexpected signal type");
-            Assert.AreEqual(18, contractsAlert.AlertProperties.Count, "Unexpected number of properties");
+            Assert.AreEqual(19, contractsAlert.AlertProperties.Count, "Unexpected number of properties");
 
             // Verify raw alert properties
             VerifyPresentationTestAlertRawProperty(contractsAlert.AlertProperties, "Predicate");
@@ -63,7 +70,8 @@ namespace SmartDetectorsAnalysisTests
             VerifyPresentationTestAlertDisplayedProperty(contractsAlert.AlertProperties, "AdditionalData_1_MoreData_0_Uri1", "First link", 12);
             VerifyPresentationTestAlertDisplayedProperty(contractsAlert.AlertProperties, "AdditionalData_1_MoreData_1_Name1", "First name title", 13);
             VerifyPresentationTestAlertDisplayedProperty(contractsAlert.AlertProperties, "AdditionalData_1_MoreData_1_Uri1", "First link", 14);
-            VerifyPresentationTestAlertDisplayedProperty(contractsAlert.AlertProperties, "DataPoints", "ChartDisplayName", 15);
+            VerifyPresentationTestAlertDisplayedProperty(contractsAlert.AlertProperties, "MetricChart", "MetricChartDisplayName", 15);
+            VerifyPresentationTestAlertDisplayedProperty(contractsAlert.AlertProperties, "DataPoints", "ChartDisplayName", 16);
         }
 
         [TestMethod]
@@ -220,6 +228,27 @@ namespace SmartDetectorsAnalysisTests
             {
                 Assert.AreEqual("<a href=\"https://darwinawards.com/\" target=\"_blank\">Link to data 2</a>", ((TextAlertProperty)property).Value);
             }
+            else if (propertyName == "MetricChart")
+            {
+                MetricChartAlertProperty alertProperty = (MetricChartAlertProperty)property;
+                Assert.AreEqual(default(ResourceIdentifier).ToResourceId(), alertProperty.ResourceId);
+                Assert.AreEqual("someMetric", alertProperty.MetricName);
+                Assert.AreEqual("namespace", alertProperty.MetricNamespace);
+                Assert.AreEqual(2, alertProperty.MetricDimensions.Count);
+                Assert.AreEqual("val1", alertProperty.MetricDimensions["dim1"]);
+                Assert.AreEqual("val2", alertProperty.MetricDimensions["dim2"]);
+                Assert.AreEqual(new DateTime(1972, 6, 6), alertProperty.StartTimeUtc);
+                Assert.AreEqual(new DateTime(1972, 6, 7), alertProperty.EndTimeUtc);
+                Assert.AreEqual(TimeSpan.FromHours(1), alertProperty.TimeGrain);
+                Assert.AreEqual(ContractsAggregationType.Average, alertProperty.AggregationType);
+                Assert.AreEqual(ContractsThresholdType.LessThan, alertProperty.ThresholdType);
+                Assert.AreEqual(0.1, alertProperty.StaticThreshold.LowerThreshold);
+                Assert.AreEqual(0.5, alertProperty.StaticThreshold.UpperThreshold);
+                Assert.AreEqual((uint)5, alertProperty.DynamicThreshold.FailingPeriodsSettings.ConsecutivePeriods);
+                Assert.AreEqual((uint)3, alertProperty.DynamicThreshold.FailingPeriodsSettings.ConsecutiveViolations);
+                Assert.AreEqual(DynamicThreshold.MediumSensitivity, alertProperty.DynamicThreshold.Sensitivity);
+                Assert.AreEqual(new DateTime(1972, 6, 6), alertProperty.DynamicThreshold.IgnoreDataBefore);
+            }
             else
             {
                 Assert.Fail($"Unknown property '{propertyName}'");
@@ -290,6 +319,30 @@ namespace SmartDetectorsAnalysisTests
             {
                 new ListData1(),
                 new ListData2()
+            };
+
+            [MetricChartProperty("MetricChartDisplayName", Order = 8)]
+            public MetricChart MetricChart => new MetricChart("someMetric", TimeSpan.FromHours(1), AggregationType.Average)
+            {
+                ResourceId = default(ResourceIdentifier),
+                MetricNamespace = "namespace",
+                MetricDimensions =
+                {
+                    ["dim1"] = "val1",
+                    ["dim2"] = "val2",
+                },
+                StartTimeUtc = new DateTime(1972, 6, 6),
+                EndTimeUtc = new DateTime(1972, 6, 7),
+                ThresholdType = ThresholdType.LessThan,
+                StaticThreshold = new StaticThreshold
+                {
+                    LowerThreshold = 0.1,
+                    UpperThreshold = 0.5,
+                },
+                DynamicThreshold = new DynamicThreshold(new DynamicThresholdFailingPeriodsSettings(5, 3), DynamicThreshold.MediumSensitivity)
+                {
+                    IgnoreDataBefore = new DateTime(1972, 6, 6),
+                }
             };
         }
 
