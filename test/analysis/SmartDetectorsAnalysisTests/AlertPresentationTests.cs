@@ -241,7 +241,7 @@ namespace SmartDetectorsAnalysisTests
                 Assert.AreEqual(new DateTime(1972, 6, 7), alertProperty.EndTimeUtc);
                 Assert.AreEqual(TimeSpan.FromHours(1), alertProperty.TimeGrain);
                 Assert.AreEqual(ContractsAggregationType.Average, alertProperty.AggregationType);
-                Assert.AreEqual(ContractsThresholdType.GreaterThan, alertProperty.ThresholdType);
+                Assert.AreEqual(ContractsThresholdType.LessThan, alertProperty.ThresholdType);
                 Assert.AreEqual(0.1, alertProperty.StaticThreshold.LowerThreshold);
                 Assert.AreEqual(0.5, alertProperty.StaticThreshold.UpperThreshold);
                 Assert.AreEqual((uint)5, alertProperty.DynamicThreshold.FailingPeriodsSettings.ConsecutivePeriods);
@@ -333,7 +333,7 @@ namespace SmartDetectorsAnalysisTests
                 },
                 StartTimeUtc = new DateTime(1972, 6, 6),
                 EndTimeUtc = new DateTime(1972, 6, 7),
-                ThresholdType = ThresholdType.GreaterThan,
+                ThresholdType = ThresholdType.LessThan,
                 StaticThreshold = new StaticThreshold
                 {
                     LowerThreshold = 0.1,
