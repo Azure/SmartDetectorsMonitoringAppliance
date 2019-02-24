@@ -81,6 +81,9 @@
                         <DataTemplate x:Key="ChartProperty">
                             <local:ChartPropertyControl DataContext="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ContentControl}}, Path=Content, Converter={StaticResource ChartPropertyToChartPropertyControlViewModelConverter}}" />
                         </DataTemplate>
+                        <DataTemplate x:Key="MetricChartProperty">
+                            <local:MetricChartPropertyControl DataContext="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ContentControl}}, Path=Content, Converter={StaticResource MetricChartPropertyToMetricChartPropertyControlViewModelConverter}}" />
+                        </DataTemplate>
                     </ListView.Resources>
                     <ListView.ItemTemplate>
                         <DataTemplate>
