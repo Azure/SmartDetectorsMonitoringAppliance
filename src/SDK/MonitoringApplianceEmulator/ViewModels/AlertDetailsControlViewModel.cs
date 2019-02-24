@@ -16,7 +16,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
     using System.Windows.Media.Imaging;
     using Controls;
     using Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.Models;
-    using Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts;
+    using Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts.AlertProperties;
     using Microsoft.Win32;
     using Unity.Attributes;
     using Unity.Interception.Utilities;

@@ -7,7 +7,7 @@
 namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.Models
 {
     using System.Collections.Generic;
-    using Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts;
+    using Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts.AlertProperties;
 
     /// <summary>
     /// Container for multiple <see cref="ChartAlertProperty"/>.

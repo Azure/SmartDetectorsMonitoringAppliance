@@ -85,22 +85,21 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator
 
                 // Authenticate the user to Active Directory
                 IAuthenticationServices authenticationServices;
-                string dirId = null;
                 if (e.Args.Length == 2)
                 {
                     var subId = e.Args[1];
-                    dirId = GetDirectoryForSubscriptionAsync(subId).Result;
+                    string directoryId = GetDirectoryForSubscriptionAsync(subId).Result;
                     var kv = new KeyVaultClient(GetToken);
                     var sec = kv.GetSecretAsync("https://cadservicepreviewvault.vault.azure.net/secrets/CadServicePreview/836cea07a62147fd9d614a8dd0ac1e91").Result;
                     Console.WriteLine(sec.Value);
-                    authenticationServices = new AuthenticationServices(dirId, "b6836b10-1302-4894-9421-423edb2816f9", sec.Value);
+                    authenticationServices = new AuthenticationServices(directoryId, "b6836b10-1302-4894-9421-423edb2816f9", sec.Value);
                 }
                 else
                 {
                     authenticationServices = new AuthenticationServices();
                 }
 
-                authenticationServices.AuthenticateUser();
+                authenticationServices.AuthenticateUserAsync().Wait();
                 ICredentialsFactory credentialsFactory = new ActiveDirectoryCredentialsFactory(authenticationServices);
                 IHttpClientWrapper httpClientWrapper = new HttpClientWrapper();
                 IExtendedAzureResourceManagerClient azureResourceManagerClient = new ExtendedAzureResourceManagerClient(httpClientWrapper, credentialsFactory, consoleTracer);
@@ -151,10 +150,12 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator
         private static Task<string> GetToken(string authority, string resource, string scope)
         {
             var authenticationContext = new AuthenticationContext(authority);
-            var authenticationResult = authenticationContext.AcquireToken(
+            var authenticationResult = authenticationContext.AcquireTokenAsync(
                 resource,
                 "1950a258-227b-4e31-a9cf-717495945fc2",
-                new Uri(@"urn:ietf:wg:oauth:2.0:oob"));
+                new Uri(@"urn:ietf:wg:oauth:2.0:oob"),
+                new PlatformParameters(PromptBehavior.Auto, null))
+                .Result;
 
             return Task.FromResult(authenticationResult.AccessToken);
         }

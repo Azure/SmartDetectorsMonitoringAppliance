@@ -11,7 +11,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.ApplicationInsights" Version="2.5.1" />
     <PackageReference Include="Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel" Version="2.5.1" />
-    <PackageReference Include="Microsoft.Azure.Management.ResourceManager.Fluent" Version="1.11.1" />
+    <PackageReference Include="Microsoft.Azure.Management.ResourceManager.Fluent" Version="1.19.0" />
     <PackageReference Include="Microsoft.Azure.WebJobs" Version="2.1.0-beta4" />
     <PackageReference Include="Microsoft.Azure.WebJobs.Core" Version="2.1.0-beta4" />
     <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.6.2" />

@@ -38,7 +38,4 @@
   <ItemGroup>
 	<AdditionalFiles Include="$(SolutionDir)stylecop.json" Link="stylecop.json" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="TelemetryDataClient\" />
-  </ItemGroup>
 </Project>

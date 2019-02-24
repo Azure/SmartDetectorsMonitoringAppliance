@@ -124,8 +124,8 @@ namespace SmartDetectorsAnalysisTests
             // Assert the detector's state
             Assert.AreEqual(2, this.stateRepository.Count);
             Assert.AreEqual("test state", this.stateRepository["test key"]);
-            Assert.IsInstanceOfType(this.stateRepository[$"_autoResolve{contractsAlerts.Single().Id}"], typeof(ResolutionState));
-            var resolutionState = (ResolutionState)this.stateRepository[$"_autoResolve{contractsAlerts.Single().Id}"];
+            Assert.IsInstanceOfType(this.stateRepository[$"_autoResolve{contractsAlerts.Single().CorrelationHash}"], typeof(ResolutionState));
+            var resolutionState = (ResolutionState)this.stateRepository[$"_autoResolve{contractsAlerts.Single().CorrelationHash}"];
             Assert.AreEqual(1, resolutionState.AlertPredicates.Count);
             Assert.AreEqual("Predicate value", resolutionState.AlertPredicates["Predicate"]);
         }

@@ -11,7 +11,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
     using System.Windows.Data;
     using Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.Models;
     using Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.ViewModels;
-    using Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts;
+    using Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts.AlertProperties;
 
     /// <summary>
     /// Implementation of <see cref="IValueConverter"/> for converting from a <see cref="ChartAlertProperty"/> value to <see cref="ChartPropertyControlViewModel"/>.

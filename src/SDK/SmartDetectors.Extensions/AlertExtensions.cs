@@ -15,15 +15,22 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
     using System.Reflection;
     using Microsoft.Azure.Monitoring.SmartDetectors.AlertPresentation;
     using Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts;
-    using Newtonsoft.Json;
+    using Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts.AlertProperties;
+    using AggregationType = Microsoft.Azure.Monitoring.SmartDetectors.AlertPresentation.AggregationType;
     using Alert = Microsoft.Azure.Monitoring.SmartDetectors.Alert;
     using ChartAxisType = Microsoft.Azure.Monitoring.SmartDetectors.AlertPresentation.ChartAxisType;
     using ChartPoint = Microsoft.Azure.Monitoring.SmartDetectors.AlertPresentation.ChartPoint;
     using ChartType = Microsoft.Azure.Monitoring.SmartDetectors.AlertPresentation.ChartType;
+    using ContractsAggregationType = Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts.AlertProperties.AggregationType;
     using ContractsAlert = Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts.Alert;
-    using ContractsChartAxisType = Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts.ChartAxisType;
-    using ContractsChartPoint = Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts.ChartPoint;
-    using ContractsChartType = Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts.ChartType;
+    using ContractsChartAxisType = Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts.AlertProperties.ChartAxisType;
+    using ContractsChartPoint = Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts.AlertProperties.ChartPoint;
+    using ContractsChartType = Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts.AlertProperties.ChartType;
+    using ContractsDynamicThreshold = Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts.AlertProperties.DynamicThreshold;
+    using ContractsDynamicThresholdFailingPeriodsSettings = Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts.AlertProperties.DynamicThresholdFailingPeriodsSettings;
+    using ContractsStaticThreshold = Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts.AlertProperties.StaticThreshold;
+    using ContractsThresholdType = Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts.AlertProperties.ThresholdType;
+    using ThresholdType = Microsoft.Azure.Monitoring.SmartDetectors.AlertPresentation.ThresholdType;
 
     /// <summary>
     /// A class for Alert extension methods
@@ -50,10 +57,9 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
             }
 
             // Create presentation elements for each alert property
-            List<AlertProperty> alertProperties = ExtractProperties(alert);
+            List<AlertProperty> alertProperties = alert.ExtractProperties();
 
-            string id = string.Join("##", alert.GetType().FullName, JsonConvert.SerializeObject(request), JsonConvert.SerializeObject(alert)).ToSha256Hash();
-            string resourceId = alert.ResourceIdentifier.ToResourceId();
+            // Generate the alert's correlation hash based on its predicates
             string correlationHash = string.Join("##", alert.ExtractPredicates().OrderBy(x => x.Key).Select(x => x.Key + "|" + x.Value.ToString())).ToSha256Hash();
 
             // Get the alert's signal type based on the clients used to create the alert
@@ -62,10 +68,9 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
             // Return the presentation object
             return new ContractsAlert
             {
-                Id = id,
                 Title = alert.Title,
                 OccurenceTime = alert.OccurenceTime,
-                ResourceId = resourceId,
+                ResourceId = alert.ResourceIdentifier.ToResourceId(),
                 CorrelationHash = correlationHash,
                 SmartDetectorId = request.SmartDetectorId,
                 SmartDetectorName = smartDetectorName,
@@ -103,21 +108,30 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
         /// Extract all alert properties from the specified object
         /// </summary>
         /// <param name="propertiesOwner">The object from which to extract the properties</param>
+        /// <returns>The extracted properties</returns>
+        public static List<AlertProperty> ExtractProperties(this object propertiesOwner)
+        {
+            return ExtractProperties(propertiesOwner, new Order(), null);
+        }
+
+        /// <summary>
+        /// Extract all alert properties from the specified object
+        /// </summary>
+        /// <param name="propertiesOwner">The object from which to extract the properties</param>
         /// <param name="order">The order to use</param>
         /// <param name="parentPropertyName">The parent property name</param>
         /// <returns>The extracted properties</returns>
-        private static List<AlertProperty> ExtractProperties(object propertiesOwner, Order order = null, string parentPropertyName = null)
+        private static List<AlertProperty> ExtractProperties(object propertiesOwner, Order order, string parentPropertyName)
         {
+            if (order == null)
+            {
+                throw new ArgumentNullException(nameof(order));
+            }
+
             // The null object has no properties
             if (propertiesOwner == null)
             {
                 return new List<AlertProperty>();
-            }
-
-            // Initialize order if needed
-            if (order == null)
-            {
-                order = new Order();
             }
 
             // Collect all object properties, and sort them by order
@@ -190,7 +204,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
                 case ChartPropertyAttribute chartAttribute:
                     if (!(propertyValue is IList<ChartPoint> listValues))
                     {
-                        throw new ArgumentException("An AlertPresentationChartAttribute can only be applied to properties of type IList<ChartPoint>");
+                        throw new ArgumentException($"A {nameof(ChartPropertyAttribute)} can only be applied to properties of type IList<ChartPoint>");
                     }
 
                     yield return new ChartAlertProperty(
@@ -201,6 +215,15 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
                         ConvertChartAxisTypeToContractsChartType(chartAttribute.XAxisType),
                         ConvertChartAxisTypeToContractsChartType(chartAttribute.YAxisType),
                         listValues.Select(point => new ContractsChartPoint(point.X, point.Y)).ToList());
+                    break;
+
+                case MetricChartPropertyAttribute _:
+                    if (!(propertyValue is MetricChart metricChart))
+                    {
+                        throw new ArgumentException($"A {nameof(MetricChartPropertyAttribute)} can only be applied to properties of type {nameof(MetricChart)}");
+                    }
+
+                    yield return CreateMetricChartAlertProperty(propertyName, displayName, order, metricChart);
                     break;
 
                 case LongTextPropertyAttribute _:
@@ -214,7 +237,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
                 case ListPropertyAttribute _:
                     if (!(propertyValue is IList list))
                     {
-                        throw new ArgumentException("A ListPropertyAttribute can only be applied to properties of type IList");
+                        throw new ArgumentException($"A {nameof(ListPropertyAttribute)} can only be applied to properties of type IList");
                     }
 
                     foreach (AlertProperty p in CreateAlertPropertiesFromList(propertyName, list, order))
@@ -227,7 +250,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
                 case KeyValuePropertyAttribute keyValueAttribute:
                     if (!(propertyValue is IDictionary<string, string> keyValuePropertyValue))
                     {
-                        throw new ArgumentException("An AlertPresentationKeyValueAttribute can only be applied to properties of type IDictionary<string, string>");
+                        throw new ArgumentException($"A {nameof(KeyValuePropertyAttribute)} can only be applied to properties of type IDictionary<string, string>");
                     }
 
                     if (keyValueAttribute.ShowHeaders)
@@ -271,7 +294,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
             // Validate we have a proper value
             if (!(propertyValue is IList tablePropertyValue))
             {
-                throw new ArgumentException("An AlertPresentationTableAttribute can only be applied to properties of type IList");
+                throw new ArgumentException($"A {nameof(TablePropertyAttribute)} can only be applied to properties of type IList");
             }
 
             // Validate the table is not empty (shouldn't happen, empty tables are ignored by ExtractProperties)
@@ -286,7 +309,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
             {
                 if (item.GetType() != tableRowType)
                 {
-                    throw new ArgumentException("All items in a list with AlertPresentationTableAttribute must have the same type");
+                    throw new ArgumentException($"All items in a list with {nameof(TablePropertyAttribute)} must have the same type");
                 }
             }
 
@@ -360,6 +383,54 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
         }
 
         /// <summary>
+        /// Create a new instance of the <see cref="CreateMetricChartAlertProperty"/> class based on the given values.
+        /// </summary>
+        /// <param name="chartPropertyName">The chart's property name.</param>
+        /// <param name="chartDisplayName">The chart's display name.</param>
+        /// <param name="order">The order to use.</param>
+        /// <param name="metricChart">The chart's details.</param>
+        /// <returns>The newly created <see cref="MetricChartAlertProperty"/> instance.</returns>
+        private static MetricChartAlertProperty CreateMetricChartAlertProperty(
+            string chartPropertyName,
+            string chartDisplayName,
+            Order order,
+            MetricChart metricChart)
+        {
+            ContractsStaticThreshold staticThreshold = metricChart.StaticThreshold == null
+                ? null
+                : new ContractsStaticThreshold
+                {
+                    LowerThreshold = metricChart.StaticThreshold.LowerThreshold,
+                    UpperThreshold = metricChart.StaticThreshold.UpperThreshold
+                };
+
+            ContractsDynamicThreshold dynamicThreshold = metricChart.DynamicThreshold == null
+                ? null
+                : new ContractsDynamicThreshold(new ContractsDynamicThresholdFailingPeriodsSettings(metricChart.DynamicThreshold.FailingPeriodsSettings.ConsecutivePeriods, metricChart.DynamicThreshold.FailingPeriodsSettings.ConsecutiveViolations), metricChart.DynamicThreshold.Sensitivity)
+                {
+                    IgnoreDataBefore = metricChart.DynamicThreshold.IgnoreDataBefore
+                };
+
+            return new MetricChartAlertProperty(
+                chartPropertyName,
+                chartDisplayName,
+                order.Next(),
+                metricChart.MetricName,
+                metricChart.TimeGrain,
+                ConvertAggregationTypeToContractsAggregationType(metricChart.AggregationType))
+            {
+                ResourceId = metricChart.ResourceId.ToResourceId(),
+                MetricNamespace = metricChart.MetricNamespace,
+                MetricDimensions = new Dictionary<string, string>(metricChart.MetricDimensions),
+                StartTimeUtc = metricChart.StartTimeUtc,
+                EndTimeUtc = metricChart.EndTimeUtc,
+                ThresholdType = ConvertThresholdTypeToContractsThresholdType(metricChart.ThresholdType),
+                StaticThreshold = staticThreshold,
+                DynamicThreshold = dynamicThreshold
+            };
+        }
+
+        /// <summary>
         /// Create a list of properties, extracted from the objects in the specified list.
         /// </summary>
         /// <param name="listPropertyName">The list property name</param>
@@ -415,7 +486,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
             {
                 if (!(propertyValue is Uri uriValue))
                 {
-                    throw new ArgumentException("An AlertPresentationUrlFormatterAttribute can only be applied to properties of type Uri");
+                    throw new ArgumentException($"A {nameof(UrlFormatterAttribute)} can only be applied to properties of type Uri");
                 }
 
                 if (!uriValue.IsAbsoluteUri)
@@ -439,6 +510,8 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
             }
         }
 
+        #region Enum converters
+
         /// <summary>
         /// Converts chart type to contracts chart type
         /// </summary>
@@ -453,7 +526,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
                 case ChartType.LineChart:
                     return ContractsChartType.LineChart;
                 default:
-                    throw new InvalidEnumArgumentException("Chart type can be Bar or Line only");
+                    throw new InvalidEnumArgumentException($"Unsupported chart type {chartType}");
             }
         }
 
@@ -478,6 +551,46 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
                     throw new InvalidEnumArgumentException($"Unsupported chart axis of type {chartAxisType}");
             }
         }
+
+        /// <summary>
+        /// Converts aggregation type to contracts aggregation type.
+        /// </summary>
+        /// <param name="aggregationType">The aggregation type to convert.</param>
+        /// <returns>Contracts aggregation type</returns>
+        private static ContractsAggregationType ConvertAggregationTypeToContractsAggregationType(AggregationType aggregationType)
+        {
+            switch (aggregationType)
+            {
+                case AggregationType.Average:
+                    return ContractsAggregationType.Average;
+                case AggregationType.Sum:
+                    return ContractsAggregationType.Sum;
+                case AggregationType.Count:
+                    return ContractsAggregationType.Count;
+                default:
+                    throw new InvalidEnumArgumentException($"Unsupported aggregation type {aggregationType}");
+            }
+        }
+
+        /// <summary>
+        /// Converts threshold type to contracts threshold type.
+        /// </summary>
+        /// <param name="thresholdType">The threshold type to convert.</param>
+        /// <returns>Contracts threshold type</returns>
+        private static ContractsThresholdType ConvertThresholdTypeToContractsThresholdType(ThresholdType thresholdType)
+        {
+            switch (thresholdType)
+            {
+                case ThresholdType.LessThan:
+                    return ContractsThresholdType.LessThan;
+                case ThresholdType.GreaterThan:
+                    return ContractsThresholdType.GreaterThan;
+                default:
+                    throw new InvalidEnumArgumentException($"Unsupported threshold type {thresholdType}");
+            }
+        }
+
+        #endregion
 
         /// <summary>
         /// A helper class to keep track of the order of presentation properties

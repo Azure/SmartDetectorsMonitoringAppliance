@@ -8,7 +8,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
 {
     using System;
     using System.Configuration;
-    using System.Linq;
+    using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.Azure.Monitoring.SmartDetectors.Tools;
     using Microsoft.IdentityModel.Clients.ActiveDirectory;
@@ -18,7 +18,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
     /// </summary>
     public class AuthenticationServices : IAuthenticationServices
     {
-        private readonly string directoryId;
+        private static readonly SemaphoreSlim AuthenticationSemaphoreSlim = new SemaphoreSlim(1, 1);
 
         // The resource ID used for authentication requests.
         private readonly string resourceId;
@@ -35,10 +35,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
         // The authentication context used to authenticate with AAD
         private readonly AuthenticationContext authenticationContext;
 
-        // The lock, used to update expired AuthenticationResult in a thread safe way
-        private readonly object authenticationResultLock = new object();
-
-        // The AAD authetication result
+        // The AAD authentication result
         private AuthenticationResult authenticationResult;
 
         /// <summary>
@@ -49,7 +46,6 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
         /// <param name="clientSecret">The client secret</param>
         public AuthenticationServices(string directoryId, string clientId, string clientSecret)
         {
-            this.directoryId = directoryId;
             this.AuthenticatedUserName = string.Empty;
 
             string commonAuthority = Diagnostics.EnsureStringNotNullOrWhiteSpace(() => ConfigurationManager.AppSettings["CommonAuthority"]);
@@ -65,7 +61,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
             }
             else
             {
-                this.authenticationContext = new AuthenticationContext($@"https://login.windows.net/{this.directoryId}/");
+                this.authenticationContext = new AuthenticationContext($@"https://login.windows.net/{directoryId}/");
             }
         }
 
@@ -96,21 +92,22 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
         /// Authenticates the user with their organization's AAD.
         /// This method is not thread safe.
         /// </summary>
-        public void AuthenticateUser()
+        /// <returns>A <see cref="Task"/> running the async operation.</returns>
+        public async Task AuthenticateUserAsync()
         {
             if (string.IsNullOrEmpty(this.clientSecret))
             {
-                this.authenticationResult = this.authenticationContext.AcquireToken(
+                this.authenticationResult = await this.authenticationContext.AcquireTokenAsync(
                     this.resourceId,
                     this.clientId,
                     this.redirectUri,
-                    PromptBehavior.Auto);
-                ////UserIdentifier.AnyUser,
-                ////"prompt=consent");
+                    new PlatformParameters(PromptBehavior.Auto, null));
+                    ////UserIdentifier.AnyUser,
+                    ////"prompt=consent");
             }
             else
             {
-                this.authenticationResult = this.authenticationContext.AcquireToken(
+                this.authenticationResult = await this.authenticationContext.AcquireTokenAsync(
                     this.resourceId,
                     new ClientCredential(this.clientId, this.clientSecret));
             }
@@ -123,23 +120,23 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
         /// This method is thread safe.
         /// </summary>
         /// <param name="resource">The resource</param>
-        /// <returns>A task that returns the resource's access token</returns>
+        /// <returns>A <see cref="Task"/> that returns the resource's access token</returns>
         public async Task<string> GetResourceTokenAsync(string resource)
         {
-            if (this.IsAccessTokenAboutToExpire)
+            if (this.IsAccessTokenAboutToExpire && string.IsNullOrEmpty(this.clientSecret))
             {
-                lock (this.authenticationResultLock)
+                await AuthenticationSemaphoreSlim.WaitAsync(TimeSpan.FromMinutes(1));
+                try
                 {
                     // Check again
                     if (this.IsAccessTokenAboutToExpire)
                     {
-                        if (string.IsNullOrEmpty(this.clientSecret))
-                        {
-                            this.authenticationResult =
-                                this.authenticationContext.AcquireTokenByRefreshToken(
-                                    this.authenticationResult.RefreshToken, this.clientId);
-                        }
+                        await this.AuthenticateUserAsync();
                     }
+                }
+                finally
+                {
+                    AuthenticationSemaphoreSlim.Release();
                 }
             }
 

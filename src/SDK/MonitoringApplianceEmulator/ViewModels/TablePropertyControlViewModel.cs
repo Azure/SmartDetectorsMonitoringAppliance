@@ -8,7 +8,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
 {
     using System.Collections.Generic;
     using System.Data;
-    using Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts;
+    using Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts.AlertProperties;
     using Newtonsoft.Json.Linq;
 
     /// <summary>

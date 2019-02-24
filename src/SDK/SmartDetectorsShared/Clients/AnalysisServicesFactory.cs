@@ -139,7 +139,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Clients
             this.UsedMetricClient = true;
 
             // Create the client
-            return Task.FromResult<IMetricClient>(new MetricClient(this.tracer, this.credentialsFactory, subscriptionId));
+            return Task.FromResult<IMetricClient>(new MetricClient(this.tracer, this.credentialsFactory));
         }
 
         /// <summary>
