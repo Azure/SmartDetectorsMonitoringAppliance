@@ -76,6 +76,33 @@ namespace SmartDetectorsSharedTests
         }
 
         [TestMethod]
+        public async Task WhenCallingGetResourceMetricsWithNamespaceHappyFlow()
+        {
+            string expectedUri = "/subscriptions/SUBSCRIPTION_ID/resourceGroups/RESOURCE_GROUP_NAME/providers/Microsoft.Storage/storageAccounts/STORAGE_NAME/queueServices/default";
+
+            var azureResponse = new AzureOperationResponse<ResponseInner>()
+            {
+                Body = new ResponseInner("timespan", GetMetricList()),
+                Request = new HttpRequestMessage(),
+                RequestId = "RequestId",
+                Response = new HttpResponseMessage()
+            };
+
+            this.metricsOperationsMock
+                .Setup(metric => metric.ListWithHttpMessagesAsync(It.IsAny<string>(), It.IsAny<ODataQuery<MetadataValueInner>>(), It.IsAny<string>(), It.IsAny<TimeSpan?>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int?>(), It.IsAny<string>(), It.IsAny<ResultType?>(), It.IsAny<string>(), It.IsAny<Dictionary<string, List<string>>>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(azureResponse);
+
+            this.monitorManagementClientMock.SetupGet(monitorClient => monitorClient.Metrics).Returns(this.metricsOperationsMock.Object);
+            IMetricClient metricClient = new MetricClient(this.tracerMock.Object, this.monitorManagementClientMock.Object);
+
+            List<MetricQueryResult> metrics = (await metricClient.GetResourceMetricsAsync(this.resourceIdentifier, ServiceType.AzureStorageQueue, new QueryParameters() { MetricNamespace = "NAMESPACE" }, default(CancellationToken))).ToList();
+
+            // Validate that right Uri was generated
+            this.metricsOperationsMock.Verify(metric => metric.ListWithHttpMessagesAsync(expectedUri, It.IsAny<ODataQuery<MetadataValueInner>>(), null, null, string.Empty, null, null, null, null, "NAMESPACE", null, CancellationToken.None));
+            Assert.AreEqual(metrics.Count, 2, "2 metrics are expected");
+        }
+
+        [TestMethod]
         public async Task WhenCallingGetResourceMetricDefinitionsHappyFlow()
         {
             string resourceUri = "/subscriptions/SUBSCRIPTION_ID/resourceGroups/RESOURCE_GROUP_NAME/providers/Microsoft.Storage/storageAccounts/STORAGE_NAME";
