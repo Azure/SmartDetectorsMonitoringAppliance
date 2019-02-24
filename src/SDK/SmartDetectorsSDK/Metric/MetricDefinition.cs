@@ -18,14 +18,16 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Metric
         /// Initializes a new instance of the <see cref="MetricDefinition"/> class.
         /// </summary>
         /// <param name="name">The metric name</param>
+        /// <param name="nameSpace">The metric namespace</param>
         /// <param name="dimensions">The metric dimensions</param>
         /// <param name="isDimensionRequired">A boolean indicating whether the dimension is required</param>
         /// <param name="availabilities">The metric's availabilities, as a pair of <see cref="TimeSpan"/> objects indicating the retention and time grain</param>
         /// <param name="unit">The metric's value unit (Seconds, bytes, etc.)</param>
         /// <param name="primaryAggregationType">The metric's primary aggregation type</param>
-        public MetricDefinition(string name, IReadOnlyList<string> dimensions, bool? isDimensionRequired, IReadOnlyList<Tuple<TimeSpan?, TimeSpan?>> availabilities, string unit, Aggregation? primaryAggregationType)
+        public MetricDefinition(string name, string nameSpace, IReadOnlyList<string> dimensions, bool? isDimensionRequired, IReadOnlyList<Tuple<TimeSpan?, TimeSpan?>> availabilities, string unit, Aggregation? primaryAggregationType)
         {
             this.Name = name;
+            this.Namespace = nameSpace;
             this.Dimensions = dimensions;
             this.IsDimensionRequired = isDimensionRequired;
             this.Availabilities = availabilities;
@@ -37,6 +39,11 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Metric
         /// Gets the metric name
         /// </summary>
         public string Name { get; }
+
+        /// <summary>
+        /// Gets the metric namespace
+        /// </summary>
+        public string Namespace { get; }
 
         /// <summary>
         /// Gets the metric dimensions names
