@@ -25,6 +25,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
         {
             return new MetricDefinition(
                 definition.Name.Value,
+                definition.NamespaceProperty,
                 definition.Dimensions?.Select(x => x.Value).ToList(),
                 definition.IsDimensionRequired,
                 definition.MetricAvailabilities?.Select(x => Tuple.Create(x.Retention, x.TimeGrain)).ToList(),

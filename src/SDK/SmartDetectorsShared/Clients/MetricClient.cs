@@ -130,6 +130,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Clients
                     timespan: queryParameters.TimeRange,
                     interval: queryParameters.Interval,
                     metricnames: queryParameters.MetricNames == null ? string.Empty : string.Join(",", queryParameters.MetricNames),
+                    metricnamespace: queryParameters.MetricNamespace,
                     aggregation: queryParameters.Aggregations != null ? string.Join(",", queryParameters.Aggregations) : null,
                     top: queryParameters.Top,
                     orderby: queryParameters.Orderby,

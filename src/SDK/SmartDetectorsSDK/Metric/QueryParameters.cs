@@ -61,6 +61,11 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Metric
         public List<string> MetricNames { get; set; }
 
         /// <summary>
+        /// Gets or sets the metric namespace of the metrics to be fetched.
+        /// </summary>
+        public string MetricNamespace { get; set; }
+
+        /// <summary>
         /// Gets or sets the data aggregation types to perform on the fetched data
         /// </summary>
         [SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly", Justification = "This is only used as input to the GetResourceMetricsAsync, and is a DTO by nature")]
