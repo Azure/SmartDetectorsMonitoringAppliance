@@ -585,6 +585,8 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
                     return ContractsThresholdType.LessThan;
                 case ThresholdType.GreaterThan:
                     return ContractsThresholdType.GreaterThan;
+                case ThresholdType.GreaterOrLessThan:
+                    return ContractsThresholdType.GreaterOrLessThan;
                 default:
                     throw new InvalidEnumArgumentException($"Unsupported threshold type {thresholdType}");
             }
