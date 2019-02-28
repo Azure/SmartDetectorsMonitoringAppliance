@@ -19,6 +19,11 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.AlertPresentation
         /// <summary>
         /// Indicates a less-than threshold.
         /// </summary>
-        LessThan
+        LessThan,
+
+        /// <summary>
+        /// Indicates a greater-than or less-than threshold.
+        /// </summary>
+        GreaterOrLessThan
     }
 }
