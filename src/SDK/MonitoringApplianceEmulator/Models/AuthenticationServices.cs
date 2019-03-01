@@ -101,7 +101,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
                     this.resourceId,
                     this.clientId,
                     this.redirectUri,
-                    new PlatformParameters(PromptBehavior.Auto, null));
+                    new PlatformParameters(PromptBehavior.Auto, null)).ConfigureAwait(false);
                     ////UserIdentifier.AnyUser,
                     ////"prompt=consent");
             }
@@ -109,7 +109,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
             {
                 this.authenticationResult = await this.authenticationContext.AcquireTokenAsync(
                     this.resourceId,
-                    new ClientCredential(this.clientId, this.clientSecret));
+                    new ClientCredential(this.clientId, this.clientSecret)).ConfigureAwait(false);
             }
 
             this.AuthenticatedUserName = this.authenticationResult.UserInfo?.GivenName;
@@ -131,7 +131,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
                     // Check again
                     if (this.IsAccessTokenAboutToExpire)
                     {
-                        await this.AuthenticateUserAsync();
+                        await this.AuthenticateUserAsync().ConfigureAwait(false);
                     }
                 }
                 finally
@@ -148,13 +148,13 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
                     this.clientId,
                     new UserAssertion(
                         this.authenticationResult.AccessToken,
-                        this.authenticationResult.AccessTokenType));
+                        this.authenticationResult.AccessTokenType)).ConfigureAwait(false);
             }
             else
             {
                 authResult = await this.authenticationContext.AcquireTokenAsync(
                     resource,
-                    new ClientCredential(this.clientId, this.clientSecret));
+                    new ClientCredential(this.clientId, this.clientSecret)).ConfigureAwait(false);
             }
 
             return authResult.AccessToken;

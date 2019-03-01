@@ -9,11 +9,13 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
     using System;
     using System.Globalization;
     using System.Windows.Data;
+    using Microsoft.Azure.Monitoring.SmartDetectors.Clients;
     using Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.ViewModels;
     using Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts.AlertProperties;
+    using Unity;
 
     /// <summary>
-    /// Implementation of <see cref="IValueConverter"/> for converting from a <see cref="ChartAlertProperty"/> value to <see cref="ChartPropertyControlViewModel"/>.
+    /// Implementation of <see cref="IValueConverter"/> for converting from a <see cref="ChartAlertProperty"/> value to <see cref="MetricChartPropertyControlViewModel"/>.
     /// </summary>
     public class MetricChartPropertyToMetricChartPropertyControlViewModelConverter : IValueConverter
     {
@@ -40,10 +42,12 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
 
             if (value is MetricChartAlertProperty metricChartAlertProperty)
             {
-                return new MetricChartPropertyControlViewModel(metricChartAlertProperty);
+                return new MetricChartPropertyControlViewModel(
+                    App.Container.Resolve<IInternalAnalysisServicesFactory>(),
+                    metricChartAlertProperty);
             }
 
-            throw new ArgumentException($"The value parameter must be of type {nameof(MetricChartAlertProperty)} or {nameof(ChartPropertyControlViewModel)}, but it is from type {value.GetType().Name}.", nameof(value));
+            throw new ArgumentException($"The value parameter must be of type {nameof(MetricChartAlertProperty)} or {nameof(MetricChartPropertyControlViewModel)}, but it is from type {value.GetType().Name}.", nameof(value));
         }
 
         /// <summary>

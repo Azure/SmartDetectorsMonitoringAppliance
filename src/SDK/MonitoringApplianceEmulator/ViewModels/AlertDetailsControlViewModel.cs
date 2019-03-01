@@ -32,7 +32,8 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
             AlertPropertyType.LongText,
             AlertPropertyType.KeyValue,
             AlertPropertyType.Table,
-            AlertPropertyType.Chart
+            AlertPropertyType.Chart,
+            AlertPropertyType.MetricChart
         };
 
         private EmulationAlert alert;
