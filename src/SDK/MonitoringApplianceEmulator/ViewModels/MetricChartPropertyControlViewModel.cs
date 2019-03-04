@@ -20,6 +20,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
     using LiveCharts.Wpf;
     using Microsoft.Azure.Monitoring.SmartDetectors.Clients;
     using Microsoft.Azure.Monitoring.SmartDetectors.Metric;
+    using Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.BaselineServiceClient;
     using Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.Controls;
     using Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts.AlertProperties;
 
@@ -34,6 +35,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
 
         private readonly Task loadChartTask;
         private readonly IInternalAnalysisServicesFactory analysisServicesFactory;
+        private readonly IBaselineServiceClient baselineServiceClient;
         private SeriesCollection seriesCollection;
         private Func<double, string> xAxisFormatter;
         private Func<double, string> yAxisFormatter;
@@ -42,11 +44,16 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
         /// Initializes a new instance of the <see cref="MetricChartPropertyControlViewModel"/> class.
         /// </summary>
         /// <param name="analysisServicesFactory">The analysis services factory</param>
+        /// <param name="baselineServiceClient">The baseline service client</param>
         /// <param name="metricChartAlertProperty">The metric chart alert property that should be displayed.</param>
-        public MetricChartPropertyControlViewModel(IInternalAnalysisServicesFactory analysisServicesFactory, MetricChartAlertProperty metricChartAlertProperty)
+        public MetricChartPropertyControlViewModel(
+            IInternalAnalysisServicesFactory analysisServicesFactory,
+            IBaselineServiceClient baselineServiceClient,
+            MetricChartAlertProperty metricChartAlertProperty)
         {
             this.Title = metricChartAlertProperty.DisplayName;
             this.analysisServicesFactory = analysisServicesFactory;
+            this.baselineServiceClient = baselineServiceClient;
             this.loadChartTask = this.LoadChart(metricChartAlertProperty, CancellationToken.None);
         }
 

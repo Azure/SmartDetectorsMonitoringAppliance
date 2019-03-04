@@ -10,6 +10,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator
     using System;
     using System.IO;
     using System.Net;
+    using System.Threading;
     using System.Threading.Tasks;
     using System.Windows;
     using IdentityModel.Clients.ActiveDirectory;
@@ -18,6 +19,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator
     using Microsoft.Azure.Monitoring.SmartDetectors.Clients;
     using Microsoft.Azure.Monitoring.SmartDetectors.Extensions;
     using Microsoft.Azure.Monitoring.SmartDetectors.Loader;
+    using Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.BaselineServiceClient;
     using Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.Models;
     using Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.State;
     using Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.Trace;
@@ -110,6 +112,10 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator
                 // Create state repository factory
                 IStateRepositoryFactory stateRepositoryFactory = new EmulationStateRepositoryFactory();
 
+                // Create baseline service client
+                IBaselineServiceClientFactory baselineServiceClientFactory = new BaselineServiceClientFactory();
+                IBaselineServiceClient baselineServiceClient = baselineServiceClientFactory.CreateAsync(CancellationToken.None).Result;
+
                 // Load user settings
                 var userSettings = UserSettings.LoadUserSettings();
 
@@ -136,7 +142,8 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator
                     .RegisterInstance(logArchive)
                     .RegisterInstance(smartDetectorRunner)
                     .RegisterInstance(stateRepositoryFactory)
-                    .RegisterInstance(userSettings);
+                    .RegisterInstance(userSettings)
+                    .RegisterInstance(baselineServiceClient);
             }
             catch (Exception exception)
             {
