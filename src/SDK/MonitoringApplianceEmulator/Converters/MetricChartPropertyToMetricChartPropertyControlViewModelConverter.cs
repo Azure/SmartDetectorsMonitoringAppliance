@@ -10,6 +10,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
     using System.Globalization;
     using System.Windows.Data;
     using Microsoft.Azure.Monitoring.SmartDetectors.Clients;
+    using Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.BaselineServiceClient;
     using Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.ViewModels;
     using Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts.AlertProperties;
     using Unity;
@@ -44,6 +45,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
             {
                 return new MetricChartPropertyControlViewModel(
                     App.Container.Resolve<IInternalAnalysisServicesFactory>(),
+                    App.Container.Resolve<IBaselineServiceClient>(),
                     metricChartAlertProperty);
             }
 
