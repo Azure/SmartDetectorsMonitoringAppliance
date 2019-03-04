@@ -120,6 +120,10 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
 
         private async Task LoadChart(MetricChartAlertProperty property, CancellationToken cancellationToken)
         {
+            // Verify start/end times
+            DateTime startTime = property.StartTimeUtc ?? throw new ApplicationException("Start time cannot be null");
+            DateTime endTime = property.EndTimeUtc ?? throw new ApplicationException("Start time cannot be null");
+
             // Convert from aggregation type to aggregation
             Aggregation aggregation;
             switch (property.AggregationType)
@@ -152,8 +156,8 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
                     {
                         MetricNamespace = property.MetricNamespace,
                         MetricNames = new List<string>() { property.MetricName },
-                        StartTime = property.StartTimeUtc,
-                        EndTime = property.EndTimeUtc,
+                        StartTime = startTime,
+                        EndTime = endTime,
                         Interval = property.TimeGrain,
                         Aggregations = new List<Aggregation>() { aggregation },
                     },
@@ -169,11 +173,24 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
                     .Data
                     .Select(p => new DateTimePoint(p.TimeStamp, p.GetValue(aggregation))));
 
-            // Get low/high thresholds (mock)
-            double percentile10 = values.OrderBy(p => p.Value).ElementAt((int)Math.Floor(values.Count * 0.1)).Value;
-            ChartValues<DateTimePoint> low = new ChartValues<DateTimePoint>(values.Select(p => new DateTimePoint(p.DateTime, percentile10)));
-            double percentile90 = values.OrderBy(p => p.Value).ElementAt((int)Math.Floor(values.Count * 0.9)).Value;
-            ChartValues<DateTimePoint> high = new ChartValues<DateTimePoint>(values.Select(p => new DateTimePoint(p.DateTime, percentile90)));
+            // Get low/high thresholds (from the baseline service)
+            GetPredictionsRequestDto getPredictionsRequest = new GetPredictionsRequestDto()
+            {
+                Aggregation = property.AggregationType.ToString(),
+                ResourceId = property.ResourceId,
+                MetricName = property.MetricName,
+                EndTime = endTime,
+                MetricNamespace = property.MetricNamespace,
+                Interval = property.TimeGrain,
+                StartTime = startTime,
+                GetHistoricalThresholds = true,
+                AlertTime = endTime,
+                Sensitivities = new List<string>() { property.DynamicThreshold.Sensitivity.ToString(CultureInfo.InvariantCulture) }
+            };
+            GetPredictionsResponseDto getPredictionsResponse = await this.baselineServiceClient.GetPredictionsAsync(getPredictionsRequest, cancellationToken);
+            ExternalBaselinePerSensitivity baseline = getPredictionsResponse.Baseline.First();
+            ChartValues<DateTimePoint> low = new ChartValues<DateTimePoint>(values.Select((v, i) => new DateTimePoint(v.DateTime, baseline.LowThrehsolds[i])));
+            ChartValues<DateTimePoint> high = new ChartValues<DateTimePoint>(values.Select((v, i) => new DateTimePoint(v.DateTime, baseline.HighThrehsolds[i])));
 
             // Predicate that indicates whether a point is an anomaly
             var dateTimeToThresholds = low.Zip(high, (p1, p2) => new

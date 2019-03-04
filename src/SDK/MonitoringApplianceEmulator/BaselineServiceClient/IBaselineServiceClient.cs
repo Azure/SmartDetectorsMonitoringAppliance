@@ -40,5 +40,13 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
         /// <param name="cancellationToken">The cancellation token</param>
         /// <returns>The Train response</returns>
         Task TrainAsync(TrainRequestDto requestDto, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Send a GetPredictions request to the service
+        /// </summary>
+        /// <param name="requestDto">The request DTO</param>
+        /// <param name="cancellationToken">The cancellation token</param>
+        /// <returns>The GetPredictions response</returns>
+        Task<GetPredictionsResponseDto> GetPredictionsAsync(GetPredictionsRequestDto requestDto, CancellationToken cancellationToken);
     }
 }

@@ -15,40 +15,19 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
     /// <summary>
     /// Base class for BaselineServiceExceptions
     /// </summary>
-    public abstract class BaselineServiceException : Exception
+    public class BaselineServiceException : Exception
     {
-        protected BaselineServiceException(string message)
+        public BaselineServiceException(string message)
             : base(message)
         {
         }
 
-        protected BaselineServiceException(string message, Exception innerException)
+        public BaselineServiceException(string message, Exception innerException)
             : base(message, innerException)
         {
         }
 
         protected BaselineServiceException(SerializationInfo info, StreamingContext context)
-            : base(info, context)
-        {
-        }
-    }
-
-    /// <summary>
-    /// Exception thrown when IsAnomaly flow fails
-    /// </summary>
-    public class BaselineServiceIsAnomalyException : BaselineServiceException
-    {
-        public BaselineServiceIsAnomalyException(string message)
-            : base(message)
-        {
-        }
-
-        public BaselineServiceIsAnomalyException(string message, Exception innerException)
-            : base(message, innerException)
-        {
-        }
-
-        protected BaselineServiceIsAnomalyException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
         }
@@ -122,81 +101,6 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
     }
 
     /// <summary>
-    /// Exception thrown when GetQueriesForTrain request to Baseline Service fails
-    /// </summary>
-    public class BaselineServiceGetQueriesException : BaselineServiceException
-    {
-        public BaselineServiceGetQueriesException(string message, HttpStatusCode? responseStatusCode)
-            : base(message)
-        {
-            this.ResponseStatusCode = responseStatusCode;
-        }
-
-        public BaselineServiceGetQueriesException(string message, Exception innerException, HttpStatusCode? responseStatusCode)
-            : base(message, innerException)
-        {
-            this.ResponseStatusCode = responseStatusCode;
-        }
-
-        protected BaselineServiceGetQueriesException(SerializationInfo info, StreamingContext context)
-            : base(info, context)
-        {
-        }
-
-        public HttpStatusCode? ResponseStatusCode { get; }
-    }
-
-    /// <summary>
-    /// Exception thrown when GetPredictions request to Baseline Service fails
-    /// </summary>
-    public class BaselineServiceGetPredictionsRequestFailedException : BaselineServiceException
-    {
-        public BaselineServiceGetPredictionsRequestFailedException(string message, HttpStatusCode? responseStatusCode)
-            : base(message)
-        {
-            this.ResponseStatusCode = responseStatusCode;
-        }
-
-        public BaselineServiceGetPredictionsRequestFailedException(string message, Exception innerException, HttpStatusCode? responseStatusCode)
-            : base(message, innerException)
-        {
-            this.ResponseStatusCode = responseStatusCode;
-        }
-
-        protected BaselineServiceGetPredictionsRequestFailedException(SerializationInfo info, StreamingContext context)
-            : base(info, context)
-        {
-        }
-
-        public HttpStatusCode? ResponseStatusCode { get; }
-    }
-
-    /// <summary>
-    /// Exception thrown when GetBaseline request to Baseline Service fails
-    /// </summary>
-    public class BaselineServiceGetBaselineRequestFailedException : BaselineServiceException
-    {
-        public BaselineServiceGetBaselineRequestFailedException(string message, HttpStatusCode? responseStatusCode)
-            : base(message)
-        {
-            this.ResponseStatusCode = responseStatusCode;
-        }
-
-        public BaselineServiceGetBaselineRequestFailedException(string message, Exception innerException, HttpStatusCode? responseStatusCode)
-            : base(message, innerException)
-        {
-            this.ResponseStatusCode = responseStatusCode;
-        }
-
-        protected BaselineServiceGetBaselineRequestFailedException(SerializationInfo info, StreamingContext context)
-            : base(info, context)
-        {
-        }
-
-        public HttpStatusCode? ResponseStatusCode { get; }
-    }
-
-    /// <summary>
     /// Exception thrown when Dynamic Threshold flow times out
     /// </summary>
     public class BaselineServiceTimeoutException : BaselineServiceException
@@ -212,69 +116,6 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
         }
 
         protected BaselineServiceTimeoutException(SerializationInfo info, StreamingContext context)
-            : base(info, context)
-        {
-        }
-    }
-
-    /// <summary>
-    /// Exception thrown when Dynamic Threshold train flow times out
-    /// </summary>
-    public class BaselineServiceTrainTimeoutException : BaselineServiceException
-    {
-        public BaselineServiceTrainTimeoutException(string message)
-            : base(message)
-        {
-        }
-
-        public BaselineServiceTrainTimeoutException(string message, Exception innerException)
-            : base(message, innerException)
-        {
-        }
-
-        protected BaselineServiceTrainTimeoutException(SerializationInfo info, StreamingContext context)
-            : base(info, context)
-        {
-        }
-    }
-
-    /// <summary>
-    /// Exception thrown when Dynamic Threshold getQueriesForTrain flow times out
-    /// </summary>
-    public class BaselineServiceGetQueriesTimeoutException : BaselineServiceException
-    {
-        public BaselineServiceGetQueriesTimeoutException(string message)
-            : base(message)
-        {
-        }
-
-        public BaselineServiceGetQueriesTimeoutException(string message, Exception innerException)
-            : base(message, innerException)
-        {
-        }
-
-        protected BaselineServiceGetQueriesTimeoutException(SerializationInfo info, StreamingContext context)
-            : base(info, context)
-        {
-        }
-    }
-
-    /// <summary>
-    /// Exception thrown when Dynamic Threshold training fails
-    /// </summary>
-    public class BaselineServiceTrainException : BaselineServiceException
-    {
-        public BaselineServiceTrainException(string message)
-            : base(message)
-        {
-        }
-
-        public BaselineServiceTrainException(string message, Exception innerException)
-            : base(message, innerException)
-        {
-        }
-
-        protected BaselineServiceTrainException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
         }

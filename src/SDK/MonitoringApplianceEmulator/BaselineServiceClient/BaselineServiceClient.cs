@@ -9,13 +9,16 @@
 namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.BaselineServiceClient
 {
     using System;
+    using System.Collections.Generic;
     using System.Configuration;
     using System.Globalization;
+    using System.Linq;
     using System.Net;
     using System.Net.Http;
     using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
+    using System.Xml;
     using Newtonsoft.Json;
     using Polly;
 
@@ -105,7 +108,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
                 }
                 catch (Exception ex)
                 {
-                    throw new BaselineServiceIsAnomalyException("Failed to get anomaly score", ex);
+                    throw new BaselineServiceException("Failed to get anomaly score", ex);
                 }
             });
         }
@@ -147,12 +150,12 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
                 }
                 catch (TaskCanceledException ex)
                 {
-                    throw new BaselineServiceGetQueriesTimeoutException(
+                    throw new BaselineServiceTimeoutException(
                         "Failed to retrieve training queries due to timeout", ex);
                 }
                 catch (Exception ex)
                 {
-                    throw new BaselineServiceGetQueriesException($"Failed to retrieve training queries: {ex.Message}", null);
+                    throw new BaselineServiceException($"Failed to retrieve training queries: {ex.Message}", null);
                 }
             });
         }
@@ -192,11 +195,72 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
                 }
                 catch (TaskCanceledException ex)
                 {
-                    throw new BaselineServiceTrainTimeoutException("Failed to train data due to timeout", ex);
+                    throw new BaselineServiceTimeoutException("Failed to train data due to timeout", ex);
                 }
                 catch (Exception ex)
                 {
-                    throw new BaselineServiceTrainException($"Failed to train data: {ex.Message}", null);
+                    throw new BaselineServiceException($"Failed to train data: {ex.Message}", null);
+                }
+            });
+        }
+
+        /// <summary>
+        /// Send a GetPredictions request to the service
+        /// </summary>
+        /// <param name="requestDto">The request DTO</param>
+        /// <param name="cancellationToken">The cancellation token</param>
+        /// <returns>The GetPredictions response</returns>
+        public async Task<GetPredictionsResponseDto> GetPredictionsAsync(GetPredictionsRequestDto requestDto, CancellationToken cancellationToken)
+        {
+            return await this.retryPolicy.ExecuteAsync(async () =>
+            {
+                try
+                {
+                    string url = string.Format(CultureInfo.InvariantCulture, BaselineServiceUrlFormat, "train", $"api/arm{requestDto.ResourceId}/providers/microsoft.insights/baseline/{Uri.EscapeUriString(requestDto.MetricName)}?");
+
+                    url += $"api/arm{requestDto.ResourceId}/providers/microsoft.insights/baseline/{Uri.EscapeUriString(requestDto.MetricName)}?";
+
+                    IDictionary<string, string> queryParameters = new Dictionary<string, string>()
+                    {
+                        ["interval"] = XmlConvert.ToString(requestDto.Interval),
+                        ["timespan"] = $"{requestDto.StartTime:u}/{requestDto.EndTime:u}",
+                        ["aggregation"] = requestDto.Aggregation,
+                        ["sensitivities"] = string.Join(",", requestDto.Sensitivities),
+                        ["resultType"] = "Data",
+                        ["metricNamespace"] = Uri.EscapeDataString(requestDto.MetricNamespace),
+                        ["tags"] = string.Empty,
+                        ["alertTime"] = $"{requestDto.AlertTime:u}",
+                        ["getHistoricalThresholds"] = requestDto.GetHistoricalThresholds.ToString(CultureInfo.InvariantCulture)
+                    };
+
+                    url += string.Join("&", queryParameters.Select(p => $"{p.Key}={p.Value}"));
+
+                    var responseMessage = await this.httpClient.SendAsync(
+                        new HttpRequestMessage(HttpMethod.Get, url),
+                        cancellationToken).ConfigureAwait(false);
+
+                    var responseBody = await responseMessage.Content.ReadAsStringAsync().ConfigureAwait(false);
+
+                    if (!responseMessage.IsSuccessStatusCode)
+                    {
+                        throw new BaselineServiceRequestFailedException(
+                            $"Failed to get predictions {responseMessage.StatusCode}: {responseBody}",
+                            responseMessage.StatusCode);
+                    }
+
+                    return JsonConvert.DeserializeObject<GetPredictionsResponseDto>(responseBody);
+                }
+                catch (BaselineServiceException)
+                {
+                    throw;
+                }
+                catch (TaskCanceledException ex)
+                {
+                    throw new BaselineServiceTimeoutException("Failed to get predictions due to timeout", ex);
+                }
+                catch (Exception ex)
+                {
+                    throw new BaselineServiceException($"Failed to get predictions: {ex.Message}", null);
                 }
             });
         }

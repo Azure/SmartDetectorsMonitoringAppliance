@@ -12,6 +12,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
     using System.Collections.Generic;
     using System.Linq;
     using Newtonsoft.Json;
+    using Newtonsoft.Json.Converters;
 
     public class TrainRequestDto
     {
@@ -173,5 +174,120 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
         public string Aggregation { get; set; }
 
         public SortedDictionary<string, string> Dimensions { get; set; }
+    }
+
+    public class GetPredictionsRequestDto
+    {
+        public string ResourceId { get; set; }
+
+        public string MetricName { get; set; }
+
+        public TimeSpan Interval { get; set; }
+
+        public DateTime StartTime { get; set; }
+
+        public DateTime EndTime { get; set; }
+
+        public string Aggregation { get; set; }
+
+        public List<string> Sensitivities { get; set; }
+
+        public string MetricNamespace { get; set; }
+
+        public DateTime AlertTime { get; set; }
+
+        public bool GetHistoricalThresholds { get; set; }
+    }
+
+    public class GetPredictionsResponseDto
+    {
+        [JsonProperty(PropertyName = "id")]
+        public string BaselineMetricId { get; set; }
+
+        [JsonProperty(PropertyName = "properties")]
+        public BaselineProperties Properties { get; set; }
+
+        [JsonProperty(PropertyName = "timestamps")]
+        public IList<DateTime> Timestamps { get; set; }
+
+        [JsonProperty(PropertyName = "baseline")]
+        public IList<ExternalBaselinePerSensitivity> Baseline { get; set; }
+
+        [JsonProperty(PropertyName = "metdata")]
+        public IList<SingleBaselineMetadata> BaselineMetadata { get; set; }
+
+        [JsonProperty(PropertyName = "predictionResultType")]
+        public PredictionResultType PredictionResultType { get; set; }
+
+        [JsonProperty(PropertyName = "errorType")]
+        public ErrorType ErrorType { get; set; }
+    }
+
+    public class BaselineProperties
+    {
+        [JsonProperty(PropertyName = "interval")]
+        public string Interval { get; set; }
+
+        [JsonProperty(PropertyName = "aggregation")]
+        public string Aggregation { get; set; }
+
+        [JsonProperty(PropertyName = "timespan")]
+        public string Timespan { get; set; }
+
+        [JsonProperty(PropertyName = "internalOperationId")]
+        public string InternalOperationId { get; set; }
+    }
+
+    public class ExternalBaselinePerSensitivity
+    {
+        [JsonProperty(PropertyName = "sensitivity")]
+        public string Sensitivity { get; set; }
+
+        [JsonProperty(PropertyName = "lowThrehsolds")]
+        public IList<double> LowThrehsolds { get; set; }
+
+        [JsonProperty(PropertyName = "highThrehsolds")]
+        public IList<double> HighThrehsolds { get; set; }
+
+        [JsonProperty(PropertyName = "timestamps")]
+        public IList<DateTime> Timestamps { get; set; }
+
+        public PredictionResultType PredictionResultType { get; set; }
+
+        public ErrorType ErrorType { get; set; }
+    }
+
+    public class SingleBaselineMetadata
+    {
+        [JsonProperty(PropertyName = "name")]
+        [JsonConverter(typeof(StringEnumConverter))]
+        public BaselineMetadataName MetadataName { get; set; }
+
+        [JsonProperty(PropertyName = "value")]
+        public string MetadataValue { get; set; }
+    }
+
+    public enum PredictionResultType
+    {
+        InvalidPrediction = 0,
+        ValidPrediction = 1,
+        NonAlertingPrediction = 2
+    }
+
+    public enum ErrorType
+    {
+        None = 0,
+        NotEnoughData = 1,
+        TooManyMissingValues = 2,
+        TooWideThresholds = 3,
+        TooManyAnomalies = 4,
+        NoNewData = 100,
+        Unknown = 200
+    }
+
+    public enum BaselineMetadataName
+    {
+        SeasonalityFrequency,
+        FirstDataPoint
     }
 }
