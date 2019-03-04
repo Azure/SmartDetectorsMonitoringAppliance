@@ -109,7 +109,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
         /// <summary>
         /// Gets a value indicating whether the chart is loaded
         /// </summary>
-        public bool IsLoaded => this.loadChartTask?.IsCompleted ?? false;
+        public TaskStatus IsLoaded => this.loadChartTask?.Status ?? TaskStatus.WaitingToRun;
 
         private async Task LoadChart(MetricChartAlertProperty property, CancellationToken cancellationToken)
         {
@@ -163,14 +163,13 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
                     .Select(p => new DateTimePoint(p.TimeStamp, p.GetValue(aggregation))));
 
             // Get low/high thresholds (mock)
-            double percentile10 = values.OrderBy(p => p.Value).ElementAt((int)(values.Count * 0.1)).Value;
+            double percentile10 = values.OrderBy(p => p.Value).ElementAt((int)Math.Floor(values.Count * 0.1)).Value;
             ChartValues<DateTimePoint> low = new ChartValues<DateTimePoint>(values.Select(p => new DateTimePoint(p.DateTime, percentile10)));
-            double percentile90 = values.OrderBy(p => p.Value).ElementAt((int)(values.Count * 0.9)).Value;
+            double percentile90 = values.OrderBy(p => p.Value).ElementAt((int)Math.Floor(values.Count * 0.9)).Value;
             ChartValues<DateTimePoint> high = new ChartValues<DateTimePoint>(values.Select(p => new DateTimePoint(p.DateTime, percentile90)));
 
             // Predicate that indicates whether a point is an anomaly
-            var dateTimeToThresholds = low
-                .Zip(high, (p1, p2) => new
+            var dateTimeToThresholds = low.Zip(high, (p1, p2) => new
                 {
                     p1.DateTime, Low = p1.Value, High = p2.Value
                 })
