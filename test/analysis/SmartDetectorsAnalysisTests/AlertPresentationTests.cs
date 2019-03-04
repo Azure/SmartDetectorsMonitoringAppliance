@@ -48,11 +48,14 @@ namespace SmartDetectorsAnalysisTests
             Assert.AreEqual("AlertTitle", contractsAlert.Title, "Unexpected title");
             Assert.AreEqual(default(ResourceIdentifier).ToResourceId(), contractsAlert.ResourceId, "Unexpected ResourceId");
             Assert.AreEqual(SignalType.Log, contractsAlert.SignalType, "Unexpected signal type");
-            Assert.AreEqual(19, contractsAlert.AlertProperties.Count, "Unexpected number of properties");
+            Assert.AreEqual(22, contractsAlert.AlertProperties.Count, "Unexpected number of properties");
 
             // Verify raw alert properties
             VerifyPresentationTestAlertRawProperty(contractsAlert.AlertProperties, "Predicate");
             VerifyPresentationTestAlertRawProperty(contractsAlert.AlertProperties, "RawProperty");
+            VerifyPresentationTestAlertRawProperty(contractsAlert.AlertProperties, "AdditionalData_0_RawProperty");
+            VerifyPresentationTestAlertRawProperty(contractsAlert.AlertProperties, "AdditionalData_1_MoreData_0_RawProperty");
+            VerifyPresentationTestAlertRawProperty(contractsAlert.AlertProperties, "AdditionalData_1_MoreData_1_RawProperty");
 
             // Verify displayed alert properties
             VerifyPresentationTestAlertDisplayedProperty(contractsAlert.AlertProperties, "LongTextPropertyName", "LongTextDisplayName", 0);
@@ -124,7 +127,16 @@ namespace SmartDetectorsAnalysisTests
                 Cadence = TimeSpan.FromDays(1),
             };
 
-            return alert.CreateContractsAlert(request, SmartDetectorName, usedLogAnalysisClient, usedMetricClient);
+            ContractsAlert contractsAlert = alert.CreateContractsAlert(request, SmartDetectorName, usedLogAnalysisClient, usedMetricClient);
+
+            // Verify that all property names are unique
+            var duplicates = contractsAlert.AlertProperties.GroupBy(x => x.PropertyName).Where(g => g.Count() > 1).ToList();
+            if (duplicates.Count > 0)
+            {
+                Assert.Fail($"Duplicate alert properties found: {string.Join(", ", duplicates.Select(g => g.Key))}");
+            }
+
+            return contractsAlert;
         }
 
         private static void VerifyPresentationTestAlertDisplayedProperty(List<AlertProperty> properties, string propertyName, string displayName, byte order)
@@ -377,6 +389,8 @@ namespace SmartDetectorsAnalysisTests
             [UrlFormatter("Link to data 1")]
             [TextProperty("First link", Order = 2)]
             public Uri Uri1 => new Uri("https://xkcd.com/");
+
+            public string RawProperty => "raw";
         }
 
         [SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic", Justification = "Test code, approved")]
