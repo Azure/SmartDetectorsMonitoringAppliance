@@ -591,6 +591,12 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
 
         #endregion
 
+        /// <summary>
+        /// Combines the parent and child property names
+        /// </summary>
+        /// <param name="parentPropertyName">The parent property name</param>
+        /// <param name="propertyName">The child property name</param>
+        /// <returns>The combined property name</returns>
         private static string CombinePropertyNames(string parentPropertyName, string propertyName)
         {
             if (string.IsNullOrWhiteSpace(parentPropertyName))
