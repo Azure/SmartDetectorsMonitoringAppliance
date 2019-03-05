@@ -169,7 +169,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
                 else if (!AlertBaseClassPropertiesNames.Contains(p.Property.Name))
                 {
                     // Get the raw alert property - a property with no presentation
-                    alertProperties.Add(new RawAlertProperty(p.Property.Name, p.Value));
+                    alertProperties.Add(new RawAlertProperty(CombinePropertyNames(parentPropertyName, p.Property.Name), p.Value));
                 }
             }
 
@@ -193,10 +193,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
 
             // Get the property name (and add the parent property name as prefix, if provided)
             string propertyName = string.IsNullOrWhiteSpace(presentationAttribute.PropertyName) ? property.Name : presentationAttribute.PropertyName;
-            if (!string.IsNullOrWhiteSpace(parentPropertyName))
-            {
-                propertyName = $"{parentPropertyName}_{propertyName}";
-            }
+            propertyName = CombinePropertyNames(parentPropertyName, propertyName);
 
             // Return the presentation property according to the property type
             switch (presentationAttribute)
@@ -442,7 +439,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
             List<AlertProperty> alertProperties = new List<AlertProperty>();
             for (int i = 0; i < list.Count; i++)
             {
-                List<AlertProperty> objectProperties = ExtractProperties(list[i], order, $"{listPropertyName}_{i}");
+                List<AlertProperty> objectProperties = ExtractProperties(list[i], order, CombinePropertyNames(listPropertyName, $"{i}"));
                 alertProperties.AddRange(objectProperties);
             }
 
@@ -585,12 +582,30 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
                     return ContractsThresholdType.LessThan;
                 case ThresholdType.GreaterThan:
                     return ContractsThresholdType.GreaterThan;
+                case ThresholdType.GreaterOrLessThan:
+                    return ContractsThresholdType.GreaterOrLessThan;
                 default:
                     throw new InvalidEnumArgumentException($"Unsupported threshold type {thresholdType}");
             }
         }
 
         #endregion
+
+        /// <summary>
+        /// Combines the parent and child property names
+        /// </summary>
+        /// <param name="parentPropertyName">The parent property name</param>
+        /// <param name="propertyName">The child property name</param>
+        /// <returns>The combined property name</returns>
+        private static string CombinePropertyNames(string parentPropertyName, string propertyName)
+        {
+            if (string.IsNullOrWhiteSpace(parentPropertyName))
+            {
+                return propertyName;
+            }
+
+            return $"{parentPropertyName}_{propertyName}";
+        }
 
         /// <summary>
         /// A helper class to keep track of the order of presentation properties
