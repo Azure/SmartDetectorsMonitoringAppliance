@@ -218,8 +218,6 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
                 {
                     string url = string.Format(CultureInfo.InvariantCulture, BaselineServiceUrlFormat, "train", $"api/arm{requestDto.ResourceId}/providers/microsoft.insights/baseline/{Uri.EscapeUriString(requestDto.MetricName)}?");
 
-                    url += $"api/arm{requestDto.ResourceId}/providers/microsoft.insights/baseline/{Uri.EscapeUriString(requestDto.MetricName)}?";
-
                     IDictionary<string, string> queryParameters = new Dictionary<string, string>()
                     {
                         ["interval"] = XmlConvert.ToString(requestDto.Interval),
