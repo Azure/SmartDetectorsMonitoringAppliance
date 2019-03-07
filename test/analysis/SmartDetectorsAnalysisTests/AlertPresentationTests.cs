@@ -166,7 +166,7 @@ namespace SmartDetectorsAnalysisTests
             }
             else if (propertyName == "DoubleValue")
             {
-                Assert.AreEqual("The area of the unit circle is 3 in Indiana and 3.141593 anywhere else", ((LongTextAlertProprety)property).Value);
+                Assert.AreEqual("The area of the unit circle is 3, or 3.141593 to be exact", ((LongTextAlertProprety)property).Value);
             }
             else if (propertyName == "KeyValue")
             {
@@ -370,7 +370,7 @@ namespace SmartDetectorsAnalysisTests
             [TextProperty("DateTimeDisplayName", Order = 9, FormatString = "The time is: {0:yyyy-MM-dd HH}")]
             public DateTime DateTimeValue => new DateTime(2019, 3, 7, 11, 23, 47);
 
-            [LongTextProperty("DoubleDisplayName", Order = 10, FormatString = "The area of the unit circle is {0:F0} in Indiana and {0:F6} anywhere else")]
+            [LongTextProperty("DoubleDisplayName", Order = 10, FormatString = "The area of the unit circle is {0:F0}, or {0:F6} to be exact")]
             public double DoubleValue => Math.PI;
         }
 
