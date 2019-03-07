@@ -37,5 +37,11 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.AlertPresentation
         /// Gets or sets the order of the column in the table
         /// </summary>
         public byte Order { get; set; } = byte.MaxValue;
+
+        /// <summary>
+        /// Gets or sets the format string to use when converting the property's value to a string
+        /// For example, if the value is a <see cref="DateTime"/>, the format string can be "The incident happened on {0:u}"
+        /// </summary>
+        public string FormatString { get; set; } = string.Empty;
     }
 }

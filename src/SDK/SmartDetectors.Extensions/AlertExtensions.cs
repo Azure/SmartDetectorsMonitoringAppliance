@@ -223,12 +223,12 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
                     yield return CreateMetricChartAlertProperty(propertyName, displayName, order, metricChart);
                     break;
 
-                case LongTextPropertyAttribute _:
-                    yield return new LongTextAlertProprety(propertyName, displayName, order.Next(), PropertyValueToString(propertyOwner, property, propertyValue));
+                case LongTextPropertyAttribute longTextPropertyAttribute:
+                    yield return new LongTextAlertProprety(propertyName, displayName, order.Next(), PropertyValueToString(propertyOwner, property, propertyValue, longTextPropertyAttribute.FormatString));
                     break;
 
-                case TextPropertyAttribute _:
-                    yield return new TextAlertProperty(propertyName, displayName, order.Next(), PropertyValueToString(propertyOwner, property, propertyValue));
+                case TextPropertyAttribute textPropertyAttribute:
+                    yield return new TextAlertProperty(propertyName, displayName, order.Next(), PropertyValueToString(propertyOwner, property, propertyValue, textPropertyAttribute.FormatString));
                     break;
 
                 case ListPropertyAttribute _:
@@ -365,7 +365,8 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
                         rows[i][columnProperty.Name] = PropertyValueToString(
                             tableRows[i],
                             columnProperty,
-                            columnProperty.GetValue(tableRows[i]));
+                            columnProperty.GetValue(tableRows[i]),
+                            tableColumnAttribute.FormatString);
                     }
 
                     // Store the column and its order
@@ -468,13 +469,20 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
         /// <param name="propertyOwner">The object containing the property.</param>
         /// <param name="propertyInfo">The property's info.</param>
         /// <param name="propertyValue">The property value.</param>
+        /// <param name="formatString">The format string to use.</param>
         /// <returns>The string</returns>
-        private static string PropertyValueToString(object propertyOwner, PropertyInfo propertyInfo, object propertyValue)
+        private static string PropertyValueToString(object propertyOwner, PropertyInfo propertyInfo, object propertyValue, string formatString)
         {
             if (propertyValue == null)
             {
                 // null is a null string
                 return null;
+            }
+
+            // If a format string was specified, use it and convert the value to a string
+            if (!string.IsNullOrWhiteSpace(formatString))
+            {
+                propertyValue = string.Format(CultureInfo.InvariantCulture, formatString, propertyValue);
             }
 
             // Check if there's a formatter attribute on the property
