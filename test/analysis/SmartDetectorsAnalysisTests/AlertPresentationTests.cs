@@ -49,7 +49,7 @@ namespace SmartDetectorsAnalysisTests
             Assert.AreEqual("AlertTitle", contractsAlert.Title, "Unexpected title");
             Assert.AreEqual(default(ResourceIdentifier).ToResourceId(), contractsAlert.ResourceId, "Unexpected ResourceId");
             Assert.AreEqual(SignalType.Log, contractsAlert.SignalType, "Unexpected signal type");
-            Assert.AreEqual(22, contractsAlert.AlertProperties.Count, "Unexpected number of properties");
+            Assert.AreEqual(24, contractsAlert.AlertProperties.Count, "Unexpected number of properties");
 
             // Verify raw alert properties
             VerifyPresentationTestAlertRawProperty(contractsAlert.AlertProperties, "Predicate");
@@ -75,7 +75,9 @@ namespace SmartDetectorsAnalysisTests
             VerifyPresentationTestAlertDisplayedProperty(contractsAlert.AlertProperties, "AdditionalData_1_MoreData_1_Name1", "First name title", 13);
             VerifyPresentationTestAlertDisplayedProperty(contractsAlert.AlertProperties, "AdditionalData_1_MoreData_1_Uri1", "First link", 14);
             VerifyPresentationTestAlertDisplayedProperty(contractsAlert.AlertProperties, "MetricChart", "MetricChartDisplayName", 15);
-            VerifyPresentationTestAlertDisplayedProperty(contractsAlert.AlertProperties, "DataPoints", "ChartDisplayName", 16);
+            VerifyPresentationTestAlertDisplayedProperty(contractsAlert.AlertProperties, "DateTimeValue", "DateTimeDisplayName", 16);
+            VerifyPresentationTestAlertDisplayedProperty(contractsAlert.AlertProperties, "DoubleValue", "DoubleDisplayName", 17);
+            VerifyPresentationTestAlertDisplayedProperty(contractsAlert.AlertProperties, "DataPoints", "ChartDisplayName", 18);
         }
 
         [TestMethod]
@@ -159,6 +161,14 @@ namespace SmartDetectorsAnalysisTests
             {
                 Assert.AreEqual("TextValue", ((TextAlertProperty)property).Value);
             }
+            else if (propertyName == "DateTimeValue")
+            {
+                Assert.AreEqual("The time is: 2019-03-07 11", ((TextAlertProperty)property).Value);
+            }
+            else if (propertyName == "DoubleValue")
+            {
+                Assert.AreEqual("The area of the unit circle is 3, or 3.141593 to be exact", ((LongTextAlertProprety)property).Value);
+            }
             else if (propertyName == "KeyValue")
             {
                 KeyValueAlertProperty alertProperty = (KeyValueAlertProperty)property;
@@ -193,13 +203,13 @@ namespace SmartDetectorsAnalysisTests
                 Assert.AreEqual(2, alertProperty.Values.Count);
                 Assert.AreEqual(4, alertProperty.Values[0].Count);
                 Assert.AreEqual("p11", alertProperty.Values[0]["Prop1"]);
-                Assert.AreEqual("p21", alertProperty.Values[0]["Prop2"]);
+                Assert.AreEqual("The value of Prop2 is p21", alertProperty.Values[0]["Prop2"]);
                 Assert.AreEqual("p31", alertProperty.Values[0]["Prop3"]);
                 Assert.AreEqual("<a href=\"http://microsoft.com/\" target=\"_blank\">Link for NDP1</a>", alertProperty.Values[0]["UriProp"]);
 
                 Assert.AreEqual(4, alertProperty.Values[1].Count);
                 Assert.AreEqual("p12", alertProperty.Values[1]["Prop1"]);
-                Assert.AreEqual("p22", alertProperty.Values[1]["Prop2"]);
+                Assert.AreEqual("The value of Prop2 is p22", alertProperty.Values[1]["Prop2"]);
                 Assert.AreEqual("p32", alertProperty.Values[1]["Prop3"]);
                 Assert.AreEqual("<a href=\"http://contoso.com/\" target=\"_blank\">Link for NDP2</a>", alertProperty.Values[1]["UriProp"]);
 
@@ -357,6 +367,12 @@ namespace SmartDetectorsAnalysisTests
                     IgnoreDataBefore = new DateTime(1972, 6, 6),
                 }
             };
+
+            [TextProperty("DateTimeDisplayName", Order = 9, FormatString = "The time is: {0:yyyy-MM-dd HH}")]
+            public DateTime DateTimeValue => new DateTime(2019, 3, 7, 11, 23, 47);
+
+            [LongTextProperty("DoubleDisplayName", Order = 10, FormatString = "The area of the unit circle is {0:F0}, or {0:F6} to be exact")]
+            public double DoubleValue => Math.PI;
         }
 
         public class TableData
@@ -365,7 +381,7 @@ namespace SmartDetectorsAnalysisTests
             [TableColumn("Third Prop, without order")]
             public string Prop3 { get; set; }
 
-            [TableColumn("Second Prop", Order = 2)]
+            [TableColumn("Second Prop", Order = 2, FormatString = "The value of Prop2 is {0}")]
             public string Prop2 { get; set; }
 
             [UrlFormatter("Link for {NonDisplayProp}")]
