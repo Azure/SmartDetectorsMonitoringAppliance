@@ -24,6 +24,16 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.AlertPresentation
         /// <summary>
         /// A count aggregation.
         /// </summary>
-        Count
+        Count,
+
+        /// <summary>
+        /// A maximum aggregation.
+        /// </summary>
+        Maximum,
+
+        /// <summary>
+        /// A minimum aggregation.
+        /// </summary>
+        Minimum
     }
 }
