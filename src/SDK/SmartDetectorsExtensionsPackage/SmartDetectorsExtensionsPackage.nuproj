@@ -48,7 +48,7 @@
       <Version>1.19.0</Version>
     </Dependency>
     <Dependency Include="Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts">
-      <Version>1.0.10.1</Version>
+      <Version>1.0.11.4</Version>
     </Dependency>
     <Dependency Include="Microsoft.CodeAnalysis.CSharp.Scripting">
       <Version>2.8.0</Version>
