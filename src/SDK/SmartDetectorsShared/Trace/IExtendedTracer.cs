@@ -16,18 +16,6 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Trace
     public interface IExtendedTracer : ITracer
     {
         /// <summary>
-        /// Reports a metric.
-        /// </summary>
-        /// <param name="name">The metric name</param>
-        /// <param name="value">The metric value</param>
-        /// <param name="properties">Named string values you can use to classify and filter metrics</param>
-        /// <param name="count">The aggregated metric count</param>
-        /// <param name="max">The aggregated metric max value</param>
-        /// <param name="min">The aggregated metric min name</param>
-        /// <param name="timestamp">The time stamp of the aggregated metric</param>
-        void ReportMetric(string name, double value, IDictionary<string, string> properties = null, int? count = null, double? max = null, double? min = null, DateTime? timestamp = null);
-
-        /// <summary>
         /// Reports a runtime exception.
         /// It uses exception and trace entities with same operation id.
         /// </summary>

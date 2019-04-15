@@ -6,6 +6,7 @@
 
 namespace Microsoft.Azure.Monitoring.SmartDetectors
 {
+    using System;
     using System.Collections.Generic;
 
     /// <summary>
@@ -42,6 +43,18 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors
         /// </summary>
         /// <param name="message">The message to trace</param>
         void TraceWarning(string message);
+
+        /// <summary>
+        /// Reports a custom named metric.
+        /// </summary>
+        /// <param name="name">The metric name</param>
+        /// <param name="value">The metric value</param>
+        /// <param name="properties">Named string values used to classify the metric</param>
+        /// <param name="count">The aggregated metric count</param>
+        /// <param name="max">The aggregated metric max value</param>
+        /// <param name="min">The aggregated metric min value</param>
+        /// <param name="timestamp">The aggregated metric custom timestamp</param>
+        void ReportMetric(string name, double value, IDictionary<string, string> properties = null, int? count = null, double? max = null, double? min = null, DateTime? timestamp = null);
 
         /// <summary>
         /// Adds a custom property, to be included in all traces.
