@@ -9,13 +9,12 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.Trace
     using System;
     using System.Collections.Generic;
     using Microsoft.Azure.Monitoring.SmartDetectors.Tools;
-    using Microsoft.Azure.Monitoring.SmartDetectors.Trace;
     using Microsoft.Azure.WebJobs.Host;
 
     /// <summary>
-    /// Implementation of the <see cref="IExtendedTracer"/> interface that traces to a (WebJob's) <see cref="TraceWriter"/> logger.
+    /// Implementation of the <see cref="ITracer"/> interface that traces to a (WebJob's) <see cref="TraceWriter"/> logger.
     /// </summary>
-    public class WebJobTracer : IExtendedTracer
+    public class WebJobTracer : ITracer
     {
         private readonly TraceWriter logger;
 

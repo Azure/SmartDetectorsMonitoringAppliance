@@ -84,6 +84,56 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
         }
 
         /// <summary>
+        /// Reports a custom named metric.
+        /// </summary>
+        /// <param name="name">The metric name</param>
+        /// <param name="value">The metric value</param>
+        /// <param name="properties">Named string values used to classify the metric</param>
+        /// <param name="count">The aggregated metric count</param>
+        /// <param name="max">The aggregated metric max value</param>
+        /// <param name="min">The aggregated metric min value</param>
+        /// <param name="timestamp">The aggregated metric custom timestamp</param>
+        public void ReportMetric(string name, double value, IDictionary<string, string> properties = null, int? count = null, double? max = null, double? min = null, DateTime? timestamp = null)
+        {
+            this.Trace(TraceLevel.Info, $"METRIC: {name}={value}");
+        }
+
+        /// <summary>
+        /// Reports a runtime exception.
+        /// </summary>
+        /// <param name="exception">The exception to report</param>
+        public void ReportException(Exception exception)
+        {
+            this.Trace(TraceLevel.Info, $"EXCEPTION: {exception}");
+        }
+
+        /// <summary>
+        /// Tracks information about a dependency call.
+        /// </summary>
+        /// <param name="dependencyName">The dependency name.</param>
+        /// <param name="commandName">The command name</param>
+        /// <param name="startTime">The dependency call start time</param>
+        /// <param name="duration">The time taken to handle the dependency.</param>
+        /// <param name="success">A boolean value indicating whether the dependency call was successful</param>
+        /// <param name="metrics">Named double values that define additional dependency metrics</param>
+        /// <param name="properties">Named string values used to classify the dependency</param>
+        public void TrackDependency(string dependencyName, string commandName, DateTimeOffset startTime, TimeSpan duration, bool success, IDictionary<string, double> metrics = null, IDictionary<string, string> properties = null)
+        {
+            this.Trace(TraceLevel.Info, $"DEPENDENCY: {dependencyName} {commandName}, startTime={startTime}, duration={duration}, succeeded={success}");
+        }
+
+        /// <summary>
+        /// Send information about an event.
+        /// </summary>
+        /// <param name="eventName">The event name.</param>
+        /// <param name="properties">Named string values used to classify the event</param>
+        /// <param name="metrics">Named double values that define additional event metrics</param>
+        public void TrackEvent(string eventName, IDictionary<string, string> properties = null, IDictionary<string, double> metrics = null)
+        {
+            this.Trace(TraceLevel.Info, $"EVENT: {eventName}");
+        }
+
+        /// <summary>
         /// Adds a custom property, to be included in all traces.
         /// </summary>
         /// <param name="name">The property name</param>
@@ -99,6 +149,13 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
         public IReadOnlyDictionary<string, string> GetCustomProperties()
         {
             return new Dictionary<string, string>();
+        }
+
+        /// <summary>
+        /// Flushes the telemetry channel
+        /// </summary>
+        public void Flush()
+        {
         }
 
         #endregion

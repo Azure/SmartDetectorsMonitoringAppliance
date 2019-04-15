@@ -25,8 +25,6 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Clients
     using Microsoft.Azure.Monitoring.SmartDetectors.Arm;
     using Microsoft.Azure.Monitoring.SmartDetectors.Extensions;
     using Microsoft.Azure.Monitoring.SmartDetectors.Tools;
-    using Microsoft.Azure.Monitoring.SmartDetectors.Trace;
-    using Microsoft.Rest;
     using Microsoft.Rest.Azure;
     using Microsoft.Rest.Azure.OData;
     using Newtonsoft.Json.Linq;
@@ -50,7 +48,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Clients
         private static readonly ConcurrentDictionary<string, ProviderInner> ProvidersCache = new ConcurrentDictionary<string, ProviderInner>(StringComparer.CurrentCultureIgnoreCase);
 
         private readonly AzureCredentials credentials;
-        private readonly IExtendedTracer tracer;
+        private readonly ITracer tracer;
         private readonly Policy retryPolicy;
         private readonly Policy<HttpResponseMessage> httpRetryPolicy;
         private readonly Uri baseUri;
@@ -62,7 +60,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Clients
         /// <param name="httpClientWrapper">The HTTP client wrapper</param>
         /// <param name="credentialsFactory">The credentials factory</param>
         /// <param name="tracer">The tracer</param>
-        public ExtendedAzureResourceManagerClient(IHttpClientWrapper httpClientWrapper, ICredentialsFactory credentialsFactory, IExtendedTracer tracer)
+        public ExtendedAzureResourceManagerClient(IHttpClientWrapper httpClientWrapper, ICredentialsFactory credentialsFactory, ITracer tracer)
         {
             this.httpClientWrapper = Diagnostics.EnsureArgumentNotNull(() => httpClientWrapper);
             Diagnostics.EnsureArgumentNotNull(() => credentialsFactory);

@@ -12,7 +12,6 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Loader
     using System.Reflection;
     using Microsoft.Azure.Monitoring.SmartDetectors.Package;
     using Microsoft.Azure.Monitoring.SmartDetectors.Tools;
-    using Microsoft.Azure.Monitoring.SmartDetectors.Trace;
 
     /// <summary>
     /// Implementation of the <see cref="ISmartDetectorLoader"/> interface. This class is
@@ -21,14 +20,14 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Loader
     public class SmartDetectorLoader : ISmartDetectorLoader
     {
         private readonly string tempFolder;
-        private readonly IExtendedTracer tracer;
+        private readonly ITracer tracer;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SmartDetectorLoader"/> class.
         /// </summary>
         /// <param name="tempFolder">The temp folder to use for storing assembly files</param>
         /// <param name="tracer">The tracer</param>
-        public SmartDetectorLoader(string tempFolder, IExtendedTracer tracer)
+        public SmartDetectorLoader(string tempFolder, ITracer tracer)
         {
             this.tempFolder = Diagnostics.EnsureStringNotNullOrWhiteSpace(() => tempFolder);
             this.tracer = Diagnostics.EnsureArgumentNotNull(() => tracer);

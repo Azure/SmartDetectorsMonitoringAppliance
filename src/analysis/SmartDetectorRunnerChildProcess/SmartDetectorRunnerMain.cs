@@ -11,13 +11,13 @@ namespace SmartDetectorRunnerChildProcess
     using System.Net;
     using System.Threading;
     using System.Threading.Tasks;
+    using Microsoft.Azure.Monitoring.SmartDetectors;
     using Microsoft.Azure.Monitoring.SmartDetectors.Arm;
     using Microsoft.Azure.Monitoring.SmartDetectors.Loader;
     using Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance;
     using Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.Analysis;
     using Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.ChildProcess;
     using Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.Exceptions;
-    using Microsoft.Azure.Monitoring.SmartDetectors.Trace;
     using Unity;
 
     /// <summary>
@@ -34,7 +34,7 @@ namespace SmartDetectorRunnerChildProcess
         /// <returns>Exit code</returns>
         public static int Main(string[] args)
         {
-            IExtendedTracer tracer = null;
+            ITracer tracer = null;
             try
             {
                 // Inject dependencies
@@ -43,7 +43,7 @@ namespace SmartDetectorRunnerChildProcess
                     .WithChildProcessRegistrations(args);
 
                 // Trace
-                tracer = container.Resolve<IExtendedTracer>();
+                tracer = container.Resolve<ITracer>();
                 tracer.TraceInformation($"Starting Smart Detector runner process, process ID {Process.GetCurrentProcess().Id}");
 
                 // Run the analysis

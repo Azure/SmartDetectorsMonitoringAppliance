@@ -11,7 +11,6 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.ChildPro
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.Azure.Monitoring.SmartDetectors.Loader;
-    using Microsoft.Azure.Monitoring.SmartDetectors.Trace;
 
     /// <summary>
     /// An interface of a class that manages running a task in a separate process
@@ -75,7 +74,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.ChildPro
         /// </summary>
         /// <param name="args">The command line arguments.</param>
         /// <returns>The tracer instance</returns>
-        IExtendedTracer CreateTracerForChildProcess(string[] args);
+        ITracer CreateTracerForChildProcess(string[] args);
 
         /// <summary>
         /// Creates a smart detector loader instance for the child process, based on the command line arguments received from the parent process.
@@ -83,6 +82,6 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.ChildPro
         /// <param name="args">The command line arguments.</param>
         /// <param name="tracer">The tracer to use.</param>
         /// <returns>The tracer instance</returns>
-        ISmartDetectorLoader CreateLoaderForChildProcess(string[] args, IExtendedTracer tracer);
+        ISmartDetectorLoader CreateLoaderForChildProcess(string[] args, ITracer tracer);
     }
 }

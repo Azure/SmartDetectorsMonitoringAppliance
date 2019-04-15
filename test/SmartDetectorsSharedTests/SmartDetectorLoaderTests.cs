@@ -20,7 +20,6 @@ namespace SmartDetectorsSharedTests
     using Microsoft.Azure.Monitoring.SmartDetectors.Loader;
     using Microsoft.Azure.Monitoring.SmartDetectors.Package;
     using Microsoft.Azure.Monitoring.SmartDetectors.State;
-    using Microsoft.Azure.Monitoring.SmartDetectors.Trace;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Moq;
     using Newtonsoft.Json;
@@ -34,7 +33,7 @@ namespace SmartDetectorsSharedTests
     public class SmartDetectorLoaderTests
     {
         private Dictionary<string, DllInfo> dllInfos;
-        private Mock<IExtendedTracer> tracerMock;
+        private Mock<ITracer> tracerMock;
         private Dictionary<string, SmartDetectorManifest> manifests;
         private Dictionary<string, Dictionary<string, byte[]>> assemblies;
         private string tempFolder;
@@ -46,7 +45,7 @@ namespace SmartDetectorsSharedTests
         {
             this.dllInfos = new Dictionary<string, DllInfo>();
 
-            this.tracerMock = new Mock<IExtendedTracer>();
+            this.tracerMock = new Mock<ITracer>();
 
             // Cleanup data from previous tests (cleaning in TestCleanup will not work since the DLLs are in use)
             string tempFolderParent = Path.Combine(Path.GetTempPath(), "SmartDetectorLoaderTests");

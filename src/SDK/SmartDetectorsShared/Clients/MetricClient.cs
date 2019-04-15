@@ -18,7 +18,6 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Clients
     using Microsoft.Azure.Management.ResourceManager.Fluent.Core;
     using Microsoft.Azure.Monitoring.SmartDetectors.Extensions;
     using Microsoft.Azure.Monitoring.SmartDetectors.Metric;
-    using Microsoft.Azure.Monitoring.SmartDetectors.Trace;
     using Polly;
     using MetricDefinition = Microsoft.Azure.Monitoring.SmartDetectors.Metric.MetricDefinition;
 
@@ -32,7 +31,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Clients
         /// </summary>
         private const string DependencyName = "Metric";
 
-        private readonly IExtendedTracer tracer;
+        private readonly ITracer tracer;
         private readonly Policy retryPolicy;
 
         private readonly IMonitorManagementClient monitorManagementClient;
@@ -42,7 +41,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Clients
         /// </summary>
         /// <param name="tracer">The tracer</param>
         /// <param name="monitorManagementClient">Monitor management client to use to fetch metric data</param>
-        public MetricClient(IExtendedTracer tracer, IMonitorManagementClient monitorManagementClient)
+        public MetricClient(ITracer tracer, IMonitorManagementClient monitorManagementClient)
         {
             if (tracer == null)
             {
@@ -64,7 +63,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Clients
         /// </summary>
         /// <param name="tracer">The tracer</param>
         /// <param name="credentialsFactory">The credentials factory</param>
-        public MetricClient(IExtendedTracer tracer, ICredentialsFactory credentialsFactory)
+        public MetricClient(ITracer tracer, ICredentialsFactory credentialsFactory)
             : this(tracer, new MonitorManagementClient(RestClient.Configure()
                 .WithEnvironment(AzureEnvironment.AzureGlobalCloud)
                 .WithCredentials(credentialsFactory.CreateAzureCredentials("https://management.azure.com/")).Build()))

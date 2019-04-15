@@ -23,7 +23,6 @@ namespace SmartDetectorsAnalysisTests
     using Microsoft.Azure.Monitoring.SmartDetectors.Package;
     using Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts;
     using Microsoft.Azure.Monitoring.SmartDetectors.State;
-    using Microsoft.Azure.Monitoring.SmartDetectors.Trace;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Moq;
     using Newtonsoft.Json;
@@ -387,7 +386,7 @@ namespace SmartDetectorsAnalysisTests
 
             this.testContainer.RegisterType<ISmartDetectorRunner, SmartDetectorRunner>();
 
-            this.testContainer.RegisterInstance(new Mock<IExtendedTracer>().Object);
+            this.testContainer.RegisterInstance(new Mock<ITracer>().Object);
 
             ResourceIdentifier resourceId;
             switch (requestResourceType)

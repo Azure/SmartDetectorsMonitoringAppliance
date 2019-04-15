@@ -11,30 +11,29 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.Trace
     using System.Collections.Generic;
     using System.Linq;
     using Microsoft.Azure.Monitoring.SmartDetectors.Tools;
-    using Microsoft.Azure.Monitoring.SmartDetectors.Trace;
 
     /// <summary>
-    /// Implementation of the <see cref="IExtendedTracer"/> interface that traces to other <see cref="IExtendedTracer"/> objects.
+    /// Implementation of the <see cref="ITracer"/> interface that traces to other <see cref="ITracer"/> objects.
     /// </summary>
-    public class AggregatedTracer : IExtendedTracer
+    public class AggregatedTracer : ITracer
     {
-        private readonly ConcurrentDictionary<IExtendedTracer, Type> tracers;
+        private readonly ConcurrentDictionary<ITracer, Type> tracers;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AggregatedTracer"/> class.
         /// </summary>
         /// <param name="tracers">List of tracers to trace to</param>
-        public AggregatedTracer(List<IExtendedTracer> tracers)
+        public AggregatedTracer(List<ITracer> tracers)
         {
             Diagnostics.EnsureArgumentNotNull(() => tracers);
-            this.tracers = new ConcurrentDictionary<IExtendedTracer, Type>(tracers.Where(t => t != null).ToDictionary(t => t, t => t.GetType()));
+            this.tracers = new ConcurrentDictionary<ITracer, Type>(tracers.Where(t => t != null).ToDictionary(t => t, t => t.GetType()));
 
             Diagnostics.EnsureArgument(this.tracers.Count > 0, () => tracers, "Must get at least one non-null tracer");
             Diagnostics.EnsureArgument(this.tracers.Keys.Select(t => t.SessionId).Distinct().Count() == 1, () => tracers, "All tracers must have the same session ID");
             this.SessionId = this.tracers.First().Key.SessionId;
         }
 
-        #region Implementation of IExtendedTracer
+        #region Implementation of ITracer
 
         /// <summary>
         /// Gets the tracer's session ID
@@ -174,9 +173,9 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.Trace
         /// Runs <paramref name="action"/> on all aggregated tracers in a safe way
         /// </summary>
         /// <param name="action">The action to run</param>
-        private void SafeCallTracers(Action<IExtendedTracer> action)
+        private void SafeCallTracers(Action<ITracer> action)
         {
-            foreach (IExtendedTracer tracer in this.tracers.Keys)
+            foreach (ITracer tracer in this.tracers.Keys)
             {
                 try
                 {

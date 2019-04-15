@@ -22,7 +22,6 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.Analysis
     using Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts;
     using Microsoft.Azure.Monitoring.SmartDetectors.State;
     using Microsoft.Azure.Monitoring.SmartDetectors.Tools;
-    using Microsoft.Azure.Monitoring.SmartDetectors.Trace;
     using Alert = Microsoft.Azure.Monitoring.SmartDetectors.Alert;
     using AlertResolutionCheckRequest = Microsoft.Azure.Monitoring.SmartDetectors.AlertResolutionCheckRequest;
     using AlertResolutionCheckResponse = Microsoft.Azure.Monitoring.SmartDetectors.AlertResolutionCheckResponse;
@@ -41,7 +40,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.Analysis
         private readonly IInternalAnalysisServicesFactory analysisServicesFactory;
         private readonly IExtendedAzureResourceManagerClient azureResourceManagerClient;
         private readonly IStateRepositoryFactory stateRepositoryFactory;
-        private readonly IExtendedTracer tracer;
+        private readonly ITracer tracer;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SmartDetectorRunner"/> class
@@ -58,7 +57,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.Analysis
             IInternalAnalysisServicesFactory analysisServicesFactory,
             IExtendedAzureResourceManagerClient azureResourceManagerClient,
             IStateRepositoryFactory stateRepositoryFactory,
-            IExtendedTracer tracer)
+            ITracer tracer)
         {
             this.smartDetectorRepository = Diagnostics.EnsureArgumentNotNull(() => smartDetectorRepository);
             this.smartDetectorLoader = Diagnostics.EnsureArgumentNotNull(() => smartDetectorLoader);

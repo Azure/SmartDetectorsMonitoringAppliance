@@ -18,7 +18,6 @@ namespace SmartDetectorsSharedTests
     using Microsoft.Azure.Monitoring.SmartDetectors.Clients;
     using Microsoft.Azure.Monitoring.SmartDetectors.Metric;
     using Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.Models;
-    using Microsoft.Azure.Monitoring.SmartDetectors.Trace;
     using Microsoft.Rest.Azure;
     using Microsoft.Rest.Azure.OData;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -28,7 +27,7 @@ namespace SmartDetectorsSharedTests
     [TestClass]
     public class MetricClientTests
     {
-        private Mock<IExtendedTracer> tracerMock;
+        private Mock<ITracer> tracerMock;
         private Mock<IMonitorManagementClient> monitorManagementClientMock;
         private Mock<IMetricsOperations> metricsOperationsMock;
         private Mock<IMetricDefinitionsOperations> metricDefinitionsOperationsMock;
@@ -37,7 +36,7 @@ namespace SmartDetectorsSharedTests
         [TestInitialize]
         public void TestInitialize()
         {
-            this.tracerMock = new Mock<IExtendedTracer>();
+            this.tracerMock = new Mock<ITracer>();
             this.monitorManagementClientMock = new Mock<IMonitorManagementClient>();
             this.metricsOperationsMock = new Mock<IMetricsOperations>();
             this.metricDefinitionsOperationsMock = new Mock<IMetricDefinitionsOperations>();
