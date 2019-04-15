@@ -15,12 +15,11 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.Trace
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.Exceptions;
-    using Microsoft.Azure.Monitoring.SmartDetectors.Trace;
 
     /// <summary>
-    /// Implementation of the <see cref="IExtendedTracer"/> interface that traces to AppInsights.
+    /// Implementation of the <see cref="ITracer"/> interface that traces to AppInsights.
     /// </summary>
-    public class ApplicationInsightsTracer : IExtendedTracer
+    public class ApplicationInsightsTracer : ITracer
     {
         private const int MaxExceptionLength = 20000;
 

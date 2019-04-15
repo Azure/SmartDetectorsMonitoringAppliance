@@ -18,7 +18,6 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance
     using Microsoft.Azure.Monitoring.SmartDetectors.Package;
     using Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts;
     using Microsoft.Azure.Monitoring.SmartDetectors.Tools;
-    using Microsoft.Azure.Monitoring.SmartDetectors.Trace;
     using Microsoft.WindowsAzure.Storage;
     using Microsoft.WindowsAzure.Storage.Blob;
     using Newtonsoft.Json;
@@ -31,7 +30,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance
     /// </summary>
     public class SmartDetectorRepository : ISmartDetectorRepository
     {
-        private readonly IExtendedTracer tracer;
+        private readonly ITracer tracer;
         private readonly ICloudBlobContainerWrapper containerClient;
 
         /// <summary>
@@ -39,7 +38,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance
         /// </summary>
         /// <param name="tracer">Log wrapper</param>
         /// <param name="storageProviderFactory">The Azure storage provider factory</param>
-        public SmartDetectorRepository(IExtendedTracer tracer, ICloudStorageProviderFactory storageProviderFactory)
+        public SmartDetectorRepository(ITracer tracer, ICloudStorageProviderFactory storageProviderFactory)
         {
             this.tracer = Diagnostics.EnsureArgumentNotNull(() => tracer);
             this.containerClient = storageProviderFactory.GetSmartDetectorGlobalStorageContainer();

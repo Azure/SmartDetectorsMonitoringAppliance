@@ -10,7 +10,6 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
     using System.Globalization;
     using System.IO;
     using System.Linq;
-    using Microsoft.Azure.Monitoring.SmartDetectors.Trace;
 
     /// <summary>
     /// Extension methods for file system objects
@@ -40,7 +39,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
         /// <param name="subFolderName">The sub folder name</param>
         /// <param name="maximalFolderAgeInHours">The maximal age of a folder, in hours - all folders that are older than this will be deleted</param>
         /// <param name="tracer">The tracer to use</param>
-        public static void CleanupTempFolders(string subFolderName, int maximalFolderAgeInHours = 6, IExtendedTracer tracer = null)
+        public static void CleanupTempFolders(string subFolderName, int maximalFolderAgeInHours = 6, ITracer tracer = null)
         {
             // Delete the all folders under the temp path and sub folder that were created over 6 hours ago
             // This handles scenarios of a previous crash that prevented the folder from being deleted
@@ -61,7 +60,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
         /// <param name="folder">The folder to delete</param>
         /// <param name="tracer">The tracer to use</param>
         /// <returns>True if the folder was successfully deleted, false otherwise</returns>
-        public static bool TryDeleteFolder(string folder, IExtendedTracer tracer = null)
+        public static bool TryDeleteFolder(string folder, ITracer tracer = null)
         {
             try
             {

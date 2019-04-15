@@ -20,7 +20,6 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.ChildPro
     using Microsoft.Azure.Monitoring.SmartDetectors.Loader;
     using Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.Trace;
     using Microsoft.Azure.Monitoring.SmartDetectors.Tools;
-    using Microsoft.Azure.Monitoring.SmartDetectors.Trace;
     using Newtonsoft.Json;
 
     /// <summary>
@@ -44,13 +43,13 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.ChildPro
             TypeNameAssemblyFormatHandling = TypeNameAssemblyFormatHandling.Full
         };
 
-        private readonly IExtendedTracer tracer;
+        private readonly ITracer tracer;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ChildProcessManager"/> class
         /// </summary>
         /// <param name="tracer">The tracer</param>
-        public ChildProcessManager(IExtendedTracer tracer)
+        public ChildProcessManager(ITracer tracer)
         {
             this.tracer = Diagnostics.EnsureArgumentNotNull(() => tracer);
         }
@@ -79,12 +78,12 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.ChildPro
         /// </summary>
         /// <param name="args">The command line arguments.</param>
         /// <returns>The tracer instance</returns>
-        public IExtendedTracer CreateTracerForChildProcess(string[] args)
+        public ITracer CreateTracerForChildProcess(string[] args)
         {
             ChildProcessArguments arguments = ChildProcessArguments.FromCommandLineArguments(args);
 
             // Get sessionId from the arguments and create tracer
-            IExtendedTracer tracerForChildProcess = TracerFactory.Create(arguments.SessionId, null, true);
+            ITracer tracerForChildProcess = TracerFactory.Create(arguments.SessionId, null, true);
 
             // Get custom dimensions from the arguments - do not override existing properties
             IReadOnlyDictionary<string, string> existingProperties = tracerForChildProcess.GetCustomProperties();
@@ -105,7 +104,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.ChildPro
         /// <param name="args">The command line arguments.</param>
         /// <param name="tracerForLoader">The tracer to use</param>
         /// <returns>The smart detector loader instance</returns>
-        public ISmartDetectorLoader CreateLoaderForChildProcess(string[] args, IExtendedTracer tracerForLoader)
+        public ISmartDetectorLoader CreateLoaderForChildProcess(string[] args, ITracer tracerForLoader)
         {
             // Get the temp folder name from the arguments and create the loader
             ChildProcessArguments arguments = ChildProcessArguments.FromCommandLineArguments(args);
@@ -124,7 +123,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.ChildPro
         /// <example>
         /// Parent process:
         /// <code>
-        /// private async cTask&lt;OutputData&gt; RunInChildProcess(string childProcessName, InputData input, IExtendedTracer tracer, CancellationToken cancellationToken)
+        /// private async cTask&lt;OutputData&gt; RunInChildProcess(string childProcessName, InputData input, ITracer tracer, CancellationToken cancellationToken)
         /// {
         ///     IChildProcessManager childProcessManager = new ChildProcessManager();
         ///     OutputData output = await childProcessManager.RunChildProcessAsync&lt;OutputData&gt;(childProcessName, input, tracer, cancellationToken);
@@ -135,7 +134,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.ChildPro
         /// <code>
         /// public static void Main(string[] args)
         /// {
-        ///     IExtendedTracer tracer;
+        ///     ITracer tracer;
         ///     // Initialize tracer...
         ///
         ///     IChildProcessManager childProcessManager = new ChildProcessManager();

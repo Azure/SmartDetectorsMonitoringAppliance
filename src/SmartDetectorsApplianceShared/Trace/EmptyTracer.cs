@@ -7,12 +7,11 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.Trace
 {
     using System;
     using System.Collections.Generic;
-    using Microsoft.Azure.Monitoring.SmartDetectors.Trace;
 
     /// <summary>
-    /// Implementation of the <see cref="IExtendedTracer"/> interface that doesn't trace - used by detectors.
+    /// Implementation of the <see cref="ITracer"/> interface that doesn't trace - used by detectors.
     /// </summary>
-    public class EmptyTracer : IExtendedTracer
+    public class EmptyTracer : ITracer
     {
         /// <summary>
         /// Gets the tracer's session ID

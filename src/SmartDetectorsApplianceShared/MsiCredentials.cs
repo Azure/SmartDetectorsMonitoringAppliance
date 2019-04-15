@@ -16,7 +16,6 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance
     using Microsoft.Azure.Monitoring.SmartDetectors.Clients;
     using Microsoft.Azure.Monitoring.SmartDetectors.Extensions;
     using Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.Exceptions;
-    using Microsoft.Azure.Monitoring.SmartDetectors.Trace;
     using Microsoft.Rest;
     using Newtonsoft.Json;
     using Polly;
@@ -42,7 +41,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance
         private readonly IHttpClientWrapper httpClientWrapper;
         private readonly string resource;
         private readonly Policy<HttpResponseMessage> retryPolicy;
-        private readonly IExtendedTracer tracer;
+        private readonly ITracer tracer;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="MsiCredentials"/> class.
@@ -50,7 +49,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance
         /// <param name="httpClientWrapper">The HTTP client wrapper</param>
         /// <param name="resource">The resource name - the URL for which these credentials will be used</param>
         /// <param name="tracer">The tracer</param>
-        public MsiCredentials(IHttpClientWrapper httpClientWrapper, string resource, IExtendedTracer tracer)
+        public MsiCredentials(IHttpClientWrapper httpClientWrapper, string resource, ITracer tracer)
         {
             this.resource = resource;
             this.httpClientWrapper = httpClientWrapper;
