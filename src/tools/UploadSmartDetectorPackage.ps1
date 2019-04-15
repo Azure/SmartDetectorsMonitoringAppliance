@@ -1,6 +1,6 @@
 Param(
     [string] [Parameter(Mandatory=$true)] $PackageFilePath,
-    [string] [Parameter(Mandatory=$true)] [ValidateSet('PROD', 'DOGFOOD')] $Environment,
+    [string] [Parameter(Mandatory=$true)] [ValidateSet('PROD', 'DOGFOOD', 'FAIRFAX')] $Environment,
     [switch] $Force = $false
 )
 
@@ -90,6 +90,12 @@ elseif ($Environment -eq "DOGFOOD")
     $subscriptionId = '07f7ce71-7ee8-4291-af73-7b68a64e0b41'
     $resourceGroup = 'SmartDetectorAlertsRuleEngineINT'
     $storageAccountName = 'globalsmartdetectorsint'
+}
+elseif ($Environment -eq "FAIRFAX")
+{
+    $subscriptionId = '7f9906c0-20c2-437a-8f76-7402230c9c98'
+    $resourceGroup = 'SmartAlerts-Fairfax-Global'
+    $storageAccountName = 'globalsmartdetectorsff'
 }
 else
 {
