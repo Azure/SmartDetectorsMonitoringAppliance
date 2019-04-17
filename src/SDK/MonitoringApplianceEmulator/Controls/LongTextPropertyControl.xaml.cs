@@ -19,8 +19,8 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
         /// The alert text property that should be displayed.
         /// </summary>
         public static readonly DependencyProperty LongTextAlertPropertyProperty = DependencyProperty.Register(
-            "LongTextAlertProprety",
-            typeof(LongTextAlertProprety),
+            "LongTextAlertProperty",
+            typeof(LongTextAlertProperty),
             typeof(LongTextPropertyControl));
 
         /// <summary>
@@ -34,11 +34,11 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
         /// <summary>
         /// Gets or sets the alert long text property.
         /// </summary>
-        public LongTextAlertProprety LongTextAlertProprety
+        public LongTextAlertProperty LongTextAlertProprety
         {
             get
             {
-                return (LongTextAlertProprety)this.GetValue(LongTextAlertPropertyProperty);
+                return (LongTextAlertProperty)this.GetValue(LongTextAlertPropertyProperty);
             }
 
             set

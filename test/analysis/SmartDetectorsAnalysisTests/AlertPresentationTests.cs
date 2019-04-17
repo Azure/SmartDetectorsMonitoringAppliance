@@ -150,7 +150,7 @@ namespace SmartDetectorsAnalysisTests
 
             if (propertyName == "LongTextPropertyName")
             {
-                Assert.AreEqual("LongTextValue", ((LongTextAlertProprety)property).Value);
+                Assert.AreEqual("LongTextValue", ((LongTextAlertProperty)property).Value);
             }
             else if (propertyName == "UrlValue")
             {
@@ -166,7 +166,7 @@ namespace SmartDetectorsAnalysisTests
             }
             else if (propertyName == "DoubleValue")
             {
-                Assert.AreEqual("The area of the unit circle is 3, or 3.141593 to be exact", ((LongTextAlertProprety)property).Value);
+                Assert.AreEqual("The area of the unit circle is 3, or 3.141593 to be exact", ((LongTextAlertProperty)property).Value);
             }
             else if (propertyName == "KeyValue")
             {
@@ -372,6 +372,30 @@ namespace SmartDetectorsAnalysisTests
 
             [LongTextProperty("DoubleDisplayName", Order = 10, FormatString = "The area of the unit circle is {0:F0}, or {0:F6} to be exact")]
             public double DoubleValue => Math.PI;
+
+            [TextProperty("TextReferenceDisplayName", Order = 11)]
+            public PropertyReference TextReference => new PropertyReference("textReferencePath");
+
+            [LongTextProperty("LongTextReferenceDisplayName", Order = 12)]
+            public PropertyReference LongTextReference => new PropertyReference("longTextReferencePath");
+
+            [KeyValueProperty("KeyValueReferenceDisplayName", Order = 13)]
+            public PropertyReference KeyValueReference => new PropertyReference("keyValueReferencePath");
+
+            [KeyValueProperty("KeyValueWithHeadersReferenceDisplayName", "Keys", "Values", Order = 14)]
+            public PropertyReference KeyValueWithHeadersReference => new PropertyReference("keyValueWithHeadersReferencePath");
+
+            [ChartProperty("ChartReferenceDisplayName", ChartType.LineChart, ChartAxisType.DateAxis, ChartAxisType.NumberAxis, Order = 15)]
+            public PropertyReference ChartReference => new PropertyReference("chartReferencePath");
+
+            [MultiColumnTableProperty("MultiColumnTableReferenceDisplayName", Order = 16, ShowHeaders = true)]
+            public TablePropertyReference<ReferenceTableData> MultiColumnTableReference => new TablePropertyReference<ReferenceTableData>("multiColumnTableReferencePath");
+
+            [SingleColumnTableProperty("SingleColumnTableReferenceDisplayName", Order = 17, ShowHeaders = false)]
+            public PropertyReference SingleColumnTableReference => new PropertyReference("singleColumnTableReference");
+
+            [AzureResourceManagerRequestProperty(Order = 18)]
+            public ArmRequestWithDisplay ArmRequest => new ArmRequestWithDisplay(new Uri("/some/query/path", UriKind.Relative));
         }
 
         public class TableData
@@ -381,6 +405,28 @@ namespace SmartDetectorsAnalysisTests
             public string Prop3 { get; set; }
 
             [TableColumn("Second Prop", Order = 2, FormatString = "The value of Prop2 is {0}")]
+            public string Prop2 { get; set; }
+
+            [UrlFormatter("Link for {NonDisplayProp}")]
+            [TableColumn("Uri Prop", Order = 3)]
+            public Uri UriProp { get; set; }
+
+            // The properties are sorted like this to ensure that
+            // the Order property is taken into account
+            [JsonProperty("prop1")]
+            [TableColumn("First Prop", Order = 1)]
+            public string Prop1 { get; set; }
+
+            public string NonDisplayProp { get; set; }
+        }
+
+        public class ReferenceTableData
+        {
+            [JsonProperty("prop3")]
+            [TableColumn("Third Prop, without order")]
+            public string Prop3 { get; set; }
+
+            [TableColumn("Second Prop", Order = 2)]
             public string Prop2 { get; set; }
 
             [UrlFormatter("Link for {NonDisplayProp}")]
@@ -428,6 +474,46 @@ namespace SmartDetectorsAnalysisTests
 
             [ListProperty(Order = 4)]
             public IList<ListData1> EmptyList => new List<ListData1>();
+        }
+
+        public class ArmRequestWithDisplay : AzureResourceManagerRequest
+        {
+            /// <summary>
+            /// Initializes a new instance of the <see cref="ArmRequestWithDisplay"/> class.
+            /// </summary>
+            /// <param name="requestUri">The request's URI. This must be a relative URI that will be executed against the ARM endpoint.</param>
+            public ArmRequestWithDisplay(Uri requestUri)
+                : base(requestUri)
+            {
+            }
+
+            [TextProperty("TextReferenceDisplayName", Order = 11)]
+            [SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic", Justification = "Test code, allowed")]
+            public PropertyReference TextReference => new PropertyReference("textReferencePath");
+
+            [LongTextProperty("LongTextReferenceDisplayName", Order = 12)]
+            [SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic", Justification = "Test code, allowed")]
+            public PropertyReference LongTextReference => new PropertyReference("longTextReferencePath");
+
+            [KeyValueProperty("KeyValueReferenceDisplayName", Order = 13)]
+            [SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic", Justification = "Test code, allowed")]
+            public PropertyReference KeyValueReference => new PropertyReference("keyValueReferencePath");
+
+            [KeyValueProperty("KeyValueWithHeadersReferenceDisplayName", "Keys", "Values", Order = 14)]
+            [SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic", Justification = "Test code, allowed")]
+            public PropertyReference KeyValueWithHeadersReference => new PropertyReference("keyValueWithHeadersReferencePath");
+
+            [ChartProperty("ChartReferenceDisplayName", ChartType.LineChart, ChartAxisType.DateAxis, ChartAxisType.NumberAxis, Order = 15)]
+            [SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic", Justification = "Test code, allowed")]
+            public PropertyReference ChartReference => new PropertyReference("chartReferencePath");
+
+            [MultiColumnTableProperty("MultiColumnTableReferenceDisplayName", Order = 16, ShowHeaders = true)]
+            [SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic", Justification = "Test code, allowed")]
+            public TablePropertyReference<ReferenceTableData> MultiColumnTableReference => new TablePropertyReference<ReferenceTableData>("multiColumnTableReferencePath");
+
+            [SingleColumnTableProperty("SingleColumnTableReferenceDisplayName", Order = 17, ShowHeaders = false)]
+            [SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic", Justification = "Test code, allowed")]
+            public PropertyReference SingleColumnTableReference => new PropertyReference("singleColumnTableReference");
         }
     }
 }
