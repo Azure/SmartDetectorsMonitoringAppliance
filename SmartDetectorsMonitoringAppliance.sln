@@ -86,7 +86,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SmartDetectors.Extensions", "src\SDK\SmartDetectors.Extensions\SmartDetectors.Extensions.csproj", "{E741A447-54ED-492A-817F-9C6E52991DAC}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SmartDetectorsExtensionsTests", "test\SmartDetectorsExtensionsTests\SmartDetectorsExtensionsTests.csproj", "{1D1C0CCC-CAFB-4F80-A482-48CCB48C69B5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SmartDetectorsExtensionsTests", "test\SDK\SmartDetectorsExtensionsTests\SmartDetectorsExtensionsTests.csproj", "{1D1C0CCC-CAFB-4F80-A482-48CCB48C69B5}"
 EndProject
 Project("{FF286327-C783-4F7A-AB73-9BCBAD0D4460}") = "SmartDetectorsExtensionsPackage", "src\SDK\SmartDetectorsExtensionsPackage\SmartDetectorsExtensionsPackage.nuproj", "{28979241-4DAB-46A3-9E0B-45A9A69CCB77}"
 EndProject
