@@ -708,6 +708,10 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
                     return ContractsAggregationType.Sum;
                 case AggregationType.Count:
                     return ContractsAggregationType.Count;
+                case AggregationType.Maximum:
+                    return ContractsAggregationType.Maximum;
+                case AggregationType.Minimum:
+                    return ContractsAggregationType.Minimum;
                 default:
                     throw new InvalidEnumArgumentException($"Unsupported aggregation type {aggregationType}");
             }

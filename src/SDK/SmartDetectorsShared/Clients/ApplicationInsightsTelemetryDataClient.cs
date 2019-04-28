@@ -12,8 +12,6 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Clients
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.Azure.Monitoring.SmartDetectors;
-    using Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts;
-    using Microsoft.Azure.Monitoring.SmartDetectors.Trace;
 
     /// <summary>
     /// An implementation of <see cref="ITelemetryDataClient"/> to access Application Insights resources.
@@ -32,7 +30,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Clients
         /// <param name="applicationsResourceIds">The resource IDs of the applications on which the queries will run.</param>
         /// <param name="queryTimeout">The query timeout.</param>
         public ApplicationInsightsTelemetryDataClient(
-            IExtendedTracer tracer,
+            ITracer tracer,
             IHttpClientWrapper httpClientWrapper,
             ICredentialsFactory credentialsFactory,
             IExtendedAzureResourceManagerClient azureResourceManagerClient,

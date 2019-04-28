@@ -10,9 +10,9 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Trace
     using System.Collections.Generic;
 
     /// <summary>
-    /// Implementation of the <see cref="IExtendedTracer"/> interface that traces to the console.
+    /// Implementation of the <see cref="ITracer"/> interface that traces to the console.
     /// </summary>
-    public class ConsoleTracer : IExtendedTracer
+    public class ConsoleTracer : ITracer
     {
         private readonly object consoleLocker = new object();
 

@@ -11,7 +11,6 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
     using System.Net;
     using System.Net.Http;
     using System.Threading.Tasks;
-    using Microsoft.Azure.Monitoring.SmartDetectors.Trace;
     using Polly;
 
     /// <summary>
@@ -36,7 +35,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
         /// <returns>A task running the asynchronous operation and returning its result</returns>
         public static async Task<T> RunAndTrackDependencyAsync<T>(
             this Policy policy,
-            IExtendedTracer tracer,
+            ITracer tracer,
             string dependencyName,
             string commandName,
             Func<Task<T>> dependencyCall,
@@ -77,7 +76,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
         /// <returns>A task running the asynchronous operation and returning its result</returns>
         public static async Task<T> RunAndTrackDependencyAsync<T>(
             this Policy<T> policy,
-            IExtendedTracer tracer,
+            ITracer tracer,
             string dependencyName,
             string commandName,
             Func<Task<T>> dependencyCall,
@@ -108,7 +107,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
         /// <param name="dependencyName">The dependency name</param>
         /// <param name="retryCount">The retry count (3 by default)</param>
         /// <returns>The retry policy</returns>
-        public static Policy CreateDefaultPolicy(IExtendedTracer tracer, string dependencyName, int retryCount = 3)
+        public static Policy CreateDefaultPolicy(ITracer tracer, string dependencyName, int retryCount = 3)
         {
             return Policy.Handle<Exception>(ex => !(ex is TaskCanceledException)).WaitAndRetryAsync(
                 retryCount,
@@ -123,7 +122,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
         /// <param name="dependencyName">The dependency name</param>
         /// <param name="retryCount">The retry count (3 by default)</param>
         /// <returns>The retry policy</returns>
-        public static Policy<HttpResponseMessage> CreateTransientHttpErrorPolicy(IExtendedTracer tracer, string dependencyName, int retryCount = 3)
+        public static Policy<HttpResponseMessage> CreateTransientHttpErrorPolicy(ITracer tracer, string dependencyName, int retryCount = 3)
         {
             return Policy<HttpResponseMessage>
                 .Handle<HttpRequestException>()

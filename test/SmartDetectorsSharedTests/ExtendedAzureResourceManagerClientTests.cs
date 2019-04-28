@@ -18,7 +18,6 @@ namespace SmartDetectorsSharedTests
     using Microsoft.Azure.Monitoring.SmartDetectors;
     using Microsoft.Azure.Monitoring.SmartDetectors.Arm;
     using Microsoft.Azure.Monitoring.SmartDetectors.Clients;
-    using Microsoft.Azure.Monitoring.SmartDetectors.Trace;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Moq;
     using Newtonsoft.Json.Linq;
@@ -28,13 +27,13 @@ namespace SmartDetectorsSharedTests
     {
         private Mock<IHttpClientWrapper> httpClientWrapperMock;
         private Mock<ICredentialsFactory> credentialsFactoryMock;
-        private Mock<IExtendedTracer> tracerMock;
+        private Mock<ITracer> tracerMock;
 
         [TestInitialize]
         public void TestInitialize()
         {
             this.httpClientWrapperMock = new Mock<IHttpClientWrapper>();
-            this.tracerMock = new Mock<IExtendedTracer>();
+            this.tracerMock = new Mock<ITracer>();
 
             this.credentialsFactoryMock = new Mock<ICredentialsFactory>();
             this.credentialsFactoryMock.Setup(x => x.CreateServiceClientCredentials(It.IsAny<string>())).Returns(new EmptyCredentials());

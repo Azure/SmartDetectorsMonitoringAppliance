@@ -9,16 +9,16 @@ namespace TestChildProcess
     using System;
     using System.Threading;
     using System.Threading.Tasks;
+    using Microsoft.Azure.Monitoring.SmartDetectors;
     using Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.ChildProcess;
     using Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.Exceptions;
-    using Microsoft.Azure.Monitoring.SmartDetectors.Trace;
     using Moq;
 
     public static class TestChildProcessMain
     {
         public static int Main(string[] args)
         {
-            var tracerMock = new Mock<IExtendedTracer>();
+            var tracerMock = new Mock<ITracer>();
             IChildProcessManager childProcessManager = new ChildProcessManager(tracerMock.Object);
             return childProcessManager.RunAndListenToParentAsync<TestChildProcessInput, TestChildProcessOutput>(args, MainTask, ConvertExceptionToExitCode, false).GetAwaiter().GetResult();
         }

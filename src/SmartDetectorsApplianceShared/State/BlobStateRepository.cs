@@ -19,7 +19,6 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.State
     using Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.AzureStorage;
     using Microsoft.Azure.Monitoring.SmartDetectors.State;
     using Microsoft.Azure.Monitoring.SmartDetectors.Tools;
-    using Microsoft.Azure.Monitoring.SmartDetectors.Trace;
     using Microsoft.WindowsAzure.Storage;
     using Microsoft.WindowsAzure.Storage.Blob;
     using Newtonsoft.Json;
@@ -34,7 +33,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.State
         private readonly ICloudBlobContainerWrapper cloudBlobContainerWrapper;
         private readonly string smartDetectorId;
         private readonly string alertRuleResourceId;
-        private readonly IExtendedTracer tracer;
+        private readonly ITracer tracer;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="BlobStateRepository"/> class
@@ -44,7 +43,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.State
         /// <param name="cloudStorageProviderFactory">The cloud storage provider factory</param>
         /// <param name="tracer">The tracer</param>
         [SuppressMessage("Microsoft.Globalization", "CA1308:NormalizeStringsToUppercase", Justification = "We are converting the resource ID to lower case which is the canonized version of it")]
-        public BlobStateRepository(string smartDetectorId, string alertRuleResourceId, ICloudStorageProviderFactory cloudStorageProviderFactory, IExtendedTracer tracer)
+        public BlobStateRepository(string smartDetectorId, string alertRuleResourceId, ICloudStorageProviderFactory cloudStorageProviderFactory, ITracer tracer)
         {
             this.smartDetectorId = Diagnostics.EnsureStringNotNullOrWhiteSpace(() => smartDetectorId);
             this.alertRuleResourceId = Diagnostics.EnsureStringNotNullOrWhiteSpace(() => alertRuleResourceId).ToLowerInvariant();

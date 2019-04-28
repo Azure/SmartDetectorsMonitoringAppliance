@@ -23,7 +23,6 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Clients
     using Microsoft.Azure.Monitoring.SmartDetectors.Arm;
     using Microsoft.Azure.Monitoring.SmartDetectors.Extensions;
     using Microsoft.Azure.Monitoring.SmartDetectors.Tools;
-    using Microsoft.Azure.Monitoring.SmartDetectors.Trace;
     using Newtonsoft.Json.Linq;
     using Polly;
 
@@ -35,7 +34,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Clients
         private const int TelemetryResourcesInDraftRequestLimit = 15;
         private const string DraftAppName = "SmartAlertsRuntime";
 
-        private readonly IExtendedTracer tracer;
+        private readonly ITracer tracer;
         private readonly IHttpClientWrapper httpClientWrapper;
         private readonly ICredentialsFactory credentialsFactory;
         private readonly string queryUriFormat;
@@ -55,7 +54,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Clients
         /// <param name="telemetryResourceIds">the telemetry resource IDs - the IDs of the resources that store the telemetry that this data client accesses</param>
         [SuppressMessage("Microsoft.Design", "CA1054:UriParametersShouldNotBeStrings", Justification = "The parameter is not a URI, but a format string for creating URIs")]
         protected TelemetryDataClientBase(
-            IExtendedTracer tracer,
+            ITracer tracer,
             IHttpClientWrapper httpClientWrapper,
             ICredentialsFactory credentialsFactory,
             IExtendedAzureResourceManagerClient azureResourceManagerClient,

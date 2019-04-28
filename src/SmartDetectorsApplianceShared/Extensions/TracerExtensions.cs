@@ -7,12 +7,11 @@
 namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.Extensions
 {
     using System;
-    using Microsoft.Azure.Monitoring.SmartDetectors.Trace;
     using Newtonsoft.Json;
     using Newtonsoft.Json.Linq;
 
     /// <summary>
-    /// Extension methods for <see cref="IExtendedTracer"/> objects
+    /// Extension methods for <see cref="ITracer"/> objects
     /// </summary>
     public static class TracerExtensions
     {
@@ -22,7 +21,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.Extensio
         /// Trace relevant performance counters as metrics.
         /// </summary>
         /// <param name="tracer">The tracer to use</param>
-        public static void TraceAppCounters(this IExtendedTracer tracer)
+        public static void TraceAppCounters(this ITracer tracer)
         {
             string countersJson = null;
             try

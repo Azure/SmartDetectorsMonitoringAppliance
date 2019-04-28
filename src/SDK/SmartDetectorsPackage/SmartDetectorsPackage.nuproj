@@ -22,7 +22,7 @@
   <Import Project="$(NuProjPath)\NuProj.props" Condition="Exists('$(NuProjPath)\NuProj.props')" />
   <PropertyGroup Label="Configuration">
     <Id>Microsoft.Azure.Monitoring.SmartDetectors</Id>
-    <Version>1.0.12.2</Version>
+    <Version>1.0.12.4</Version>
     <Title>Azure Smart Detectors</Title>
     <Authors>Microsoft</Authors>
     <Owners>Microsoft Corporation</Owners>
