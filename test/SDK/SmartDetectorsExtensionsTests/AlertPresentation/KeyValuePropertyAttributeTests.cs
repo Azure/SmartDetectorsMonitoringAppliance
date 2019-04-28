@@ -6,6 +6,7 @@
 
 namespace SmartDetectorsExtensionsTests.AlertPresentation
 {
+    using System;
     using System.Collections.Generic;
     using Microsoft.Azure.Monitoring.SmartDetectors.AlertPresentation;
     using Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts.AlertProperties;
@@ -67,6 +68,13 @@ namespace SmartDetectorsExtensionsTests.AlertPresentation
             Assert.AreEqual("Values2", ((KeyValueReferenceAlertProperty)contractsAlert.AlertProperties[propertyIndex]).ValueHeaderName);
         }
 
+        [ExpectedException(typeof(ArgumentException))]
+        [TestMethod]
+        public void WhenCreatingContractsAlertWithInvalidKeyValuePropertyThenExceptionIsThrown()
+        {
+            ContractsAlert contractsAlert = CreateContractsAlert<TestAlertWithInvalidKeyValueProperty>();
+        }
+
         public class TestAlert : TestAlertBase
         {
             public int RawProperty => 1;
@@ -87,6 +95,12 @@ namespace SmartDetectorsExtensionsTests.AlertPresentation
 
             [KeyValueProperty("KeyValueWithHeadersReferenceDisplayName", "Keys", "Values{RawProperty}")]
             public PropertyReference KeyValueWithHeadersReference => new PropertyReference("keyValueWithHeadersReferencePath");
+        }
+
+        public class TestAlertWithInvalidKeyValueProperty : TestAlertBase
+        {
+            [KeyValueProperty("KeyValueDisplayName")]
+            public string KeyValue => "Oops";
         }
     }
 }

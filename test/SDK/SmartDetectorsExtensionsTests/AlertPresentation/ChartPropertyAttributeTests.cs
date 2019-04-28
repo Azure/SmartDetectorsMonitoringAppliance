@@ -53,6 +53,13 @@ namespace SmartDetectorsExtensionsTests.AlertPresentation
             Assert.AreEqual(5, chartAlertProperty.DataPoints[0].Y);
         }
 
+        [ExpectedException(typeof(ArgumentException))]
+        [TestMethod]
+        public void WhenCreatingContractsAlertWithInvalidChartPropertyThenExceptionIsThrown()
+        {
+            ContractsAlert contractsAlert = CreateContractsAlert<TestAlertWithInvalidChart>();
+        }
+
         public class TestAlert : TestAlertBase
         {
             [ChartProperty("ChartDisplayName", ChartType.LineChart, ChartAxisType.DateAxis, ChartAxisType.NumberAxis)]
@@ -60,6 +67,12 @@ namespace SmartDetectorsExtensionsTests.AlertPresentation
 
             [ChartProperty("ChartReferenceDisplayName", ChartType.BarChart, ChartAxisType.StringAxis, ChartAxisType.PercentageAxis)]
             public PropertyReference ChartReference => new PropertyReference("chartReferencePath");
+        }
+
+        public class TestAlertWithInvalidChart : TestAlertBase
+        {
+            [ChartProperty("ChartDisplayName", ChartType.LineChart, ChartAxisType.DateAxis, ChartAxisType.NumberAxis)]
+            public List<string> DataPoints => new List<string>() { "Oops" };
         }
     }
 }

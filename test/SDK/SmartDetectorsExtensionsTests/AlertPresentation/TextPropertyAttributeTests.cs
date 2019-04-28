@@ -38,28 +38,6 @@ namespace SmartDetectorsExtensionsTests.AlertPresentation
         }
 
         [TestMethod]
-        public void WhenCreatingContractsAlertWithUriFormattingThenTextPropertiesAreConvertedCorrectly()
-        {
-            ContractsAlert contractsAlert = CreateContractsAlert<TestAlertWithUri>();
-
-            Assert.AreEqual(3, contractsAlert.AlertProperties.Count);
-
-            int propertyIndex = 1;
-            Assert.AreEqual("LongUrlValue", contractsAlert.AlertProperties[propertyIndex].PropertyName);
-            Assert.AreEqual(AlertPropertyType.LongText, contractsAlert.AlertProperties[propertyIndex].Type);
-            Assert.AreEqual("LongUrlDisplayName", ((LongTextAlertProperty)contractsAlert.AlertProperties[propertyIndex]).DisplayName);
-            Assert.AreEqual(0, ((LongTextAlertProperty)contractsAlert.AlertProperties[propertyIndex]).Order);
-            Assert.AreEqual("<a href=\"https://www.bing.com/\" target=\"_blank\">LinkText Link text</a>", ((LongTextAlertProperty)contractsAlert.AlertProperties[propertyIndex]).Value);
-
-            propertyIndex++;
-            Assert.AreEqual("UrlValue", contractsAlert.AlertProperties[propertyIndex].PropertyName);
-            Assert.AreEqual(AlertPropertyType.Text, contractsAlert.AlertProperties[propertyIndex].Type);
-            Assert.AreEqual("UrlDisplayName", ((TextAlertProperty)contractsAlert.AlertProperties[propertyIndex]).DisplayName);
-            Assert.AreEqual(1, ((TextAlertProperty)contractsAlert.AlertProperties[propertyIndex]).Order);
-            Assert.AreEqual("<a href=\"https://www.microsoft.com/\" target=\"_blank\">LinkText Link text</a>", ((TextAlertProperty)contractsAlert.AlertProperties[propertyIndex]).Value);
-        }
-
-        [TestMethod]
         public void WhenCreatingContractsAlertWithFormatStringThenTextPropertiesAreConvertedCorrectly()
         {
             ContractsAlert contractsAlert = CreateContractsAlert<TestAlertWithFormatString>();
@@ -103,6 +81,20 @@ namespace SmartDetectorsExtensionsTests.AlertPresentation
             Assert.AreEqual("textReferencePath", ((TextReferenceAlertProperty)contractsAlert.AlertProperties[propertyIndex]).ReferencePath);
         }
 
+        [ExpectedException(typeof(ArgumentException))]
+        [TestMethod]
+        public void WhenCreatingContractsAlertWithReferenceTextPropertyAndFormatStringThenExceptionIsThrown()
+        {
+            ContractsAlert contractsAlert = CreateContractsAlert<TestAlertWithReferenceTextAndFormatString>();
+        }
+
+        [ExpectedException(typeof(ArgumentException))]
+        [TestMethod]
+        public void WhenCreatingContractsAlertWithReferenceLongTextPropertyAndFormatStringThenExceptionIsThrown()
+        {
+            ContractsAlert contractsAlert = CreateContractsAlert<TestAlertWithReferenceLongTextAndFormatString>();
+        }
+
         public class TestAlertBasic : TestAlertBase
         {
             [LongTextProperty("LongTextDisplayName")]
@@ -110,19 +102,6 @@ namespace SmartDetectorsExtensionsTests.AlertPresentation
 
             [TextProperty("TextDisplayName")]
             public string TextValue => "TextValue";
-        }
-
-        public class TestAlertWithUri : TestAlertBase
-        {
-            public string RawProperty => "Link text";
-
-            [UrlFormatter("LinkText {RawProperty}")]
-            [LongTextProperty("LongUrlDisplayName")]
-            public Uri LongUrlValue => new Uri("https://www.bing.com");
-
-            [UrlFormatter("LinkText {RawProperty}")]
-            [TextProperty("UrlDisplayName")]
-            public Uri UrlValue => new Uri("https://www.microsoft.com");
         }
 
         public class TestAlertWithFormatString : TestAlertBase
@@ -140,6 +119,18 @@ namespace SmartDetectorsExtensionsTests.AlertPresentation
             public PropertyReference TextReference => new PropertyReference("textReferencePath");
 
             [LongTextProperty("LongTextReferenceDisplayName")]
+            public PropertyReference LongTextReference => new PropertyReference("longTextReferencePath");
+        }
+
+        public class TestAlertWithReferenceTextAndFormatString : TestAlertBase
+        {
+            [TextProperty("TextReferenceDisplayName", FormatString = "SomeString")]
+            public PropertyReference TextReference => new PropertyReference("textReferencePath");
+        }
+
+        public class TestAlertWithReferenceLongTextAndFormatString : TestAlertBase
+        {
+            [LongTextProperty("LongTextReferenceDisplayName", FormatString = "SomeString")]
             public PropertyReference LongTextReference => new PropertyReference("longTextReferencePath");
         }
     }

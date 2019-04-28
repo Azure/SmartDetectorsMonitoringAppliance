@@ -20,7 +20,7 @@ namespace SmartDetectorsExtensionsTests.AlertPresentation
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1052:StaticHolderTypesShouldBeSealed", Justification = "Test code, approved")]
     public abstract class PresentationAttributeTestsBase
     {
-        private static readonly SmartDetectorAnalysisRequest AnalysisRequest = new SmartDetectorAnalysisRequest
+        protected static readonly SmartDetectorAnalysisRequest AnalysisRequest = new SmartDetectorAnalysisRequest
         {
             ResourceIds = new List<string> { "resourceId" },
             SmartDetectorId = "smartDetectorId",

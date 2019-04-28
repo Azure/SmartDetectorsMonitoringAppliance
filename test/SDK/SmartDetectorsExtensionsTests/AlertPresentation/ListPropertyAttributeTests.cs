@@ -17,7 +17,7 @@ namespace SmartDetectorsExtensionsTests.AlertPresentation
     public class ListPropertyAttributeTests : PresentationAttributeTestsBase
     {
         [TestMethod]
-        public void WhenCreatingContractsAlertThenMetricListPropertiesAreConvertedCorrectly()
+        public void WhenCreatingContractsAlertThenListPropertiesAreConvertedCorrectly()
         {
             ContractsAlert contractsAlert = CreateContractsAlert<TestAlert>();
 
@@ -35,6 +35,13 @@ namespace SmartDetectorsExtensionsTests.AlertPresentation
             this.VerifyRawAlertProperty(contractsAlert.AlertProperties[propertyIndex++], "AdditionalData_1_MoreData_1_RawProperty", "raw");
             this.VerifyTextAlertProperty(contractsAlert.AlertProperties[propertyIndex++], "AdditionalData_1_MoreData_1_Name1", "First name title", 6, "First name");
             this.VerifyTextAlertProperty(contractsAlert.AlertProperties[propertyIndex++], "AdditionalData_1_MoreData_1_Uri1", "First link", 7, "<a href=\"https://xkcd.com/\" target=\"_blank\">Link to data 1</a>");
+        }
+
+        [ExpectedException(typeof(ArgumentException))]
+        [TestMethod]
+        public void WhenCreatingContractsAlertWithInvalidListPropertyThenExceptionIsThrown()
+        {
+            ContractsAlert contractsAlert = CreateContractsAlert<TestAlertWithInvalidProperty>();
         }
 
         private void VerifyTextAlertProperty(AlertProperty alertProperty, string propertyName, string displayName, byte order, string value)
@@ -61,6 +68,12 @@ namespace SmartDetectorsExtensionsTests.AlertPresentation
                 new ListData1(),
                 new ListData2()
             };
+        }
+
+        public class TestAlertWithInvalidProperty : TestAlertBase
+        {
+            [ListProperty]
+            public string NotAList => "Oops";
         }
 
         private class ListData1

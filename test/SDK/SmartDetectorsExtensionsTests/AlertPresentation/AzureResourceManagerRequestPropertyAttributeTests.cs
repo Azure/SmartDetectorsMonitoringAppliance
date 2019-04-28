@@ -56,18 +56,40 @@ namespace SmartDetectorsExtensionsTests.AlertPresentation
             Assert.AreEqual(AlertPropertyType.Table, armAlertProperty.PropertiesToDisplay[propertyIndex].Type);
         }
 
+        [ExpectedException(typeof(ArgumentException))]
+        [TestMethod]
+        public void WhenCreatingContractsAlertWithInvalidArmRequestPropertyThenExceptionIsThrown()
+        {
+            ContractsAlert contractsAlert = CreateContractsAlert<TestAlertWithInvalidArmRequestProperty>();
+        }
+
+        [ExpectedException(typeof(ArgumentException))]
+        [TestMethod]
+        public void WhenCreatingContractsAlertWithInvalidArmRequestThenExceptionIsThrown()
+        {
+            ContractsAlert contractsAlert = CreateContractsAlert<TestAlertWithInvalidArmRequest>();
+        }
+
         public class TestAlert : TestAlertBase
         {
             [AzureResourceManagerRequestProperty]
             public ArmRequestWithDisplay ArmRequest => new ArmRequestWithDisplay(new Uri("/some/query/path", UriKind.Relative));
         }
 
+        public class TestAlertWithInvalidArmRequestProperty : TestAlertBase
+        {
+            [AzureResourceManagerRequestProperty]
+            public string ArmRequest => "Oops";
+        }
+
+        public class TestAlertWithInvalidArmRequest : TestAlertBase
+        {
+            [AzureResourceManagerRequestProperty]
+            public ArmRequestWithInvalidProperty ArmRequest => new ArmRequestWithInvalidProperty(new Uri("/some/query/path", UriKind.Relative));
+        }
+
         public class ArmRequestWithDisplay : AzureResourceManagerRequest
         {
-            /// <summary>
-            /// Initializes a new instance of the <see cref="ArmRequestWithDisplay"/> class.
-            /// </summary>
-            /// <param name="requestUri">The request's URI. This must be a relative URI that will be executed against the ARM endpoint.</param>
             public ArmRequestWithDisplay(Uri requestUri)
                 : base(requestUri)
             {
@@ -90,6 +112,17 @@ namespace SmartDetectorsExtensionsTests.AlertPresentation
 
             [SingleColumnTableProperty("SingleColumnTableReferenceDisplayName", Order = 6, ShowHeaders = false)]
             public PropertyReference SingleColumnTableReference => new PropertyReference("singleColumnTableReference");
+        }
+
+        public class ArmRequestWithInvalidProperty : AzureResourceManagerRequest
+        {
+            public ArmRequestWithInvalidProperty(Uri requestUri)
+                : base(requestUri)
+            {
+            }
+
+            [TextProperty("TextDisplayName", Order = 1)]
+            public string TextProperty => "Oops";
         }
 
         public class ReferenceTableData

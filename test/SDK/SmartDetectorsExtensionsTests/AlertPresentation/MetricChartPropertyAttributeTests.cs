@@ -50,6 +50,13 @@ namespace SmartDetectorsExtensionsTests.AlertPresentation
             Assert.AreEqual(new DateTime(1972, 6, 6), alertProperty.DynamicThreshold.IgnoreDataBefore);
         }
 
+        [ExpectedException(typeof(ArgumentException))]
+        [TestMethod]
+        public void WhenCreatingContractsAlertWithInvalidPropertyThenExceptionIsThrown()
+        {
+            ContractsAlert contractsAlert = CreateContractsAlert<TestAlertOnInvalidProperty>();
+        }
+
         public class TestAlert : TestAlertBase
         {
             [MetricChartProperty("MetricChartDisplayName", Order = 8)]
@@ -75,6 +82,12 @@ namespace SmartDetectorsExtensionsTests.AlertPresentation
                     IgnoreDataBefore = new DateTime(1972, 6, 6),
                 }
             };
+        }
+
+        public class TestAlertOnInvalidProperty : TestAlertBase
+        {
+            [MetricChartProperty("MetricChartDisplayName", Order = 8)]
+            public string NotAMetricChart => "Opps";
         }
     }
 }

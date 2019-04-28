@@ -425,12 +425,15 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
 
             // Get element type, and verify that all elements are of the same type
             Type tableRowType = tablePropertyValue[0].GetType();
+            IList typedTableValue = (IList)Activator.CreateInstance(typeof(List<>).MakeGenericType(tableRowType));
             foreach (object item in tablePropertyValue)
             {
                 if (item.GetType() != tableRowType)
                 {
                     throw new ArgumentException($"All items in a list with {nameof(TablePropertyAttribute)} must have the same type");
                 }
+
+                typedTableValue.Add(item);
             }
 
             // Easy way out if we're handling a single-column table
@@ -443,7 +446,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
                     displayName,
                     order.Next(),
                     tableAttribute.ShowHeaders,
-                    propertyValue);
+                    typedTableValue);
             }
 
             return CreateMultiColumnTableAlertProperty(tablePropertyValue, propertyName, displayName, tableRowType, tableAttribute, order);

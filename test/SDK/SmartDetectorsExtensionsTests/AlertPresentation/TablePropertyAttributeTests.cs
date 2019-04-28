@@ -10,6 +10,7 @@ namespace SmartDetectorsExtensionsTests.AlertPresentation
     using System.Collections.Generic;
     using System.Diagnostics.CodeAnalysis;
     using Microsoft.Azure.Monitoring.SmartDetectors.AlertPresentation;
+    using Microsoft.Azure.Monitoring.SmartDetectors.Extensions;
     using Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts.AlertProperties;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Newtonsoft.Json;
@@ -113,11 +114,46 @@ namespace SmartDetectorsExtensionsTests.AlertPresentation
         [TestMethod]
         public void WhenCreatingContractsAlertWithReferencePropertiesAndInvalidColumnsThenExceptionIsThrown()
         {
-            ContractsAlert contractsAlert = CreateContractsAlert<TestAlertWithInvalidReferenceProperties>();
+            ContractsAlert contractsAlert = CreateContractsAlert<TestAlertWithReferencePropertiesAndNotReferenceTableData>();
+        }
+
+        [ExpectedException(typeof(ArgumentException))]
+        [TestMethod]
+        public void WhenCreatingContractsAlertWithNotGenericReferencePropertiesThenExceptionIsThrown()
+        {
+            ContractsAlert contractsAlert = CreateContractsAlert<TestAlertWithNotGenericReferenceProperties>();
+        }
+
+        [ExpectedException(typeof(ArgumentException))]
+        [TestMethod]
+        public void WhenCreatingContractsAlertWithReferencePropertiesWithFormatStringThenExceptionIsThrown()
+        {
+            ContractsAlert contractsAlert = CreateContractsAlert<TestAlertWithReferencePropertiesAndFormatString>();
+        }
+
+        [ExpectedException(typeof(ArgumentException))]
+        [TestMethod]
+        public void WhenCreatingContractsAlertWithNonListTableThenExceptionIsThrown()
+        {
+            ContractsAlert contractsAlert = CreateContractsAlert<TestAlertOnNotList>();
+        }
+
+        [ExpectedException(typeof(ArgumentException))]
+        [TestMethod]
+        public void WhenCreatingContractsAlertWithMismatchListTableThenExceptionIsThrown()
+        {
+            var alert = new TestAlert();
+            alert.SingleColumnTable.Add(2);
+            ContractsAlert contractsAlert = alert.CreateContractsAlert(AnalysisRequest, "detector", false, false);
         }
 
         public class TestAlert : TestAlertBase
         {
+            public TestAlert()
+            {
+                this.SingleColumnTable = new List<object> { "value1", "value2", "value3" };
+            }
+
             [MultiColumnTableProperty("TableDisplayName", ShowHeaders = true)]
             [SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays", Justification = "Test code, allowed")]
             public TableData[] Table => new[]
@@ -127,7 +163,7 @@ namespace SmartDetectorsExtensionsTests.AlertPresentation
             };
 
             [SingleColumnTableProperty("SingleColumnTableDisplayName", ShowHeaders = false)]
-            public List<string> SingleColumnTable => new List<string> { "value1", "value2", "value3" };
+            public List<object> SingleColumnTable { get; }
         }
 
         public class TestAlertWithReferenceProperties : TestAlertBase
@@ -139,10 +175,28 @@ namespace SmartDetectorsExtensionsTests.AlertPresentation
             public PropertyReference SingleColumnTableReference => new PropertyReference("singleColumnTableReference");
         }
 
-        public class TestAlertWithInvalidReferenceProperties : TestAlertBase
+        public class TestAlertWithReferencePropertiesAndNotReferenceTableData : TestAlertBase
         {
             [MultiColumnTableProperty("MultiColumnTableReferenceDisplayName", ShowHeaders = true)]
             public TablePropertyReference<TableData> MultiColumnTableReference => new TablePropertyReference<TableData>("multiColumnTableReferencePath");
+        }
+
+        public class TestAlertWithNotGenericReferenceProperties : TestAlertBase
+        {
+            [MultiColumnTableProperty("MultiColumnTableReferenceDisplayName", ShowHeaders = true)]
+            public PropertyReference MultiColumnTableReference => new PropertyReference("multiColumnTableReferencePath");
+        }
+
+        public class TestAlertWithReferencePropertiesAndFormatString : TestAlertBase
+        {
+            [MultiColumnTableProperty("MultiColumnTableReferenceDisplayName", ShowHeaders = true)]
+            public TablePropertyReference<RefernceTableDataWithFormatString> MultiColumnTableReference => new TablePropertyReference<RefernceTableDataWithFormatString>("multiColumnTableReferencePath");
+        }
+
+        public class TestAlertOnNotList : TestAlertBase
+        {
+            [SingleColumnTableProperty("SingleColumnTableDisplayName")]
+            public string SingleColumnTable => "Oops";
         }
 
         public class TableData
@@ -187,6 +241,12 @@ namespace SmartDetectorsExtensionsTests.AlertPresentation
             public string Prop1 { get; set; }
 
             public string NonDisplayProp { get; set; }
+        }
+
+        public class RefernceTableDataWithFormatString
+        {
+            [TableColumn("Some Property", FormatString = "Oops")]
+            public string Prop { get; set; }
         }
     }
 }
