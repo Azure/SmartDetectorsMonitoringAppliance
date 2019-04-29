@@ -38,6 +38,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
     public static class AlertExtensions
     {
         private static readonly HashSet<string> AlertBaseClassPropertiesNames = new HashSet<string>(typeof(Alert).GetProperties().Select(p => p.Name));
+        private static readonly HashSet<string> AzureResourceManagerRequestBaseClassPropertiesNames = new HashSet<string>(typeof(AzureResourceManagerRequest).GetProperties().Select(p => p.Name));
 
         /// <summary>
         /// Creates a presentation from an alert
@@ -57,7 +58,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
             }
 
             // Create presentation elements for each alert property
-            List<AlertProperty> alertProperties = alert.ExtractProperties();
+            List<AlertProperty> alertProperties = alert.ExtractProperties(AlertBaseClassPropertiesNames);
 
             // Generate the alert's correlation hash based on its predicates
             string correlationHash = string.Join("##", alert.ExtractPredicates().OrderBy(x => x.Key).Select(x => x.Key + "|" + x.Value.ToString())).ToSha256Hash();
@@ -108,10 +109,13 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
         /// Extract all alert properties from the specified object
         /// </summary>
         /// <param name="propertiesOwner">The object from which to extract the properties</param>
+        /// <param name="propertiesToIgnore">
+        /// A list of property names to ignore. Properties with matching names will not be included in the result.
+        /// </param>
         /// <returns>The extracted properties</returns>
-        public static List<AlertProperty> ExtractProperties(this object propertiesOwner)
+        public static List<AlertProperty> ExtractProperties(this object propertiesOwner, HashSet<string> propertiesToIgnore)
         {
-            return ExtractProperties(propertiesOwner, new Order(), null);
+            return ExtractProperties(propertiesOwner, new Order(), null, propertiesToIgnore);
         }
 
         /// <summary>
@@ -120,8 +124,11 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
         /// <param name="propertiesOwner">The object from which to extract the properties</param>
         /// <param name="order">The order to use</param>
         /// <param name="parentPropertyName">The parent property name</param>
+        /// <param name="propertiesToIgnore">
+        /// A list of property names to ignore. Properties with matching names will not be included in the result.
+        /// </param>
         /// <returns>The extracted properties</returns>
-        private static List<AlertProperty> ExtractProperties(object propertiesOwner, Order order, string parentPropertyName)
+        private static List<AlertProperty> ExtractProperties(object propertiesOwner, Order order, string parentPropertyName, HashSet<string> propertiesToIgnore)
         {
             if (order == null)
             {
@@ -166,7 +173,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
                 {
                     alertProperties.AddRange(CreateAlertProperties(propertiesOwner, p.Property, p.PresentationAttribute, p.Value, order, parentPropertyName));
                 }
-                else if (!AlertBaseClassPropertiesNames.Contains(p.Property.Name))
+                else if (!propertiesToIgnore.Contains(p.Property.Name))
                 {
                     // Get the raw alert property - a property with no presentation
                     alertProperties.Add(new RawAlertProperty(CombinePropertyNames(parentPropertyName, p.Property.Name), p.Value));
@@ -275,7 +282,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
                         throw new ArgumentException($"A {nameof(AzureResourceManagerRequestPropertyAttribute)} can only be applied to properties of type {nameof(AzureResourceManagerRequest)}");
                     }
 
-                    List<AlertProperty> propertiesToDisplay = armRequest.ExtractProperties().Where(prop => prop.PropertyName != nameof(AzureResourceManagerRequest.RequestUri)).ToList();
+                    List<AlertProperty> propertiesToDisplay = armRequest.ExtractProperties(AzureResourceManagerRequestBaseClassPropertiesNames);
                     if (propertiesToDisplay.Any(prop => !(prop is IReferenceAlertProperty)))
                     {
                         throw new ArgumentException($"An {nameof(AzureResourceManagerRequest)} can only have reference alert properties");
@@ -394,12 +401,13 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
                 }
 
                 // tableAttribute is MultiColumnTablePropertyAttribute
-                if (!propertyReferenceValue.GetType().IsGenericType)
+                Type propertyValueType = propertyReferenceValue.GetType();
+                if (!propertyValueType.IsGenericType || propertyValueType.GetGenericTypeDefinition() != typeof(TablePropertyReference<>))
                 {
                     throw new ArgumentException($"A {nameof(MultiColumnTablePropertyAttribute)} used as property reference can only be applied to properties of type TablePropertyReference<T>");
                 }
 
-                Type tableReferenceRowType = propertyReferenceValue.GetType().GetGenericArguments().Single();
+                Type tableReferenceRowType = propertyValueType.GetGenericArguments().Single();
                 if (tableReferenceRowType
                     .GetProperties()
                     .Any(prop => !string.IsNullOrEmpty(prop.GetCustomAttribute<TableColumnAttribute>()?.FormatString)))
@@ -576,7 +584,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
             List<AlertProperty> alertProperties = new List<AlertProperty>();
             for (int i = 0; i < list.Count; i++)
             {
-                List<AlertProperty> objectProperties = ExtractProperties(list[i], order, CombinePropertyNames(listPropertyName, $"{i}"));
+                List<AlertProperty> objectProperties = ExtractProperties(list[i], order, CombinePropertyNames(listPropertyName, $"{i}"), new HashSet<string>());
                 alertProperties.AddRange(objectProperties);
             }
 

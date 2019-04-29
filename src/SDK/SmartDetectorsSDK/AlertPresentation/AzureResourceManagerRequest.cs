@@ -43,17 +43,12 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.AlertPresentation
         /// <param name="requestSuffix">An optional suffix for the request, which will appended to the resource's URI</param>
         protected AzureResourceManagerRequest(ResourceIdentifier resource, string requestSuffix)
         {
-            if (resource == null)
-            {
-                throw new ArgumentNullException(nameof(resource));
-            }
-
             // Make sure that we'll be able to append the request suffix
             if (string.IsNullOrEmpty(requestSuffix))
             {
                 this.RequestUri = new Uri(resource.ToResourceId(), UriKind.Relative);
             }
-            else if (requestSuffix[0] != '/' && requestSuffix[0] == '?')
+            else if (requestSuffix[0] != '/' && requestSuffix[0] != '?')
             {
                 this.RequestUri = new Uri($"{resource.ToResourceId()}/{requestSuffix}", UriKind.Relative);
             }
@@ -72,11 +67,6 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.AlertPresentation
         /// <param name="queryTimeSpan">Optional time span to use for limiting the query data.</param>
         protected AzureResourceManagerRequest(ResourceIdentifier resource, string query, TimeSpan? queryTimeSpan)
         {
-            if (resource == null)
-            {
-                throw new ArgumentNullException(nameof(resource));
-            }
-
             if (string.IsNullOrEmpty(query))
             {
                 throw new ArgumentNullException(nameof(query));
@@ -109,7 +99,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.AlertPresentation
             string urlQueryParametersString = string.Join("&", urlQueryParameters.Where(param => !string.IsNullOrWhiteSpace(param)));
 
             // And compose the URI
-            this.RequestUri = new Uri($"{queryUrlPath}?{urlQueryParametersString}");
+            this.RequestUri = new Uri($"{queryUrlPath}?{urlQueryParametersString}", UriKind.Relative);
         }
 
         /// <summary>
