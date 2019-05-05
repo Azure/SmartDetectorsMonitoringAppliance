@@ -10,7 +10,6 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance
     using Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.AzureStorage;
     using Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.ChildProcess;
     using Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.Trace;
-    using Microsoft.Azure.Monitoring.SmartDetectors.Trace;
     using Microsoft.Azure.WebJobs.Host;
     using Unity;
 
@@ -47,7 +46,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance
         /// <returns>The unity container, after registering the new tracer</returns>
         public static IUnityContainer WithTracer(this IUnityContainer container, TraceWriter logger, bool traceToConsole)
         {
-            IExtendedTracer tracer = TracerFactory.Create(null, logger, traceToConsole);
+            ITracer tracer = TracerFactory.Create(null, logger, traceToConsole);
             return container.RegisterInstance(tracer);
         }
     }

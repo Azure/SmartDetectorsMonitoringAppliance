@@ -55,11 +55,11 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.Analysis
         {
             // We need to use an instance of IChildProcessManager, to parse the arguments.
             // To overcome the "chicken and egg" problem, we use a child container.
-            IExtendedTracer tracer;
+            ITracer tracer;
             ISmartDetectorLoader loader;
             using (IUnityContainer childContainer = container.CreateChildContainer())
             {
-                IExtendedTracer childTracer = new ConsoleTracer(string.Empty);
+                ITracer childTracer = new ConsoleTracer(string.Empty);
                 childContainer.RegisterInstance(childTracer);
                 IChildProcessManager childProcessManager = childContainer.Resolve<IChildProcessManager>();
                 tracer = childProcessManager.CreateTracerForChildProcess(args);

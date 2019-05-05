@@ -65,7 +65,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator
             tempFolder = FileSystemExtensions.CreateTempFolder(TempSubFolderName);
 
             NotificationService notificationService = new NotificationService();
-            IExtendedTracer consoleTracer = new ConsoleTracer(string.Empty);
+            ITracer consoleTracer = new ConsoleTracer(string.Empty);
             var smartDetectorLoader = new SmartDetectorLoader(tempFolder, consoleTracer);
 
             // *Temporary*: if package file path wasn't accepted, raise file selection window to allow package file selection.

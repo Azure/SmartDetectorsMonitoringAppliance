@@ -17,7 +17,6 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Clients
     using Microsoft.Azure.Monitoring.SmartDetectors.ActivityLog;
     using Microsoft.Azure.Monitoring.SmartDetectors.Arm;
     using Microsoft.Azure.Monitoring.SmartDetectors.Metric;
-    using Microsoft.Azure.Monitoring.SmartDetectors.Trace;
     using ResourceType = Microsoft.Azure.Monitoring.SmartDetectors.ResourceType;
 
     /// <summary>
@@ -27,7 +26,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Clients
     {
         private const int MaxNumberOfResourcesInQuery = 100;
         private readonly ConcurrentDictionary<string, IList<ResourceIdentifier>> subscriptionIdToWorkspaces = new ConcurrentDictionary<string, IList<ResourceIdentifier>>(StringComparer.CurrentCultureIgnoreCase);
-        private readonly IExtendedTracer tracer;
+        private readonly ITracer tracer;
         private readonly IHttpClientWrapper httpClientWrapper;
         private readonly ICredentialsFactory credentialsFactory;
         private readonly IExtendedAzureResourceManagerClient azureResourceManagerClient;
@@ -40,7 +39,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Clients
         /// <param name="httpClientWrapper">The HTTP client wrapper.</param>
         /// <param name="credentialsFactory">The credentials factory.</param>
         /// <param name="azureResourceManagerClient">The Azure Resource Manager client.</param>
-        public AnalysisServicesFactory(IExtendedTracer tracer, IHttpClientWrapper httpClientWrapper, ICredentialsFactory credentialsFactory, IExtendedAzureResourceManagerClient azureResourceManagerClient)
+        public AnalysisServicesFactory(ITracer tracer, IHttpClientWrapper httpClientWrapper, ICredentialsFactory credentialsFactory, IExtendedAzureResourceManagerClient azureResourceManagerClient)
         {
             this.tracer = tracer;
             this.httpClientWrapper = httpClientWrapper;

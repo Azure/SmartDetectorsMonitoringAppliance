@@ -16,7 +16,6 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Clients
     using Microsoft.Azure.Monitoring.SmartDetectors.ActivityLog;
     using Microsoft.Azure.Monitoring.SmartDetectors.Extensions;
     using Microsoft.Azure.Monitoring.SmartDetectors.Tools;
-    using Microsoft.Azure.Monitoring.SmartDetectors.Trace;
     using Microsoft.Rest;
     using Newtonsoft.Json.Linq;
     using Polly;
@@ -37,7 +36,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Clients
         private const int HttpRequestTimeoutInMinutes = 5;
 
         private readonly ServiceClientCredentials credentials;
-        private readonly IExtendedTracer tracer;
+        private readonly ITracer tracer;
         private readonly Policy<HttpResponseMessage> httpRetryPolicy;
         private readonly Uri baseUri;
         private readonly IHttpClientWrapper httpClientWrapper;
@@ -48,7 +47,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Clients
         /// <param name="credentialsFactory">The credentials factory</param>
         /// <param name="httpClientWrapper">The HTTP client wrapper</param>
         /// <param name="tracer">The tracer</param>
-        public ActivityLogClient(ICredentialsFactory credentialsFactory, IHttpClientWrapper httpClientWrapper, IExtendedTracer tracer)
+        public ActivityLogClient(ICredentialsFactory credentialsFactory, IHttpClientWrapper httpClientWrapper, ITracer tracer)
         {
             this.httpClientWrapper = Diagnostics.EnsureArgumentNotNull(() => httpClientWrapper);
             this.tracer = Diagnostics.EnsureArgumentNotNull(() => tracer);

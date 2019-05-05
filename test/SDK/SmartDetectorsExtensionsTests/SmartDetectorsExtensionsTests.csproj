@@ -16,7 +16,7 @@
     <PackageReference Include="StyleCop.Analyzers" Version="1.0.2" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\src\SDK\SmartDetectors.Extensions\SmartDetectors.Extensions.csproj" />
+    <ProjectReference Include="..\..\..\src\SDK\SmartDetectors.Extensions\SmartDetectors.Extensions.csproj" />
   </ItemGroup>
   <ItemGroup>
 	<AdditionalFiles Include="$(SolutionDir)stylecop.json" Link="stylecop.json" />

@@ -9,7 +9,6 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance
     using Microsoft.Azure.Management.ResourceManager.Fluent;
     using Microsoft.Azure.Management.ResourceManager.Fluent.Authentication;
     using Microsoft.Azure.Monitoring.SmartDetectors.Clients;
-    using Microsoft.Azure.Monitoring.SmartDetectors.Trace;
     using Microsoft.Rest;
 
     /// <summary>
@@ -18,14 +17,14 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance
     public class MsiCredentialsFactory : ICredentialsFactory
     {
         private readonly IHttpClientWrapper httpClientWrapper;
-        private readonly IExtendedTracer tracer;
+        private readonly ITracer tracer;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="MsiCredentialsFactory"/> class
         /// </summary>
         /// <param name="httpClientWrapper">The HTTP client wrapper</param>
         /// <param name="tracer">The tracer</param>
-        public MsiCredentialsFactory(IHttpClientWrapper httpClientWrapper, IExtendedTracer tracer)
+        public MsiCredentialsFactory(IHttpClientWrapper httpClientWrapper, ITracer tracer)
         {
             this.httpClientWrapper = httpClientWrapper;
             this.tracer = tracer;

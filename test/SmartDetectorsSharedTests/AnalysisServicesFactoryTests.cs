@@ -18,7 +18,6 @@ namespace SmartDetectorsSharedTests
     using Microsoft.Azure.Monitoring.SmartDetectors.Arm;
     using Microsoft.Azure.Monitoring.SmartDetectors.Clients;
     using Microsoft.Azure.Monitoring.SmartDetectors.Metric;
-    using Microsoft.Azure.Monitoring.SmartDetectors.Trace;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Moq;
     using ResourceType = Microsoft.Azure.Monitoring.SmartDetectors.ResourceType;
@@ -32,7 +31,7 @@ namespace SmartDetectorsSharedTests
         private const string ResourceName = "resourceName";
         private const string WorkSpaceName = "workspaceName";
 
-        private Mock<IExtendedTracer> tracerMock;
+        private Mock<ITracer> tracerMock;
         private Mock<ICredentialsFactory> credentialsFactoryMock;
         private Mock<IHttpClientWrapper> httpClientWrapperMock;
         private Mock<IExtendedAzureResourceManagerClient> azureResourceManagerClientMock;
@@ -40,7 +39,7 @@ namespace SmartDetectorsSharedTests
         [TestInitialize]
         public void TestInitialize()
         {
-            this.tracerMock = new Mock<IExtendedTracer>();
+            this.tracerMock = new Mock<ITracer>();
             this.credentialsFactoryMock = new Mock<ICredentialsFactory>();
             this.credentialsFactoryMock.Setup(x => x.CreateServiceClientCredentials(It.IsAny<string>())).Returns(() => new EmptyCredentials());
             this.credentialsFactoryMock.Setup(x => x.CreateAzureCredentials(It.IsAny<string>())).Returns(() => new AzureCredentials(new EmptyCredentials(), new EmptyCredentials(), "tenantId", AzureEnvironment.AzureGlobalCloud));

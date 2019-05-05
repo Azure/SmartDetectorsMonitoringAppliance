@@ -8,7 +8,6 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance
 {
     using System;
     using System.Linq;
-    using Microsoft.Azure.Monitoring.SmartDetectors.Trace;
     using Microsoft.Azure.WebJobs.Host;
 
     /// <summary>
@@ -23,7 +22,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance
         /// <param name="ex">the exception caught at top level</param>
         /// <param name="tracer">Tracer that will be used to send telemetry on the failure</param>
         /// <param name="fallbackTracer">Fallback tracer, in case the tracer fails</param>
-        public static void TraceUnhandledException(Exception ex, IExtendedTracer tracer, TraceWriter fallbackTracer)
+        public static void TraceUnhandledException(Exception ex, ITracer tracer, TraceWriter fallbackTracer)
         {
             // Trace the full exception details
             string errorToTrace = $"Top level exception: {ex}";
