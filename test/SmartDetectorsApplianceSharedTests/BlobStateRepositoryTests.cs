@@ -12,10 +12,10 @@ namespace SmartDetectorsApplianceSharedTests
     using System.Net;
     using System.Threading;
     using System.Threading.Tasks;
+    using Microsoft.Azure.Monitoring.SmartDetectors;
     using Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.AzureStorage;
     using Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.State;
     using Microsoft.Azure.Monitoring.SmartDetectors.State;
-    using Microsoft.Azure.Monitoring.SmartDetectors.Trace;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Microsoft.WindowsAzure.Storage;
     using Microsoft.WindowsAzure.Storage.Blob;
@@ -63,7 +63,7 @@ namespace SmartDetectorsApplianceSharedTests
             cloudStorageProviderFactoryMock.Setup(m => m.GetSmartDetectorStateStorageContainerAsync())
                 .ReturnsAsync(cloudBlobContainerWrapperMock.Object);
 
-            BlobStateRepository blobStateRepository = new BlobStateRepository("TestSmartDetector", "TestAlertRuleResourceID", cloudStorageProviderFactoryMock.Object, (new Mock<IExtendedTracer>()).Object);
+            BlobStateRepository blobStateRepository = new BlobStateRepository("TestSmartDetector", "TestAlertRuleResourceID", cloudStorageProviderFactoryMock.Object, (new Mock<ITracer>()).Object);
 
             await TestFullFlow(blobStateRepository);
         }
@@ -82,7 +82,7 @@ namespace SmartDetectorsApplianceSharedTests
             cloudStorageProviderFactoryMock.Setup(m => m.GetSmartDetectorStateStorageContainerAsync())
                 .ReturnsAsync(cloudBlobContainerWrapper);
 
-            BlobStateRepository blobStateRepository = new BlobStateRepository("TestSmartDetector", "TestAlertRuleResourceID", cloudStorageProviderFactoryMock.Object, (new Mock<IExtendedTracer>()).Object);
+            BlobStateRepository blobStateRepository = new BlobStateRepository("TestSmartDetector", "TestAlertRuleResourceID", cloudStorageProviderFactoryMock.Object, (new Mock<ITracer>()).Object);
 
             await TestFullFlow(blobStateRepository);
 
@@ -107,7 +107,7 @@ namespace SmartDetectorsApplianceSharedTests
             cloudStorageProviderFactoryMock.Setup(m => m.GetSmartDetectorStateStorageContainerAsync())
                 .ReturnsAsync(cloudBlobContainerWrapperMock.Object);
 
-            BlobStateRepository blobStateRepository = new BlobStateRepository("TestSmartDetector", "TestAlertRuleResourceID", cloudStorageProviderFactoryMock.Object, (new Mock<IExtendedTracer>()).Object);
+            BlobStateRepository blobStateRepository = new BlobStateRepository("TestSmartDetector", "TestAlertRuleResourceID", cloudStorageProviderFactoryMock.Object, (new Mock<ITracer>()).Object);
 
             await blobStateRepository.GetStateAsync<TestState>("key", CancellationToken.None);
         }
@@ -125,7 +125,7 @@ namespace SmartDetectorsApplianceSharedTests
             cloudStorageProviderFactoryMock.Setup(m => m.GetSmartDetectorStateStorageContainerAsync())
                 .ReturnsAsync(cloudBlobContainerWrapperMock.Object);
 
-            BlobStateRepository blobStateRepository = new BlobStateRepository("TestSmartDetector", "TestAlertRuleResourceID", cloudStorageProviderFactoryMock.Object, (new Mock<IExtendedTracer>()).Object);
+            BlobStateRepository blobStateRepository = new BlobStateRepository("TestSmartDetector", "TestAlertRuleResourceID", cloudStorageProviderFactoryMock.Object, (new Mock<ITracer>()).Object);
 
             var state = new TestState
             {
@@ -150,7 +150,7 @@ namespace SmartDetectorsApplianceSharedTests
             cloudStorageProviderFactoryMock.Setup(m => m.GetSmartDetectorStateStorageContainerAsync())
                 .ReturnsAsync(cloudBlobContainerWrapperMock.Object);
 
-            BlobStateRepository blobStateRepository = new BlobStateRepository("TestSmartDetector", "TestAlertRuleResourceID", cloudStorageProviderFactoryMock.Object, (new Mock<IExtendedTracer>()).Object);
+            BlobStateRepository blobStateRepository = new BlobStateRepository("TestSmartDetector", "TestAlertRuleResourceID", cloudStorageProviderFactoryMock.Object, (new Mock<ITracer>()).Object);
 
             var state = new TestState
             {
@@ -172,7 +172,7 @@ namespace SmartDetectorsApplianceSharedTests
             cloudStorageProviderFactoryMock.Setup(m => m.GetSmartDetectorStateStorageContainerAsync())
                 .ReturnsAsync(cloudBlobContainerWrapperMock.Object);
 
-            BlobStateRepository blobStateRepository = new BlobStateRepository("TestSmartDetector", "TestAlertRuleResourceID", cloudStorageProviderFactoryMock.Object, (new Mock<IExtendedTracer>()).Object);
+            BlobStateRepository blobStateRepository = new BlobStateRepository("TestSmartDetector", "TestAlertRuleResourceID", cloudStorageProviderFactoryMock.Object, (new Mock<ITracer>()).Object);
 
             var state = new UnserializableState
             {
@@ -221,7 +221,7 @@ namespace SmartDetectorsApplianceSharedTests
             cloudStorageProviderFactoryMock.Setup(m => m.GetSmartDetectorStateStorageContainerAsync())
                 .ReturnsAsync(cloudBlobContainerWrapperMock.Object);
 
-            BlobStateRepository blobStateRepository = new BlobStateRepository("TestSmartDetector", "TestAlertRuleResourceID", cloudStorageProviderFactoryMock.Object, (new Mock<IExtendedTracer>()).Object);
+            BlobStateRepository blobStateRepository = new BlobStateRepository("TestSmartDetector", "TestAlertRuleResourceID", cloudStorageProviderFactoryMock.Object, (new Mock<ITracer>()).Object);
 
             var originalState = new TestState
             {

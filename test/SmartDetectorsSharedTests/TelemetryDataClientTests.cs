@@ -17,7 +17,6 @@ namespace SmartDetectorsSharedTests
     using Microsoft.Azure.Monitoring.SmartDetectors;
     using Microsoft.Azure.Monitoring.SmartDetectors.Arm;
     using Microsoft.Azure.Monitoring.SmartDetectors.Clients;
-    using Microsoft.Azure.Monitoring.SmartDetectors.Trace;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Moq;
     using Newtonsoft.Json;
@@ -50,7 +49,7 @@ namespace SmartDetectorsSharedTests
             { ResourceIdentifier.CreateFromResourceId("/subscriptions/09cfc56a-0a51-417f-99dc-ebaf882fef3b/resourceGroups/someResourceGroup/providers/microsoft.insights/components/application1"), "24bacd4b-2a90-4f62-b8ae-df73ccfb0e67" }
         };
 
-        private readonly Mock<IExtendedTracer> tracerMock = new Mock<IExtendedTracer>();
+        private readonly Mock<ITracer> tracerMock = new Mock<ITracer>();
         private readonly Mock<ICredentialsFactory> credentialsFactoryMock = new Mock<ICredentialsFactory>();
         private readonly Mock<IExtendedAzureResourceManagerClient> azureResourceManagerClientMock = new Mock<IExtendedAzureResourceManagerClient>();
 

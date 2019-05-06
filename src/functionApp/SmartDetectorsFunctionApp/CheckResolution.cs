@@ -18,7 +18,6 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.Function
     using Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.Extensions;
     using Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.Security;
     using Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts;
-    using Microsoft.Azure.Monitoring.SmartDetectors.Trace;
     using Microsoft.Azure.WebJobs;
     using Microsoft.Azure.WebJobs.Extensions.Http;
     using Microsoft.Azure.WebJobs.Host;
@@ -68,7 +67,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.Function
             using (IUnityContainer childContainer = Container.CreateChildContainer().WithTracer(log, true))
             {
                 // Create a tracer for this run (that will also log to the specified TraceWriter)
-                IExtendedTracer tracer = childContainer.Resolve<IExtendedTracer>();
+                ITracer tracer = childContainer.Resolve<ITracer>();
                 tracer.TraceInformation($"CheckResolution function request received with invocation Id {context.InvocationId}");
                 tracer.AddCustomProperty("FunctionName", context.FunctionName);
                 tracer.AddCustomProperty("InvocationId", context.InvocationId.ToString("N", CultureInfo.InvariantCulture));

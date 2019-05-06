@@ -9,7 +9,6 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.State
     using Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.AzureStorage;
     using Microsoft.Azure.Monitoring.SmartDetectors.State;
     using Microsoft.Azure.Monitoring.SmartDetectors.Tools;
-    using Microsoft.Azure.Monitoring.SmartDetectors.Trace;
 
     /// <summary>
     /// Represents a factory for creating blob state repository for a Smart Detector.
@@ -17,14 +16,14 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.State
     public class BlobStateRepositoryFactory : IStateRepositoryFactory
     {
         private readonly ICloudStorageProviderFactory cloudStorageProviderFactory;
-        private readonly IExtendedTracer tracer;
+        private readonly ITracer tracer;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="BlobStateRepositoryFactory"/> class
         /// </summary>
         /// <param name="cloudStorageProviderFactory">The cloud storage provider factory</param>
         /// <param name="tracer">The tracer</param>
-        public BlobStateRepositoryFactory(ICloudStorageProviderFactory cloudStorageProviderFactory, IExtendedTracer tracer)
+        public BlobStateRepositoryFactory(ICloudStorageProviderFactory cloudStorageProviderFactory, ITracer tracer)
         {
             this.cloudStorageProviderFactory = Diagnostics.EnsureArgumentNotNull(() => cloudStorageProviderFactory);
             this.tracer = tracer;

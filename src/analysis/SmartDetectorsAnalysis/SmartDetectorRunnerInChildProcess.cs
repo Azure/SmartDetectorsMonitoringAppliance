@@ -14,7 +14,6 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.Analysis
     using System.Threading.Tasks;
     using Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.ChildProcess;
     using Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts;
-    using Microsoft.Azure.Monitoring.SmartDetectors.Trace;
 
     /// <summary>
     /// An implementation of <see cref="ISmartDetectorRunner"/>, that runs the analysis in a separate process
@@ -24,14 +23,14 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.Analysis
         private const string ChildProcessName = "SmartDetectorRunnerChildProcess.exe";
 
         private readonly IChildProcessManager childProcessManager;
-        private readonly IExtendedTracer tracer;
+        private readonly ITracer tracer;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SmartDetectorRunnerInChildProcess"/> class
         /// </summary>
         /// <param name="childProcessManager">The child process manager</param>
         /// <param name="tracer">The tracer</param>
-        public SmartDetectorRunnerInChildProcess(IChildProcessManager childProcessManager, IExtendedTracer tracer)
+        public SmartDetectorRunnerInChildProcess(IChildProcessManager childProcessManager, ITracer tracer)
         {
             this.childProcessManager = childProcessManager;
             this.tracer = tracer;

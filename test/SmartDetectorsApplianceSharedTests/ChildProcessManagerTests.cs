@@ -12,8 +12,8 @@ namespace SmartDetectorsApplianceSharedTests
     using System.Net;
     using System.Threading;
     using System.Threading.Tasks;
+    using Microsoft.Azure.Monitoring.SmartDetectors;
     using Microsoft.Azure.Monitoring.SmartDetectors.MonitoringAppliance.ChildProcess;
-    using Microsoft.Azure.Monitoring.SmartDetectors.Trace;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Moq;
     using TestChildProcess;
@@ -23,13 +23,13 @@ namespace SmartDetectorsApplianceSharedTests
     {
         private const string ChildProcessName = "TestChildProcess.exe";
 
-        private Mock<IExtendedTracer> tracerMock;
+        private Mock<ITracer> tracerMock;
         private IChildProcessManager childProcessManager;
 
         [TestInitialize]
         public void TestInitialize()
         {
-            this.tracerMock = new Mock<IExtendedTracer>();
+            this.tracerMock = new Mock<ITracer>();
             this.childProcessManager = new ChildProcessManager(this.tracerMock.Object);
         }
 
