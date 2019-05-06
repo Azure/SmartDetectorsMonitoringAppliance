@@ -11,6 +11,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors
     using System.Collections.ObjectModel;
     using System.Linq;
     using System.Text.RegularExpressions;
+    using Microsoft.Azure.Monitoring.SmartDetectors.Metric;
     using Newtonsoft.Json;
 
     /// <summary>
@@ -42,6 +43,19 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors
         private const string SubscriptionRegexPattern = "/subscriptions/(?<subscriptionId>[^/]*)";
         private const string ResourceGroupRegexPattern = SubscriptionRegexPattern + "/resourceGroups/(?<resourceGroupName>[^/]*)";
         private const string ResourceRegexPattern = ResourceGroupRegexPattern + "/providers/(?<resourceProviderAndType>.*)/(?<resourceName>[^/]*)";
+
+        /// <summary>
+        /// A dictionary, mapping <see cref="ServiceType"/> enumeration values to matching presentation in URI
+        /// </summary>
+        private static readonly ReadOnlyDictionary<ServiceType, string> MapAzureServiceTypeToPresentationInUri =
+            new ReadOnlyDictionary<ServiceType, string>(
+                new Dictionary<ServiceType, string>()
+                {
+                    [ServiceType.AzureStorageBlob] = "blobServices/default",
+                    [ServiceType.AzureStorageTable] = "tableServices/default",
+                    [ServiceType.AzureStorageQueue] = "queueServices/default",
+                    [ServiceType.AzureStorageFile] = "fileServices/default",
+                });
 
         /// <summary>
         /// A dictionary, mapping ARM strings to their matching <see cref="ResourceType"/> enumeration values
@@ -276,8 +290,9 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors
         /// /subscriptions/7904b7bd-5e6b-4415-99a8-355657b7da19/resourceGroups/MyResourceGroupName/providers/Microsoft.Compute/virtualMachines/MyVirtualMachineName
         /// </example>
         /// </summary>
+        /// <param name="azureResourceService">The resource's service type (<see cref="ServiceType.None"/> by default)</param>
         /// <returns>The resource ID.</returns>
-        public string ToResourceId()
+        public string ToResourceId(ServiceType azureResourceService = ServiceType.None)
         {
             // Find the regex pattern based on the type
             string pattern;
@@ -301,6 +316,12 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors
             pattern = pattern.Replace("(?<resourceGroupName>[^/]*)", this.ResourceGroupName);
             pattern = pattern.Replace("(?<resourceProviderAndType>.*)", resourceProviderAndType);
             pattern = pattern.Replace("(?<resourceName>[^/]*)", this.ResourceName);
+
+            // Add suffix that matches the service type
+            if (azureResourceService != ServiceType.None)
+            {
+                pattern += "/" + MapAzureServiceTypeToPresentationInUri[azureResourceService];
+            }
 
             return pattern;
         }

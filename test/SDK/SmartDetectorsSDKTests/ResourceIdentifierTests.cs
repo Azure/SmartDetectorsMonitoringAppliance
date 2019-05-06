@@ -10,6 +10,7 @@ namespace SmartDetectorsSDKTests
     using System.Collections.Generic;
     using System.Linq;
     using Microsoft.Azure.Monitoring.SmartDetectors;
+    using Microsoft.Azure.Monitoring.SmartDetectors.Metric;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Newtonsoft.Json;
 
@@ -176,6 +177,58 @@ namespace SmartDetectorsSDKTests
                 ResourceIdentifier testResourceIdentifier = new ResourceIdentifier(resourceType, "7904b7bd-5e6b-4415-99a8-355657b7da19", "MyResourceGroupName", "MyVirtualMachineName");
                 var resourceIdentifier = testResourceIdentifier.ToResourceId();
             }
+        }
+
+        #endregion
+
+        #region ToResourceId tests
+
+        [TestMethod]
+        public void WhenGettingResourceIdForAzureStorageResourcesWithSupportedServiceTypeThenTheCorrectUrlWasCreated()
+        {
+            var resourceIdentifier = new ResourceIdentifier(
+                ResourceType.AzureStorage,
+                subscriptionId: "SUBSCRIPTION_ID",
+                resourceGroupName: "RESOURCE_GROUP_NAME",
+                resourceName: "STORAGE_NAME");
+
+            string azureStorageBlobResourceId = resourceIdentifier.ToResourceId(ServiceType.AzureStorageBlob);
+            Assert.AreEqual("/subscriptions/SUBSCRIPTION_ID/resourceGroups/RESOURCE_GROUP_NAME/providers/Microsoft.Storage/storageAccounts/STORAGE_NAME/blobServices/default", azureStorageBlobResourceId, "incorrect resource Id was generated for a given resource");
+
+            string azureStorageFileResourceId = resourceIdentifier.ToResourceId(ServiceType.AzureStorageFile);
+            Assert.AreEqual("/subscriptions/SUBSCRIPTION_ID/resourceGroups/RESOURCE_GROUP_NAME/providers/Microsoft.Storage/storageAccounts/STORAGE_NAME/fileServices/default", azureStorageFileResourceId, "incorrect resource Id was generated for a given resource");
+
+            string azureStorageQueueResourceId = resourceIdentifier.ToResourceId(ServiceType.AzureStorageQueue);
+            Assert.AreEqual("/subscriptions/SUBSCRIPTION_ID/resourceGroups/RESOURCE_GROUP_NAME/providers/Microsoft.Storage/storageAccounts/STORAGE_NAME/queueServices/default", azureStorageQueueResourceId, "incorrect resource Id was generated for a given resource");
+
+            string azureStorageTableResourceId = resourceIdentifier.ToResourceId(ServiceType.AzureStorageTable);
+            Assert.AreEqual("/subscriptions/SUBSCRIPTION_ID/resourceGroups/RESOURCE_GROUP_NAME/providers/Microsoft.Storage/storageAccounts/STORAGE_NAME/tableServices/default", azureStorageTableResourceId, "incorrect resource Id was generated for a given resource");
+        }
+
+        [TestMethod]
+        public void WhenGettingResourceIdForAzureStorageResourcesWithNonSupportedServiceTypeThenTheCorrectUrlWasCreated()
+        {
+            var resourceIdentifier = new ResourceIdentifier(
+                ResourceType.AzureStorage,
+                subscriptionId: "SUBSCRIPTION_ID",
+                resourceGroupName: "RESOURCE_GROUP_NAME",
+                resourceName: "STORAGE_NAME");
+
+            string azureStorageWithNonSupportedServiceTypeResourceId = resourceIdentifier.ToResourceId();
+            Assert.AreEqual("/subscriptions/SUBSCRIPTION_ID/resourceGroups/RESOURCE_GROUP_NAME/providers/Microsoft.Storage/storageAccounts/STORAGE_NAME", azureStorageWithNonSupportedServiceTypeResourceId, "incorrect resource Id was generated for a given resource");
+        }
+
+        [TestMethod]
+        public void WhenGettingResourceIdForNonAzureStorageResourcesThenTheCorrectUrlWasCreated()
+        {
+            var resourceIdentifier = new ResourceIdentifier(
+                ResourceType.KeyVault,
+                subscriptionId: "SUBSCRIPTION_ID",
+                resourceGroupName: "RESOURCE_GROUP_NAME",
+                resourceName: "KEYVAULT_NAME");
+
+            string keyVaultResourceId = resourceIdentifier.ToResourceId();
+            Assert.AreEqual("/subscriptions/SUBSCRIPTION_ID/resourceGroups/RESOURCE_GROUP_NAME/providers/Microsoft.KeyVault/vaults/KEYVAULT_NAME", keyVaultResourceId, "incorrect resource Id was generated for a given resource");
         }
 
         #endregion
