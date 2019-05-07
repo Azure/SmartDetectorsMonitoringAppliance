@@ -4,7 +4,7 @@
 // </copyright>
 //-----------------------------------------------------------------------
 
-namespace Microsoft.Azure.Monitoring.SmartDetectors.Metric
+namespace Microsoft.Azure.Monitoring.SmartDetectors
 {
     using Newtonsoft.Json;
     using Newtonsoft.Json.Converters;

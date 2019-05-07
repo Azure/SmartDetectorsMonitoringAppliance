@@ -11,7 +11,6 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors
     using System.Collections.ObjectModel;
     using System.Linq;
     using System.Text.RegularExpressions;
-    using Microsoft.Azure.Monitoring.SmartDetectors.Metric;
     using Newtonsoft.Json;
 
     /// <summary>

@@ -10,7 +10,6 @@ namespace SmartDetectorsSDKTests
     using System.Collections.Generic;
     using System.Linq;
     using Microsoft.Azure.Monitoring.SmartDetectors;
-    using Microsoft.Azure.Monitoring.SmartDetectors.Metric;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Newtonsoft.Json;
 
