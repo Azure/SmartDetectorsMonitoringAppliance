@@ -46,7 +46,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors
         /// <summary>
         /// A dictionary, mapping <see cref="ServiceType"/> enumeration values to matching presentation in URI
         /// </summary>
-        private static readonly ReadOnlyDictionary<ServiceType, string> MapAzureServiceTypeToPresentationInUri =
+        private static readonly ReadOnlyDictionary<ServiceType, string> MapServiceTypeToString =
             new ReadOnlyDictionary<ServiceType, string>(
                 new Dictionary<ServiceType, string>()
                 {
@@ -319,7 +319,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors
             // Add suffix that matches the service type
             if (azureResourceService != ServiceType.None)
             {
-                pattern += "/" + MapAzureServiceTypeToPresentationInUri[azureResourceService];
+                pattern += "/" + MapServiceTypeToString[azureResourceService];
             }
 
             return pattern;
