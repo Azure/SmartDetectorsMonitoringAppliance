@@ -15,7 +15,7 @@
     <PackageReference Include="Expression.Blend.Sdk" Version="1.0.2" />
     <PackageReference Include="LiveCharts.Wpf" Version="0.9.7" />
     <PackageReference Include="MaterialDesignThemes" Version="2.4.0.1044" />
-    <PackageReference Include="Microsoft.Azure.KeyVault" Version="3.0.2" />
+    <PackageReference Include="Microsoft.Azure.KeyVault" Version="3.0.3" />
     <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.6.2" />
     <PackageReference Include="NuProj.Common" Version="0.11.30" />
     <PackageReference Include="Polly" Version="5.7.0" />
@@ -98,11 +98,11 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Controls\MetricChartPropertyControl.xaml">
+    <Page Include="Controls\LongTextPropertyControl.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Controls\LongTextPropertyControl.xaml">
+    <Page Include="Controls\MetricChartPropertyControl.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -121,7 +121,6 @@
     <Resource Include="Media\ic_power_settings_new_white_48dp_1x.png" />
     <Resource Include="Media\ic_power_settings_new_white_48dp_2x.png" />
     <Resource Include="Media\ic_close.png" />
-    <Resource Include="Media\ic_photo_camera.png" />
     <Resource Include="Media\app_insights.png" />
     <Resource Include="Media\log_analytics.png" />
     <Resource Include="Media\resource_default.png" />
@@ -130,8 +129,6 @@
     <Resource Include="Media\virtual_machine.png" />
     <Resource Include="Media\virtual_machine_set.png" />
     <Resource Include="Media\subscription.png" />
-    <Resource Include="Media\up_arrow.png" />
-    <Resource Include="Media\down_arrow.png" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\SmartDetectors.Extensions\SmartDetectors.Extensions.csproj" />
