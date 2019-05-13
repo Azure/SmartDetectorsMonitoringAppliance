@@ -16,16 +16,16 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors
     public static class ResourceIdentifierExtensions
     {
         /// <summary>
-        /// A dictionary, mapping <see cref="ServiceType"/> enumeration values to matching resource ID suffix strings
+        /// A dictionary, mapping <see cref="StorageServiceType"/> enumeration values to matching resource ID suffix strings
         /// </summary>
-        private static readonly ReadOnlyDictionary<ServiceType, string> MapServiceTypeToString =
-            new ReadOnlyDictionary<ServiceType, string>(
-                new Dictionary<ServiceType, string>()
+        private static readonly ReadOnlyDictionary<StorageServiceType, string> MapServiceTypeToString =
+            new ReadOnlyDictionary<StorageServiceType, string>(
+                new Dictionary<StorageServiceType, string>()
                 {
-                    [ServiceType.AzureStorageBlob] = "blobServices/default",
-                    [ServiceType.AzureStorageTable] = "tableServices/default",
-                    [ServiceType.AzureStorageQueue] = "queueServices/default",
-                    [ServiceType.AzureStorageFile] = "fileServices/default",
+                    [StorageServiceType.Blob] = "blobServices/default",
+                    [StorageServiceType.Table] = "tableServices/default",
+                    [StorageServiceType.Queue] = "queueServices/default",
+                    [StorageServiceType.File] = "fileServices/default",
                 });
 
         /// <summary>
@@ -39,13 +39,13 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors
         /// <param name="resourceIdentifier">The resource identifier</param>
         /// <param name="storageServiceType">The storage service type</param>
         /// <returns>The resource ID</returns>
-        public static string ToResourceId(this ResourceIdentifier resourceIdentifier, ServiceType storageServiceType)
+        public static string ToResourceId(this ResourceIdentifier resourceIdentifier, StorageServiceType storageServiceType)
         {
             // Get the resource ID
             string resourceId = resourceIdentifier.ToResourceId();
 
             // Add a suffix that matches the storage service type
-            if (storageServiceType != ServiceType.None)
+            if (storageServiceType != StorageServiceType.None)
             {
                 // Verify that this is a storage resource
                 if (resourceIdentifier.ResourceType != ResourceType.AzureStorage)

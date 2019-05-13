@@ -33,10 +33,10 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Metric
         /// Get the resource metric definitions, based on the resource and service (for example: if the resource is a storage account, possible services are BLOB, Queue, Table and File)
         /// </summary>
         /// <param name="resource">The Azure resource for which we want to fetch metric definitions</param>
-        /// <param name="azureResourceService">The Azure resource's service type</param>
+        /// <param name="storageServiceType">The Azure storage service type</param>
         /// <param name="cancellationToken">Cancellation Token for the async operation</param>
         /// <returns>A <see cref="Task{TResult}"/> object that represents the asynchronous operation, returning the list of metric definitions</returns>
-        Task<IEnumerable<MetricDefinition>> GetResourceMetricDefinitionsAsync(ResourceIdentifier resource, ServiceType azureResourceService, CancellationToken cancellationToken);
+        Task<IEnumerable<MetricDefinition>> GetResourceMetricDefinitionsAsync(ResourceIdentifier resource, StorageServiceType storageServiceType, CancellationToken cancellationToken);
 
         /// <summary>
         /// Get the resource metric values
@@ -53,10 +53,10 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Metric
         /// Get the resource metric values, based on the resource and service (for example: if the resource is a storage account, possible services are BLOB, Queue, Table and File)
         /// </summary>
         /// <param name="resource">The Azure resource for which we want to fetch metrics</param>
-        /// <param name="azureResourceService">The Azure resource's service type</param>
+        /// <param name="storageServiceType">The Azure storage service type</param>
         /// <param name="queryProperties">Query properties to be used when fetching metric data. All fields are optional</param>
         /// <param name="cancellationToken">Cancellation Token for the async operation</param>
         /// <returns>A <see cref="Task{TResult}"/> object that represents the asynchronous operation, returning the list metrics</returns>
-        Task<IEnumerable<MetricQueryResult>> GetResourceMetricsAsync(ResourceIdentifier resource, ServiceType azureResourceService, QueryParameters queryProperties, CancellationToken cancellationToken);
+        Task<IEnumerable<MetricQueryResult>> GetResourceMetricsAsync(ResourceIdentifier resource, StorageServiceType storageServiceType, QueryParameters queryProperties, CancellationToken cancellationToken);
     }
 }

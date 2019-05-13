@@ -191,16 +191,16 @@ namespace SmartDetectorsSDKTests
                 resourceGroupName: "RESOURCE_GROUP_NAME",
                 resourceName: "STORAGE_NAME");
 
-            string azureStorageBlobResourceId = resourceIdentifier.ToResourceId(ServiceType.AzureStorageBlob);
+            string azureStorageBlobResourceId = resourceIdentifier.ToResourceId(StorageServiceType.Blob);
             Assert.AreEqual("/subscriptions/SUBSCRIPTION_ID/resourceGroups/RESOURCE_GROUP_NAME/providers/Microsoft.Storage/storageAccounts/STORAGE_NAME/blobServices/default", azureStorageBlobResourceId, "incorrect resource Id was generated for a given resource");
 
-            string azureStorageFileResourceId = resourceIdentifier.ToResourceId(ServiceType.AzureStorageFile);
+            string azureStorageFileResourceId = resourceIdentifier.ToResourceId(StorageServiceType.File);
             Assert.AreEqual("/subscriptions/SUBSCRIPTION_ID/resourceGroups/RESOURCE_GROUP_NAME/providers/Microsoft.Storage/storageAccounts/STORAGE_NAME/fileServices/default", azureStorageFileResourceId, "incorrect resource Id was generated for a given resource");
 
-            string azureStorageQueueResourceId = resourceIdentifier.ToResourceId(ServiceType.AzureStorageQueue);
+            string azureStorageQueueResourceId = resourceIdentifier.ToResourceId(StorageServiceType.Queue);
             Assert.AreEqual("/subscriptions/SUBSCRIPTION_ID/resourceGroups/RESOURCE_GROUP_NAME/providers/Microsoft.Storage/storageAccounts/STORAGE_NAME/queueServices/default", azureStorageQueueResourceId, "incorrect resource Id was generated for a given resource");
 
-            string azureStorageTableResourceId = resourceIdentifier.ToResourceId(ServiceType.AzureStorageTable);
+            string azureStorageTableResourceId = resourceIdentifier.ToResourceId(StorageServiceType.Table);
             Assert.AreEqual("/subscriptions/SUBSCRIPTION_ID/resourceGroups/RESOURCE_GROUP_NAME/providers/Microsoft.Storage/storageAccounts/STORAGE_NAME/tableServices/default", azureStorageTableResourceId, "incorrect resource Id was generated for a given resource");
         }
 
