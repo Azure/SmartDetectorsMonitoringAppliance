@@ -102,8 +102,8 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Clients
         /// <returns>A <see cref="Task{TResult}"/> object that represents the asynchronous operation, returning the list of metric definitions</returns>
         public async Task<IEnumerable<MetricDefinition>> GetResourceMetricDefinitionsAsync(ResourceIdentifier resource, StorageServiceType storageServiceType, CancellationToken cancellationToken)
         {
-            string resourceFullUri = resource.ToResourceId(storageServiceType);
-            return await this.GetResourceMetricDefinitionsAsync(resourceFullUri, cancellationToken);
+            string resourceId = resource.ToResourceId(storageServiceType);
+            return await this.GetResourceMetricDefinitionsAsync(resourceId, cancellationToken);
         }
 
         /// <summary>
@@ -151,8 +151,8 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Clients
         /// <returns>A <see cref="Task{TResult}"/> object that represents the asynchronous operation, returning the list metrics</returns>
         public async Task<IEnumerable<MetricQueryResult>> GetResourceMetricsAsync(ResourceIdentifier resource, StorageServiceType storageServiceType, QueryParameters queryParameters, CancellationToken cancellationToken = default(CancellationToken))
         {
-            string resourceFullUri = resource.ToResourceId(storageServiceType);
-            return await this.GetResourceMetricsAsync(resourceFullUri, queryParameters, cancellationToken);
+            string resourceId = resource.ToResourceId(storageServiceType);
+            return await this.GetResourceMetricsAsync(resourceId, queryParameters, cancellationToken);
         }
     }
 }
