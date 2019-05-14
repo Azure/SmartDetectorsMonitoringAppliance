@@ -180,6 +180,58 @@ namespace SmartDetectorsSDKTests
 
         #endregion
 
+        #region ToResourceId tests
+
+        [TestMethod]
+        public void WhenGettingResourceIdForAzureStorageResourcesWithSupportedServiceTypeThenTheCorrectUrlWasCreated()
+        {
+            var resourceIdentifier = new ResourceIdentifier(
+                ResourceType.AzureStorage,
+                subscriptionId: "SUBSCRIPTION_ID",
+                resourceGroupName: "RESOURCE_GROUP_NAME",
+                resourceName: "STORAGE_NAME");
+
+            string azureStorageBlobResourceId = resourceIdentifier.ToResourceId(StorageServiceType.Blob);
+            Assert.AreEqual("/subscriptions/SUBSCRIPTION_ID/resourceGroups/RESOURCE_GROUP_NAME/providers/Microsoft.Storage/storageAccounts/STORAGE_NAME/blobServices/default", azureStorageBlobResourceId, "incorrect resource Id was generated for a given resource");
+
+            string azureStorageFileResourceId = resourceIdentifier.ToResourceId(StorageServiceType.File);
+            Assert.AreEqual("/subscriptions/SUBSCRIPTION_ID/resourceGroups/RESOURCE_GROUP_NAME/providers/Microsoft.Storage/storageAccounts/STORAGE_NAME/fileServices/default", azureStorageFileResourceId, "incorrect resource Id was generated for a given resource");
+
+            string azureStorageQueueResourceId = resourceIdentifier.ToResourceId(StorageServiceType.Queue);
+            Assert.AreEqual("/subscriptions/SUBSCRIPTION_ID/resourceGroups/RESOURCE_GROUP_NAME/providers/Microsoft.Storage/storageAccounts/STORAGE_NAME/queueServices/default", azureStorageQueueResourceId, "incorrect resource Id was generated for a given resource");
+
+            string azureStorageTableResourceId = resourceIdentifier.ToResourceId(StorageServiceType.Table);
+            Assert.AreEqual("/subscriptions/SUBSCRIPTION_ID/resourceGroups/RESOURCE_GROUP_NAME/providers/Microsoft.Storage/storageAccounts/STORAGE_NAME/tableServices/default", azureStorageTableResourceId, "incorrect resource Id was generated for a given resource");
+        }
+
+        [TestMethod]
+        public void WhenGettingResourceIdForAzureStorageResourcesWithNonSupportedServiceTypeThenTheCorrectUrlWasCreated()
+        {
+            var resourceIdentifier = new ResourceIdentifier(
+                ResourceType.AzureStorage,
+                subscriptionId: "SUBSCRIPTION_ID",
+                resourceGroupName: "RESOURCE_GROUP_NAME",
+                resourceName: "STORAGE_NAME");
+
+            string azureStorageWithNonSupportedServiceTypeResourceId = resourceIdentifier.ToResourceId();
+            Assert.AreEqual("/subscriptions/SUBSCRIPTION_ID/resourceGroups/RESOURCE_GROUP_NAME/providers/Microsoft.Storage/storageAccounts/STORAGE_NAME", azureStorageWithNonSupportedServiceTypeResourceId, "incorrect resource Id was generated for a given resource");
+        }
+
+        [TestMethod]
+        public void WhenGettingResourceIdForNonAzureStorageResourcesThenTheCorrectUrlWasCreated()
+        {
+            var resourceIdentifier = new ResourceIdentifier(
+                ResourceType.KeyVault,
+                subscriptionId: "SUBSCRIPTION_ID",
+                resourceGroupName: "RESOURCE_GROUP_NAME",
+                resourceName: "KEYVAULT_NAME");
+
+            string keyVaultResourceId = resourceIdentifier.ToResourceId();
+            Assert.AreEqual("/subscriptions/SUBSCRIPTION_ID/resourceGroups/RESOURCE_GROUP_NAME/providers/Microsoft.KeyVault/vaults/KEYVAULT_NAME", keyVaultResourceId, "incorrect resource Id was generated for a given resource");
+        }
+
+        #endregion
+
         #region Private methods
 
         private static void InvalidEmptyParameterTest(Func<string, ResourceIdentifier> function)
