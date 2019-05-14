@@ -18,7 +18,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors
         /// <summary>
         /// A dictionary, mapping <see cref="StorageServiceType"/> enumeration values to matching resource ID suffix strings
         /// </summary>
-        private static readonly ReadOnlyDictionary<StorageServiceType, string> MapServiceTypeToString =
+        private static readonly ReadOnlyDictionary<StorageServiceType, string> MapStorageServiceTypeToString =
             new ReadOnlyDictionary<StorageServiceType, string>(
                 new Dictionary<StorageServiceType, string>()
                 {
@@ -53,7 +53,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors
                     throw new ArgumentException($"Unexpected resource type {resourceIdentifier.ResourceType}, expected type {ResourceType.AzureStorage}");
                 }
 
-                resourceId += "/" + MapServiceTypeToString[storageServiceType];
+                resourceId += "/" + MapStorageServiceTypeToString[storageServiceType];
             }
 
             return resourceId;
