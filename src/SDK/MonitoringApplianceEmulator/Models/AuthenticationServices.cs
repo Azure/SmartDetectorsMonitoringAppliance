@@ -31,6 +31,8 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
         // The redirect URI registered in Azure for the emulator's application.
         private readonly Uri redirectUri;
 
+        private readonly string extraQueryParameters;
+
         // The authentication context used to authenticate with AAD
         private readonly AuthenticationContext authenticationContext;
 
@@ -48,6 +50,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
             this.resourceId = Diagnostics.EnsureStringNotNullOrWhiteSpace(() => ConfigurationManager.AppSettings["ResourceId"]);
             this.clientId = Diagnostics.EnsureStringNotNullOrWhiteSpace(() => ConfigurationManager.AppSettings["ClientId"]);
             this.redirectUri = new Uri(Diagnostics.EnsureStringNotNullOrWhiteSpace(() => ConfigurationManager.AppSettings["RedirectUri"]));
+            this.extraQueryParameters = Diagnostics.EnsureStringNotNullOrWhiteSpace(() => ConfigurationManager.AppSettings["AuthExtraQueryParameters"]);
 
             // Initialize the AuthenticationContext with the common (tenant-less) endpoint
             this.authenticationContext = new AuthenticationContext(commonAuthority);
@@ -88,7 +91,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
                 this.redirectUri,
                 new PlatformParameters(PromptBehavior.Auto, null),
                 UserIdentifier.AnyUser,
-                "prompt=consent");
+                this.extraQueryParameters).ConfigureAwait(false);
 
             this.AuthenticatedUserName = this.authenticationResult.UserInfo.GivenName;
         }
