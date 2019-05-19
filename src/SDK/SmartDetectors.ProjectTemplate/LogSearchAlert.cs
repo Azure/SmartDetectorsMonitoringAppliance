@@ -1,6 +1,8 @@
 ﻿namespace $safeprojectname$
 {
+    using System.Collections.Generic;
     using Microsoft.Azure.Monitoring.SmartDetectors;
+    using Microsoft.Azure.Monitoring.SmartDetectors.AlertPresentation;
 
     /// <summary>
     /// A sample implementation of an <see cref="Alert"/>. 
@@ -23,20 +25,20 @@
         /// <summary>
         /// Gets or sets the resource name
         /// </summary>
-        [AlertPredicateProperty]
-        [AlertPresentationProperty(AlertPresentationSection.Property, "Resource name", Order = 1, InfoBalloon = "The resource name")]
+        [PredicateProperty]
+        [TextProperty("Resource name", Order = 1)]
         public string ResourceName { get; set; }
 
         /// <summary>
         /// Gets or sets the number of records
         /// </summary>
-        [AlertPresentationProperty(AlertPresentationSection.Property, "Number of records", Order = 2, InfoBalloon = "The number of records")]
+        [TextProperty("Number of records", Order = 2)]
         public int Count { get; set; }
 
         /// <summary>
-        /// Gets the query that displays the number of records over time
+        /// Gets or sets the query that displays the number of records over time
         /// </summary>
-        [AlertPresentationProperty(AlertPresentationSection.Chart, "Number of records over time for {ResourceName}", Order = 3, InfoBalloon = "The number of records over time")]
-        public string CountChart => $@"$query$";
+        [ChartProperty("Number of records over time for {ResourceName}", ChartType.LineChart, ChartAxisType.DateAxis, ChartAxisType.NumberAxis, Order = 3)]
+        public List<ChartPoint> CountChart { get; set; }
     }
 }

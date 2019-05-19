@@ -94,16 +94,14 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.ProjectType
                     case SmartDetectorTemplateType.LogAnalytics:
                         replacementsDictionary.Add("$dataType$", "Log Analytics");
                         replacementsDictionary.Add("$query$", "Perf " +
-                                                              "| summarize count() by bin(TimeGenerated, 1h) " +
-                                                              "| render timechart");
+                                                              "| summarize Count=count() by bin(TimeGenerated, 1h) ");
                         replacementsDictionary.Add("$tableName$", "Perf");
                         replacementsDictionary.Add("$resourceType$", "VirtualMachine");
                         break;
                     case SmartDetectorTemplateType.ApplicationInsights:
                         replacementsDictionary.Add("$dataType$", "Application Insights");
                         replacementsDictionary.Add("$query$", "traces " +
-                                                              "| summarize count() by bin(timestamp, 1h) " +
-                                                              "| render timechart");
+                                                              "| summarize Count=count() by bin(timestamp, 1h) ");
                         replacementsDictionary.Add("$tableName$", "traces");
                         replacementsDictionary.Add("$resourceType$", "ApplicationInsights");
                         break;
