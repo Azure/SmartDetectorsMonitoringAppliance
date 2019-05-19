@@ -67,7 +67,7 @@ namespace SmartDetectorsSharedTests
             this.monitorManagementClientMock.SetupGet(monitorClient => monitorClient.Metrics).Returns(this.metricsOperationsMock.Object);
             IMetricClient metricClient = new MetricClient(this.tracerMock.Object, this.monitorManagementClientMock.Object);
 
-            List<MetricQueryResult> metrics = (await metricClient.GetResourceMetricsAsync(this.resourceIdentifier, ServiceType.AzureStorageQueue, new QueryParameters(), default(CancellationToken))).ToList();
+            List<MetricQueryResult> metrics = (await metricClient.GetResourceMetricsAsync(this.resourceIdentifier, StorageServiceType.Queue, new QueryParameters(), default(CancellationToken))).ToList();
 
             // Validate that right Uri was generated
             this.metricsOperationsMock.Verify(metric => metric.ListWithHttpMessagesAsync(expectedUri, It.IsAny<ODataQuery<MetadataValueInner>>(), null, null, string.Empty, null, null, null, null, null, null, CancellationToken.None));
@@ -94,7 +94,7 @@ namespace SmartDetectorsSharedTests
             this.monitorManagementClientMock.SetupGet(monitorClient => monitorClient.Metrics).Returns(this.metricsOperationsMock.Object);
             IMetricClient metricClient = new MetricClient(this.tracerMock.Object, this.monitorManagementClientMock.Object);
 
-            List<MetricQueryResult> metrics = (await metricClient.GetResourceMetricsAsync(this.resourceIdentifier, ServiceType.AzureStorageQueue, new QueryParameters() { MetricNamespace = "NAMESPACE" }, default(CancellationToken))).ToList();
+            List<MetricQueryResult> metrics = (await metricClient.GetResourceMetricsAsync(this.resourceIdentifier, StorageServiceType.Queue, new QueryParameters() { MetricNamespace = "NAMESPACE" }, default(CancellationToken))).ToList();
 
             // Validate that right Uri was generated
             this.metricsOperationsMock.Verify(metric => metric.ListWithHttpMessagesAsync(expectedUri, It.IsAny<ODataQuery<MetadataValueInner>>(), null, null, string.Empty, null, null, null, null, "NAMESPACE", null, CancellationToken.None));
@@ -149,7 +149,7 @@ namespace SmartDetectorsSharedTests
             };
 
             var metrics1 = (await client.GetResourceMetricsAsync(resourceId, parameters)).ToList();
-            var metrics2 = (await client.GetResourceMetricsAsync(this.resourceIdentifier, ServiceType.AzureStorageQueue, parameters)).ToList();
+            var metrics2 = (await client.GetResourceMetricsAsync(this.resourceIdentifier, StorageServiceType.Queue, parameters)).ToList();
             Assert.IsTrue(metrics1.Any() && metrics2.Any(), "Lists are not full with data");
             Assert.IsTrue(metrics1.First().Timeseries.Any() && metrics2.First().Timeseries.Any(), "Metrics do not contain Time series");
             Assert.IsTrue(metrics1[0].Timeseries[0].Data.Any() && metrics2[0].Timeseries[0].Data.Any(), "Time series are not full with data");

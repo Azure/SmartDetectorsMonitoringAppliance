@@ -1,19 +1,19 @@
 ﻿//-----------------------------------------------------------------------
-// <copyright file="ServiceType.cs" company="Microsoft Corporation">
+// <copyright file="StorageServiceType.cs" company="Microsoft Corporation">
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // </copyright>
 //-----------------------------------------------------------------------
 
-namespace Microsoft.Azure.Monitoring.SmartDetectors.Metric
+namespace Microsoft.Azure.Monitoring.SmartDetectors
 {
     using Newtonsoft.Json;
     using Newtonsoft.Json.Converters;
 
     /// <summary>
-    /// An enumeration of all resource services supported by Smart Detectors.
+    /// An enumeration of all Azure storage services supported by Smart Detectors.
     /// </summary>
     [JsonConverter(typeof(StringEnumConverter))]
-    public enum ServiceType
+    public enum StorageServiceType
     {
         /// <summary>
         /// No specific service type
@@ -21,23 +21,23 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Metric
         None,
 
         /// <summary>
-        /// Blob service of AzureStorage
+        /// Blob service
         /// </summary>
-        AzureStorageBlob,
+        Blob,
 
         /// <summary>
-        /// Table service of AzureStorage
+        /// Table service
         /// </summary>
-        AzureStorageTable,
+        Table,
 
         /// <summary>
-        /// Queue service of AzureStorage
+        /// Queue service
         /// </summary>
-        AzureStorageQueue,
+        Queue,
 
         /// <summary>
-        /// File service of AzureStorage
+        /// File service
         /// </summary>
-        AzureStorageFile
+        File
     }
 }
