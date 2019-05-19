@@ -36,7 +36,7 @@
         public int Count { get; set; }
 
         /// <summary>
-        /// Gets the query that displays the number of records over time
+        /// Gets or sets the query that displays the number of records over time
         /// </summary>
         [ChartProperty("Number of records over time for {ResourceName}", ChartType.LineChart, ChartAxisType.DateAxis, ChartAxisType.NumberAxis, Order = 3)]
         public List<ChartPoint> CountChart { get; set; }
