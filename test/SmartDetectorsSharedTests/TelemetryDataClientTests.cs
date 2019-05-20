@@ -131,11 +131,8 @@ namespace SmartDetectorsSharedTests
             }
             catch (TelemetryDataClientException e)
             {
-                Assert.AreEqual($"[test error code] test error message\r\n query = {Query}", e.Message, "Exception message mismatch");
-                Assert.IsNotNull(e.InnerException, "Inner exception is null");
-                Assert.AreEqual(typeof(TelemetryDataClientException), e.InnerException.GetType(), "Inner exception is null");
-                Assert.AreEqual("[test inner error code] test inner error message", e.InnerException.Message, "Inner exception message mismatch");
-                Assert.IsNull(e.InnerException.InnerException, "Inner exception of inner exception is not null");
+                Assert.AreEqual($"[test error code] test error message", e.Message, "Exception message mismatch");
+                Assert.IsNull(e.InnerException, "Inner exception is not null");
             }
         }
 
