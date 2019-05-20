@@ -167,7 +167,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Clients
                     // Throw an exception with the original response content
                     if (filteredAdditionalTelemetryResourceIds.Count == additionalTelemetryResourceIds.Count)
                     {
-                        throw new TelemetryDataClientException(this.ParseError(await response.Content.ReadAsStringAsync()), query);
+                        throw new TelemetryDataClientException(this.ParseErrorMessage(await response.Content.ReadAsStringAsync()));
                     }
 
                     // Try again with filtered resources
@@ -176,7 +176,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Clients
 
                 if (!response.IsSuccessStatusCode)
                 {
-                    throw new TelemetryDataClientException(this.ParseError(await response.Content.ReadAsStringAsync()), query);
+                    throw new TelemetryDataClientException(this.ParseErrorMessage(await response.Content.ReadAsStringAsync()));
                 }
 
                 string responseContent = await response.Content.ReadAsStringAsync();
@@ -348,11 +348,11 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Clients
         }
 
         /// <summary>
-        /// Parses an error from HTTP response content to JSon object
+        /// Parses an error messgae from HTTP response content to JSon object
         /// </summary>
         /// <param name="responseContent">The response content.</param>
         /// <returns>The JSon object representation of an error.</returns>
-        private JObject ParseError(string responseContent)
+        private string ParseErrorMessage(string responseContent)
         {
             JObject errorObject = null;
             try
@@ -360,14 +360,15 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Clients
                 JObject responseObject = JObject.Parse(responseContent);
                 errorObject = (JObject)responseObject["error"];
                 this.tracer.TraceError($"Query returned an error: {errorObject}");
+
+                return $"[{errorObject["code"]}] {errorObject["message"]}";
             }
             catch (Exception ex)
             {
                 // Don't throw in error handling
                 this.tracer.TraceError($"Query returned an error. In addition, error details parsing failed with exception: {ex}");
+                return "Unspecified error";
             }
-
-            return errorObject;
         }
 
         /// <summary>
