@@ -151,7 +151,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
             // Send a metric query using the metric client
             IEnumerable<MetricQueryResult> metricQueryResults = await metricClient.GetResourceMetricsAsync(
                     resource,
-                    ServiceType.None,
+                    StorageServiceType.None,
                     new QueryParameters()
                     {
                         MetricNamespace = property.MetricNamespace,

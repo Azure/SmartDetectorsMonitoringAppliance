@@ -147,7 +147,18 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator
             }
             catch (Exception exception)
             {
-                var message = $"{exception.Message}. {Environment.NewLine}{exception.InnerException?.Message}";
+                string message = string.Empty;
+                while (exception != null)
+                {
+                    if (message.Length > 0)
+                    {
+                        message += " -> ";
+                    }
+
+                    message += exception.Message;
+                    exception = exception.InnerException;
+                }
+
                 MessageBox.Show(message);
                 System.Diagnostics.Trace.WriteLine(message);
                 Environment.Exit(1);

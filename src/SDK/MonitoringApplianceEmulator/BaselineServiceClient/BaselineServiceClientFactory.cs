@@ -20,7 +20,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
     /// </summary>
     public class BaselineServiceClientFactory : IBaselineServiceClientFactory
     {
-        private const string CertificateUrl = @"https://cadservicepreviewvault.vault.azure.net/secrets/SmartDiagnosticsNRTClientCert2/ef4d7fcf3d3b44b3841a99ad04e2a413";
+        private const string CertificateUrl = @"https://sdre-prod.vault.azure.net/secrets/SdreBaselineCertificate";
         private const string ClientId = "1950a258-227b-4e31-a9cf-717495945fc2";
         private const string RedirectUri = "urn:ietf:wg:oauth:2.0:oob";
 
