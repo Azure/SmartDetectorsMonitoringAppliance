@@ -1,6 +1,7 @@
 ﻿namespace $safeprojectname$
 {
     using Microsoft.Azure.Monitoring.SmartDetectors;
+    using Microsoft.Azure.Monitoring.SmartDetectors.AlertPresentation;
 
     /// <summary>
     /// A sample implementation of an <see cref="Alert"/>, without any additional data - only a title.

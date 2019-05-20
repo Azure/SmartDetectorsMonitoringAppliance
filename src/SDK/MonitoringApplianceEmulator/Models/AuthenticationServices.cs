@@ -51,8 +51,8 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
             string commonAuthority = Diagnostics.EnsureStringNotNullOrWhiteSpace(() => ConfigurationManager.AppSettings["CommonAuthority"]);
             this.resourceId = Diagnostics.EnsureStringNotNullOrWhiteSpace(() => ConfigurationManager.AppSettings["ResourceId"]);
             this.clientId = clientId;
-            this.redirectUri = new Uri(Diagnostics.EnsureStringNotNullOrWhiteSpace(() => ConfigurationManager.AppSettings["RedirectUri"]));
             this.clientSecret = clientSecret;
+            this.redirectUri = new Uri(Diagnostics.EnsureStringNotNullOrWhiteSpace(() => ConfigurationManager.AppSettings["RedirectUri"]));
 
             // Initialize the AuthenticationContext with the common (tenant-less) endpoint
             if (string.IsNullOrEmpty(directoryId))
@@ -95,8 +95,6 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
         /// <returns>A <see cref="Task"/> running the async operation.</returns>
         public async Task AuthenticateUserAsync()
         {
-            if (string.IsNullOrEmpty(this.clientSecret))
-            {
                 this.authenticationResult = await this.authenticationContext.AcquireTokenAsync(
                     this.resourceId,
                     this.clientId,
@@ -104,15 +102,8 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
                     new PlatformParameters(PromptBehavior.Auto, null)).ConfigureAwait(false);
                     ////UserIdentifier.AnyUser,
                     ////"prompt=consent");
-            }
-            else
-            {
-                this.authenticationResult = await this.authenticationContext.AcquireTokenAsync(
-                    this.resourceId,
-                    new ClientCredential(this.clientId, this.clientSecret)).ConfigureAwait(false);
-            }
 
-            this.AuthenticatedUserName = this.authenticationResult.UserInfo?.GivenName;
+            this.AuthenticatedUserName = this.authenticationResult.UserInfo.GivenName;
         }
 
         /// <summary>

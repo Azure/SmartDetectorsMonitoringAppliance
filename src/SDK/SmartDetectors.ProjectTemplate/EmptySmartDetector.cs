@@ -30,7 +30,7 @@
         {
             var alerts = new List<Alert>
             {
-                { new $alertName$("title", analysisRequest.TargetResources.First()) }
+                { new $alertName$("title", analysisRequest.RequestParameters.First()) }
             };
 
             return Task.FromResult(alerts);
