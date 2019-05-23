@@ -31,7 +31,7 @@ namespace SmartDetectorsExtensionsTests.AlertPresentation
             Assert.AreEqual(1, contractsAlert.AlertProperties.Count);
 
             MetricChartAlertProperty alertProperty = (MetricChartAlertProperty)contractsAlert.AlertProperties[0];
-            Assert.AreEqual(default(ResourceIdentifier).ToResourceId(), alertProperty.ResourceId);
+            Assert.AreEqual(string.Empty, alertProperty.ResourceId);
             Assert.AreEqual("someMetric", alertProperty.MetricName);
             Assert.AreEqual("namespace", alertProperty.MetricNamespace);
             Assert.AreEqual(2, alertProperty.MetricDimensions.Count);
@@ -62,7 +62,7 @@ namespace SmartDetectorsExtensionsTests.AlertPresentation
             [MetricChartProperty("MetricChartDisplayName", Order = 8)]
             public MetricChart MetricChart => new MetricChart("someMetric", TimeSpan.FromHours(1), AggregationType.Average)
             {
-                ResourceId = default(ResourceIdentifier),
+                ResourceId = string.Empty,
                 MetricNamespace = "namespace",
                 MetricDimensions =
                 {
