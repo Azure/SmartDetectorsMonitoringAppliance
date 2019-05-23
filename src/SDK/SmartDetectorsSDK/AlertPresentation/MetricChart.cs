@@ -33,7 +33,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.AlertPresentation
 
         /// <summary>
         /// Gets or sets an optional resource ID to query for the metric. If this is <c>null</c> or empty,
-        /// then the chart will display the metric from the alert's <see cref="Alert.ResourceIdentifier"/>.
+        /// then the chart will display the metric from the alert's resource.
         /// </summary>
         public string ResourceId { get; set; }
 
