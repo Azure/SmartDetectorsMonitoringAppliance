@@ -62,7 +62,7 @@ namespace SmartDetectorsExtensionsTests.AlertPresentation
             [MetricChartProperty("MetricChartDisplayName", Order = 8)]
             public MetricChart MetricChart => new MetricChart("someMetric", TimeSpan.FromHours(1), AggregationType.Average)
             {
-                ResourceId = default(ResourceIdentifier),
+                ResourceId = string.Empty,
                 MetricNamespace = "namespace",
                 MetricDimensions =
                 {

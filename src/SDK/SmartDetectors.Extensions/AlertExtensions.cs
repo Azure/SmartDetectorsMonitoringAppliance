@@ -561,7 +561,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
                 metricChart.TimeGrain,
                 ConvertAggregationTypeToContractsAggregationType(metricChart.AggregationType))
             {
-                ResourceId = metricChart.ResourceId.ToResourceId(),
+                ResourceId = metricChart.ResourceId,
                 MetricNamespace = metricChart.MetricNamespace,
                 MetricDimensions = new Dictionary<string, string>(metricChart.MetricDimensions),
                 StartTimeUtc = metricChart.StartTimeUtc,
