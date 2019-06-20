@@ -191,8 +191,8 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Clients
                 foreach (ResourceIdentifier resource in resources)
                 {
                     // There is no general way to get only the specific workspace containing the telemetry for any resource.
-                    // A method that works for the Azure Kuberneties Service is implemented here. If a resource is not AKS then all workspaces in it's subscription must be retrieved.
-                    if (resource.ResourceType == ResourceType.KubernetiesService)
+                    // A method that works for the Azure kubernetes Service is implemented here. If a resource is not AKS then all workspaces in it's subscription must be retrieved.
+                    if (resource.ResourceType == ResourceType.KubernetesService)
                     {
                         // Retrieve the specific workspace the target AKS cluster belongs to.
                         ResourceIdentifier workspace;
