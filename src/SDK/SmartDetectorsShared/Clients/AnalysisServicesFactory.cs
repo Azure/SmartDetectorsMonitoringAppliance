@@ -26,6 +26,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Clients
     {
         private const int MaxNumberOfResourcesInQuery = 10;
         private readonly ConcurrentDictionary<string, IList<ResourceIdentifier>> subscriptionIdToWorkspaces = new ConcurrentDictionary<string, IList<ResourceIdentifier>>(StringComparer.CurrentCultureIgnoreCase);
+        private readonly ConcurrentDictionary<string, ResourceIdentifier> aksClusterIdToWorkspaces = new ConcurrentDictionary<string, ResourceIdentifier>(StringComparer.CurrentCultureIgnoreCase);
         private readonly ITracer tracer;
         private readonly IHttpClientWrapper httpClientWrapper;
         private readonly ICredentialsFactory credentialsFactory;
@@ -184,19 +185,49 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Clients
             }
             else
             {
-                // Since we do not know where the telemetry of each resource is, create a client that queries all workspaces in the subscription.
+                // The workspaces associated with each resource have to be retrieved.
                 var workspacesList = new List<ResourceIdentifier>();
-                foreach (string subscriptionId in resources.Select(resource => resource.SubscriptionId).Distinct(StringComparer.CurrentCultureIgnoreCase))
-                {
-                    // Try to get the workspaces list from the cache, and if it isn't there, use the Azure Resource Manager client
-                    IList<ResourceIdentifier> subscriptionWorkspaces;
-                    if (!this.subscriptionIdToWorkspaces.TryGetValue(subscriptionId, out subscriptionWorkspaces))
-                    {
-                        subscriptionWorkspaces = await this.azureResourceManagerClient.GetAllResourcesInSubscriptionAsync(subscriptionId, new[] { ResourceType.LogAnalytics }, cancellationToken);
-                        this.subscriptionIdToWorkspaces[subscriptionId] = subscriptionWorkspaces;
-                    }
 
-                    workspacesList.AddRange(subscriptionWorkspaces);
+                foreach (ResourceIdentifier resource in resources)
+                {
+                    // There is no general way to get only the specific workspace containing the telemetry for any resource.
+                    // A method that works for the Azure Kuberneties Service is implemented here. If a resource is not AKS then all workspaces in it's subscription must be retrieved.
+                    if (resource.ResourceType == ResourceType.KubernetiesService)
+                    {
+                        // Retrieve the specific workspace the target AKS cluster belongs to.
+                        ResourceIdentifier workspace;
+                        if (!this.aksClusterIdToWorkspaces.TryGetValue(resource.ToString(), out workspace))
+                        {
+                            // Try to get the workspaces from the cache, and if it isn't there, use the Azure Resource Manager client
+                            ResourceProperties querryResult = await this.azureResourceManagerClient.GetResourcePropertiesAsync(resource, cancellationToken);
+                            if (querryResult.Properties["addonProfiles"]["omsagent"]["enabled"].ToObject<bool>())
+                            {
+                                string idstring = querryResult.Properties["addonProfiles"]["omsagent"]["config"]["logAnalyticsWorkspaceResourceID"].ToString();
+                                workspace = ResourceIdentifier.CreateFromResourceId(idstring);
+                                this.aksClusterIdToWorkspaces[resource.ToString()] = workspace;
+                            }
+                            else
+                            {
+                                throw new TelemetryDataClientCreationException("Specified cluster does not have OMS agent onboarded");
+                            }
+                        }
+
+                        workspacesList.Add(workspace);
+                    }
+                    else
+                    {
+                        // We do not know where the telemetry of each resource is, create a client that queries all workspaces in the subscription.
+                        // Try to get the workspaces list from the cache, and if it isn't there, use the Azure Resource Manager client
+                        string subscriptionId = resource.SubscriptionId;
+                        IList<ResourceIdentifier> subscriptionWorkspaces;
+                        if (!this.subscriptionIdToWorkspaces.TryGetValue(subscriptionId, out subscriptionWorkspaces))
+                        {
+                            subscriptionWorkspaces = await this.azureResourceManagerClient.GetAllResourcesInSubscriptionAsync(subscriptionId, new[] { ResourceType.LogAnalytics }, cancellationToken);
+                            this.subscriptionIdToWorkspaces[subscriptionId] = subscriptionWorkspaces;
+                        }
+
+                        workspacesList.AddRange(subscriptionWorkspaces);
+                    }
                 }
 
                 workspaces = workspacesList;

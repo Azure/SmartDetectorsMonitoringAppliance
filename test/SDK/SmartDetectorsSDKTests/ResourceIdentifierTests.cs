@@ -1,4 +1,4 @@
-﻿//-----------------------------------------------------------------------
+//-----------------------------------------------------------------------
 // <copyright file="ResourceIdentifierTests.cs" company="Microsoft Corporation">
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // </copyright>
@@ -38,6 +38,24 @@ namespace SmartDetectorsSDKTests
         public void WhenCreatingVmResourceIdentifierWithEmptyResourceNameThenExceptionIsThrown()
         {
             InvalidEmptyParameterTest((resourceName) => new ResourceIdentifier(ResourceType.VirtualMachine, TestSubscriptionId, TestResourceGroup, resourceName));
+        }
+
+        [TestMethod]
+        public void WhenCreatingAKSResourceIdentifierWithEmptySubscriptionIdThenExceptionIsThrown()
+        {
+            InvalidEmptyParameterTest((subscriptionId) => new ResourceIdentifier(ResourceType.KubernetiesService, subscriptionId, TestResourceGroup, TestResourceName));
+        }
+
+        [TestMethod]
+        public void WhenCreatingAKSResourceIdentifierWithEmptyResourceGroupNameThenExceptionIsThrown()
+        {
+            InvalidEmptyParameterTest((resourceGroupName) => new ResourceIdentifier(ResourceType.KubernetiesService, TestSubscriptionId, resourceGroupName, TestResourceName));
+        }
+
+        [TestMethod]
+        public void WhenCreatingAKSResourceIdentifierWithEmptyResourceNameThenExceptionIsThrown()
+        {
+            InvalidEmptyParameterTest((resourceName) => new ResourceIdentifier(ResourceType.KubernetiesService, TestSubscriptionId, TestResourceGroup, resourceName));
         }
 
         #endregion
@@ -91,6 +109,11 @@ namespace SmartDetectorsSDKTests
             json = JsonConvert.SerializeObject(resourceIdentifier);
             resourceIdentifier2 = JsonConvert.DeserializeObject<ResourceIdentifier>(json);
             Assert.AreEqual(resourceIdentifier, resourceIdentifier2);
+
+            resourceIdentifier = new ResourceIdentifier(ResourceType.KubernetiesService, TestSubscriptionId, TestResourceGroup, TestResourceName);
+            json = JsonConvert.SerializeObject(resourceIdentifier);
+            resourceIdentifier2 = JsonConvert.DeserializeObject<ResourceIdentifier>(json);
+            Assert.AreEqual(resourceIdentifier, resourceIdentifier2);
         }
 
         #endregion
@@ -107,6 +130,14 @@ namespace SmartDetectorsSDKTests
             Assert.IsTrue(first == second, "Expected both identifiers to be equal using equality comparison");
             Assert.IsFalse(first != second, "Expected both identifiers to be equal using inequality comparison");
             Assert.AreEqual(first.GetHashCode(), second.GetHashCode(), "Expected both identifiers have equal hash codes");
+
+            var firstAKS = new ResourceIdentifier(ResourceType.KubernetiesService, TestSubscriptionId, TestResourceGroup, TestResourceName);
+            var secondAKS = new ResourceIdentifier(ResourceType.KubernetiesService, TestSubscriptionId, TestResourceGroup, TestResourceName);
+
+            Assert.IsTrue(firstAKS.Equals(secondAKS), "Expected both identifiers to be equal");
+            Assert.IsTrue(firstAKS == secondAKS, "Expected both identifiers to be equal using equality comparison");
+            Assert.IsFalse(firstAKS != secondAKS, "Expected both identifiers to be equal using inequality comparison");
+            Assert.AreEqual(firstAKS.GetHashCode(), secondAKS.GetHashCode(), "Expected both identifiers have equal hash codes");
         }
 
         [TestMethod]
@@ -162,6 +193,14 @@ namespace SmartDetectorsSDKTests
         {
             string testResourceId = "/subscriptions/7904b7bd-5e6b-4415-99a8-355657b7da19/resourceGroups/MyResourceGroupName/providers/Microsoft.Compute/virtualMachines/MyVirtualMachineName";
             ResourceIdentifier testResourceIdentifier = new ResourceIdentifier(ResourceType.VirtualMachine, "7904b7bd-5e6b-4415-99a8-355657b7da19", "MyResourceGroupName", "MyVirtualMachineName");
+            VerifyConversion(testResourceId, testResourceIdentifier);
+        }
+
+        [TestMethod]
+        public void WhenConvertingAKSResourceTheConversionIsSuccessful()
+        {
+            string testResourceId = "/subscriptions/7904b7bd-5e6b-4415-99a8-355657b7da19/resourceGroups/MyResourceGroupName/providers/Microsoft.ContainerService/managedClusters/MyVirtualMachineName";
+            ResourceIdentifier testResourceIdentifier = new ResourceIdentifier(ResourceType.KubernetiesService, "7904b7bd-5e6b-4415-99a8-355657b7da19", "MyResourceGroupName", "MyVirtualMachineName");
             VerifyConversion(testResourceId, testResourceIdentifier);
         }
 
