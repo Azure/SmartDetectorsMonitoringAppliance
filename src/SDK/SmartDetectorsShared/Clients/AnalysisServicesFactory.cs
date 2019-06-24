@@ -191,20 +191,29 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Clients
                 foreach (ResourceIdentifier resource in resources)
                 {
                     // There is no general way to get only the specific workspace containing the telemetry for any resource.
-                    // A method that works for the Azure kubernetes Service is implemented here. If a resource is not AKS then all workspaces in it's subscription must be retrieved.
+                    // A method that works for the Azure kubernetes Service is implemented here. If a resource is not Kubernetes then all workspaces in its subscription must be retrieved.
                     if (resource.ResourceType == ResourceType.KubernetesService)
                     {
-                        // Retrieve the specific workspace the target AKS cluster belongs to.
-                        ResourceIdentifier workspace;
-                        if (!this.aksClusterIdToWorkspaces.TryGetValue(resource.ToString(), out workspace))
+                        // Retrieve the specific workspace the target Kubernetes cluster belongs to.
+                        if (!this.aksClusterIdToWorkspaces.TryGetValue(resource.ToString(), out ResourceIdentifier workspace))
                         {
                             // Try to get the workspaces from the cache, and if it isn't there, use the Azure Resource Manager client
-                            ResourceProperties querryResult = await this.azureResourceManagerClient.GetResourcePropertiesAsync(resource, cancellationToken);
-                            if (querryResult.Properties["addonProfiles"]["omsagent"]["enabled"].ToObject<bool>())
+                            ResourceProperties resourceProperties = await this.azureResourceManagerClient.GetResourcePropertiesAsync(resource, cancellationToken);
+                            if (resourceProperties.Properties?["addonProfiles"]?["omsagent"]?["enabled"]?.ToObject<bool>() ?? false)
                             {
-                                string idstring = querryResult.Properties["addonProfiles"]["omsagent"]["config"]["logAnalyticsWorkspaceResourceID"].ToString();
-                                workspace = ResourceIdentifier.CreateFromResourceId(idstring);
-                                this.aksClusterIdToWorkspaces[resource.ToString()] = workspace;
+                                string idstring = resourceProperties.Properties?["addonProfiles"]?["omsagent"]?["config"]?["logAnalyticsWorkspaceResourceID"]?.ToString();
+
+                                // idstring will only be null if ARM reported that the omsagent was enabled but there was no logAnalyticsWorkspaceResourceID.
+                                // Throw an exception if this is the case, the OMS agent is probably misconfigured.
+                                if (idstring != null)
+                                {
+                                    workspace = ResourceIdentifier.CreateFromResourceId(idstring);
+                                    this.aksClusterIdToWorkspaces[resource.ToString()] = workspace;
+                                }
+                                else
+                                {
+                                    throw new TelemetryDataClientCreationException("OMS Agent for specified cluster is not configured with a Log Analytics Workspace");
+                                }
                             }
                             else
                             {

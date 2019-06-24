@@ -41,19 +41,19 @@ namespace SmartDetectorsSDKTests
         }
 
         [TestMethod]
-        public void WhenCreatingAKSResourceIdentifierWithEmptySubscriptionIdThenExceptionIsThrown()
+        public void WhenCreatingKubernetesServiceResourceIdentifierWithEmptySubscriptionIdThenExceptionIsThrown()
         {
             InvalidEmptyParameterTest((subscriptionId) => new ResourceIdentifier(ResourceType.KubernetesService, subscriptionId, TestResourceGroup, TestResourceName));
         }
 
         [TestMethod]
-        public void WhenCreatingAKSResourceIdentifierWithEmptyResourceGroupNameThenExceptionIsThrown()
+        public void WhenCreatingKubernetesServiceResourceIdentifierWithEmptyResourceGroupNameThenExceptionIsThrown()
         {
             InvalidEmptyParameterTest((resourceGroupName) => new ResourceIdentifier(ResourceType.KubernetesService, TestSubscriptionId, resourceGroupName, TestResourceName));
         }
 
         [TestMethod]
-        public void WhenCreatingAKSResourceIdentifierWithEmptyResourceNameThenExceptionIsThrown()
+        public void WhenCreatingKubernetesServiceResourceIdentifierWithEmptyResourceNameThenExceptionIsThrown()
         {
             InvalidEmptyParameterTest((resourceName) => new ResourceIdentifier(ResourceType.KubernetesService, TestSubscriptionId, TestResourceGroup, resourceName));
         }
@@ -131,13 +131,13 @@ namespace SmartDetectorsSDKTests
             Assert.IsFalse(first != second, "Expected both identifiers to be equal using inequality comparison");
             Assert.AreEqual(first.GetHashCode(), second.GetHashCode(), "Expected both identifiers have equal hash codes");
 
-            var firstAKS = new ResourceIdentifier(ResourceType.KubernetesService, TestSubscriptionId, TestResourceGroup, TestResourceName);
-            var secondAKS = new ResourceIdentifier(ResourceType.KubernetesService, TestSubscriptionId, TestResourceGroup, TestResourceName);
+            var firstKubernetesService = new ResourceIdentifier(ResourceType.KubernetesService, TestSubscriptionId, TestResourceGroup, TestResourceName);
+            var secondKubernetesService = new ResourceIdentifier(ResourceType.KubernetesService, TestSubscriptionId, TestResourceGroup, TestResourceName);
 
-            Assert.IsTrue(firstAKS.Equals(secondAKS), "Expected both identifiers to be equal");
-            Assert.IsTrue(firstAKS == secondAKS, "Expected both identifiers to be equal using equality comparison");
-            Assert.IsFalse(firstAKS != secondAKS, "Expected both identifiers to be equal using inequality comparison");
-            Assert.AreEqual(firstAKS.GetHashCode(), secondAKS.GetHashCode(), "Expected both identifiers have equal hash codes");
+            Assert.IsTrue(firstKubernetesService.Equals(secondKubernetesService), "Expected both identifiers to be equal");
+            Assert.IsTrue(firstKubernetesService == secondKubernetesService, "Expected both identifiers to be equal using equality comparison");
+            Assert.IsFalse(firstKubernetesService != secondKubernetesService, "Expected both identifiers to be equal using inequality comparison");
+            Assert.AreEqual(firstKubernetesService.GetHashCode(), secondKubernetesService.GetHashCode(), "Expected both identifiers have equal hash codes");
         }
 
         [TestMethod]
@@ -197,7 +197,7 @@ namespace SmartDetectorsSDKTests
         }
 
         [TestMethod]
-        public void WhenConvertingAKSResourceTheConversionIsSuccessful()
+        public void WhenConvertingKubernetesServiceResourceTheConversionIsSuccessful()
         {
             string testResourceId = "/subscriptions/7904b7bd-5e6b-4415-99a8-355657b7da19/resourceGroups/MyResourceGroupName/providers/Microsoft.ContainerService/managedClusters/MyVirtualMachineName";
             ResourceIdentifier testResourceIdentifier = new ResourceIdentifier(ResourceType.KubernetesService, "7904b7bd-5e6b-4415-99a8-355657b7da19", "MyResourceGroupName", "MyVirtualMachineName");
