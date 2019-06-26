@@ -17,6 +17,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Clients
     using Microsoft.Azure.Monitoring.SmartDetectors.ActivityLog;
     using Microsoft.Azure.Monitoring.SmartDetectors.Arm;
     using Microsoft.Azure.Monitoring.SmartDetectors.Metric;
+    using Newtonsoft.Json.Linq;
     using ResourceType = Microsoft.Azure.Monitoring.SmartDetectors.ResourceType;
 
     /// <summary>
@@ -190,8 +191,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Clients
 
                 foreach (ResourceIdentifier resource in resources)
                 {
-                    // There is no general way to get only the specific workspace containing the telemetry for any resource.
-                    // A method that works for the Azure kubernetes Service is implemented here. If a resource is not Kubernetes then all workspaces in its subscription must be retrieved.
+                    // If the resource is a KubernetesService cluster then get its associated workspace directly. Otherwise all workspaces in its subscription must be retrieved.
                     if (resource.ResourceType == ResourceType.KubernetesService)
                     {
                         // Retrieve the specific workspace the target Kubernetes cluster belongs to.
@@ -199,9 +199,16 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Clients
                         {
                             // Try to get the workspaces from the cache, and if it isn't there, use the Azure Resource Manager client
                             ResourceProperties resourceProperties = await this.azureResourceManagerClient.GetResourcePropertiesAsync(resource, cancellationToken);
-                            if (resourceProperties.Properties?["addonProfiles"]?["omsagent"]?["enabled"]?.ToObject<bool>() ?? false)
+
+                            // (get values from Json in a case-insensitive way)
+                            if (((resourceProperties.Properties?.GetValue("addonProfiles", StringComparison.CurrentCultureIgnoreCase) as
+                                JObject)?.GetValue("omsagent", StringComparison.CurrentCultureIgnoreCase) as
+                                JObject)?.GetValue("enabled", StringComparison.CurrentCultureIgnoreCase)?.ToObject<bool>() ?? false)
                             {
-                                string idstring = resourceProperties.Properties?["addonProfiles"]?["omsagent"]?["config"]?["logAnalyticsWorkspaceResourceID"]?.ToString();
+                                string idstring = (((resourceProperties.Properties.GetValue("addonProfiles", StringComparison.CurrentCultureIgnoreCase) as
+                                    JObject)?.GetValue("omsagent", StringComparison.CurrentCultureIgnoreCase) as
+                                    JObject)?.GetValue("config", StringComparison.CurrentCultureIgnoreCase) as
+                                    JObject)?.GetValue("loganalyticsworkspaceresourceid", StringComparison.CurrentCultureIgnoreCase).ToString();
 
                                 // idstring will only be null if ARM reported that the omsagent was enabled but there was no logAnalyticsWorkspaceResourceID.
                                 // Throw an exception if this is the case, the OMS agent is probably misconfigured.
@@ -212,12 +219,12 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Clients
                                 }
                                 else
                                 {
-                                    throw new TelemetryDataClientCreationException("OMS Agent for specified cluster is not configured with a Log Analytics Workspace");
+                                    throw new TelemetryDataClientCreationException("Specified cluster does not have monitoring add-on enabled");
                                 }
                             }
                             else
                             {
-                                throw new TelemetryDataClientCreationException("Specified cluster does not have OMS agent onboarded");
+                                throw new TelemetryDataClientCreationException("Specified cluster does not have monitoring add-on enabled");
                             }
                         }
 
@@ -239,7 +246,9 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Clients
                     }
                 }
 
-                workspaces = workspacesList;
+                // Get rid of any duplicate workspaces
+                workspaces = workspacesList.Distinct().ToList();
+
                 if (workspaces.Count == 0)
                 {
                     throw new TelemetryDataClientCreationException("No log analytics workspaces were found");

@@ -199,8 +199,8 @@ namespace SmartDetectorsSDKTests
         [TestMethod]
         public void WhenConvertingKubernetesServiceResourceTheConversionIsSuccessful()
         {
-            string testResourceId = "/subscriptions/7904b7bd-5e6b-4415-99a8-355657b7da19/resourceGroups/MyResourceGroupName/providers/Microsoft.ContainerService/managedClusters/MyVirtualMachineName";
-            ResourceIdentifier testResourceIdentifier = new ResourceIdentifier(ResourceType.KubernetesService, "7904b7bd-5e6b-4415-99a8-355657b7da19", "MyResourceGroupName", "MyVirtualMachineName");
+            string testResourceId = "/subscriptions/7904b7bd-5e6b-4415-99a8-355657b7da19/resourceGroups/MyResourceGroupName/providers/Microsoft.ContainerService/managedClusters/MyManagedKubernetesCluster";
+            ResourceIdentifier testResourceIdentifier = new ResourceIdentifier(ResourceType.KubernetesService, "7904b7bd-5e6b-4415-99a8-355657b7da19", "MyResourceGroupName", "MyManagedKubernetesCluster");
             VerifyConversion(testResourceId, testResourceIdentifier);
         }
 
