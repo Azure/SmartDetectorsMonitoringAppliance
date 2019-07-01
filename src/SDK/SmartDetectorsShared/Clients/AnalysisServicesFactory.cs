@@ -165,6 +165,30 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Clients
         }
 
         /// <summary>
+        /// Gets a value from a JObject in a case-insensitive way. For example, in a json object jobject,
+        /// jobject["Foo"]["Bar"] could be retrieved by calling GetJsonValueCaseInsensitive(jobject, new[] {"foo", "BAR"}).
+        /// </summary>
+        /// <param name="jsonObj">The JObject a value should be retrieved from</param>
+        /// <param name="propName">The name of the value to be retrieved.</param>
+        /// <returns>The Activity Log client, that can be used to fetch the resource activity from Activity Log.</returns>
+        private static JObject GetJsonValueCaseInsensitive(JObject jsonObj, string[] propName)
+        {
+            foreach (string subName in propName)
+            {
+                if (jsonObj != null)
+                {
+                    jsonObj = (jsonObj.GetValue(subName, StringComparison.CurrentCultureIgnoreCase) as JObject);
+                }
+                else
+                {
+                    return null;
+                }
+            }
+
+            return jsonObj;
+        }
+
+        /// <summary>
         /// Gets IDs of Log Analytics resources.
         /// </summary>
         /// <param name="resources">The resources</param>
@@ -201,25 +225,20 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Clients
                             ResourceProperties resourceProperties = await this.azureResourceManagerClient.GetResourcePropertiesAsync(resource, cancellationToken);
 
                             // (get values from Json in a case-insensitive way)
-                            if (((resourceProperties.Properties?.GetValue("addonProfiles", StringComparison.CurrentCultureIgnoreCase) as
-                                JObject)?.GetValue("omsagent", StringComparison.CurrentCultureIgnoreCase) as
-                                JObject)?.GetValue("enabled", StringComparison.CurrentCultureIgnoreCase)?.ToObject<bool>() ?? false)
+                            if (GetJsonValueCaseInsensitive(resourceProperties.Properties, new[] { "addonProfiles", "omsagent", "enabled" })?.ToObject<bool>() ?? false)
                             {
-                                string idstring = (((resourceProperties.Properties.GetValue("addonProfiles", StringComparison.CurrentCultureIgnoreCase) as
-                                    JObject)?.GetValue("omsagent", StringComparison.CurrentCultureIgnoreCase) as
-                                    JObject)?.GetValue("config", StringComparison.CurrentCultureIgnoreCase) as
-                                    JObject)?.GetValue("loganalyticsworkspaceresourceid", StringComparison.CurrentCultureIgnoreCase).ToString();
+                                string resourceId = GetJsonValueCaseInsensitive(resourceProperties.Properties, new[] { "addonProfiles", "omsagent", "config", "loganalyticsworkspaceresourceid" }).ToString();
 
-                                // idstring will only be null if ARM reported that the omsagent was enabled but there was no logAnalyticsWorkspaceResourceID.
+                                // resourceId will only be null if ARM reported that the omsagent was enabled but there was no logAnalyticsWorkspaceResourceID.
                                 // Throw an exception if this is the case, the OMS agent is probably misconfigured.
-                                if (idstring != null)
+                                if (resourceId != null)
                                 {
-                                    workspace = ResourceIdentifier.CreateFromResourceId(idstring);
+                                    workspace = ResourceIdentifier.CreateFromResourceId(resourceId);
                                     this.aksClusterIdToWorkspaces[resource.ToString()] = workspace;
                                 }
                                 else
                                 {
-                                    throw new TelemetryDataClientCreationException("Specified cluster does not have monitoring add-on enabled");
+                                    throw new TelemetryDataClientCreationException("Specified cluster is misconfigured. It reported that the monitoring add-on was enabled but does not have an associated Log Analytics Workspace.");
                                 }
                             }
                             else
