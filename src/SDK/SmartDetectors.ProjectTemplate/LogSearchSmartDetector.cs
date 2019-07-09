@@ -30,13 +30,8 @@
         public async Task<List<Alert>> AnalyzeResourcesAsync(AnalysisRequest analysisRequest, ITracer tracer, CancellationToken cancellationToken)
         {
             tracer.TraceInformation("Analyzing the specified resources...");
-            $if$ ("$dataType$" == "Log Analytics")
             // Get the Log Analytics client
-            ITelemetryDataClient dataClient = await analysisRequest.AnalysisServicesFactory.CreateLogAnalyticsTelemetryDataClientAsync(new List<ResourceIdentifier>() { analysisRequest.RequestParameters.TargetResources.First() }, cancellationToken);
-            $else$
-            // Get the Application Insights client
-            ITelemetryDataClient dataClient = await analysisRequest.AnalysisServicesFactory.CreateApplicationInsightsTelemetryDataClientAsync(new List<ResourceIdentifier>() { analysisRequest.RequestParameters.TargetResources.First() }, cancellationToken);
-            $endif$
+            ITelemetryDataClient dataClient = await analysisRequest.AnalysisServicesFactory.CreateLogAnalyticsClientAsync(analysisRequest.RequestParameters.TargetResources.First(), cancellationToken);
             // Run the query 
             IList<DataTable> dataTables = await dataClient.RunQueryAsync(@"$tableName$ | count", cancellationToken);
 
