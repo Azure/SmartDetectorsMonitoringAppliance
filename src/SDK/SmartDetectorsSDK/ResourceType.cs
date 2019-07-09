@@ -84,5 +84,10 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors
         /// The Logic Apps resource type
         /// </summary>
         LogicApps,
+
+        /// <summary>
+        /// The Azure kubernetes Service resource type
+        /// </summary>
+        KubernetesService,
     }
 }

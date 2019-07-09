@@ -40,6 +40,24 @@ namespace SmartDetectorsSDKTests
             InvalidEmptyParameterTest((resourceName) => new ResourceIdentifier(ResourceType.VirtualMachine, TestSubscriptionId, TestResourceGroup, resourceName));
         }
 
+        [TestMethod]
+        public void WhenCreatingKubernetesServiceResourceIdentifierWithEmptySubscriptionIdThenExceptionIsThrown()
+        {
+            InvalidEmptyParameterTest((subscriptionId) => new ResourceIdentifier(ResourceType.KubernetesService, subscriptionId, TestResourceGroup, TestResourceName));
+        }
+
+        [TestMethod]
+        public void WhenCreatingKubernetesServiceResourceIdentifierWithEmptyResourceGroupNameThenExceptionIsThrown()
+        {
+            InvalidEmptyParameterTest((resourceGroupName) => new ResourceIdentifier(ResourceType.KubernetesService, TestSubscriptionId, resourceGroupName, TestResourceName));
+        }
+
+        [TestMethod]
+        public void WhenCreatingKubernetesServiceResourceIdentifierWithEmptyResourceNameThenExceptionIsThrown()
+        {
+            InvalidEmptyParameterTest((resourceName) => new ResourceIdentifier(ResourceType.KubernetesService, TestSubscriptionId, TestResourceGroup, resourceName));
+        }
+
         #endregion
 
         #region Constructors tests
@@ -91,6 +109,11 @@ namespace SmartDetectorsSDKTests
             json = JsonConvert.SerializeObject(resourceIdentifier);
             resourceIdentifier2 = JsonConvert.DeserializeObject<ResourceIdentifier>(json);
             Assert.AreEqual(resourceIdentifier, resourceIdentifier2);
+
+            resourceIdentifier = new ResourceIdentifier(ResourceType.KubernetesService, TestSubscriptionId, TestResourceGroup, TestResourceName);
+            json = JsonConvert.SerializeObject(resourceIdentifier);
+            resourceIdentifier2 = JsonConvert.DeserializeObject<ResourceIdentifier>(json);
+            Assert.AreEqual(resourceIdentifier, resourceIdentifier2);
         }
 
         #endregion
@@ -107,6 +130,14 @@ namespace SmartDetectorsSDKTests
             Assert.IsTrue(first == second, "Expected both identifiers to be equal using equality comparison");
             Assert.IsFalse(first != second, "Expected both identifiers to be equal using inequality comparison");
             Assert.AreEqual(first.GetHashCode(), second.GetHashCode(), "Expected both identifiers have equal hash codes");
+
+            var firstKubernetesService = new ResourceIdentifier(ResourceType.KubernetesService, TestSubscriptionId, TestResourceGroup, TestResourceName);
+            var secondKubernetesService = new ResourceIdentifier(ResourceType.KubernetesService, TestSubscriptionId, TestResourceGroup, TestResourceName);
+
+            Assert.IsTrue(firstKubernetesService.Equals(secondKubernetesService), "Expected both identifiers to be equal");
+            Assert.IsTrue(firstKubernetesService == secondKubernetesService, "Expected both identifiers to be equal using equality comparison");
+            Assert.IsFalse(firstKubernetesService != secondKubernetesService, "Expected both identifiers to be equal using inequality comparison");
+            Assert.AreEqual(firstKubernetesService.GetHashCode(), secondKubernetesService.GetHashCode(), "Expected both identifiers have equal hash codes");
         }
 
         [TestMethod]
@@ -162,6 +193,14 @@ namespace SmartDetectorsSDKTests
         {
             string testResourceId = "/subscriptions/7904b7bd-5e6b-4415-99a8-355657b7da19/resourceGroups/MyResourceGroupName/providers/Microsoft.Compute/virtualMachines/MyVirtualMachineName";
             ResourceIdentifier testResourceIdentifier = new ResourceIdentifier(ResourceType.VirtualMachine, "7904b7bd-5e6b-4415-99a8-355657b7da19", "MyResourceGroupName", "MyVirtualMachineName");
+            VerifyConversion(testResourceId, testResourceIdentifier);
+        }
+
+        [TestMethod]
+        public void WhenConvertingKubernetesServiceResourceTheConversionIsSuccessful()
+        {
+            string testResourceId = "/subscriptions/7904b7bd-5e6b-4415-99a8-355657b7da19/resourceGroups/MyResourceGroupName/providers/Microsoft.ContainerService/managedClusters/MyManagedKubernetesCluster";
+            ResourceIdentifier testResourceIdentifier = new ResourceIdentifier(ResourceType.KubernetesService, "7904b7bd-5e6b-4415-99a8-355657b7da19", "MyResourceGroupName", "MyManagedKubernetesCluster");
             VerifyConversion(testResourceId, testResourceIdentifier);
         }
 
