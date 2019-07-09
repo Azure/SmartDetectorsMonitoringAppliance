@@ -6,7 +6,7 @@
     <AssemblyName>$safeprojectname$</AssemblyName>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.Azure.Monitoring.SmartDetectors" Version="1.0.13.1" />
+    <PackageReference Include="Microsoft.Azure.Monitoring.SmartDetectors" Version="1.0.17.0" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Manifest.json">
