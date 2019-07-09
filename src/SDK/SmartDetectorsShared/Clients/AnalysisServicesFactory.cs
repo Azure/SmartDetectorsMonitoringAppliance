@@ -201,7 +201,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Clients
                             // Try to get the workspaces from the cache, and if it isn't there, use the Azure Resource Manager client
                             ResourceProperties resourceProperties = await this.azureResourceManagerClient.GetResourcePropertiesAsync(resource, cancellationToken);
 
-                            // Convert the Json object to lower case - this makes queries of it case insensitive.
+                            // Convert the Json object to lower case. This makes queries of it case insensitive.
                             var resourcePropertiesString = JsonConvert.SerializeObject(resourceProperties.Properties);  // convert JObject to string
                             var lowerCaseResourcePropertiesString = resourcePropertiesString.ToLower(CultureInfo.CurrentCulture); // string to lower case string
                             JObject resultResourceProperties = JObject.Parse(lowerCaseResourcePropertiesString); // convert back to JObject
