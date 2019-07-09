@@ -37,6 +37,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors
                     [ResourceType.EventHub] = "Microsoft.EventHub/namespaces",
                     [ResourceType.WebSite] = "Microsoft.Web/sites",
                     [ResourceType.LogicApps] = "Microsoft.Logic/workflows",
+                    [ResourceType.KubernetesService] = "Microsoft.ContainerService/managedClusters",
                 });
 
         private const string SubscriptionRegexPattern = "/subscriptions/(?<subscriptionId>[^/]*)";
