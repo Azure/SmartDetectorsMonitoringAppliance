@@ -30,22 +30,18 @@
         public async Task<List<Alert>> AnalyzeResourcesAsync(AnalysisRequest analysisRequest, ITracer tracer, CancellationToken cancellationToken)
         {
             tracer.TraceInformation("Analyzing the specified resources...");
-            $if$ ("$dataType$" == "Log Analytics")
             // Get the Log Analytics client
-            ITelemetryDataClient dataClient = await analysisRequest.AnalysisServicesFactory.CreateLogAnalyticsTelemetryDataClientAsync(new List<ResourceIdentifier>() { analysisRequest.RequestParameters.TargetResources.First() }, cancellationToken);
-            $else$
-            // Get the Application Insights client
-            ITelemetryDataClient dataClient = await analysisRequest.AnalysisServicesFactory.CreateApplicationInsightsTelemetryDataClientAsync(new List<ResourceIdentifier>() { analysisRequest.RequestParameters.TargetResources.First() }, cancellationToken);
-            $endif$
+            ILogAnalyticsClient dataClient = await analysisRequest.AnalysisServicesFactory.CreateLogAnalyticsClientAsync(analysisRequest.RequestParameters.TargetResources.First(), cancellationToken);
+            
             // Run the query 
-            IList<DataTable> dataTables = await dataClient.RunQueryAsync(@"$tableName$ | count", cancellationToken);
+            IList<DataTable> dataTables = await dataClient.RunQueryAsync(@"$tableName$ | count", TimeSpan.FromDays(1), cancellationToken);
 
             // Process the query results and create alerts
             List<Alert> alerts = new List<Alert>();
             if (dataTables[0].Rows.Count > 0)
             {
                 // Query the count over time chart
-                IList<DataTable> countOverTimeDataTables = await dataClient.RunQueryAsync("$query$", cancellationToken);
+                IList<DataTable> countOverTimeDataTables = await dataClient.RunQueryAsync("$query$", TimeSpan.FromDays(1), cancellationToken);
 
                 // And create the alert
                 var alert = new $alertName$("Title", analysisRequest.RequestParameters.TargetResources.First(), Convert.ToInt32(dataTables[0].Rows[0]["Count"]))

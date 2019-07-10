@@ -25,11 +25,9 @@ namespace SmartDetectorsSharedTests
     [TestClass]
     public class AnalysisServicesFactoryTests
     {
-        private const int TooManyResourcesCount = 11;
         private const string SubscriptionId = "subscriptionId";
         private const string ResourceGroupName = "resourceGroupName";
         private const string ResourceName = "resourceName";
-        private const string WorkSpaceName = "workspaceName";
 
         private Mock<ITracer> tracerMock;
         private Mock<ICredentialsFactory> credentialsFactoryMock;
@@ -50,176 +48,48 @@ namespace SmartDetectorsSharedTests
         }
 
         [TestMethod]
-        public async Task WhenCreatingApplicationInsightsClientThenTheCorrectClientIsCreated()
+        public async Task WhenCreatingLogAnalyticsClientForApplicationInsightsResourceThenTheCorrectClientIsCreated()
         {
-            var resources = new List<ResourceIdentifier>()
-            {
-                new ResourceIdentifier(ResourceType.ApplicationInsights, SubscriptionId, ResourceGroupName, ResourceName)
-            };
-
-            this.SetupTest(resources);
-
-            IAnalysisServicesFactory factory = new AnalysisServicesFactory(this.tracerMock.Object, this.httpClientWrapperMock.Object, this.credentialsFactoryMock.Object, this.azureResourceManagerClientMock.Object);
-            TelemetryDataClientBase client = await factory.CreateApplicationInsightsTelemetryDataClientAsync(resources, default(CancellationToken)) as TelemetryDataClientBase;
-
-            Assert.IsNotNull(client);
-            Assert.AreEqual(typeof(ApplicationInsightsTelemetryDataClient), client.GetType(), "Wrong telemetry data client type created");
-            CollectionAssert.AreEqual(new[] { resources.First().ToResourceId() }, client.TelemetryResourceIds.ToArray(), "Wrong resource Ids");
-        }
-
-        [TestMethod]
-        public async Task WhenCreatingLogAnalyticsClientThenTheCorrectClientIsCreated()
-        {
-            var resources = new List<ResourceIdentifier>()
-            {
-                new ResourceIdentifier(ResourceType.VirtualMachine, SubscriptionId, ResourceGroupName, ResourceName)
-            };
-
-            this.SetupTest(resources);
-
-            IAnalysisServicesFactory factory = new AnalysisServicesFactory(this.tracerMock.Object, this.httpClientWrapperMock.Object, this.credentialsFactoryMock.Object, this.azureResourceManagerClientMock.Object);
-            TelemetryDataClientBase client = await factory.CreateLogAnalyticsTelemetryDataClientAsync(resources, default(CancellationToken)) as TelemetryDataClientBase;
-
-            Assert.IsNotNull(client);
-            Assert.AreEqual(typeof(LogAnalyticsTelemetryDataClient), client.GetType(), "Wrong telemetry data client type created");
-            CollectionAssert.AreEqual(new[] { resources.First().ToResourceId() }, client.TelemetryResourceIds.ToArray(), "Wrong resource Ids");
-        }
-
-        [TestMethod]
-        public async Task WhenCreatingLogAnalyticsClientOnlyWithResourcesOfTypeLogAnalyticsThenTheCorrectClientIsCreated()
-        {
-            var resources = new List<ResourceIdentifier>()
-            {
-                new ResourceIdentifier(ResourceType.LogAnalytics, SubscriptionId, ResourceGroupName, ResourceName)
-            };
-
-            this.SetupTest(resources);
-
-            IAnalysisServicesFactory factory = new AnalysisServicesFactory(this.tracerMock.Object, this.httpClientWrapperMock.Object, this.credentialsFactoryMock.Object, this.azureResourceManagerClientMock.Object);
-            TelemetryDataClientBase client = await factory.CreateLogAnalyticsTelemetryDataClientAsync(resources, default(CancellationToken)) as TelemetryDataClientBase;
-
-            Assert.IsNotNull(client);
-            Assert.AreEqual(typeof(LogAnalyticsTelemetryDataClient), client.GetType(), "Wrong telemetry data client type created");
-            CollectionAssert.AreEqual(new[] { resources.First().ToResourceId() }, client.TelemetryResourceIds.ToArray(), "Wrong resource Ids");
-        }
-
-        [TestMethod]
-        [ExpectedException(typeof(TelemetryDataClientCreationException))]
-        public async Task WhenCreatingApplicationInsightsClientWithWrongTypeThenAnExceptionIsThrown()
-        {
-            var resources = new List<ResourceIdentifier>()
-            {
-                new ResourceIdentifier(ResourceType.VirtualMachine, SubscriptionId, ResourceGroupName, ResourceName)
-            };
-
-            this.SetupTest(resources);
-
-            IAnalysisServicesFactory factory = new AnalysisServicesFactory(this.tracerMock.Object, this.httpClientWrapperMock.Object, this.credentialsFactoryMock.Object, this.azureResourceManagerClientMock.Object);
-            await factory.CreateApplicationInsightsTelemetryDataClientAsync(resources, default(CancellationToken));
-        }
-
-        [TestMethod]
-        [ExpectedException(typeof(TelemetryDataClientCreationException))]
-        public async Task WhenCreatingLogAnalyticsClientWithWrongTypeThenAnExceptionIsThrown()
-        {
-            var resources = new List<ResourceIdentifier>()
-            {
-                new ResourceIdentifier(ResourceType.ApplicationInsights, SubscriptionId, ResourceGroupName, ResourceName)
-            };
-
-            this.SetupTest(resources);
-
-            IAnalysisServicesFactory factory = new AnalysisServicesFactory(this.tracerMock.Object, this.httpClientWrapperMock.Object, this.credentialsFactoryMock.Object, this.azureResourceManagerClientMock.Object);
-            await factory.CreateLogAnalyticsTelemetryDataClientAsync(resources, default(CancellationToken));
-        }
-
-        [TestMethod]
-        [ExpectedException(typeof(TelemetryDataClientCreationException))]
-        public async Task WhenCreatingLogAnalyticsClientWithEmptyResourcesListThenAnExceptionIsThrown()
-        {
-            var resources = new List<ResourceIdentifier>();
-
-            this.SetupTest(resources);
-
-            IAnalysisServicesFactory factory = new AnalysisServicesFactory(this.tracerMock.Object, this.httpClientWrapperMock.Object, this.credentialsFactoryMock.Object, this.azureResourceManagerClientMock.Object);
-            await factory.CreateLogAnalyticsTelemetryDataClientAsync(resources, default(CancellationToken));
-        }
-
-        [TestMethod]
-        [ExpectedException(typeof(TelemetryDataClientCreationException))]
-        public async Task WhenCreatingApplicationInsightsClientWithEmptyResourcesListThenAnExceptionIsThrown()
-        {
-            var resources = new List<ResourceIdentifier>();
-
-            this.SetupTest(resources);
-
-            IAnalysisServicesFactory factory = new AnalysisServicesFactory(this.tracerMock.Object, this.httpClientWrapperMock.Object, this.credentialsFactoryMock.Object, this.azureResourceManagerClientMock.Object);
-            await factory.CreateApplicationInsightsTelemetryDataClientAsync(resources, default(CancellationToken));
-        }
-
-        [TestMethod]
-        [ExpectedException(typeof(TelemetryDataClientCreationException))]
-        public async Task WhenCreatingApplicationInsightsClientWithMixedResourcesThenAnExceptionIsThrown()
-        {
-            var resources = new List<ResourceIdentifier>()
-            {
-                new ResourceIdentifier(ResourceType.ApplicationInsights, SubscriptionId, ResourceGroupName, ResourceName + "111"),
-                new ResourceIdentifier(ResourceType.VirtualMachine, SubscriptionId, ResourceGroupName, ResourceName)
-            };
-
-            IAnalysisServicesFactory factory = new AnalysisServicesFactory(this.tracerMock.Object, this.httpClientWrapperMock.Object, this.credentialsFactoryMock.Object, this.azureResourceManagerClientMock.Object);
-            await factory.CreateApplicationInsightsTelemetryDataClientAsync(resources, default(CancellationToken));
-        }
-
-        [TestMethod]
-        [ExpectedException(typeof(TelemetryDataClientCreationException))]
-        public async Task WhenCreatingLogAnalyticsClientWithMixedResourcesOfLogAnalyticsAndApplicationInsightsThenAnExceptionIsThrown()
-        {
-            var resources = new List<ResourceIdentifier>()
-            {
-                new ResourceIdentifier(ResourceType.LogAnalytics, SubscriptionId, ResourceGroupName, WorkSpaceName),
-                new ResourceIdentifier(ResourceType.ApplicationInsights, SubscriptionId, ResourceGroupName, ResourceName)
-            };
-
-            IAnalysisServicesFactory factory = new AnalysisServicesFactory(this.tracerMock.Object, this.httpClientWrapperMock.Object, this.credentialsFactoryMock.Object, this.azureResourceManagerClientMock.Object);
-            await factory.CreateLogAnalyticsTelemetryDataClientAsync(resources, default(CancellationToken));
-        }
-
-        [TestMethod]
-        [ExpectedException(typeof(TelemetryDataClientCreationException))]
-        public async Task WhenCreatingLogAnalyticsClientWithoutLogAnalyticsResourcesThenAnExceptionIsThrown()
-        {
-            var resources = new List<ResourceIdentifier>()
-            {
-                new ResourceIdentifier(ResourceType.VirtualMachine, SubscriptionId, ResourceGroupName, ResourceName)
-            };
-
+            var resource = new ResourceIdentifier(ResourceType.ApplicationInsights, SubscriptionId, ResourceGroupName, ResourceName);
             this.azureResourceManagerClientMock
-                .Setup(x => x.GetAllResourcesInSubscriptionAsync(It.Is<string>(y => string.Equals(y, "subscriptionId", StringComparison.InvariantCulture)), It.IsAny<IEnumerable<ResourceType>>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(new List<ResourceIdentifier>());
+                .Setup(m => m.GetApplicationInsightsAppIdAsync(resource, default(CancellationToken)))
+                .ReturnsAsync("testAppId");
 
             IAnalysisServicesFactory factory = new AnalysisServicesFactory(this.tracerMock.Object, this.httpClientWrapperMock.Object, this.credentialsFactoryMock.Object, this.azureResourceManagerClientMock.Object);
-            await factory.CreateLogAnalyticsTelemetryDataClientAsync(resources, default(CancellationToken));
+            LogAnalyticsClient client = await factory.CreateLogAnalyticsClientAsync(resource, default(CancellationToken)) as LogAnalyticsClient;
+
+            Assert.IsNotNull(client);
+            Assert.AreEqual(new Uri("https://api.applicationinsights.io/v1/apps/testAppId/query"), client.QueryUri, "Wrong query URI");
         }
 
         [TestMethod]
-        [ExpectedException(typeof(TelemetryDataClientCreationException))]
-        public async Task WhenCreatingLogAnalyticsClientWithTooManyResourcesThenAnExceptionIsThrown()
+        public async Task WhenCreatingLogAnalyticsClientForLogAnalyticsWorkspaceResourceThenTheCorrectClientIsCreated()
         {
-            List<ResourceIdentifier> resources = Enumerable.Range(1, TooManyResourcesCount)
-                .Select(i => new ResourceIdentifier(ResourceType.LogAnalytics, SubscriptionId + i, ResourceGroupName + i, ResourceName + i)).ToList();
+            var resource = new ResourceIdentifier(ResourceType.LogAnalytics, SubscriptionId, ResourceGroupName, ResourceName);
+            this.azureResourceManagerClientMock
+                .Setup(m => m.GetLogAnalyticsWorkspaceIdAsync(resource, default(CancellationToken)))
+                .ReturnsAsync("testWorkspaceId");
+
             IAnalysisServicesFactory factory = new AnalysisServicesFactory(this.tracerMock.Object, this.httpClientWrapperMock.Object, this.credentialsFactoryMock.Object, this.azureResourceManagerClientMock.Object);
-            await factory.CreateLogAnalyticsTelemetryDataClientAsync(resources, default(CancellationToken));
+            LogAnalyticsClient client = await factory.CreateLogAnalyticsClientAsync(resource, default(CancellationToken)) as LogAnalyticsClient;
+
+            Assert.IsNotNull(client);
+            Assert.AreEqual(new Uri("https://api.loganalytics.io/v1/workspaces/testWorkspaceId/query"), client.QueryUri, "Wrong query URI");
         }
 
         [TestMethod]
-        [ExpectedException(typeof(TelemetryDataClientCreationException))]
-        public async Task WhenCreatingApplicationInsightsClientWithTooManyResourcesThenAnExceptionIsThrown()
+        public async Task WhenCreatingLogAnalyticsClientForSomeResourceThenTheCorrectClientIsCreated()
         {
-            List<ResourceIdentifier> resources = Enumerable.Range(1, TooManyResourcesCount)
-                .Select(i => new ResourceIdentifier(ResourceType.ApplicationInsights, SubscriptionId + i, ResourceGroupName + i, ResourceName + i)).ToList();
+            var resource = new ResourceIdentifier(ResourceType.VirtualMachine, SubscriptionId, ResourceGroupName, ResourceName);
+
             IAnalysisServicesFactory factory = new AnalysisServicesFactory(this.tracerMock.Object, this.httpClientWrapperMock.Object, this.credentialsFactoryMock.Object, this.azureResourceManagerClientMock.Object);
-            await factory.CreateApplicationInsightsTelemetryDataClientAsync(resources, default(CancellationToken));
+            LogAnalyticsClient client = await factory.CreateLogAnalyticsClientAsync(resource, default(CancellationToken)) as LogAnalyticsClient;
+
+            Assert.IsNotNull(client);
+            Assert.AreEqual(
+                new Uri($"https://api.loganalytics.io/v1/subscriptions/{SubscriptionId}/resourceGroups/{ResourceGroupName}/providers/Microsoft.Compute/virtualMachines/{ResourceName}/query"),
+                client.QueryUri,
+                "Wrong query URI");
         }
 
         [TestMethod]
@@ -247,13 +117,6 @@ namespace SmartDetectorsSharedTests
             IAzureResourceManagerClient client = await factory.CreateArmClientAsync(default(CancellationToken));
             Assert.IsNotNull(client);
             Assert.IsTrue(client == this.azureResourceManagerClientMock.Object);
-        }
-
-        private void SetupTest(List<ResourceIdentifier> resources)
-        {
-            this.azureResourceManagerClientMock
-                .Setup(x => x.GetAllResourcesInSubscriptionAsync(It.Is<string>(y => string.Equals(y, "subscriptionId", StringComparison.InvariantCulture)), It.IsAny<IEnumerable<ResourceType>>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(resources);
         }
     }
 }
