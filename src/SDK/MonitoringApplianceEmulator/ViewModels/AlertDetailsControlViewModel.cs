@@ -25,7 +25,8 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
             AlertPropertyType.LongText,
             AlertPropertyType.KeyValue,
             AlertPropertyType.Table,
-            AlertPropertyType.Chart
+            AlertPropertyType.Chart,
+            AlertPropertyType.MetricChart
         };
 
         private EmulationAlert alert;
@@ -34,7 +35,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
 
         private ObservableCollection<DisplayableAlertProperty> displayableProperties;
 
-        #region Ctros
+        #region Constructors
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AlertDetailsControlViewModel"/> class for design time only.
@@ -116,7 +117,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
         }
 
         /// <summary>
-        /// Gets the alert properties' view mmodels.
+        /// Gets the alert properties' view models.
         /// </summary>
         public ObservableCollection<DisplayableAlertProperty> DisplayableProperties
         {
