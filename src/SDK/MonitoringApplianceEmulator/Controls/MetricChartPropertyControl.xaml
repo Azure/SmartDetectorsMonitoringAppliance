@@ -5,11 +5,27 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.Controls"
              xmlns:lvc="clr-namespace:LiveCharts.Wpf;assembly=LiveCharts.Wpf"
+             xmlns:converters="clr-namespace:Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.Converters"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
+    <UserControl.Resources>
+        <converters:ChartValuesToSeriesCollectionConverter x:Key="ChartValuesToSeriesCollectionConverter"/>
+        <converters:ConverterChain x:Key="InverseBooleanToVisibilityConverter">
+            <converters:InverseBooleanConverter/>
+            <BooleanToVisibilityConverter/>
+        </converters:ConverterChain>
+    </UserControl.Resources>
     <Grid Width="580" Height="200">
-        <TextBlock Text="{Binding Title}" FontWeight="Bold" />
-        <lvc:CartesianChart Series="{Binding SeriesCollection}" Margin="0,20,0,0">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="20"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <TextBlock Grid.Row="0" Text="{Binding Title}" FontWeight="Bold" />
+        <ProgressBar Grid.Row="1" Margin="0,0,20,0" VerticalAlignment="Center" HorizontalAlignment="Center" Height="50" Width="50"
+                     Style="{StaticResource MaterialDesignCircularProgressBar}" Value="0" IsIndeterminate="True"
+                     Visibility="{Binding Path=ReadChartValuesTask.IsRunning, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+        <lvc:CartesianChart Grid.Row="1" Series="{Binding Path=ReadChartValuesTask.Result, Converter={StaticResource ChartValuesToSeriesCollectionConverter}}" Margin="0,20,0,0"
+                            Visibility="{Binding Path=ReadChartValuesTask.IsRunning, Converter={StaticResource InverseBooleanToVisibilityConverter}}">
             <lvc:CartesianChart.AxisX>
                 <lvc:Axis LabelFormatter="{Binding XAxisFormatter}"></lvc:Axis>
             </lvc:CartesianChart.AxisX>

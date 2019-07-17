@@ -8,15 +8,11 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
 {
     using System;
     using System.Collections.Generic;
-    using System.ComponentModel;
     using System.Globalization;
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
-    using System.Windows;
-    using System.Windows.Media;
     using LiveCharts;
-    using LiveCharts.Configurations;
     using LiveCharts.Defaults;
     using LiveCharts.Wpf;
     using Microsoft.Azure.Monitoring.SmartDetectors.Metric;
@@ -29,35 +25,38 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
     /// </summary>
     public class MetricChartPropertyControlViewModel : ObservableObject
     {
-        private static readonly Brush SeriesColor = Brushes.DeepSkyBlue;
-
-        private readonly ObservableTask<ChartValues<DateTimePoint>> loadChartTask;
+        private readonly MetricChartAlertProperty metricChartAlertProperty;
         private readonly IAnalysisServicesFactory analysisServicesFactory;
         private readonly ITracer tracer;
-        private SeriesCollection seriesCollection;
+        private ObservableTask<ChartValues<DateTimePoint>> readChartValuesTask;
         private Func<double, string> xAxisFormatter;
         private Func<double, string> yAxisFormatter;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="MetricChartPropertyControlViewModel"/> class.
         /// </summary>
-        /// <param name="analysisServicesFactory">The analysis services factory</param>
         /// <param name="metricChartAlertProperty">The metric chart alert property that should be displayed.</param>
+        /// <param name="analysisServicesFactory">The analysis services factory</param>
         /// <param name="tracer">The tracer</param>
         public MetricChartPropertyControlViewModel(
             MetricChartAlertProperty metricChartAlertProperty,
             IAnalysisServicesFactory analysisServicesFactory,
             ITracer tracer)
         {
+            this.metricChartAlertProperty = metricChartAlertProperty;
+
             this.Title = metricChartAlertProperty.DisplayName;
             this.analysisServicesFactory = analysisServicesFactory;
             this.tracer = tracer;
 
+            // Set X/Y axis formatters
+            this.XAxisFormatter = value => (value >= 0 ? new DateTime((long)(value * TimeSpan.FromHours(1).Ticks)) : DateTime.MinValue).ToString(CultureInfo.InvariantCulture);
+            this.YAxisFormatter = value => value.ToString(CultureInfo.InvariantCulture);
+
             // Start a task to read the metric values
-            this.loadChartTask = new ObservableTask<ChartValues<DateTimePoint>>(
-                this.ReadChartValues(metricChartAlertProperty),
-                tracer,
-                this.DisplayChartValues);
+            this.ReadChartValuesTask = new ObservableTask<ChartValues<DateTimePoint>>(
+                this.ReadChartValuesAsync(),
+                tracer);
         }
 
         /// <summary>
@@ -66,18 +65,18 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
         public string Title { get; }
 
         /// <summary>
-        /// Gets the series collection.
+        /// Gets a task that loads the metric chart.
         /// </summary>
-        public SeriesCollection SeriesCollection
+        public ObservableTask<ChartValues<DateTimePoint>> ReadChartValuesTask
         {
             get
             {
-                return this.seriesCollection;
+                return this.readChartValuesTask;
             }
 
             private set
             {
-                this.seriesCollection = value;
+                this.readChartValuesTask = value;
                 this.OnPropertyChanged();
             }
         }
@@ -117,21 +116,24 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
         }
 
         /// <summary>
-        /// Asynchronously load the metric chart
+        /// Read the metric values
         /// </summary>
-        /// <param name="property">The metric chart alert property</param>
-        /// <returns>A <see cref="Task"/>, running the current operation</returns>
-        private async Task<ChartValues<DateTimePoint>> ReadChartValues(MetricChartAlertProperty property)
+        /// <returns>A <see cref="Task"/>, running the current operation, returning the metric values as a <see cref="LineSeries"/></returns>
+        private async Task<ChartValues<DateTimePoint>> ReadChartValuesAsync()
         {
             CancellationToken cancellationToken = CancellationToken.None;
 
             // Verify start/end times
-            DateTime startTime = property.StartTimeUtc ?? throw new ApplicationException("Start time cannot be null");
-            DateTime endTime = property.EndTimeUtc ?? throw new ApplicationException("End time cannot be null");
+            DateTime startTime = this.metricChartAlertProperty.StartTimeUtc ?? throw new ApplicationException("Start time cannot be null");
+            DateTime endTime = this.metricChartAlertProperty.EndTimeUtc ?? throw new ApplicationException("End time cannot be null");
+            if (endTime > DateTime.UtcNow)
+            {
+                endTime = DateTime.UtcNow;
+            }
 
             // Convert from aggregation type to aggregation
             Aggregation aggregation;
-            switch (property.AggregationType)
+            switch (this.metricChartAlertProperty.AggregationType)
             {
                 case AggregationType.Average:
                     aggregation = Aggregation.Average;
@@ -142,28 +144,31 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
                 case AggregationType.Sum:
                     aggregation = Aggregation.Total;
                     break;
+                case AggregationType.Maximum:
+                    aggregation = Aggregation.Maximum;
+                    break;
+                case AggregationType.Minimum:
+                    aggregation = Aggregation.Minimum;
+                    break;
                 default:
-                    throw new ApplicationException($"Invalid aggregation type {property.AggregationType}");
+                    throw new ApplicationException($"Invalid aggregation type {this.metricChartAlertProperty.AggregationType}");
             }
 
-            // Get the resource
-            ResourceIdentifier resource = ResourceIdentifier.CreateFromResourceId(property.ResourceId);
-
             // Create the metrics client
+            ResourceIdentifier resource = ResourceIdentifier.CreateFromResourceId(this.metricChartAlertProperty.ResourceId);
             IMetricClient metricClient = await this.analysisServicesFactory.CreateMetricClientAsync(resource.SubscriptionId, cancellationToken)
                 .ConfigureAwait(false);
 
             // Send a metric query using the metric client
             IEnumerable<MetricQueryResult> metricQueryResults = await metricClient.GetResourceMetricsAsync(
-                    resource,
-                    StorageServiceType.None,
+                    this.metricChartAlertProperty.ResourceId,
                     new QueryParameters()
                     {
-                        MetricNamespace = property.MetricNamespace,
-                        MetricNames = new List<string>() { property.MetricName },
+                        MetricNamespace = this.metricChartAlertProperty.MetricNamespace,
+                        MetricNames = new List<string>() { this.metricChartAlertProperty.MetricName },
                         StartTime = startTime,
                         EndTime = endTime,
-                        Interval = property.TimeGrain,
+                        Interval = this.metricChartAlertProperty.TimeGrain,
                         Aggregations = new List<Aggregation>() { aggregation },
                     },
                     cancellationToken)
@@ -179,35 +184,6 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
                     .Select(p => new DateTimePoint(p.TimeStamp, p.GetValue(aggregation))));
 
             return values;
-        }
-
-        private void DisplayChartValues(ChartValues<DateTimePoint> values)
-        {
-            if (values == null)
-            {
-                MessageBox.Show($"Error loading chart {this.Title}");
-                return;
-            }
-
-            // Set point mapper to map the DateTimePoint to X/Y values
-            CartesianMapper<DateTimePoint> pointMapperConfig = Mappers.Xy<DateTimePoint>()
-                .X(dateTimeDataPoint => dateTimeDataPoint.DateTime.Ticks * 1.0 / TimeSpan.FromHours(1).Ticks)
-                .Y(dateTimeDataPoint => dateTimeDataPoint.Value);
-
-            // Create a series for the metric values
-            this.SeriesCollection = new SeriesCollection(pointMapperConfig)
-            {
-                    new LineSeries()
-                    {
-                        Values = values,
-                        Stroke = SeriesColor,
-                        Fill = Brushes.Transparent,
-                    }
-            };
-
-            // Set X/Y axis formatters
-            this.XAxisFormatter = value => new DateTime((long)(value * TimeSpan.FromHours(1).Ticks)).ToString(CultureInfo.InvariantCulture);
-            this.YAxisFormatter = value => value.ToString(CultureInfo.InvariantCulture);
         }
     }
 }

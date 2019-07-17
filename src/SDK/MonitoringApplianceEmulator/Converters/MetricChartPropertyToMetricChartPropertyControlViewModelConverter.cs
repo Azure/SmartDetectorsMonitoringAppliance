@@ -19,6 +19,30 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
     /// </summary>
     public class MetricChartPropertyToMetricChartPropertyControlViewModelConverter : IValueConverter
     {
+        private IInternalAnalysisServicesFactory analysisServicesFactory;
+        private ITracer tracer;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MetricChartPropertyToMetricChartPropertyControlViewModelConverter"/> class.
+        /// </summary>
+        public MetricChartPropertyToMetricChartPropertyControlViewModelConverter()
+            : this(App.Container.Resolve<IInternalAnalysisServicesFactory>(), App.Container.Resolve<ITracer>())
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MetricChartPropertyToMetricChartPropertyControlViewModelConverter"/> class.
+        /// </summary>
+        /// <param name="analysisServicesFactory">The analysis services factory</param>
+        /// <param name="tracer">The tracer</param>
+        public MetricChartPropertyToMetricChartPropertyControlViewModelConverter(
+            IInternalAnalysisServicesFactory analysisServicesFactory,
+            ITracer tracer)
+        {
+            this.analysisServicesFactory = analysisServicesFactory;
+            this.tracer = tracer;
+        }
+
         #region Implementation of IValueConverter
 
         /// <summary>
@@ -47,8 +71,8 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
 
             return new MetricChartPropertyControlViewModel(
                 metricChartAlertProperty,
-                App.Container.Resolve<IInternalAnalysisServicesFactory>(),
-                App.Container.Resolve<ITracer>());
+                this.analysisServicesFactory,
+                this.tracer);
         }
 
         /// <summary>

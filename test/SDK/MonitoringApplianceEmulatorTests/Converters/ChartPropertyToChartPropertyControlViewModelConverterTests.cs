@@ -18,52 +18,41 @@ namespace MonitoringApplianceEmulatorTests.Converters
     public class ChartPropertyToChartPropertyControlViewModelConverterTests
     {
         [TestMethod]
-        public void WhenConvertingTablePropertyThenResultIsTablePropertyControlViewModel()
+        public void WhenConvertingChartAlertPropertyToChartPropertyControlViewModelThenTheResultIsAsExpected()
         {
             var chartPoints = new List<ChartPoint> { new ChartPoint(DateTime.Now, 8), new ChartPoint(DateTime.Now.AddDays(1), 6), new ChartPoint(DateTime.Now.AddDays(2), 4), new ChartPoint(DateTime.Now.AddDays(3), 14), new ChartPoint(DateTime.Now.AddDays(5), 10) };
-            var tableAlertProperty = new ChartAlertProperty("propertyName", "displayName", 5, ChartType.LineChart, ChartAxisType.Date, ChartAxisType.Number, chartPoints);
-            var converter = new ChartPropertyToChartPropertyControlViewModelConverter();
+            var chartAlertProperty = new ChartAlertProperty("propertyName", "displayName", 5, ChartType.LineChart, ChartAxisType.Date, ChartAxisType.Number, chartPoints);
 
-            object result = converter.Convert(tableAlertProperty, typeof(ChartPropertyControlViewModel), null, new CultureInfo("en-us"));
+            var converter = new ChartPropertyToChartPropertyControlViewModelConverter();
+            object result = converter.Convert(chartAlertProperty, typeof(ChartPropertyControlViewModel), null, new CultureInfo("en-us"));
 
             Assert.IsInstanceOfType(result, typeof(ChartPropertyControlViewModel));
         }
 
         [TestMethod]
-        public void WhenConvertingIntegerThenExceptionIsThrown()
+        [ExpectedException(typeof(ArgumentException))]
+        public void WhenConvertingIntegerToChartPropertyControlViewModelThenAnExceptionIsThrown()
         {
             var converter = new ChartPropertyToChartPropertyControlViewModelConverter();
 
-            Exception thrownException = null;
-            try
-            {
-                converter.Convert(12, typeof(ChartPropertyControlViewModel), null, new CultureInfo("en-us"));
-            }
-            catch (Exception ex)
-            {
-                thrownException = ex;
-            }
-
-            Assert.IsNotNull(thrownException);
+            converter.Convert(12, typeof(ChartPropertyControlViewModel), null, new CultureInfo("en-us"));
         }
 
         [TestMethod]
-        public void WhenConvertingNullThenNullIsReturned()
+        public void WhenConvertingNullToChartPropertyControlViewModelThenNullIsReturned()
         {
             var converter = new ChartPropertyToChartPropertyControlViewModelConverter();
-
             object result = converter.Convert(null, typeof(ChartPropertyControlViewModel), null, new CultureInfo("en-us"));
 
             Assert.IsNull(result);
         }
 
         [TestMethod]
-        public void WhenConvertingDisconnectedObjectThenSameObjectIsReturned()
+        public void WhenConvertingDisconnectedObjectToChartPropertyControlViewModelThenSameObjectIsReturned()
         {
-            var converter = new ChartPropertyToChartPropertyControlViewModelConverter();
-
             DisconnectedItem disconnectedItem = new DisconnectedItem();
 
+            var converter = new ChartPropertyToChartPropertyControlViewModelConverter();
             object result = converter.Convert(disconnectedItem, typeof(ChartPropertyControlViewModel), null, new CultureInfo("en-us"));
 
             Assert.AreEqual(disconnectedItem, result, "The conversion result should be the converted disconnected item object");
