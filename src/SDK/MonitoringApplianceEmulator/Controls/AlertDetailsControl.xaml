@@ -12,6 +12,7 @@
         <converters:EmptyStringToVisibilityConverter x:Key="EmptyStringToVisibilityConverter" />
         <converters:TablePropertyToTablePropertyControlViewModelConverter x:Key="TablePropertyToTablePropertyControlViewModelConverter" />
         <converters:ChartPropertyToChartPropertyControlViewModelConverter x:Key="ChartPropertyToChartPropertyControlViewModelConverter" />
+        <converters:MetricChartPropertyToMetricChartPropertyControlViewModelConverter x:Key="MetricChartPropertyToMetricChartPropertyControlViewModelConverter" />
         <Style TargetType="{x:Type ListViewItem}">
             <!-- This style is used in order to get rid of the default hovering/selecting experience of a list view item -->
             <Setter Property="Background" Value="Transparent" />
@@ -76,6 +77,9 @@
                         <DataTemplate x:Key="ChartProperty">
                             <local:ChartPropertyControl DataContext="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ContentControl}}, Path=Content, Converter={StaticResource ChartPropertyToChartPropertyControlViewModelConverter}}" />
                         </DataTemplate>
+                        <DataTemplate x:Key="MetricChartProperty">
+                            <local:MetricChartPropertyControl DataContext="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ContentControl}}, Path=Content, Converter={StaticResource MetricChartPropertyToMetricChartPropertyControlViewModelConverter}}" />
+                        </DataTemplate>
                     </ListView.Resources>
                     <ListView.ItemTemplate>
                         <DataTemplate>
@@ -97,6 +101,9 @@
                                             </DataTrigger>
                                             <DataTrigger Binding="{Binding Type}" Value="Chart">
                                                 <Setter Property="ContentTemplate" Value="{StaticResource ChartProperty}"/>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding Type}" Value="MetricChart">
+                                                <Setter Property="ContentTemplate" Value="{StaticResource MetricChartProperty}"/>
                                             </DataTrigger>
                                         </Style.Triggers>
                                     </Style>
