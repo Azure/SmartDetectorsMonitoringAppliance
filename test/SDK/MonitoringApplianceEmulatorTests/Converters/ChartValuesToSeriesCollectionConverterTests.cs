@@ -36,5 +36,14 @@ namespace MonitoringApplianceEmulatorTests.Converters
             var series = seriesCollection[0];
             CollectionAssert.AreEqual(values, series.ActualValues);
         }
+
+        [TestMethod]
+        public void WhenConvertingInvalidTypeTheResultIsNull()
+        {
+            var converter = new ChartValuesToSeriesCollectionConverter();
+            object result = converter.Convert(1, typeof(ChartValues<DateTimePoint>), null, new CultureInfo("en-us"));
+
+            Assert.IsNull(result);
+        }
     }
 }
