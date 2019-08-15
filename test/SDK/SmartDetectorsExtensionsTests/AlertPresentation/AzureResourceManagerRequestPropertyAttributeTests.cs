@@ -33,6 +33,7 @@ namespace SmartDetectorsExtensionsTests.AlertPresentation
 
             int propertyIndex = 0;
             Assert.AreEqual("TextReference", armAlertProperty.PropertiesToDisplay[propertyIndex].PropertyName);
+            Assert.AreEqual("Text Reference Display Name", armAlertProperty.PropertiesToDisplay[propertyIndex].DisplayName);
             Assert.AreEqual(AlertPropertyType.Text, armAlertProperty.PropertiesToDisplay[propertyIndex].Type);
 
             propertyIndex++;
@@ -95,7 +96,7 @@ namespace SmartDetectorsExtensionsTests.AlertPresentation
             {
             }
 
-            [TextProperty("TextReferenceDisplayName", Order = 1)]
+            [TextProperty("{TextReferenceDisplayName}", Order = 1)]
             public PropertyReference TextReference => new PropertyReference("textReferencePath");
 
             [LongTextProperty("LongTextReferenceDisplayName", Order = 2)]
@@ -112,6 +113,8 @@ namespace SmartDetectorsExtensionsTests.AlertPresentation
 
             [SingleColumnTableProperty("SingleColumnTableReferenceDisplayName", Order = 6, ShowHeaders = false)]
             public PropertyReference SingleColumnTableReference => new PropertyReference("singleColumnTableReference");
+
+            public string TextReferenceDisplayName => "Text Reference Display Name";
         }
 
         public class ArmRequestWithInvalidProperty : AzureResourceManagerRequest
