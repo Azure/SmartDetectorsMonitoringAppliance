@@ -282,11 +282,14 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
                         throw new ArgumentException($"A {nameof(AzureResourceManagerRequestPropertyAttribute)} can only be applied to properties of type {nameof(AzureResourceManagerRequest)}");
                     }
 
-                    List<AlertProperty> propertiesToDisplay = armRequest.ExtractProperties(AzureResourceManagerRequestBaseClassPropertiesNames);
-                    if (propertiesToDisplay.Any(prop => !(prop is IReferenceAlertProperty)))
+                    List<AlertProperty> properties = armRequest.ExtractProperties(AzureResourceManagerRequestBaseClassPropertiesNames);
+                    if (properties.Any(prop => !(prop is IReferenceAlertProperty || prop is RawAlertProperty)))
                     {
-                        throw new ArgumentException($"An {nameof(AzureResourceManagerRequest)} can only have reference alert properties");
+                        // We support raw properties because they can contain values used in interpolated display name string
+                        throw new ArgumentException($"An {nameof(AzureResourceManagerRequest)} can only have reference and raw alert properties");
                     }
+
+                    List<AlertProperty> propertiesToDisplay = properties.Where(prop => prop is IReferenceAlertProperty).ToList();
 
                     yield return new AzureResourceManagerRequestAlertProperty(propertyName, order.Next(), armRequest.RequestUri, propertiesToDisplay.Cast<DisplayableAlertProperty>().ToList());
                     break;
