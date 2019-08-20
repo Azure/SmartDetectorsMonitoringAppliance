@@ -18,7 +18,8 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.AlertPresentation
         /// Initializes a new instance of the <see cref="TableColumnAttribute"/> class.
         /// </summary>
         /// <param name="displayName">The column's display name</param>
-        public TableColumnAttribute(string displayName)
+        /// /// <param name="propertyName">The column's property name</param>
+        public TableColumnAttribute(string displayName, string propertyName = null)
         {
             if (string.IsNullOrWhiteSpace(displayName))
             {
@@ -26,12 +27,18 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.AlertPresentation
             }
 
             this.DisplayName = displayName;
+            this.PropertyName = propertyName;
         }
 
         /// <summary>
         /// Gets the display name of the column
         /// </summary>
         public string DisplayName { get; }
+
+        /// <summary>
+        /// Gets the property name of the column
+        /// </summary>
+        public string PropertyName { get; }
 
         /// <summary>
         /// Gets or sets the order of the column in the table

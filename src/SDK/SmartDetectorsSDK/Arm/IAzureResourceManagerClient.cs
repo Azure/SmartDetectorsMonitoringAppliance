@@ -6,6 +6,7 @@
 
 namespace Microsoft.Azure.Monitoring.SmartDetectors.Arm
 {
+    using System;
     using System.Collections.Generic;
     using System.Threading;
     using System.Threading.Tasks;
@@ -87,5 +88,17 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Arm
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>>A <see cref="Task{TResult}"/>, running the current operation, returning a list of all items returned.</returns>
         Task<List<JObject>> ExecuteArmQueryAsync(ResourceIdentifier resource, string suffix, string queryString, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Executes an ARM GET request, using the relative path, and query string.
+        /// For example, the following call gets the list of databases for an SQL Server resource:
+        /// <code>
+        /// List&lt;JObject&gt; databases = await ExecuteArmQueryAsync(sqlResource, "/databases", "api-version=2017-10-01-preview", cancellationToken);
+        /// </code>
+        /// </summary>
+        /// <param name="relativePath">The reltive path of the query.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>>A <see cref="Task{TResult}"/>, running the current operation, returning a list of all items returned.</returns>
+        Task<List<JObject>> ExecuteArmQueryAsync(Uri relativePath, CancellationToken cancellationToken);
     }
 }

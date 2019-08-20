@@ -34,7 +34,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
         /// <summary>
         /// Gets or sets the alert long text property.
         /// </summary>
-        public LongTextAlertProperty LongTextAlertProprety
+        public LongTextAlertProperty LongTextAlertProperty
         {
             get
             {

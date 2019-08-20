@@ -520,7 +520,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
                 .Select(prop => Tuple.Create(prop, prop.GetCustomAttribute<TableColumnAttribute>()))
                 .Where(propAndAttribute => propAndAttribute.Item2 != null)
                 .OrderBy(propAndAttribute => propAndAttribute.Item2.Order)
-                .Select(propAndAttribute => new TableColumn(propAndAttribute.Item1.Name, propAndAttribute.Item2.DisplayName))
+                .Select(propAndAttribute => new TableColumn(string.IsNullOrEmpty(propAndAttribute.Item2.PropertyName) ? propAndAttribute.Item1.Name : propAndAttribute.Item2.PropertyName, propAndAttribute.Item2.DisplayName))
                 .ToList();
         }
 

@@ -11,6 +11,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
     using System.Collections.ObjectModel;
     using System.ComponentModel;
     using System.Threading.Tasks;
+    using Microsoft.Azure.Monitoring.SmartDetectors.Arm;
     using Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.Trace;
 
     /// <summary>
@@ -27,6 +28,11 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
         /// Gets a value indicating whether the Smart Detector is running.
         /// </summary>
         bool IsSmartDetectorRunning { get; }
+
+        /// <summary>
+        /// Gets arm client.
+        /// </summary>
+        IAzureResourceManagerClient ArmClient { get; }
 
         /// <summary>
         /// Gets the log used for the last (or current) run.

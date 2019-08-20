@@ -1,0 +1,1239 @@
+{
+	"value": [
+		{
+			"authorization": {
+				"action": "Microsoft.Web/serverFarms/write",
+				"scope": "/subscriptions/d03b04c7-d1d4-467b-aaaa-87b6fcb38b38/resourceGroups/VSDROP/providers/Microsoft.Web/serverFarms/VSDropAppServicePlan"
+			},
+			"caller": "6cd43949-0f4d-45f1-81f0-9ada0a1fdbc8",
+			"channels": "Operation",
+			"claims": {
+				"aud": "https://management.azure.com/",
+				"iss": "https://sts.windows.net/72f988bf-86f1-41af-91ab-2d7cd011db47/",
+				"iat": "1561997159",
+				"nbf": "1561997159",
+				"exp": "1562026259",
+				"aio": "42ZgYKhROix4+M9J0ed2lvKqFm94AA==",
+				"appid": "11c174dc-1945-4a9a-a36b-c79a0f246b9b",
+				"appidacr": "2",
+				"http://schemas.microsoft.com/identity/claims/identityprovider": "https://sts.windows.net/72f988bf-86f1-41af-91ab-2d7cd011db47/",
+				"http://schemas.microsoft.com/identity/claims/objectidentifier": "6cd43949-0f4d-45f1-81f0-9ada0a1fdbc8",
+				"http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier": "6cd43949-0f4d-45f1-81f0-9ada0a1fdbc8",
+				"http://schemas.microsoft.com/identity/claims/tenantid": "72f988bf-86f1-41af-91ab-2d7cd011db47",
+				"uti": "Lvz0YyBGaUSFHeN7EC1BAA",
+				"ver": "1.0"
+			},
+			"correlationId": "74abe2bf-ea30-4bdd-a065-d69bbbb7b3f6",
+			"description": "",
+			"eventDataId": "a2f7773a-ca51-43d1-86d8-73d278431257",
+			"eventName": {
+				"value": "EndRequest",
+				"localizedValue": "EndRequest"
+			},
+			"category": {
+				"value": "Administrative",
+				"localizedValue": "Administrative"
+			},
+			"httpRequest": {
+				"clientRequestId": "",
+				"clientIpAddress": "52.161.31.216",
+				"method": "PATCH"
+			},
+			"id": "/subscriptions/d03b04c7-d1d4-467b-aaaa-87b6fcb38b38/resourceGroups/VSDROP/providers/Microsoft.Web/serverFarms/VSDropAppServicePlan/events/a2f7773a-ca51-43d1-86d8-73d278431257/ticks/636976175479413742",
+			"level": "Error",
+			"resourceGroupName": "VSDROP",
+			"resourceProviderName": {
+				"value": "Microsoft.Web",
+				"localizedValue": "Microsoft.Web"
+			},
+			"resourceId": "/subscriptions/d03b04c7-d1d4-467b-aaaa-87b6fcb38b38/resourceGroups/VSDROP/providers/Microsoft.Web/serverFarms/VSDropAppServicePlan",
+			"resourceType": {
+				"value": "Microsoft.Web/serverFarms",
+				"localizedValue": "Microsoft.Web/serverFarms"
+			},
+			"operationId": "74abe2bf-ea30-4bdd-a065-d69bbbb7b3f6",
+			"operationName": {
+				"value": "Microsoft.Web/serverFarms/write",
+				"localizedValue": "Microsoft.Web/serverFarms/write"
+			},
+			"properties": {
+				"statusCode": "Unauthorized",
+				"serviceRequestId": null,
+				"statusMessage": "{\"Code\":\"Unauthorized\",\"Message\":\"The scale operation is not allowed for this subscription in this region. Try selecting different region or scale option.\",\"Target\":null,\"Details\":[{\"Message\":\"The scale operation is not allowed for this subscription in this region. Try selecting different region or scale option.\"},{\"Code\":\"Unauthorized\"},{\"ErrorEntity\":{\"ExtendedCode\":\"52020\",\"MessageTemplate\":\"The scale operation is not allowed for this subscription in this region. Try selecting different region or scale option.\",\"Parameters\":[\"default\"],\"Code\":\"Unauthorized\",\"Message\":\"The scale operation is not allowed for this subscription in this region. Try selecting different region or scale option.\"}}],\"Innererror\":null}"
+			},
+			"status": {
+				"value": "Failed",
+				"localizedValue": "Failed"
+			},
+			"subStatus": {
+				"value": "Unauthorized",
+				"localizedValue": "Unauthorized"
+			},
+			"eventTimestamp": "2019-07-01T22:39:07.9413742Z",
+			"submissionTimestamp": "2019-07-01T22:40:31.1196956Z",
+			"subscriptionId": "d03b04c7-d1d4-467b-aaaa-87b6fcb38b38",
+			"tenantId": "72f988bf-86f1-41af-91ab-2d7cd011db47"
+		},
+		{
+			"caller": "Microsoft.Insights/autoscaleSettings",
+			"channels": "Admin, Operation",
+			"claims": {
+				"http://schemas.xmlsoap.org/ws/2005/05/identity/claims/spn": "Microsoft.Insights/autoscaleSettings"
+			},
+			"correlationId": "9c7cff52-5e47-48e8-9366-d3155b0ee189",
+			"description": "{\"Code\":\"Unauthorized\",\"Message\":\"The scale operation is not allowed for this subscription in this region. Try selecting different region or scale option.\",\"Target\":null,\"Details\":[{\"Message\":\"The scale operation is not allowed for this subscription in this region. Try selecting different region or scale option.\"},{\"Code\":\"Unauthorized\"},{\"ErrorEntity\":{\"ExtendedCode\":\"52020\",\"MessageTemplate\":\"The scale operation is not allowed for this subscription in this region. Try selecting different region or scale option.\",\"Parameters\":[\"default\"],\"Code\":\"Unauthorized\",\"Message\":\"The scale operation is not allowed for this subscription in this region. Try selecting different region or scale option.\"}}],\"Innererror\":null}",
+			"eventDataId": "7a6f76ee-0ee9-4c7f-955a-df514af8cd7d",
+			"eventName": {
+				"value": "AutoscaleAction",
+				"localizedValue": "AutoscaleAction"
+			},
+			"category": {
+				"value": "Autoscale",
+				"localizedValue": "Autoscale"
+			},
+			"id": "/subscriptions/d03b04c7-d1d4-467b-aaaa-87b6fcb38b38/resourceGroups/VSDROP/providers/microsoft.insights/autoscalesettings/VSDropAppServicePlan-Autoscale-330/events/7a6f76ee-0ee9-4c7f-955a-df514af8cd7d/ticks/636976175479302320",
+			"level": "Warning",
+			"resourceGroupName": "VSDROP",
+			"resourceProviderName": {
+				"value": "microsoft.insights",
+				"localizedValue": "microsoft.insights"
+			},
+			"resourceId": "/subscriptions/d03b04c7-d1d4-467b-aaaa-87b6fcb38b38/resourceGroups/VSDROP/providers/microsoft.insights/autoscalesettings/VSDropAppServicePlan-Autoscale-330",
+			"resourceType": {
+				"value": "microsoft.insights/autoscalesettings",
+				"localizedValue": "microsoft.insights/autoscalesettings"
+			},
+			"operationId": "05ef73b8-2fc4-4abb-af4d-b0b5ed9fffba",
+			"operationName": {
+				"value": "Microsoft.Insights/AutoscaleSettings/Scaleup/Action",
+				"localizedValue": "Microsoft.Insights/AutoscaleSettings/Scaleup/Action"
+			},
+			"properties": {
+				"Description": "{\"Code\":\"Unauthorized\",\"Message\":\"The scale operation is not allowed for this subscription in this region. Try selecting different region or scale option.\",\"Target\":null,\"Details\":[{\"Message\":\"The scale operation is not allowed for this subscription in this region. Try selecting different region or scale option.\"},{\"Code\":\"Unauthorized\"},{\"ErrorEntity\":{\"ExtendedCode\":\"52020\",\"MessageTemplate\":\"The scale operation is not allowed for this subscription in this region. Try selecting different region or scale option.\",\"Parameters\":[\"default\"],\"Code\":\"Unauthorized\",\"Message\":\"The scale operation is not allowed for this subscription in this region. Try selecting different region or scale option.\"}}],\"Innererror\":null}",
+				"ResourceName": "/subscriptions/d03b04c7-d1d4-467b-aaaa-87b6fcb38b38/resourceGroups/VSDROP/providers/Microsoft.Web/serverFarms/VSDropAppServicePlan",
+				"OldInstancesCount": "3",
+				"NewInstancesCount": "4",
+				"ActiveAutoscaleProfile": "{\r\n  \"Name\": \"Auto created scale condition\",\r\n  \"Capacity\": {\r\n    \"Minimum\": \"2\",\r\n    \"Maximum\": \"4\",\r\n    \"Default\": \"2\"\r\n  },\r\n  \"Rules\": [\r\n    {\r\n      \"MetricTrigger\": {\r\n        \"Name\": \"MemoryPercentage\",\r\n        \"Namespace\": \"microsoft.web/serverfarms\",\r\n        \"Resource\": \"/subscriptions/d03b04c7-d1d4-467b-aaaa-87b6fcb38b38/resourceGroups/VSDROP/providers/Microsoft.Web/serverFarms/VSDropAppServicePlan\",\r\n        \"ResourceLocation\": \"West US 2\",\r\n        \"TimeGrain\": \"PT1M\",\r\n        \"Statistic\": \"Average\",\r\n        \"TimeWindow\": \"PT10M\",\r\n        \"TimeAggregation\": \"Average\",\r\n        \"Operator\": \"GreaterThan\",\r\n        \"Threshold\": 70.0,\r\n        \"Source\": \"/subscriptions/d03b04c7-d1d4-467b-aaaa-87b6fcb38b38/resourceGroups/VSDROP/providers/Microsoft.Web/serverFarms/VSDropAppServicePlan\",\r\n        \"MetricType\": \"MDM\",\r\n        \"Dimensions\": [],\r\n        \"DividePerInstance\": false\r\n      },\r\n      \"ScaleAction\": {\r\n        \"Direction\": \"Increase\",\r\n        \"Type\": \"ChangeCount\",\r\n        \"Value\": \"1\",\r\n        \"Cooldown\": \"PT10M\"\r\n      }\r\n    }\r\n  ]\r\n}"
+			},
+			"status": {
+				"value": "Failed",
+				"localizedValue": "Failed"
+			},
+			"subStatus": {
+				"value": null
+			},
+			"eventTimestamp": "2019-07-01T22:39:07.930232Z",
+			"submissionTimestamp": "2019-07-01T22:39:07.9619675Z",
+			"subscriptionId": "d03b04c7-d1d4-467b-aaaa-87b6fcb38b38"
+		},
+		{
+			"caller": "Microsoft.Insights/autoscaleSettings",
+			"channels": "Admin, Operation",
+			"claims": {
+				"http://schemas.xmlsoap.org/ws/2005/05/identity/claims/spn": "Microsoft.Insights/autoscaleSettings"
+			},
+			"correlationId": "9c7cff52-5e47-48e8-9366-d3155b0ee189",
+			"description": "{\"Code\":\"Unauthorized\",\"Message\":\"The scale operation is not allowed for this subscription in this region. Try selecting different region or scale option.\",\"Target\":null,\"Details\":[{\"Message\":\"The scale operation is not allowed for this subscription in this region. Try selecting different region or scale option.\"},{\"Code\":\"Unauthorized\"},{\"ErrorEntity\":{\"ExtendedCode\":\"52020\",\"MessageTemplate\":\"The scale operation is not allowed for this subscription in this region. Try selecting different region or scale option.\",\"Parameters\":[\"default\"],\"Code\":\"Unauthorized\",\"Message\":\"The scale operation is not allowed for this subscription in this region. Try selecting different region or scale option.\"}}],\"Innererror\":null}",
+			"eventDataId": "cc6ff523-3fac-4654-be50-a2f6ab48977a",
+			"eventName": {
+				"value": "AutoscaleAction",
+				"localizedValue": "AutoscaleAction"
+			},
+			"category": {
+				"value": "Autoscale",
+				"localizedValue": "Autoscale"
+			},
+			"id": "/subscriptions/d03b04c7-d1d4-467b-aaaa-87b6fcb38b38/resourceGroups/VSDROP/providers/Microsoft.Web/serverFarms/VSDropAppServicePlan/events/cc6ff523-3fac-4654-be50-a2f6ab48977a/ticks/636976175479302320",
+			"level": "Warning",
+			"resourceGroupName": "VSDROP",
+			"resourceProviderName": {
+				"value": "Microsoft.Web",
+				"localizedValue": "Microsoft.Web"
+			},
+			"resourceId": "/subscriptions/d03b04c7-d1d4-467b-aaaa-87b6fcb38b38/resourceGroups/VSDROP/providers/Microsoft.Web/serverFarms/VSDropAppServicePlan",
+			"resourceType": {
+				"value": "Microsoft.Web/serverFarms",
+				"localizedValue": "Microsoft.Web/serverFarms"
+			},
+			"operationId": "05ef73b8-2fc4-4abb-af4d-b0b5ed9fffba",
+			"operationName": {
+				"value": "Microsoft.Insights/AutoscaleSettings/Scaleup/Action",
+				"localizedValue": "Microsoft.Insights/AutoscaleSettings/Scaleup/Action"
+			},
+			"properties": {
+				"Description": "{\"Code\":\"Unauthorized\",\"Message\":\"The scale operation is not allowed for this subscription in this region. Try selecting different region or scale option.\",\"Target\":null,\"Details\":[{\"Message\":\"The scale operation is not allowed for this subscription in this region. Try selecting different region or scale option.\"},{\"Code\":\"Unauthorized\"},{\"ErrorEntity\":{\"ExtendedCode\":\"52020\",\"MessageTemplate\":\"The scale operation is not allowed for this subscription in this region. Try selecting different region or scale option.\",\"Parameters\":[\"default\"],\"Code\":\"Unauthorized\",\"Message\":\"The scale operation is not allowed for this subscription in this region. Try selecting different region or scale option.\"}}],\"Innererror\":null}",
+				"ResourceName": "/subscriptions/d03b04c7-d1d4-467b-aaaa-87b6fcb38b38/resourceGroups/VSDROP/providers/Microsoft.Web/serverFarms/VSDropAppServicePlan",
+				"OldInstancesCount": "3",
+				"NewInstancesCount": "4",
+				"ActiveAutoscaleProfile": "{\r\n  \"Name\": \"Auto created scale condition\",\r\n  \"Capacity\": {\r\n    \"Minimum\": \"2\",\r\n    \"Maximum\": \"4\",\r\n    \"Default\": \"2\"\r\n  },\r\n  \"Rules\": [\r\n    {\r\n      \"MetricTrigger\": {\r\n        \"Name\": \"MemoryPercentage\",\r\n        \"Namespace\": \"microsoft.web/serverfarms\",\r\n        \"Resource\": \"/subscriptions/d03b04c7-d1d4-467b-aaaa-87b6fcb38b38/resourceGroups/VSDROP/providers/Microsoft.Web/serverFarms/VSDropAppServicePlan\",\r\n        \"ResourceLocation\": \"West US 2\",\r\n        \"TimeGrain\": \"PT1M\",\r\n        \"Statistic\": \"Average\",\r\n        \"TimeWindow\": \"PT10M\",\r\n        \"TimeAggregation\": \"Average\",\r\n        \"Operator\": \"GreaterThan\",\r\n        \"Threshold\": 70.0,\r\n        \"Source\": \"/subscriptions/d03b04c7-d1d4-467b-aaaa-87b6fcb38b38/resourceGroups/VSDROP/providers/Microsoft.Web/serverFarms/VSDropAppServicePlan\",\r\n        \"MetricType\": \"MDM\",\r\n        \"Dimensions\": [],\r\n        \"DividePerInstance\": false\r\n      },\r\n      \"ScaleAction\": {\r\n        \"Direction\": \"Increase\",\r\n        \"Type\": \"ChangeCount\",\r\n        \"Value\": \"1\",\r\n        \"Cooldown\": \"PT10M\"\r\n      }\r\n    }\r\n  ]\r\n}"
+			},
+			"status": {
+				"value": "Failed",
+				"localizedValue": "Failed"
+			},
+			"subStatus": {
+				"value": null
+			},
+			"eventTimestamp": "2019-07-01T22:39:07.930232Z",
+			"submissionTimestamp": "2019-07-01T22:39:07.9619675Z",
+			"subscriptionId": "d03b04c7-d1d4-467b-aaaa-87b6fcb38b38"
+		},
+		{
+			"authorization": {
+				"action": "Microsoft.Web/serverFarms/write",
+				"scope": "/subscriptions/d03b04c7-d1d4-467b-aaaa-87b6fcb38b38/resourceGroups/VSDROP/providers/Microsoft.Web/serverFarms/VSDropAppServicePlan"
+			},
+			"caller": "6cd43949-0f4d-45f1-81f0-9ada0a1fdbc8",
+			"channels": "Operation",
+			"claims": {
+				"aud": "https://management.azure.com/",
+				"iss": "https://sts.windows.net/72f988bf-86f1-41af-91ab-2d7cd011db47/",
+				"iat": "1561997159",
+				"nbf": "1561997159",
+				"exp": "1562026259",
+				"aio": "42ZgYKhROix4+M9J0ed2lvKqFm94AA==",
+				"appid": "11c174dc-1945-4a9a-a36b-c79a0f246b9b",
+				"appidacr": "2",
+				"http://schemas.microsoft.com/identity/claims/identityprovider": "https://sts.windows.net/72f988bf-86f1-41af-91ab-2d7cd011db47/",
+				"http://schemas.microsoft.com/identity/claims/objectidentifier": "6cd43949-0f4d-45f1-81f0-9ada0a1fdbc8",
+				"http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier": "6cd43949-0f4d-45f1-81f0-9ada0a1fdbc8",
+				"http://schemas.microsoft.com/identity/claims/tenantid": "72f988bf-86f1-41af-91ab-2d7cd011db47",
+				"uti": "Lvz0YyBGaUSFHeN7EC1BAA",
+				"ver": "1.0"
+			},
+			"correlationId": "74abe2bf-ea30-4bdd-a065-d69bbbb7b3f6",
+			"description": "",
+			"eventDataId": "76e0ec9a-3c28-465e-8f1f-fc0ad297de22",
+			"eventName": {
+				"value": "BeginRequest",
+				"localizedValue": "BeginRequest"
+			},
+			"category": {
+				"value": "Administrative",
+				"localizedValue": "Administrative"
+			},
+			"httpRequest": {
+				"clientRequestId": "",
+				"clientIpAddress": "52.161.31.216",
+				"method": "PATCH"
+			},
+			"id": "/subscriptions/d03b04c7-d1d4-467b-aaaa-87b6fcb38b38/resourceGroups/VSDROP/providers/Microsoft.Web/serverFarms/VSDropAppServicePlan/events/76e0ec9a-3c28-465e-8f1f-fc0ad297de22/ticks/636976175470211792",
+			"level": "Informational",
+			"resourceGroupName": "VSDROP",
+			"resourceProviderName": {
+				"value": "Microsoft.Web",
+				"localizedValue": "Microsoft.Web"
+			},
+			"resourceId": "/subscriptions/d03b04c7-d1d4-467b-aaaa-87b6fcb38b38/resourceGroups/VSDROP/providers/Microsoft.Web/serverFarms/VSDropAppServicePlan",
+			"resourceType": {
+				"value": "Microsoft.Web/serverFarms",
+				"localizedValue": "Microsoft.Web/serverFarms"
+			},
+			"operationId": "74abe2bf-ea30-4bdd-a065-d69bbbb7b3f6",
+			"operationName": {
+				"value": "Microsoft.Web/serverFarms/write",
+				"localizedValue": "Microsoft.Web/serverFarms/write"
+			},
+			"status": {
+				"value": "Started",
+				"localizedValue": "Started"
+			},
+			"subStatus": {
+				"value": "",
+				"localizedValue": ""
+			},
+			"eventTimestamp": "2019-07-01T22:39:07.0211792Z",
+			"submissionTimestamp": "2019-07-01T22:40:31.1196956Z",
+			"subscriptionId": "d03b04c7-d1d4-467b-aaaa-87b6fcb38b38",
+			"tenantId": "72f988bf-86f1-41af-91ab-2d7cd011db47"
+		},
+		{
+			"authorization": {
+				"action": "Microsoft.Web/serverFarms/write",
+				"scope": "/subscriptions/d03b04c7-d1d4-467b-aaaa-87b6fcb38b38/resourceGroups/VSDROP/providers/Microsoft.Web/serverFarms/VSDropAppServicePlan"
+			},
+			"caller": "6cd43949-0f4d-45f1-81f0-9ada0a1fdbc8",
+			"channels": "Operation",
+			"claims": {
+				"aud": "https://management.azure.com/",
+				"iss": "https://sts.windows.net/72f988bf-86f1-41af-91ab-2d7cd011db47/",
+				"iat": "1561995547",
+				"nbf": "1561995547",
+				"exp": "1562024647",
+				"aio": "42ZgYBA1WbuG99Gc07b3mVgfSsZ0AAA=",
+				"appid": "11c174dc-1945-4a9a-a36b-c79a0f246b9b",
+				"appidacr": "2",
+				"http://schemas.microsoft.com/identity/claims/identityprovider": "https://sts.windows.net/72f988bf-86f1-41af-91ab-2d7cd011db47/",
+				"http://schemas.microsoft.com/identity/claims/objectidentifier": "6cd43949-0f4d-45f1-81f0-9ada0a1fdbc8",
+				"http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier": "6cd43949-0f4d-45f1-81f0-9ada0a1fdbc8",
+				"http://schemas.microsoft.com/identity/claims/tenantid": "72f988bf-86f1-41af-91ab-2d7cd011db47",
+				"uti": "LLaJiIBSaU22t5KonA1AAA",
+				"ver": "1.0"
+			},
+			"correlationId": "2c3a96b4-4b4a-4cf4-9e95-c7b4b0fb2ffe",
+			"description": "",
+			"eventDataId": "f1e53c4f-3658-4d98-b135-36fc588514c1",
+			"eventName": {
+				"value": "EndRequest",
+				"localizedValue": "EndRequest"
+			},
+			"category": {
+				"value": "Administrative",
+				"localizedValue": "Administrative"
+			},
+			"httpRequest": {
+				"clientRequestId": "",
+				"clientIpAddress": "52.161.31.216",
+				"method": "PATCH"
+			},
+			"id": "/subscriptions/d03b04c7-d1d4-467b-aaaa-87b6fcb38b38/resourceGroups/VSDROP/providers/Microsoft.Web/serverFarms/VSDropAppServicePlan/events/f1e53c4f-3658-4d98-b135-36fc588514c1/ticks/636976174867240570",
+			"level": "Error",
+			"resourceGroupName": "VSDROP",
+			"resourceProviderName": {
+				"value": "Microsoft.Web",
+				"localizedValue": "Microsoft.Web"
+			},
+			"resourceId": "/subscriptions/d03b04c7-d1d4-467b-aaaa-87b6fcb38b38/resourceGroups/VSDROP/providers/Microsoft.Web/serverFarms/VSDropAppServicePlan",
+			"resourceType": {
+				"value": "Microsoft.Web/serverFarms",
+				"localizedValue": "Microsoft.Web/serverFarms"
+			},
+			"operationId": "2c3a96b4-4b4a-4cf4-9e95-c7b4b0fb2ffe",
+			"operationName": {
+				"value": "Microsoft.Web/serverFarms/write",
+				"localizedValue": "Microsoft.Web/serverFarms/write"
+			},
+			"properties": {
+				"statusCode": "Unauthorized",
+				"serviceRequestId": null,
+				"statusMessage": "{\"Code\":\"Unauthorized\",\"Message\":\"The scale operation is not allowed for this subscription in this region. Try selecting different region or scale option.\",\"Target\":null,\"Details\":[{\"Message\":\"The scale operation is not allowed for this subscription in this region. Try selecting different region or scale option.\"},{\"Code\":\"Unauthorized\"},{\"ErrorEntity\":{\"ExtendedCode\":\"52020\",\"MessageTemplate\":\"The scale operation is not allowed for this subscription in this region. Try selecting different region or scale option.\",\"Parameters\":[\"default\"],\"Code\":\"Unauthorized\",\"Message\":\"The scale operation is not allowed for this subscription in this region. Try selecting different region or scale option.\"}}],\"Innererror\":null}"
+			},
+			"status": {
+				"value": "Failed",
+				"localizedValue": "Failed"
+			},
+			"subStatus": {
+				"value": "Unauthorized",
+				"localizedValue": "Unauthorized"
+			},
+			"eventTimestamp": "2019-07-01T22:38:06.724057Z",
+			"submissionTimestamp": "2019-07-01T22:40:19.1022981Z",
+			"subscriptionId": "d03b04c7-d1d4-467b-aaaa-87b6fcb38b38",
+			"tenantId": "72f988bf-86f1-41af-91ab-2d7cd011db47"
+		},
+		{
+			"caller": "Microsoft.Insights/autoscaleSettings",
+			"channels": "Admin, Operation",
+			"claims": {
+				"http://schemas.xmlsoap.org/ws/2005/05/identity/claims/spn": "Microsoft.Insights/autoscaleSettings"
+			},
+			"correlationId": "e4bc144d-86af-41a9-9af0-22123ed1f7b4",
+			"description": "{\"Code\":\"Unauthorized\",\"Message\":\"The scale operation is not allowed for this subscription in this region. Try selecting different region or scale option.\",\"Target\":null,\"Details\":[{\"Message\":\"The scale operation is not allowed for this subscription in this region. Try selecting different region or scale option.\"},{\"Code\":\"Unauthorized\"},{\"ErrorEntity\":{\"ExtendedCode\":\"52020\",\"MessageTemplate\":\"The scale operation is not allowed for this subscription in this region. Try selecting different region or scale option.\",\"Parameters\":[\"default\"],\"Code\":\"Unauthorized\",\"Message\":\"The scale operation is not allowed for this subscription in this region. Try selecting different region or scale option.\"}}],\"Innererror\":null}",
+			"eventDataId": "a3ef7206-a50a-485a-a445-739e56a5b03a",
+			"eventName": {
+				"value": "AutoscaleAction",
+				"localizedValue": "AutoscaleAction"
+			},
+			"category": {
+				"value": "Autoscale",
+				"localizedValue": "Autoscale"
+			},
+			"id": "/subscriptions/d03b04c7-d1d4-467b-aaaa-87b6fcb38b38/resourceGroups/VSDROP/providers/microsoft.insights/autoscalesettings/VSDropAppServicePlan-Autoscale-330/events/a3ef7206-a50a-485a-a445-739e56a5b03a/ticks/636976174867204439",
+			"level": "Warning",
+			"resourceGroupName": "VSDROP",
+			"resourceProviderName": {
+				"value": "microsoft.insights",
+				"localizedValue": "microsoft.insights"
+			},
+			"resourceId": "/subscriptions/d03b04c7-d1d4-467b-aaaa-87b6fcb38b38/resourceGroups/VSDROP/providers/microsoft.insights/autoscalesettings/VSDropAppServicePlan-Autoscale-330",
+			"resourceType": {
+				"value": "microsoft.insights/autoscalesettings",
+				"localizedValue": "microsoft.insights/autoscalesettings"
+			},
+			"operationId": "26956a40-daac-4484-b2b8-288c827e6228",
+			"operationName": {
+				"value": "Microsoft.Insights/AutoscaleSettings/Scaleup/Action",
+				"localizedValue": "Microsoft.Insights/AutoscaleSettings/Scaleup/Action"
+			},
+			"properties": {
+				"Description": "{\"Code\":\"Unauthorized\",\"Message\":\"The scale operation is not allowed for this subscription in this region. Try selecting different region or scale option.\",\"Target\":null,\"Details\":[{\"Message\":\"The scale operation is not allowed for this subscription in this region. Try selecting different region or scale option.\"},{\"Code\":\"Unauthorized\"},{\"ErrorEntity\":{\"ExtendedCode\":\"52020\",\"MessageTemplate\":\"The scale operation is not allowed for this subscription in this region. Try selecting different region or scale option.\",\"Parameters\":[\"default\"],\"Code\":\"Unauthorized\",\"Message\":\"The scale operation is not allowed for this subscription in this region. Try selecting different region or scale option.\"}}],\"Innererror\":null}",
+				"ResourceName": "/subscriptions/d03b04c7-d1d4-467b-aaaa-87b6fcb38b38/resourceGroups/VSDROP/providers/Microsoft.Web/serverFarms/VSDropAppServicePlan",
+				"OldInstancesCount": "3",
+				"NewInstancesCount": "4",
+				"ActiveAutoscaleProfile": "{\r\n  \"Name\": \"Auto created scale condition\",\r\n  \"Capacity\": {\r\n    \"Minimum\": \"2\",\r\n    \"Maximum\": \"4\",\r\n    \"Default\": \"2\"\r\n  },\r\n  \"Rules\": [\r\n    {\r\n      \"MetricTrigger\": {\r\n        \"Name\": \"MemoryPercentage\",\r\n        \"Namespace\": \"microsoft.web/serverfarms\",\r\n        \"Resource\": \"/subscriptions/d03b04c7-d1d4-467b-aaaa-87b6fcb38b38/resourceGroups/VSDROP/providers/Microsoft.Web/serverFarms/VSDropAppServicePlan\",\r\n        \"ResourceLocation\": \"West US 2\",\r\n        \"TimeGrain\": \"PT1M\",\r\n        \"Statistic\": \"Average\",\r\n        \"TimeWindow\": \"PT10M\",\r\n        \"TimeAggregation\": \"Average\",\r\n        \"Operator\": \"GreaterThan\",\r\n        \"Threshold\": 70.0,\r\n        \"Source\": \"/subscriptions/d03b04c7-d1d4-467b-aaaa-87b6fcb38b38/resourceGroups/VSDROP/providers/Microsoft.Web/serverFarms/VSDropAppServicePlan\",\r\n        \"MetricType\": \"MDM\",\r\n        \"Dimensions\": [],\r\n        \"DividePerInstance\": false\r\n      },\r\n      \"ScaleAction\": {\r\n        \"Direction\": \"Increase\",\r\n        \"Type\": \"ChangeCount\",\r\n        \"Value\": \"1\",\r\n        \"Cooldown\": \"PT10M\"\r\n      }\r\n    }\r\n  ]\r\n}"
+			},
+			"status": {
+				"value": "Failed",
+				"localizedValue": "Failed"
+			},
+			"subStatus": {
+				"value": null
+			},
+			"eventTimestamp": "2019-07-01T22:38:06.7204439Z",
+			"submissionTimestamp": "2019-07-01T22:38:06.7603418Z",
+			"subscriptionId": "d03b04c7-d1d4-467b-aaaa-87b6fcb38b38"
+		},
+		{
+			"caller": "Microsoft.Insights/autoscaleSettings",
+			"channels": "Admin, Operation",
+			"claims": {
+				"http://schemas.xmlsoap.org/ws/2005/05/identity/claims/spn": "Microsoft.Insights/autoscaleSettings"
+			},
+			"correlationId": "e4bc144d-86af-41a9-9af0-22123ed1f7b4",
+			"description": "{\"Code\":\"Unauthorized\",\"Message\":\"The scale operation is not allowed for this subscription in this region. Try selecting different region or scale option.\",\"Target\":null,\"Details\":[{\"Message\":\"The scale operation is not allowed for this subscription in this region. Try selecting different region or scale option.\"},{\"Code\":\"Unauthorized\"},{\"ErrorEntity\":{\"ExtendedCode\":\"52020\",\"MessageTemplate\":\"The scale operation is not allowed for this subscription in this region. Try selecting different region or scale option.\",\"Parameters\":[\"default\"],\"Code\":\"Unauthorized\",\"Message\":\"The scale operation is not allowed for this subscription in this region. Try selecting different region or scale option.\"}}],\"Innererror\":null}",
+			"eventDataId": "a736e999-4009-4716-a8b7-f734f49fc906",
+			"eventName": {
+				"value": "AutoscaleAction",
+				"localizedValue": "AutoscaleAction"
+			},
+			"category": {
+				"value": "Autoscale",
+				"localizedValue": "Autoscale"
+			},
+			"id": "/subscriptions/d03b04c7-d1d4-467b-aaaa-87b6fcb38b38/resourceGroups/VSDROP/providers/Microsoft.Web/serverFarms/VSDropAppServicePlan/events/a736e999-4009-4716-a8b7-f734f49fc906/ticks/636976174867204439",
+			"level": "Warning",
+			"resourceGroupName": "VSDROP",
+			"resourceProviderName": {
+				"value": "Microsoft.Web",
+				"localizedValue": "Microsoft.Web"
+			},
+			"resourceId": "/subscriptions/d03b04c7-d1d4-467b-aaaa-87b6fcb38b38/resourceGroups/VSDROP/providers/Microsoft.Web/serverFarms/VSDropAppServicePlan",
+			"resourceType": {
+				"value": "Microsoft.Web/serverFarms",
+				"localizedValue": "Microsoft.Web/serverFarms"
+			},
+			"operationId": "26956a40-daac-4484-b2b8-288c827e6228",
+			"operationName": {
+				"value": "Microsoft.Insights/AutoscaleSettings/Scaleup/Action",
+				"localizedValue": "Microsoft.Insights/AutoscaleSettings/Scaleup/Action"
+			},
+			"properties": {
+				"Description": "{\"Code\":\"Unauthorized\",\"Message\":\"The scale operation is not allowed for this subscription in this region. Try selecting different region or scale option.\",\"Target\":null,\"Details\":[{\"Message\":\"The scale operation is not allowed for this subscription in this region. Try selecting different region or scale option.\"},{\"Code\":\"Unauthorized\"},{\"ErrorEntity\":{\"ExtendedCode\":\"52020\",\"MessageTemplate\":\"The scale operation is not allowed for this subscription in this region. Try selecting different region or scale option.\",\"Parameters\":[\"default\"],\"Code\":\"Unauthorized\",\"Message\":\"The scale operation is not allowed for this subscription in this region. Try selecting different region or scale option.\"}}],\"Innererror\":null}",
+				"ResourceName": "/subscriptions/d03b04c7-d1d4-467b-aaaa-87b6fcb38b38/resourceGroups/VSDROP/providers/Microsoft.Web/serverFarms/VSDropAppServicePlan",
+				"OldInstancesCount": "3",
+				"NewInstancesCount": "4",
+				"ActiveAutoscaleProfile": "{\r\n  \"Name\": \"Auto created scale condition\",\r\n  \"Capacity\": {\r\n    \"Minimum\": \"2\",\r\n    \"Maximum\": \"4\",\r\n    \"Default\": \"2\"\r\n  },\r\n  \"Rules\": [\r\n    {\r\n      \"MetricTrigger\": {\r\n        \"Name\": \"MemoryPercentage\",\r\n        \"Namespace\": \"microsoft.web/serverfarms\",\r\n        \"Resource\": \"/subscriptions/d03b04c7-d1d4-467b-aaaa-87b6fcb38b38/resourceGroups/VSDROP/providers/Microsoft.Web/serverFarms/VSDropAppServicePlan\",\r\n        \"ResourceLocation\": \"West US 2\",\r\n        \"TimeGrain\": \"PT1M\",\r\n        \"Statistic\": \"Average\",\r\n        \"TimeWindow\": \"PT10M\",\r\n        \"TimeAggregation\": \"Average\",\r\n        \"Operator\": \"GreaterThan\",\r\n        \"Threshold\": 70.0,\r\n        \"Source\": \"/subscriptions/d03b04c7-d1d4-467b-aaaa-87b6fcb38b38/resourceGroups/VSDROP/providers/Microsoft.Web/serverFarms/VSDropAppServicePlan\",\r\n        \"MetricType\": \"MDM\",\r\n        \"Dimensions\": [],\r\n        \"DividePerInstance\": false\r\n      },\r\n      \"ScaleAction\": {\r\n        \"Direction\": \"Increase\",\r\n        \"Type\": \"ChangeCount\",\r\n        \"Value\": \"1\",\r\n        \"Cooldown\": \"PT10M\"\r\n      }\r\n    }\r\n  ]\r\n}"
+			},
+			"status": {
+				"value": "Failed",
+				"localizedValue": "Failed"
+			},
+			"subStatus": {
+				"value": null
+			},
+			"eventTimestamp": "2019-07-01T22:38:06.7204439Z",
+			"submissionTimestamp": "2019-07-01T22:38:06.7613425Z",
+			"subscriptionId": "d03b04c7-d1d4-467b-aaaa-87b6fcb38b38"
+		},
+		{
+			"authorization": {
+				"action": "Microsoft.Web/serverFarms/write",
+				"scope": "/subscriptions/d03b04c7-d1d4-467b-aaaa-87b6fcb38b38/resourceGroups/VSDROP/providers/Microsoft.Web/serverFarms/VSDropAppServicePlan"
+			},
+			"caller": "6cd43949-0f4d-45f1-81f0-9ada0a1fdbc8",
+			"channels": "Operation",
+			"claims": {
+				"aud": "https://management.azure.com/",
+				"iss": "https://sts.windows.net/72f988bf-86f1-41af-91ab-2d7cd011db47/",
+				"iat": "1561995547",
+				"nbf": "1561995547",
+				"exp": "1562024647",
+				"aio": "42ZgYBA1WbuG99Gc07b3mVgfSsZ0AAA=",
+				"appid": "11c174dc-1945-4a9a-a36b-c79a0f246b9b",
+				"appidacr": "2",
+				"http://schemas.microsoft.com/identity/claims/identityprovider": "https://sts.windows.net/72f988bf-86f1-41af-91ab-2d7cd011db47/",
+				"http://schemas.microsoft.com/identity/claims/objectidentifier": "6cd43949-0f4d-45f1-81f0-9ada0a1fdbc8",
+				"http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier": "6cd43949-0f4d-45f1-81f0-9ada0a1fdbc8",
+				"http://schemas.microsoft.com/identity/claims/tenantid": "72f988bf-86f1-41af-91ab-2d7cd011db47",
+				"uti": "LLaJiIBSaU22t5KonA1AAA",
+				"ver": "1.0"
+			},
+			"correlationId": "2c3a96b4-4b4a-4cf4-9e95-c7b4b0fb2ffe",
+			"description": "",
+			"eventDataId": "f686f1ef-97e1-46cc-9136-54040bf86106",
+			"eventName": {
+				"value": "BeginRequest",
+				"localizedValue": "BeginRequest"
+			},
+			"category": {
+				"value": "Administrative",
+				"localizedValue": "Administrative"
+			},
+			"httpRequest": {
+				"clientRequestId": "",
+				"clientIpAddress": "52.161.31.216",
+				"method": "PATCH"
+			},
+			"id": "/subscriptions/d03b04c7-d1d4-467b-aaaa-87b6fcb38b38/resourceGroups/VSDROP/providers/Microsoft.Web/serverFarms/VSDropAppServicePlan/events/f686f1ef-97e1-46cc-9136-54040bf86106/ticks/636976174858583569",
+			"level": "Informational",
+			"resourceGroupName": "VSDROP",
+			"resourceProviderName": {
+				"value": "Microsoft.Web",
+				"localizedValue": "Microsoft.Web"
+			},
+			"resourceId": "/subscriptions/d03b04c7-d1d4-467b-aaaa-87b6fcb38b38/resourceGroups/VSDROP/providers/Microsoft.Web/serverFarms/VSDropAppServicePlan",
+			"resourceType": {
+				"value": "Microsoft.Web/serverFarms",
+				"localizedValue": "Microsoft.Web/serverFarms"
+			},
+			"operationId": "2c3a96b4-4b4a-4cf4-9e95-c7b4b0fb2ffe",
+			"operationName": {
+				"value": "Microsoft.Web/serverFarms/write",
+				"localizedValue": "Microsoft.Web/serverFarms/write"
+			},
+			"status": {
+				"value": "Started",
+				"localizedValue": "Started"
+			},
+			"subStatus": {
+				"value": "",
+				"localizedValue": ""
+			},
+			"eventTimestamp": "2019-07-01T22:38:05.8583569Z",
+			"submissionTimestamp": "2019-07-01T22:40:19.1022981Z",
+			"subscriptionId": "d03b04c7-d1d4-467b-aaaa-87b6fcb38b38",
+			"tenantId": "72f988bf-86f1-41af-91ab-2d7cd011db47"
+		},
+		{
+			"caller": "Microsoft.Insights/autoscaleSettings",
+			"channels": "Admin, Operation",
+			"claims": {
+				"http://schemas.xmlsoap.org/ws/2005/05/identity/claims/spn": "Microsoft.Insights/autoscaleSettings"
+			},
+			"correlationId": "05081415-6738-43c9-9ead-d00c5f468263",
+			"description": "{\"Code\":\"Unauthorized\",\"Message\":\"The scale operation is not allowed for this subscription in this region. Try selecting different region or scale option.\",\"Target\":null,\"Details\":[{\"Message\":\"The scale operation is not allowed for this subscription in this region. Try selecting different region or scale option.\"},{\"Code\":\"Unauthorized\"},{\"ErrorEntity\":{\"ExtendedCode\":\"52020\",\"MessageTemplate\":\"The scale operation is not allowed for this subscription in this region. Try selecting different region or scale option.\",\"Parameters\":[\"default\"],\"Code\":\"Unauthorized\",\"Message\":\"The scale operation is not allowed for this subscription in this region. Try selecting different region or scale option.\"}}],\"Innererror\":null}",
+			"eventDataId": "693f79b7-9b65-4489-9146-5f2a413746ce",
+			"eventName": {
+				"value": "AutoscaleAction",
+				"localizedValue": "AutoscaleAction"
+			},
+			"category": {
+				"value": "Autoscale",
+				"localizedValue": "Autoscale"
+			},
+			"id": "/subscriptions/d03b04c7-d1d4-467b-aaaa-87b6fcb38b38/resourceGroups/VSDROP/providers/microsoft.insights/autoscalesettings/VSDropAppServicePlan-Autoscale-330/events/693f79b7-9b65-4489-9146-5f2a413746ce/ticks/636976174270390355",
+			"level": "Warning",
+			"resourceGroupName": "VSDROP",
+			"resourceProviderName": {
+				"value": "microsoft.insights",
+				"localizedValue": "microsoft.insights"
+			},
+			"resourceId": "/subscriptions/d03b04c7-d1d4-467b-aaaa-87b6fcb38b38/resourceGroups/VSDROP/providers/microsoft.insights/autoscalesettings/VSDropAppServicePlan-Autoscale-330",
+			"resourceType": {
+				"value": "microsoft.insights/autoscalesettings",
+				"localizedValue": "microsoft.insights/autoscalesettings"
+			},
+			"operationId": "4f16dec1-1785-49f8-881c-c98be94b861a",
+			"operationName": {
+				"value": "Microsoft.Insights/AutoscaleSettings/Scaleup/Action",
+				"localizedValue": "Microsoft.Insights/AutoscaleSettings/Scaleup/Action"
+			},
+			"properties": {
+				"Description": "{\"Code\":\"Unauthorized\",\"Message\":\"The scale operation is not allowed for this subscription in this region. Try selecting different region or scale option.\",\"Target\":null,\"Details\":[{\"Message\":\"The scale operation is not allowed for this subscription in this region. Try selecting different region or scale option.\"},{\"Code\":\"Unauthorized\"},{\"ErrorEntity\":{\"ExtendedCode\":\"52020\",\"MessageTemplate\":\"The scale operation is not allowed for this subscription in this region. Try selecting different region or scale option.\",\"Parameters\":[\"default\"],\"Code\":\"Unauthorized\",\"Message\":\"The scale operation is not allowed for this subscription in this region. Try selecting different region or scale option.\"}}],\"Innererror\":null}",
+				"ResourceName": "/subscriptions/d03b04c7-d1d4-467b-aaaa-87b6fcb38b38/resourceGroups/VSDROP/providers/Microsoft.Web/serverFarms/VSDropAppServicePlan",
+				"OldInstancesCount": "3",
+				"NewInstancesCount": "4",
+				"ActiveAutoscaleProfile": "{\r\n  \"Name\": \"Auto created scale condition\",\r\n  \"Capacity\": {\r\n    \"Minimum\": \"2\",\r\n    \"Maximum\": \"4\",\r\n    \"Default\": \"2\"\r\n  },\r\n  \"Rules\": [\r\n    {\r\n      \"MetricTrigger\": {\r\n        \"Name\": \"MemoryPercentage\",\r\n        \"Namespace\": \"microsoft.web/serverfarms\",\r\n        \"Resource\": \"/subscriptions/d03b04c7-d1d4-467b-aaaa-87b6fcb38b38/resourceGroups/VSDROP/providers/Microsoft.Web/serverFarms/VSDropAppServicePlan\",\r\n        \"ResourceLocation\": \"West US 2\",\r\n        \"TimeGrain\": \"PT1M\",\r\n        \"Statistic\": \"Average\",\r\n        \"TimeWindow\": \"PT10M\",\r\n        \"TimeAggregation\": \"Average\",\r\n        \"Operator\": \"GreaterThan\",\r\n        \"Threshold\": 70.0,\r\n        \"Source\": \"/subscriptions/d03b04c7-d1d4-467b-aaaa-87b6fcb38b38/resourceGroups/VSDROP/providers/Microsoft.Web/serverFarms/VSDropAppServicePlan\",\r\n        \"MetricType\": \"MDM\",\r\n        \"Dimensions\": [],\r\n        \"DividePerInstance\": false\r\n      },\r\n      \"ScaleAction\": {\r\n        \"Direction\": \"Increase\",\r\n        \"Type\": \"ChangeCount\",\r\n        \"Value\": \"1\",\r\n        \"Cooldown\": \"PT10M\"\r\n      }\r\n    }\r\n  ]\r\n}"
+			},
+			"status": {
+				"value": "Failed",
+				"localizedValue": "Failed"
+			},
+			"subStatus": {
+				"value": null
+			},
+			"eventTimestamp": "2019-07-01T22:37:07.0390355Z",
+			"submissionTimestamp": "2019-07-01T22:37:07.0868052Z",
+			"subscriptionId": "d03b04c7-d1d4-467b-aaaa-87b6fcb38b38"
+		},
+		{
+			"caller": "Microsoft.Insights/autoscaleSettings",
+			"channels": "Admin, Operation",
+			"claims": {
+				"http://schemas.xmlsoap.org/ws/2005/05/identity/claims/spn": "Microsoft.Insights/autoscaleSettings"
+			},
+			"correlationId": "05081415-6738-43c9-9ead-d00c5f468263",
+			"description": "{\"Code\":\"Unauthorized\",\"Message\":\"The scale operation is not allowed for this subscription in this region. Try selecting different region or scale option.\",\"Target\":null,\"Details\":[{\"Message\":\"The scale operation is not allowed for this subscription in this region. Try selecting different region or scale option.\"},{\"Code\":\"Unauthorized\"},{\"ErrorEntity\":{\"ExtendedCode\":\"52020\",\"MessageTemplate\":\"The scale operation is not allowed for this subscription in this region. Try selecting different region or scale option.\",\"Parameters\":[\"default\"],\"Code\":\"Unauthorized\",\"Message\":\"The scale operation is not allowed for this subscription in this region. Try selecting different region or scale option.\"}}],\"Innererror\":null}",
+			"eventDataId": "a94a9a55-7bd7-498b-8558-3fb06b7b49da",
+			"eventName": {
+				"value": "AutoscaleAction",
+				"localizedValue": "AutoscaleAction"
+			},
+			"category": {
+				"value": "Autoscale",
+				"localizedValue": "Autoscale"
+			},
+			"id": "/subscriptions/d03b04c7-d1d4-467b-aaaa-87b6fcb38b38/resourceGroups/VSDROP/providers/Microsoft.Web/serverFarms/VSDropAppServicePlan/events/a94a9a55-7bd7-498b-8558-3fb06b7b49da/ticks/636976174270390355",
+			"level": "Warning",
+			"resourceGroupName": "VSDROP",
+			"resourceProviderName": {
+				"value": "Microsoft.Web",
+				"localizedValue": "Microsoft.Web"
+			},
+			"resourceId": "/subscriptions/d03b04c7-d1d4-467b-aaaa-87b6fcb38b38/resourceGroups/VSDROP/providers/Microsoft.Web/serverFarms/VSDropAppServicePlan",
+			"resourceType": {
+				"value": "Microsoft.Web/serverFarms",
+				"localizedValue": "Microsoft.Web/serverFarms"
+			},
+			"operationId": "4f16dec1-1785-49f8-881c-c98be94b861a",
+			"operationName": {
+				"value": "Microsoft.Insights/AutoscaleSettings/Scaleup/Action",
+				"localizedValue": "Microsoft.Insights/AutoscaleSettings/Scaleup/Action"
+			},
+			"properties": {
+				"Description": "{\"Code\":\"Unauthorized\",\"Message\":\"The scale operation is not allowed for this subscription in this region. Try selecting different region or scale option.\",\"Target\":null,\"Details\":[{\"Message\":\"The scale operation is not allowed for this subscription in this region. Try selecting different region or scale option.\"},{\"Code\":\"Unauthorized\"},{\"ErrorEntity\":{\"ExtendedCode\":\"52020\",\"MessageTemplate\":\"The scale operation is not allowed for this subscription in this region. Try selecting different region or scale option.\",\"Parameters\":[\"default\"],\"Code\":\"Unauthorized\",\"Message\":\"The scale operation is not allowed for this subscription in this region. Try selecting different region or scale option.\"}}],\"Innererror\":null}",
+				"ResourceName": "/subscriptions/d03b04c7-d1d4-467b-aaaa-87b6fcb38b38/resourceGroups/VSDROP/providers/Microsoft.Web/serverFarms/VSDropAppServicePlan",
+				"OldInstancesCount": "3",
+				"NewInstancesCount": "4",
+				"ActiveAutoscaleProfile": "{\r\n  \"Name\": \"Auto created scale condition\",\r\n  \"Capacity\": {\r\n    \"Minimum\": \"2\",\r\n    \"Maximum\": \"4\",\r\n    \"Default\": \"2\"\r\n  },\r\n  \"Rules\": [\r\n    {\r\n      \"MetricTrigger\": {\r\n        \"Name\": \"MemoryPercentage\",\r\n        \"Namespace\": \"microsoft.web/serverfarms\",\r\n        \"Resource\": \"/subscriptions/d03b04c7-d1d4-467b-aaaa-87b6fcb38b38/resourceGroups/VSDROP/providers/Microsoft.Web/serverFarms/VSDropAppServicePlan\",\r\n        \"ResourceLocation\": \"West US 2\",\r\n        \"TimeGrain\": \"PT1M\",\r\n        \"Statistic\": \"Average\",\r\n        \"TimeWindow\": \"PT10M\",\r\n        \"TimeAggregation\": \"Average\",\r\n        \"Operator\": \"GreaterThan\",\r\n        \"Threshold\": 70.0,\r\n        \"Source\": \"/subscriptions/d03b04c7-d1d4-467b-aaaa-87b6fcb38b38/resourceGroups/VSDROP/providers/Microsoft.Web/serverFarms/VSDropAppServicePlan\",\r\n        \"MetricType\": \"MDM\",\r\n        \"Dimensions\": [],\r\n        \"DividePerInstance\": false\r\n      },\r\n      \"ScaleAction\": {\r\n        \"Direction\": \"Increase\",\r\n        \"Type\": \"ChangeCount\",\r\n        \"Value\": \"1\",\r\n        \"Cooldown\": \"PT10M\"\r\n      }\r\n    }\r\n  ]\r\n}"
+			},
+			"status": {
+				"value": "Failed",
+				"localizedValue": "Failed"
+			},
+			"subStatus": {
+				"value": null
+			},
+			"eventTimestamp": "2019-07-01T22:37:07.0390355Z",
+			"submissionTimestamp": "2019-07-01T22:37:07.0868052Z",
+			"subscriptionId": "d03b04c7-d1d4-467b-aaaa-87b6fcb38b38"
+		},
+		{
+			"authorization": {
+				"action": "Microsoft.Web/serverFarms/write",
+				"scope": "/subscriptions/d03b04c7-d1d4-467b-aaaa-87b6fcb38b38/resourceGroups/VSDROP/providers/Microsoft.Web/serverFarms/VSDropAppServicePlan"
+			},
+			"caller": "6cd43949-0f4d-45f1-81f0-9ada0a1fdbc8",
+			"channels": "Operation",
+			"claims": {
+				"aud": "https://management.azure.com/",
+				"iss": "https://sts.windows.net/72f988bf-86f1-41af-91ab-2d7cd011db47/",
+				"iat": "1561995547",
+				"nbf": "1561995547",
+				"exp": "1562024647",
+				"aio": "42ZgYBA1WbuG99Gc07b3mVgfSsZ0AAA=",
+				"appid": "11c174dc-1945-4a9a-a36b-c79a0f246b9b",
+				"appidacr": "2",
+				"http://schemas.microsoft.com/identity/claims/identityprovider": "https://sts.windows.net/72f988bf-86f1-41af-91ab-2d7cd011db47/",
+				"http://schemas.microsoft.com/identity/claims/objectidentifier": "6cd43949-0f4d-45f1-81f0-9ada0a1fdbc8",
+				"http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier": "6cd43949-0f4d-45f1-81f0-9ada0a1fdbc8",
+				"http://schemas.microsoft.com/identity/claims/tenantid": "72f988bf-86f1-41af-91ab-2d7cd011db47",
+				"uti": "LLaJiIBSaU22t5KonA1AAA",
+				"ver": "1.0"
+			},
+			"correlationId": "62e4579c-d37c-402f-8502-eb0990bf2322",
+			"description": "",
+			"eventDataId": "df618432-2ffb-4527-b2d9-678003790d0c",
+			"eventName": {
+				"value": "EndRequest",
+				"localizedValue": "EndRequest"
+			},
+			"category": {
+				"value": "Administrative",
+				"localizedValue": "Administrative"
+			},
+			"httpRequest": {
+				"clientRequestId": "",
+				"clientIpAddress": "52.161.31.216",
+				"method": "PATCH"
+			},
+			"id": "/subscriptions/d03b04c7-d1d4-467b-aaaa-87b6fcb38b38/resourceGroups/VSDROP/providers/Microsoft.Web/serverFarms/VSDropAppServicePlan/events/df618432-2ffb-4527-b2d9-678003790d0c/ticks/636976174270334044",
+			"level": "Error",
+			"resourceGroupName": "VSDROP",
+			"resourceProviderName": {
+				"value": "Microsoft.Web",
+				"localizedValue": "Microsoft.Web"
+			},
+			"resourceId": "/subscriptions/d03b04c7-d1d4-467b-aaaa-87b6fcb38b38/resourceGroups/VSDROP/providers/Microsoft.Web/serverFarms/VSDropAppServicePlan",
+			"resourceType": {
+				"value": "Microsoft.Web/serverFarms",
+				"localizedValue": "Microsoft.Web/serverFarms"
+			},
+			"operationId": "62e4579c-d37c-402f-8502-eb0990bf2322",
+			"operationName": {
+				"value": "Microsoft.Web/serverFarms/write",
+				"localizedValue": "Microsoft.Web/serverFarms/write"
+			},
+			"properties": {
+				"statusCode": "Unauthorized",
+				"serviceRequestId": null,
+				"statusMessage": "{\"Code\":\"Unauthorized\",\"Message\":\"The scale operation is not allowed for this subscription in this region. Try selecting different region or scale option.\",\"Target\":null,\"Details\":[{\"Message\":\"The scale operation is not allowed for this subscription in this region. Try selecting different region or scale option.\"},{\"Code\":\"Unauthorized\"},{\"ErrorEntity\":{\"ExtendedCode\":\"52020\",\"MessageTemplate\":\"The scale operation is not allowed for this subscription in this region. Try selecting different region or scale option.\",\"Parameters\":[\"default\"],\"Code\":\"Unauthorized\",\"Message\":\"The scale operation is not allowed for this subscription in this region. Try selecting different region or scale option.\"}}],\"Innererror\":null}"
+			},
+			"status": {
+				"value": "Failed",
+				"localizedValue": "Failed"
+			},
+			"subStatus": {
+				"value": "Unauthorized",
+				"localizedValue": "Unauthorized"
+			},
+			"eventTimestamp": "2019-07-01T22:37:07.0334044Z",
+			"submissionTimestamp": "2019-07-01T22:38:55.1114597Z",
+			"subscriptionId": "d03b04c7-d1d4-467b-aaaa-87b6fcb38b38",
+			"tenantId": "72f988bf-86f1-41af-91ab-2d7cd011db47"
+		},
+		{
+			"authorization": {
+				"action": "Microsoft.Web/serverFarms/write",
+				"scope": "/subscriptions/d03b04c7-d1d4-467b-aaaa-87b6fcb38b38/resourceGroups/VSDROP/providers/Microsoft.Web/serverFarms/VSDropAppServicePlan"
+			},
+			"caller": "6cd43949-0f4d-45f1-81f0-9ada0a1fdbc8",
+			"channels": "Operation",
+			"claims": {
+				"aud": "https://management.azure.com/",
+				"iss": "https://sts.windows.net/72f988bf-86f1-41af-91ab-2d7cd011db47/",
+				"iat": "1561995547",
+				"nbf": "1561995547",
+				"exp": "1562024647",
+				"aio": "42ZgYBA1WbuG99Gc07b3mVgfSsZ0AAA=",
+				"appid": "11c174dc-1945-4a9a-a36b-c79a0f246b9b",
+				"appidacr": "2",
+				"http://schemas.microsoft.com/identity/claims/identityprovider": "https://sts.windows.net/72f988bf-86f1-41af-91ab-2d7cd011db47/",
+				"http://schemas.microsoft.com/identity/claims/objectidentifier": "6cd43949-0f4d-45f1-81f0-9ada0a1fdbc8",
+				"http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier": "6cd43949-0f4d-45f1-81f0-9ada0a1fdbc8",
+				"http://schemas.microsoft.com/identity/claims/tenantid": "72f988bf-86f1-41af-91ab-2d7cd011db47",
+				"uti": "LLaJiIBSaU22t5KonA1AAA",
+				"ver": "1.0"
+			},
+			"correlationId": "62e4579c-d37c-402f-8502-eb0990bf2322",
+			"description": "",
+			"eventDataId": "b788575f-bd47-4dbd-891a-b0187fa2f9e3",
+			"eventName": {
+				"value": "BeginRequest",
+				"localizedValue": "BeginRequest"
+			},
+			"category": {
+				"value": "Administrative",
+				"localizedValue": "Administrative"
+			},
+			"httpRequest": {
+				"clientRequestId": "",
+				"clientIpAddress": "52.161.31.216",
+				"method": "PATCH"
+			},
+			"id": "/subscriptions/d03b04c7-d1d4-467b-aaaa-87b6fcb38b38/resourceGroups/VSDROP/providers/Microsoft.Web/serverFarms/VSDropAppServicePlan/events/b788575f-bd47-4dbd-891a-b0187fa2f9e3/ticks/636976174260984081",
+			"level": "Informational",
+			"resourceGroupName": "VSDROP",
+			"resourceProviderName": {
+				"value": "Microsoft.Web",
+				"localizedValue": "Microsoft.Web"
+			},
+			"resourceId": "/subscriptions/d03b04c7-d1d4-467b-aaaa-87b6fcb38b38/resourceGroups/VSDROP/providers/Microsoft.Web/serverFarms/VSDropAppServicePlan",
+			"resourceType": {
+				"value": "Microsoft.Web/serverFarms",
+				"localizedValue": "Microsoft.Web/serverFarms"
+			},
+			"operationId": "62e4579c-d37c-402f-8502-eb0990bf2322",
+			"operationName": {
+				"value": "Microsoft.Web/serverFarms/write",
+				"localizedValue": "Microsoft.Web/serverFarms/write"
+			},
+			"status": {
+				"value": "Started",
+				"localizedValue": "Started"
+			},
+			"subStatus": {
+				"value": "",
+				"localizedValue": ""
+			},
+			"eventTimestamp": "2019-07-01T22:37:06.0984081Z",
+			"submissionTimestamp": "2019-07-01T22:38:55.1114597Z",
+			"subscriptionId": "d03b04c7-d1d4-467b-aaaa-87b6fcb38b38",
+			"tenantId": "72f988bf-86f1-41af-91ab-2d7cd011db47"
+		},
+		{
+			"authorization": {
+				"action": "Microsoft.Web/serverFarms/write",
+				"scope": "/subscriptions/d03b04c7-d1d4-467b-aaaa-87b6fcb38b38/resourceGroups/VSDROP/providers/Microsoft.Web/serverFarms/VSDropAppServicePlan"
+			},
+			"caller": "6cd43949-0f4d-45f1-81f0-9ada0a1fdbc8",
+			"channels": "Operation",
+			"claims": {
+				"aud": "https://management.azure.com/",
+				"iss": "https://sts.windows.net/72f988bf-86f1-41af-91ab-2d7cd011db47/",
+				"iat": "1561999189",
+				"nbf": "1561999189",
+				"exp": "1562028289",
+				"aio": "42ZgYJinmFElvEv6Y5BYZ+KmkBUCAA==",
+				"appid": "11c174dc-1945-4a9a-a36b-c79a0f246b9b",
+				"appidacr": "2",
+				"http://schemas.microsoft.com/identity/claims/identityprovider": "https://sts.windows.net/72f988bf-86f1-41af-91ab-2d7cd011db47/",
+				"http://schemas.microsoft.com/identity/claims/objectidentifier": "6cd43949-0f4d-45f1-81f0-9ada0a1fdbc8",
+				"http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier": "6cd43949-0f4d-45f1-81f0-9ada0a1fdbc8",
+				"http://schemas.microsoft.com/identity/claims/tenantid": "72f988bf-86f1-41af-91ab-2d7cd011db47",
+				"uti": "vOTSI4F120in-bNMz5pCAA",
+				"ver": "1.0"
+			},
+			"correlationId": "0c42bf4c-9499-496e-ab42-fee75532f76d",
+			"description": "",
+			"eventDataId": "af3abc19-f7bf-4e95-88e7-ca8d9f4cee2d",
+			"eventName": {
+				"value": "EndRequest",
+				"localizedValue": "EndRequest"
+			},
+			"category": {
+				"value": "Administrative",
+				"localizedValue": "Administrative"
+			},
+			"httpRequest": {
+				"clientRequestId": "",
+				"clientIpAddress": "13.66.220.228",
+				"method": "PATCH"
+			},
+			"id": "/subscriptions/d03b04c7-d1d4-467b-aaaa-87b6fcb38b38/resourceGroups/VSDROP/providers/Microsoft.Web/serverFarms/VSDropAppServicePlan/events/af3abc19-f7bf-4e95-88e7-ca8d9f4cee2d/ticks/636976173690113273",
+			"level": "Error",
+			"resourceGroupName": "VSDROP",
+			"resourceProviderName": {
+				"value": "Microsoft.Web",
+				"localizedValue": "Microsoft.Web"
+			},
+			"resourceId": "/subscriptions/d03b04c7-d1d4-467b-aaaa-87b6fcb38b38/resourceGroups/VSDROP/providers/Microsoft.Web/serverFarms/VSDropAppServicePlan",
+			"resourceType": {
+				"value": "Microsoft.Web/serverFarms",
+				"localizedValue": "Microsoft.Web/serverFarms"
+			},
+			"operationId": "0c42bf4c-9499-496e-ab42-fee75532f76d",
+			"operationName": {
+				"value": "Microsoft.Web/serverFarms/write",
+				"localizedValue": "Microsoft.Web/serverFarms/write"
+			},
+			"properties": {
+				"statusCode": "Unauthorized",
+				"serviceRequestId": null,
+				"statusMessage": "{\"Code\":\"Unauthorized\",\"Message\":\"The scale operation is not allowed for this subscription in this region. Try selecting different region or scale option.\",\"Target\":null,\"Details\":[{\"Message\":\"The scale operation is not allowed for this subscription in this region. Try selecting different region or scale option.\"},{\"Code\":\"Unauthorized\"},{\"ErrorEntity\":{\"ExtendedCode\":\"52020\",\"MessageTemplate\":\"The scale operation is not allowed for this subscription in this region. Try selecting different region or scale option.\",\"Parameters\":[\"default\"],\"Code\":\"Unauthorized\",\"Message\":\"The scale operation is not allowed for this subscription in this region. Try selecting different region or scale option.\"}}],\"Innererror\":null}"
+			},
+			"status": {
+				"value": "Failed",
+				"localizedValue": "Failed"
+			},
+			"subStatus": {
+				"value": "Unauthorized",
+				"localizedValue": "Unauthorized"
+			},
+			"eventTimestamp": "2019-07-01T22:36:09.0113273Z",
+			"submissionTimestamp": "2019-07-01T22:38:02.1697631Z",
+			"subscriptionId": "d03b04c7-d1d4-467b-aaaa-87b6fcb38b38",
+			"tenantId": "72f988bf-86f1-41af-91ab-2d7cd011db47"
+		},
+		{
+			"caller": "Microsoft.Insights/autoscaleSettings",
+			"channels": "Admin, Operation",
+			"claims": {
+				"http://schemas.xmlsoap.org/ws/2005/05/identity/claims/spn": "Microsoft.Insights/autoscaleSettings"
+			},
+			"correlationId": "7b7ec7ae-760d-4708-899c-34802d9fd6c6",
+			"description": "{\"Code\":\"Unauthorized\",\"Message\":\"The scale operation is not allowed for this subscription in this region. Try selecting different region or scale option.\",\"Target\":null,\"Details\":[{\"Message\":\"The scale operation is not allowed for this subscription in this region. Try selecting different region or scale option.\"},{\"Code\":\"Unauthorized\"},{\"ErrorEntity\":{\"ExtendedCode\":\"52020\",\"MessageTemplate\":\"The scale operation is not allowed for this subscription in this region. Try selecting different region or scale option.\",\"Parameters\":[\"default\"],\"Code\":\"Unauthorized\",\"Message\":\"The scale operation is not allowed for this subscription in this region. Try selecting different region or scale option.\"}}],\"Innererror\":null}",
+			"eventDataId": "8a36c890-3680-4d5f-bd17-33a9611fd7fc",
+			"eventName": {
+				"value": "AutoscaleAction",
+				"localizedValue": "AutoscaleAction"
+			},
+			"category": {
+				"value": "Autoscale",
+				"localizedValue": "Autoscale"
+			},
+			"id": "/subscriptions/d03b04c7-d1d4-467b-aaaa-87b6fcb38b38/resourceGroups/VSDROP/providers/Microsoft.Web/serverFarms/VSDropAppServicePlan/events/8a36c890-3680-4d5f-bd17-33a9611fd7fc/ticks/636976173690036274",
+			"level": "Warning",
+			"resourceGroupName": "VSDROP",
+			"resourceProviderName": {
+				"value": "Microsoft.Web",
+				"localizedValue": "Microsoft.Web"
+			},
+			"resourceId": "/subscriptions/d03b04c7-d1d4-467b-aaaa-87b6fcb38b38/resourceGroups/VSDROP/providers/Microsoft.Web/serverFarms/VSDropAppServicePlan",
+			"resourceType": {
+				"value": "Microsoft.Web/serverFarms",
+				"localizedValue": "Microsoft.Web/serverFarms"
+			},
+			"operationId": "6a633366-122c-4454-beb1-8287f79bcb2c",
+			"operationName": {
+				"value": "Microsoft.Insights/AutoscaleSettings/Scaleup/Action",
+				"localizedValue": "Microsoft.Insights/AutoscaleSettings/Scaleup/Action"
+			},
+			"properties": {
+				"Description": "{\"Code\":\"Unauthorized\",\"Message\":\"The scale operation is not allowed for this subscription in this region. Try selecting different region or scale option.\",\"Target\":null,\"Details\":[{\"Message\":\"The scale operation is not allowed for this subscription in this region. Try selecting different region or scale option.\"},{\"Code\":\"Unauthorized\"},{\"ErrorEntity\":{\"ExtendedCode\":\"52020\",\"MessageTemplate\":\"The scale operation is not allowed for this subscription in this region. Try selecting different region or scale option.\",\"Parameters\":[\"default\"],\"Code\":\"Unauthorized\",\"Message\":\"The scale operation is not allowed for this subscription in this region. Try selecting different region or scale option.\"}}],\"Innererror\":null}",
+				"ResourceName": "/subscriptions/d03b04c7-d1d4-467b-aaaa-87b6fcb38b38/resourceGroups/VSDROP/providers/Microsoft.Web/serverFarms/VSDropAppServicePlan",
+				"OldInstancesCount": "3",
+				"NewInstancesCount": "4",
+				"ActiveAutoscaleProfile": "{\r\n  \"Name\": \"Auto created scale condition\",\r\n  \"Capacity\": {\r\n    \"Minimum\": \"2\",\r\n    \"Maximum\": \"4\",\r\n    \"Default\": \"2\"\r\n  },\r\n  \"Rules\": [\r\n    {\r\n      \"MetricTrigger\": {\r\n        \"Name\": \"MemoryPercentage\",\r\n        \"Namespace\": \"microsoft.web/serverfarms\",\r\n        \"Resource\": \"/subscriptions/d03b04c7-d1d4-467b-aaaa-87b6fcb38b38/resourceGroups/VSDROP/providers/Microsoft.Web/serverFarms/VSDropAppServicePlan\",\r\n        \"ResourceLocation\": \"West US 2\",\r\n        \"TimeGrain\": \"PT1M\",\r\n        \"Statistic\": \"Average\",\r\n        \"TimeWindow\": \"PT10M\",\r\n        \"TimeAggregation\": \"Average\",\r\n        \"Operator\": \"GreaterThan\",\r\n        \"Threshold\": 70.0,\r\n        \"Source\": \"/subscriptions/d03b04c7-d1d4-467b-aaaa-87b6fcb38b38/resourceGroups/VSDROP/providers/Microsoft.Web/serverFarms/VSDropAppServicePlan\",\r\n        \"MetricType\": \"MDM\",\r\n        \"Dimensions\": [],\r\n        \"DividePerInstance\": false\r\n      },\r\n      \"ScaleAction\": {\r\n        \"Direction\": \"Increase\",\r\n        \"Type\": \"ChangeCount\",\r\n        \"Value\": \"1\",\r\n        \"Cooldown\": \"PT10M\"\r\n      }\r\n    }\r\n  ]\r\n}"
+			},
+			"status": {
+				"value": "Failed",
+				"localizedValue": "Failed"
+			},
+			"subStatus": {
+				"value": null
+			},
+			"eventTimestamp": "2019-07-01T22:36:09.0036274Z",
+			"submissionTimestamp": "2019-07-01T22:36:09.1183808Z",
+			"subscriptionId": "d03b04c7-d1d4-467b-aaaa-87b6fcb38b38"
+		},
+		{
+			"caller": "Microsoft.Insights/autoscaleSettings",
+			"channels": "Admin, Operation",
+			"claims": {
+				"http://schemas.xmlsoap.org/ws/2005/05/identity/claims/spn": "Microsoft.Insights/autoscaleSettings"
+			},
+			"correlationId": "7b7ec7ae-760d-4708-899c-34802d9fd6c6",
+			"description": "{\"Code\":\"Unauthorized\",\"Message\":\"The scale operation is not allowed for this subscription in this region. Try selecting different region or scale option.\",\"Target\":null,\"Details\":[{\"Message\":\"The scale operation is not allowed for this subscription in this region. Try selecting different region or scale option.\"},{\"Code\":\"Unauthorized\"},{\"ErrorEntity\":{\"ExtendedCode\":\"52020\",\"MessageTemplate\":\"The scale operation is not allowed for this subscription in this region. Try selecting different region or scale option.\",\"Parameters\":[\"default\"],\"Code\":\"Unauthorized\",\"Message\":\"The scale operation is not allowed for this subscription in this region. Try selecting different region or scale option.\"}}],\"Innererror\":null}",
+			"eventDataId": "e570a8f7-214b-4e82-a1fd-c666c841dd28",
+			"eventName": {
+				"value": "AutoscaleAction",
+				"localizedValue": "AutoscaleAction"
+			},
+			"category": {
+				"value": "Autoscale",
+				"localizedValue": "Autoscale"
+			},
+			"id": "/subscriptions/d03b04c7-d1d4-467b-aaaa-87b6fcb38b38/resourceGroups/VSDROP/providers/microsoft.insights/autoscalesettings/VSDropAppServicePlan-Autoscale-330/events/e570a8f7-214b-4e82-a1fd-c666c841dd28/ticks/636976173690036274",
+			"level": "Warning",
+			"resourceGroupName": "VSDROP",
+			"resourceProviderName": {
+				"value": "microsoft.insights",
+				"localizedValue": "microsoft.insights"
+			},
+			"resourceId": "/subscriptions/d03b04c7-d1d4-467b-aaaa-87b6fcb38b38/resourceGroups/VSDROP/providers/microsoft.insights/autoscalesettings/VSDropAppServicePlan-Autoscale-330",
+			"resourceType": {
+				"value": "microsoft.insights/autoscalesettings",
+				"localizedValue": "microsoft.insights/autoscalesettings"
+			},
+			"operationId": "6a633366-122c-4454-beb1-8287f79bcb2c",
+			"operationName": {
+				"value": "Microsoft.Insights/AutoscaleSettings/Scaleup/Action",
+				"localizedValue": "Microsoft.Insights/AutoscaleSettings/Scaleup/Action"
+			},
+			"properties": {
+				"Description": "{\"Code\":\"Unauthorized\",\"Message\":\"The scale operation is not allowed for this subscription in this region. Try selecting different region or scale option.\",\"Target\":null,\"Details\":[{\"Message\":\"The scale operation is not allowed for this subscription in this region. Try selecting different region or scale option.\"},{\"Code\":\"Unauthorized\"},{\"ErrorEntity\":{\"ExtendedCode\":\"52020\",\"MessageTemplate\":\"The scale operation is not allowed for this subscription in this region. Try selecting different region or scale option.\",\"Parameters\":[\"default\"],\"Code\":\"Unauthorized\",\"Message\":\"The scale operation is not allowed for this subscription in this region. Try selecting different region or scale option.\"}}],\"Innererror\":null}",
+				"ResourceName": "/subscriptions/d03b04c7-d1d4-467b-aaaa-87b6fcb38b38/resourceGroups/VSDROP/providers/Microsoft.Web/serverFarms/VSDropAppServicePlan",
+				"OldInstancesCount": "3",
+				"NewInstancesCount": "4",
+				"ActiveAutoscaleProfile": "{\r\n  \"Name\": \"Auto created scale condition\",\r\n  \"Capacity\": {\r\n    \"Minimum\": \"2\",\r\n    \"Maximum\": \"4\",\r\n    \"Default\": \"2\"\r\n  },\r\n  \"Rules\": [\r\n    {\r\n      \"MetricTrigger\": {\r\n        \"Name\": \"MemoryPercentage\",\r\n        \"Namespace\": \"microsoft.web/serverfarms\",\r\n        \"Resource\": \"/subscriptions/d03b04c7-d1d4-467b-aaaa-87b6fcb38b38/resourceGroups/VSDROP/providers/Microsoft.Web/serverFarms/VSDropAppServicePlan\",\r\n        \"ResourceLocation\": \"West US 2\",\r\n        \"TimeGrain\": \"PT1M\",\r\n        \"Statistic\": \"Average\",\r\n        \"TimeWindow\": \"PT10M\",\r\n        \"TimeAggregation\": \"Average\",\r\n        \"Operator\": \"GreaterThan\",\r\n        \"Threshold\": 70.0,\r\n        \"Source\": \"/subscriptions/d03b04c7-d1d4-467b-aaaa-87b6fcb38b38/resourceGroups/VSDROP/providers/Microsoft.Web/serverFarms/VSDropAppServicePlan\",\r\n        \"MetricType\": \"MDM\",\r\n        \"Dimensions\": [],\r\n        \"DividePerInstance\": false\r\n      },\r\n      \"ScaleAction\": {\r\n        \"Direction\": \"Increase\",\r\n        \"Type\": \"ChangeCount\",\r\n        \"Value\": \"1\",\r\n        \"Cooldown\": \"PT10M\"\r\n      }\r\n    }\r\n  ]\r\n}"
+			},
+			"status": {
+				"value": "Failed",
+				"localizedValue": "Failed"
+			},
+			"subStatus": {
+				"value": null
+			},
+			"eventTimestamp": "2019-07-01T22:36:09.0036274Z",
+			"submissionTimestamp": "2019-07-01T22:36:09.1183808Z",
+			"subscriptionId": "d03b04c7-d1d4-467b-aaaa-87b6fcb38b38"
+		},
+		{
+			"authorization": {
+				"action": "Microsoft.Web/serverFarms/write",
+				"scope": "/subscriptions/d03b04c7-d1d4-467b-aaaa-87b6fcb38b38/resourceGroups/VSDROP/providers/Microsoft.Web/serverFarms/VSDropAppServicePlan"
+			},
+			"caller": "6cd43949-0f4d-45f1-81f0-9ada0a1fdbc8",
+			"channels": "Operation",
+			"claims": {
+				"aud": "https://management.azure.com/",
+				"iss": "https://sts.windows.net/72f988bf-86f1-41af-91ab-2d7cd011db47/",
+				"iat": "1561999189",
+				"nbf": "1561999189",
+				"exp": "1562028289",
+				"aio": "42ZgYJinmFElvEv6Y5BYZ+KmkBUCAA==",
+				"appid": "11c174dc-1945-4a9a-a36b-c79a0f246b9b",
+				"appidacr": "2",
+				"http://schemas.microsoft.com/identity/claims/identityprovider": "https://sts.windows.net/72f988bf-86f1-41af-91ab-2d7cd011db47/",
+				"http://schemas.microsoft.com/identity/claims/objectidentifier": "6cd43949-0f4d-45f1-81f0-9ada0a1fdbc8",
+				"http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier": "6cd43949-0f4d-45f1-81f0-9ada0a1fdbc8",
+				"http://schemas.microsoft.com/identity/claims/tenantid": "72f988bf-86f1-41af-91ab-2d7cd011db47",
+				"uti": "vOTSI4F120in-bNMz5pCAA",
+				"ver": "1.0"
+			},
+			"correlationId": "0c42bf4c-9499-496e-ab42-fee75532f76d",
+			"description": "",
+			"eventDataId": "ca2b1340-2963-4163-8d36-683cb7109e7e",
+			"eventName": {
+				"value": "BeginRequest",
+				"localizedValue": "BeginRequest"
+			},
+			"category": {
+				"value": "Administrative",
+				"localizedValue": "Administrative"
+			},
+			"httpRequest": {
+				"clientRequestId": "",
+				"clientIpAddress": "13.66.220.228",
+				"method": "PATCH"
+			},
+			"id": "/subscriptions/d03b04c7-d1d4-467b-aaaa-87b6fcb38b38/resourceGroups/VSDROP/providers/Microsoft.Web/serverFarms/VSDropAppServicePlan/events/ca2b1340-2963-4163-8d36-683cb7109e7e/ticks/636976173668413276",
+			"level": "Informational",
+			"resourceGroupName": "VSDROP",
+			"resourceProviderName": {
+				"value": "Microsoft.Web",
+				"localizedValue": "Microsoft.Web"
+			},
+			"resourceId": "/subscriptions/d03b04c7-d1d4-467b-aaaa-87b6fcb38b38/resourceGroups/VSDROP/providers/Microsoft.Web/serverFarms/VSDropAppServicePlan",
+			"resourceType": {
+				"value": "Microsoft.Web/serverFarms",
+				"localizedValue": "Microsoft.Web/serverFarms"
+			},
+			"operationId": "0c42bf4c-9499-496e-ab42-fee75532f76d",
+			"operationName": {
+				"value": "Microsoft.Web/serverFarms/write",
+				"localizedValue": "Microsoft.Web/serverFarms/write"
+			},
+			"status": {
+				"value": "Started",
+				"localizedValue": "Started"
+			},
+			"subStatus": {
+				"value": "",
+				"localizedValue": ""
+			},
+			"eventTimestamp": "2019-07-01T22:36:06.8413276Z",
+			"submissionTimestamp": "2019-07-01T22:38:02.1697631Z",
+			"subscriptionId": "d03b04c7-d1d4-467b-aaaa-87b6fcb38b38",
+			"tenantId": "72f988bf-86f1-41af-91ab-2d7cd011db47"
+		},
+		{
+			"authorization": {
+				"action": "Microsoft.Web/serverFarms/write",
+				"scope": "/subscriptions/d03b04c7-d1d4-467b-aaaa-87b6fcb38b38/resourceGroups/VSDROP/providers/Microsoft.Web/serverFarms/VSDropAppServicePlan"
+			},
+			"caller": "6cd43949-0f4d-45f1-81f0-9ada0a1fdbc8",
+			"channels": "Operation",
+			"claims": {
+				"aud": "https://management.azure.com/",
+				"iss": "https://sts.windows.net/72f988bf-86f1-41af-91ab-2d7cd011db47/",
+				"iat": "1561998237",
+				"nbf": "1561998237",
+				"exp": "1562027337",
+				"aio": "42ZgYIiJjWbx8bxVyveRu+vznCdbAA==",
+				"appid": "11c174dc-1945-4a9a-a36b-c79a0f246b9b",
+				"appidacr": "2",
+				"http://schemas.microsoft.com/identity/claims/identityprovider": "https://sts.windows.net/72f988bf-86f1-41af-91ab-2d7cd011db47/",
+				"http://schemas.microsoft.com/identity/claims/objectidentifier": "6cd43949-0f4d-45f1-81f0-9ada0a1fdbc8",
+				"http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier": "6cd43949-0f4d-45f1-81f0-9ada0a1fdbc8",
+				"http://schemas.microsoft.com/identity/claims/tenantid": "72f988bf-86f1-41af-91ab-2d7cd011db47",
+				"uti": "6rlIagub4UukMskHvKo6AA",
+				"ver": "1.0"
+			},
+			"correlationId": "a84b5e95-2d7a-43a5-853a-b7da7493788a",
+			"description": "",
+			"eventDataId": "e97eaa1c-07d3-4180-a675-35c91d51b2a7",
+			"eventName": {
+				"value": "EndRequest",
+				"localizedValue": "EndRequest"
+			},
+			"category": {
+				"value": "Administrative",
+				"localizedValue": "Administrative"
+			},
+			"httpRequest": {
+				"clientRequestId": "",
+				"clientIpAddress": "13.66.220.228",
+				"method": "PATCH"
+			},
+			"id": "/subscriptions/d03b04c7-d1d4-467b-aaaa-87b6fcb38b38/resourceGroups/VSDROP/providers/Microsoft.Web/serverFarms/VSDropAppServicePlan/events/e97eaa1c-07d3-4180-a675-35c91d51b2a7/ticks/636976173074388971",
+			"level": "Error",
+			"resourceGroupName": "VSDROP",
+			"resourceProviderName": {
+				"value": "Microsoft.Web",
+				"localizedValue": "Microsoft.Web"
+			},
+			"resourceId": "/subscriptions/d03b04c7-d1d4-467b-aaaa-87b6fcb38b38/resourceGroups/VSDROP/providers/Microsoft.Web/serverFarms/VSDropAppServicePlan",
+			"resourceType": {
+				"value": "Microsoft.Web/serverFarms",
+				"localizedValue": "Microsoft.Web/serverFarms"
+			},
+			"operationId": "a84b5e95-2d7a-43a5-853a-b7da7493788a",
+			"operationName": {
+				"value": "Microsoft.Web/serverFarms/write",
+				"localizedValue": "Microsoft.Web/serverFarms/write"
+			},
+			"properties": {
+				"statusCode": "Unauthorized",
+				"serviceRequestId": null,
+				"statusMessage": "{\"Code\":\"Unauthorized\",\"Message\":\"The scale operation is not allowed for this subscription in this region. Try selecting different region or scale option.\",\"Target\":null,\"Details\":[{\"Message\":\"The scale operation is not allowed for this subscription in this region. Try selecting different region or scale option.\"},{\"Code\":\"Unauthorized\"},{\"ErrorEntity\":{\"ExtendedCode\":\"52020\",\"MessageTemplate\":\"The scale operation is not allowed for this subscription in this region. Try selecting different region or scale option.\",\"Parameters\":[\"default\"],\"Code\":\"Unauthorized\",\"Message\":\"The scale operation is not allowed for this subscription in this region. Try selecting different region or scale option.\"}}],\"Innererror\":null}"
+			},
+			"status": {
+				"value": "Failed",
+				"localizedValue": "Failed"
+			},
+			"subStatus": {
+				"value": "Unauthorized",
+				"localizedValue": "Unauthorized"
+			},
+			"eventTimestamp": "2019-07-01T22:35:07.4388971Z",
+			"submissionTimestamp": "2019-07-01T22:37:06.1468932Z",
+			"subscriptionId": "d03b04c7-d1d4-467b-aaaa-87b6fcb38b38",
+			"tenantId": "72f988bf-86f1-41af-91ab-2d7cd011db47"
+		},
+		{
+			"caller": "Microsoft.Insights/autoscaleSettings",
+			"channels": "Admin, Operation",
+			"claims": {
+				"http://schemas.xmlsoap.org/ws/2005/05/identity/claims/spn": "Microsoft.Insights/autoscaleSettings"
+			},
+			"correlationId": "572bdcc9-d047-4839-8c94-66d537c61168",
+			"description": "{\"Code\":\"Unauthorized\",\"Message\":\"The scale operation is not allowed for this subscription in this region. Try selecting different region or scale option.\",\"Target\":null,\"Details\":[{\"Message\":\"The scale operation is not allowed for this subscription in this region. Try selecting different region or scale option.\"},{\"Code\":\"Unauthorized\"},{\"ErrorEntity\":{\"ExtendedCode\":\"52020\",\"MessageTemplate\":\"The scale operation is not allowed for this subscription in this region. Try selecting different region or scale option.\",\"Parameters\":[\"default\"],\"Code\":\"Unauthorized\",\"Message\":\"The scale operation is not allowed for this subscription in this region. Try selecting different region or scale option.\"}}],\"Innererror\":null}",
+			"eventDataId": "213e7639-14a4-4237-af9a-44d9f2afb749",
+			"eventName": {
+				"value": "AutoscaleAction",
+				"localizedValue": "AutoscaleAction"
+			},
+			"category": {
+				"value": "Autoscale",
+				"localizedValue": "Autoscale"
+			},
+			"id": "/subscriptions/d03b04c7-d1d4-467b-aaaa-87b6fcb38b38/resourceGroups/VSDROP/providers/Microsoft.Web/serverFarms/VSDropAppServicePlan/events/213e7639-14a4-4237-af9a-44d9f2afb749/ticks/636976173074236789",
+			"level": "Warning",
+			"resourceGroupName": "VSDROP",
+			"resourceProviderName": {
+				"value": "Microsoft.Web",
+				"localizedValue": "Microsoft.Web"
+			},
+			"resourceId": "/subscriptions/d03b04c7-d1d4-467b-aaaa-87b6fcb38b38/resourceGroups/VSDROP/providers/Microsoft.Web/serverFarms/VSDropAppServicePlan",
+			"resourceType": {
+				"value": "Microsoft.Web/serverFarms",
+				"localizedValue": "Microsoft.Web/serverFarms"
+			},
+			"operationId": "e362ba2f-d098-4102-906d-c44f55013f10",
+			"operationName": {
+				"value": "Microsoft.Insights/AutoscaleSettings/Scaleup/Action",
+				"localizedValue": "Microsoft.Insights/AutoscaleSettings/Scaleup/Action"
+			},
+			"properties": {
+				"Description": "{\"Code\":\"Unauthorized\",\"Message\":\"The scale operation is not allowed for this subscription in this region. Try selecting different region or scale option.\",\"Target\":null,\"Details\":[{\"Message\":\"The scale operation is not allowed for this subscription in this region. Try selecting different region or scale option.\"},{\"Code\":\"Unauthorized\"},{\"ErrorEntity\":{\"ExtendedCode\":\"52020\",\"MessageTemplate\":\"The scale operation is not allowed for this subscription in this region. Try selecting different region or scale option.\",\"Parameters\":[\"default\"],\"Code\":\"Unauthorized\",\"Message\":\"The scale operation is not allowed for this subscription in this region. Try selecting different region or scale option.\"}}],\"Innererror\":null}",
+				"ResourceName": "/subscriptions/d03b04c7-d1d4-467b-aaaa-87b6fcb38b38/resourceGroups/VSDROP/providers/Microsoft.Web/serverFarms/VSDropAppServicePlan",
+				"OldInstancesCount": "3",
+				"NewInstancesCount": "4",
+				"ActiveAutoscaleProfile": "{\r\n  \"Name\": \"Auto created scale condition\",\r\n  \"Capacity\": {\r\n    \"Minimum\": \"2\",\r\n    \"Maximum\": \"4\",\r\n    \"Default\": \"2\"\r\n  },\r\n  \"Rules\": [\r\n    {\r\n      \"MetricTrigger\": {\r\n        \"Name\": \"MemoryPercentage\",\r\n        \"Namespace\": \"microsoft.web/serverfarms\",\r\n        \"Resource\": \"/subscriptions/d03b04c7-d1d4-467b-aaaa-87b6fcb38b38/resourceGroups/VSDROP/providers/Microsoft.Web/serverFarms/VSDropAppServicePlan\",\r\n        \"ResourceLocation\": \"West US 2\",\r\n        \"TimeGrain\": \"PT1M\",\r\n        \"Statistic\": \"Average\",\r\n        \"TimeWindow\": \"PT10M\",\r\n        \"TimeAggregation\": \"Average\",\r\n        \"Operator\": \"GreaterThan\",\r\n        \"Threshold\": 70.0,\r\n        \"Source\": \"/subscriptions/d03b04c7-d1d4-467b-aaaa-87b6fcb38b38/resourceGroups/VSDROP/providers/Microsoft.Web/serverFarms/VSDropAppServicePlan\",\r\n        \"MetricType\": \"MDM\",\r\n        \"Dimensions\": [],\r\n        \"DividePerInstance\": false\r\n      },\r\n      \"ScaleAction\": {\r\n        \"Direction\": \"Increase\",\r\n        \"Type\": \"ChangeCount\",\r\n        \"Value\": \"1\",\r\n        \"Cooldown\": \"PT10M\"\r\n      }\r\n    }\r\n  ]\r\n}"
+			},
+			"status": {
+				"value": "Failed",
+				"localizedValue": "Failed"
+			},
+			"subStatus": {
+				"value": null
+			},
+			"eventTimestamp": "2019-07-01T22:35:07.4236789Z",
+			"submissionTimestamp": "2019-07-01T22:35:07.4422474Z",
+			"subscriptionId": "d03b04c7-d1d4-467b-aaaa-87b6fcb38b38"
+		},
+		{
+			"caller": "Microsoft.Insights/autoscaleSettings",
+			"channels": "Admin, Operation",
+			"claims": {
+				"http://schemas.xmlsoap.org/ws/2005/05/identity/claims/spn": "Microsoft.Insights/autoscaleSettings"
+			},
+			"correlationId": "572bdcc9-d047-4839-8c94-66d537c61168",
+			"description": "{\"Code\":\"Unauthorized\",\"Message\":\"The scale operation is not allowed for this subscription in this region. Try selecting different region or scale option.\",\"Target\":null,\"Details\":[{\"Message\":\"The scale operation is not allowed for this subscription in this region. Try selecting different region or scale option.\"},{\"Code\":\"Unauthorized\"},{\"ErrorEntity\":{\"ExtendedCode\":\"52020\",\"MessageTemplate\":\"The scale operation is not allowed for this subscription in this region. Try selecting different region or scale option.\",\"Parameters\":[\"default\"],\"Code\":\"Unauthorized\",\"Message\":\"The scale operation is not allowed for this subscription in this region. Try selecting different region or scale option.\"}}],\"Innererror\":null}",
+			"eventDataId": "fb1cab7a-22a6-46b3-97fa-fd60987157b9",
+			"eventName": {
+				"value": "AutoscaleAction",
+				"localizedValue": "AutoscaleAction"
+			},
+			"category": {
+				"value": "Autoscale",
+				"localizedValue": "Autoscale"
+			},
+			"id": "/subscriptions/d03b04c7-d1d4-467b-aaaa-87b6fcb38b38/resourceGroups/VSDROP/providers/microsoft.insights/autoscalesettings/VSDropAppServicePlan-Autoscale-330/events/fb1cab7a-22a6-46b3-97fa-fd60987157b9/ticks/636976173074236789",
+			"level": "Warning",
+			"resourceGroupName": "VSDROP",
+			"resourceProviderName": {
+				"value": "microsoft.insights",
+				"localizedValue": "microsoft.insights"
+			},
+			"resourceId": "/subscriptions/d03b04c7-d1d4-467b-aaaa-87b6fcb38b38/resourceGroups/VSDROP/providers/microsoft.insights/autoscalesettings/VSDropAppServicePlan-Autoscale-330",
+			"resourceType": {
+				"value": "microsoft.insights/autoscalesettings",
+				"localizedValue": "microsoft.insights/autoscalesettings"
+			},
+			"operationId": "e362ba2f-d098-4102-906d-c44f55013f10",
+			"operationName": {
+				"value": "Microsoft.Insights/AutoscaleSettings/Scaleup/Action",
+				"localizedValue": "Microsoft.Insights/AutoscaleSettings/Scaleup/Action"
+			},
+			"properties": {
+				"Description": "{\"Code\":\"Unauthorized\",\"Message\":\"The scale operation is not allowed for this subscription in this region. Try selecting different region or scale option.\",\"Target\":null,\"Details\":[{\"Message\":\"The scale operation is not allowed for this subscription in this region. Try selecting different region or scale option.\"},{\"Code\":\"Unauthorized\"},{\"ErrorEntity\":{\"ExtendedCode\":\"52020\",\"MessageTemplate\":\"The scale operation is not allowed for this subscription in this region. Try selecting different region or scale option.\",\"Parameters\":[\"default\"],\"Code\":\"Unauthorized\",\"Message\":\"The scale operation is not allowed for this subscription in this region. Try selecting different region or scale option.\"}}],\"Innererror\":null}",
+				"ResourceName": "/subscriptions/d03b04c7-d1d4-467b-aaaa-87b6fcb38b38/resourceGroups/VSDROP/providers/Microsoft.Web/serverFarms/VSDropAppServicePlan",
+				"OldInstancesCount": "3",
+				"NewInstancesCount": "4",
+				"ActiveAutoscaleProfile": "{\r\n  \"Name\": \"Auto created scale condition\",\r\n  \"Capacity\": {\r\n    \"Minimum\": \"2\",\r\n    \"Maximum\": \"4\",\r\n    \"Default\": \"2\"\r\n  },\r\n  \"Rules\": [\r\n    {\r\n      \"MetricTrigger\": {\r\n        \"Name\": \"MemoryPercentage\",\r\n        \"Namespace\": \"microsoft.web/serverfarms\",\r\n        \"Resource\": \"/subscriptions/d03b04c7-d1d4-467b-aaaa-87b6fcb38b38/resourceGroups/VSDROP/providers/Microsoft.Web/serverFarms/VSDropAppServicePlan\",\r\n        \"ResourceLocation\": \"West US 2\",\r\n        \"TimeGrain\": \"PT1M\",\r\n        \"Statistic\": \"Average\",\r\n        \"TimeWindow\": \"PT10M\",\r\n        \"TimeAggregation\": \"Average\",\r\n        \"Operator\": \"GreaterThan\",\r\n        \"Threshold\": 70.0,\r\n        \"Source\": \"/subscriptions/d03b04c7-d1d4-467b-aaaa-87b6fcb38b38/resourceGroups/VSDROP/providers/Microsoft.Web/serverFarms/VSDropAppServicePlan\",\r\n        \"MetricType\": \"MDM\",\r\n        \"Dimensions\": [],\r\n        \"DividePerInstance\": false\r\n      },\r\n      \"ScaleAction\": {\r\n        \"Direction\": \"Increase\",\r\n        \"Type\": \"ChangeCount\",\r\n        \"Value\": \"1\",\r\n        \"Cooldown\": \"PT10M\"\r\n      }\r\n    }\r\n  ]\r\n}"
+			},
+			"status": {
+				"value": "Failed",
+				"localizedValue": "Failed"
+			},
+			"subStatus": {
+				"value": null
+			},
+			"eventTimestamp": "2019-07-01T22:35:07.4236789Z",
+			"submissionTimestamp": "2019-07-01T22:35:07.4422474Z",
+			"subscriptionId": "d03b04c7-d1d4-467b-aaaa-87b6fcb38b38"
+		},
+		{
+			"authorization": {
+				"action": "Microsoft.Web/serverFarms/write",
+				"scope": "/subscriptions/d03b04c7-d1d4-467b-aaaa-87b6fcb38b38/resourceGroups/VSDROP/providers/Microsoft.Web/serverFarms/VSDropAppServicePlan"
+			},
+			"caller": "6cd43949-0f4d-45f1-81f0-9ada0a1fdbc8",
+			"channels": "Operation",
+			"claims": {
+				"aud": "https://management.azure.com/",
+				"iss": "https://sts.windows.net/72f988bf-86f1-41af-91ab-2d7cd011db47/",
+				"iat": "1561998237",
+				"nbf": "1561998237",
+				"exp": "1562027337",
+				"aio": "42ZgYIiJjWbx8bxVyveRu+vznCdbAA==",
+				"appid": "11c174dc-1945-4a9a-a36b-c79a0f246b9b",
+				"appidacr": "2",
+				"http://schemas.microsoft.com/identity/claims/identityprovider": "https://sts.windows.net/72f988bf-86f1-41af-91ab-2d7cd011db47/",
+				"http://schemas.microsoft.com/identity/claims/objectidentifier": "6cd43949-0f4d-45f1-81f0-9ada0a1fdbc8",
+				"http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier": "6cd43949-0f4d-45f1-81f0-9ada0a1fdbc8",
+				"http://schemas.microsoft.com/identity/claims/tenantid": "72f988bf-86f1-41af-91ab-2d7cd011db47",
+				"uti": "6rlIagub4UukMskHvKo6AA",
+				"ver": "1.0"
+			},
+			"correlationId": "a84b5e95-2d7a-43a5-853a-b7da7493788a",
+			"description": "",
+			"eventDataId": "06efe9ac-fc20-48e3-b58f-f8fd8ed1e105",
+			"eventName": {
+				"value": "BeginRequest",
+				"localizedValue": "BeginRequest"
+			},
+			"category": {
+				"value": "Administrative",
+				"localizedValue": "Administrative"
+			},
+			"httpRequest": {
+				"clientRequestId": "",
+				"clientIpAddress": "13.66.220.228",
+				"method": "PATCH"
+			},
+			"id": "/subscriptions/d03b04c7-d1d4-467b-aaaa-87b6fcb38b38/resourceGroups/VSDROP/providers/Microsoft.Web/serverFarms/VSDropAppServicePlan/events/06efe9ac-fc20-48e3-b58f-f8fd8ed1e105/ticks/636976173063439024",
+			"level": "Informational",
+			"resourceGroupName": "VSDROP",
+			"resourceProviderName": {
+				"value": "Microsoft.Web",
+				"localizedValue": "Microsoft.Web"
+			},
+			"resourceId": "/subscriptions/d03b04c7-d1d4-467b-aaaa-87b6fcb38b38/resourceGroups/VSDROP/providers/Microsoft.Web/serverFarms/VSDropAppServicePlan",
+			"resourceType": {
+				"value": "Microsoft.Web/serverFarms",
+				"localizedValue": "Microsoft.Web/serverFarms"
+			},
+			"operationId": "a84b5e95-2d7a-43a5-853a-b7da7493788a",
+			"operationName": {
+				"value": "Microsoft.Web/serverFarms/write",
+				"localizedValue": "Microsoft.Web/serverFarms/write"
+			},
+			"status": {
+				"value": "Started",
+				"localizedValue": "Started"
+			},
+			"subStatus": {
+				"value": "",
+				"localizedValue": ""
+			},
+			"eventTimestamp": "2019-07-01T22:35:06.3439024Z",
+			"submissionTimestamp": "2019-07-01T22:37:06.1458925Z",
+			"subscriptionId": "d03b04c7-d1d4-467b-aaaa-87b6fcb38b38",
+			"tenantId": "72f988bf-86f1-41af-91ab-2d7cd011db47"
+		}
+	]
+}
