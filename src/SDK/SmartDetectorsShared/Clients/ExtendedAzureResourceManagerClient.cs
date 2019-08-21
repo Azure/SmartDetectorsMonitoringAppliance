@@ -314,7 +314,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Clients
         /// Executes an ARM GET request, using the relative path, and query string.
         /// For example, the following call gets the list of databases for an SQL Server resource:
         /// <code>
-        /// List&lt;JObject&gt; databases = await ExecuteArmQueryAsync(sqlResource, "/databases", "api-version=2017-10-01-preview", cancellationToken);
+        /// List&lt;JObject&gt; databases = await ExecuteArmQueryAsync("subscriptions/subscriptionId/providers/microsoft.insights/eventtypes/management/values?api-version=2015-04-01", cancellationToken);
         /// </code>
         /// </summary>
         /// <param name="relativePath">The reltive path of the query.</param>

@@ -181,7 +181,7 @@ namespace MonitoringApplianceEmulatorTests.ViewModels
             Assert.AreEqual("TextReferenceDisplayName", displayableAlerts[propertyIndex].DisplayName);
             Assert.AreEqual("TextReference", displayableAlerts[propertyIndex].PropertyName);
             Assert.AreEqual(AlertPropertyType.Text, displayableAlerts[propertyIndex].Type);
-            Assert.AreEqual("VSDROP", ((TextAlertProperty)displayableAlerts[propertyIndex]).Value);
+            Assert.AreEqual("Property resourceGroupname doesn't exist in Response", ((TextAlertProperty)displayableAlerts[propertyIndex]).Value);
 
             propertyIndex++;
             Assert.AreEqual("LongTextReferenceDisplayName", displayableAlerts[propertyIndex].DisplayName);
@@ -291,7 +291,7 @@ namespace MonitoringApplianceEmulatorTests.ViewModels
 
             [SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic", Justification = "Test code, approved")]
             [TextProperty("TextReferenceDisplayName", Order = 1)]
-            public PropertyReference TextReference => new PropertyReference("resourceGroupName");
+            public PropertyReference TextReference => new PropertyReference("resourceGroupname");
 
             [SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic", Justification = "Test code, approved")]
             [TextProperty("TextReferenceTheSecond", Order = 5)]
