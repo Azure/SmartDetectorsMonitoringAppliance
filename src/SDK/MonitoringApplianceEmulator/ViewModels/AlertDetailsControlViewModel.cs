@@ -10,6 +10,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Linq;
+    using System.Net.Http;
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.Azure.Monitoring.SmartDetectors.Arm;
@@ -210,7 +211,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
                     }
                 }
             }
-            catch (Exception e)
+            catch (HttpRequestException e)
             {
                 string errorValue = $"Failed to get Arm Response, Error: {e.Message}";
 
