@@ -229,7 +229,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
                             throw new ArgumentException($"A {nameof(LongTextPropertyAttribute)} applied to properties of type {nameof(PropertyReference)} cannot have format string");
                         }
 
-                        yield return new LongTextReferenceAlertProperty(propertyName, displayName, order.Next(), propertyReferenceValue.ReferencePath);
+                        yield return new LongTextReferenceAlertProperty(propertyName, displayName, order.Next(), propertyReferenceValue.ReferencePath, propertyReferenceValue.IsOptional, propertyReferenceValue.IsPropertySerialized);
                     }
                     else
                     {
@@ -246,7 +246,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
                             throw new ArgumentException($"A {nameof(TextPropertyAttribute)} applied to properties of type {nameof(PropertyReference)} cannot have format string");
                         }
 
-                        yield return new TextReferenceAlertProperty(propertyName, displayName, order.Next(), propertyReferenceValue.ReferencePath);
+                        yield return new TextReferenceAlertProperty(propertyName, displayName, order.Next(), propertyReferenceValue.ReferencePath, propertyReferenceValue.IsOptional, propertyReferenceValue.IsPropertySerialized);
                     }
                     else
                     {
@@ -291,7 +291,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
 
                     List<AlertProperty> propertiesToDisplay = properties.Where(prop => prop is IReferenceAlertProperty).ToList();
 
-                    yield return new AzureResourceManagerRequestAlertProperty(propertyName, order.Next(), armRequest.RequestUri, propertiesToDisplay.Cast<DisplayableAlertProperty>().ToList());
+                    yield return new AzureResourceManagerRequestAlertProperty(propertyName, order.Next(), armRequest.RequestUri, propertiesToDisplay.Cast<DisplayableAlertProperty>().ToList(), armRequest.IsOptional);
                     break;
 
                 default:
@@ -324,7 +324,9 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
                     ConvertChartTypeToContractsChartType(chartAttribute.ChartType),
                     ConvertChartAxisTypeToContractsChartType(chartAttribute.XAxisType),
                     ConvertChartAxisTypeToContractsChartType(chartAttribute.YAxisType),
-                    propertyReferenceValue.ReferencePath);
+                    propertyReferenceValue.ReferencePath,
+                    propertyReferenceValue.IsOptional,
+                    propertyReferenceValue.IsPropertySerialized);
             }
 
             if (!(propertyValue is IList<ChartPoint> listValues))
@@ -366,8 +368,8 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
             if (propertyValue is PropertyReference propertyReferenceValue)
             {
                 return keyValueAttribute.ShowHeaders
-                    ? new KeyValueReferenceAlertProperty(propertyName, displayName, order.Next(), keyHeaderName, valueHeaderName, propertyReferenceValue.ReferencePath)
-                    : new KeyValueReferenceAlertProperty(propertyName, displayName, order.Next(), propertyReferenceValue.ReferencePath);
+                    ? new KeyValueReferenceAlertProperty(propertyName, displayName, order.Next(), keyHeaderName, valueHeaderName, propertyReferenceValue.ReferencePath, propertyReferenceValue.IsOptional, propertyReferenceValue.IsPropertySerialized)
+                    : new KeyValueReferenceAlertProperty(propertyName, displayName, order.Next(), propertyReferenceValue.ReferencePath, propertyReferenceValue.IsOptional, propertyReferenceValue.IsPropertySerialized);
             }
 
             if (!(propertyValue is IDictionary<string, string> keyValuePropertyValue))
@@ -400,7 +402,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
             {
                 if (tableAttribute is SingleColumnTablePropertyAttribute)
                 {
-                    return new TableReferenceAlertProperty(propertyName, displayName, order.Next(), tableAttribute.ShowHeaders, propertyReferenceValue.ReferencePath);
+                    return new TableReferenceAlertProperty(propertyName, displayName, order.Next(), tableAttribute.ShowHeaders, propertyReferenceValue.ReferencePath, propertyReferenceValue.IsOptional, propertyReferenceValue.IsPropertySerialized);
                 }
 
                 // tableAttribute is MultiColumnTablePropertyAttribute
@@ -419,7 +421,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.Extensions
                 }
 
                 return new TableReferenceAlertProperty(
-                    propertyName, displayName, order.Next(), tableAttribute.ShowHeaders, CreateTableColumns(tableReferenceRowType), propertyReferenceValue.ReferencePath);
+                    propertyName, displayName, order.Next(), tableAttribute.ShowHeaders, CreateTableColumns(tableReferenceRowType), propertyReferenceValue.ReferencePath, propertyReferenceValue.IsOptional, propertyReferenceValue.IsPropertySerialized);
             }
 
             // Validate we have a proper value

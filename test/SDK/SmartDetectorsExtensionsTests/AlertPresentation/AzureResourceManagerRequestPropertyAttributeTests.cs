@@ -28,6 +28,7 @@ namespace SmartDetectorsExtensionsTests.AlertPresentation
             AzureResourceManagerRequestAlertProperty armAlertProperty = (AzureResourceManagerRequestAlertProperty)contractsAlert.AlertProperties[0];
             Assert.AreEqual("ArmRequest", armAlertProperty.PropertyName);
             Assert.AreEqual(AlertPropertyType.AzureResourceManagerRequest, armAlertProperty.Type);
+            Assert.AreEqual(true, armAlertProperty.IsOptional);
             Assert.AreEqual("/some/query/path", armAlertProperty.AzureResourceManagerRequestUri.ToString());
             Assert.AreEqual(6, armAlertProperty.PropertiesToDisplay.Count);
 
@@ -51,6 +52,10 @@ namespace SmartDetectorsExtensionsTests.AlertPresentation
             propertyIndex++;
             Assert.AreEqual("MultiColumnTableReference", armAlertProperty.PropertiesToDisplay[propertyIndex].PropertyName);
             Assert.AreEqual(AlertPropertyType.Table, armAlertProperty.PropertiesToDisplay[propertyIndex].Type);
+            var tableReferenceAlertProperty = armAlertProperty.PropertiesToDisplay[propertyIndex] as TableReferenceAlertProperty;
+            Assert.IsNotNull(tableReferenceAlertProperty);
+            Assert.AreEqual(true, tableReferenceAlertProperty.IsOptional);
+            Assert.AreEqual(true, tableReferenceAlertProperty.IsPropertySerialized);
 
             propertyIndex++;
             Assert.AreEqual("SingleColumnTableReference", armAlertProperty.PropertiesToDisplay[propertyIndex].PropertyName);
@@ -92,7 +97,7 @@ namespace SmartDetectorsExtensionsTests.AlertPresentation
         public class ArmRequestWithDisplay : AzureResourceManagerRequest
         {
             public ArmRequestWithDisplay(Uri requestUri)
-                : base(requestUri)
+                : base(requestUri, true)
             {
             }
 
@@ -109,7 +114,7 @@ namespace SmartDetectorsExtensionsTests.AlertPresentation
             public PropertyReference ChartReference => new PropertyReference("chartReferencePath");
 
             [MultiColumnTableProperty("MultiColumnTableReferenceDisplayName", Order = 5, ShowHeaders = true)]
-            public TablePropertyReference<ReferenceTableData> MultiColumnTableReference => new TablePropertyReference<ReferenceTableData>("multiColumnTableReferencePath");
+            public TablePropertyReference<ReferenceTableData> MultiColumnTableReference => new TablePropertyReference<ReferenceTableData>("multiColumnTableReferencePath", true, true);
 
             [SingleColumnTableProperty("SingleColumnTableReferenceDisplayName", Order = 6, ShowHeaders = false)]
             public PropertyReference SingleColumnTableReference => new PropertyReference("singleColumnTableReference");
