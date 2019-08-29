@@ -13,6 +13,10 @@
         <converters:TablePropertyToTablePropertyControlViewModelConverter x:Key="TablePropertyToTablePropertyControlViewModelConverter" />
         <converters:ChartPropertyToChartPropertyControlViewModelConverter x:Key="ChartPropertyToChartPropertyControlViewModelConverter" />
         <converters:MetricChartPropertyToMetricChartPropertyControlViewModelConverter x:Key="MetricChartPropertyToMetricChartPropertyControlViewModelConverter" />
+        <converters:ConverterChain x:Key="InverseBooleanToVisibilityConverter">
+            <converters:InverseBooleanConverter/>
+            <BooleanToVisibilityConverter/>
+        </converters:ConverterChain>
         <Style TargetType="{x:Type ListViewItem}">
             <!-- This style is used in order to get rid of the default hovering/selecting experience of a list view item -->
             <Setter Property="Background" Value="Transparent" />
@@ -59,64 +63,70 @@
                 <Expander.Header>
                     <TextBlock Style="{StaticResource AlertDetailsSectionHeader}" Text="OTHER DETAILS"/>
                 </Expander.Header>
-                <ListView ItemsSource="{Binding DisplayableProperties}" BorderThickness="0"  Style="{StaticResource AlertPropertiesListViewStyle}"
-                          Background="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Control}}, Path=Background}">
-                    <ListView.Resources>
-                        <DataTemplate x:Key="TextProperty">
-                            <local:TextPropertyControl TextAlertProperty="{Binding }"/>
-                        </DataTemplate>
-                        <DataTemplate x:Key="LongTextProperty">
-                            <local:LongTextPropertyControl LongTextAlertProprety="{Binding }" />
-                        </DataTemplate>
-                        <DataTemplate x:Key="KeyValueProperty">
-                            <local:KeyValuePropertyControl KeyValueAlertProperty="{Binding }" />
-                        </DataTemplate>
-                        <DataTemplate x:Key="TableProperty">
-                            <local:TablePropertyControl DataContext="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ContentControl}}, Path=Content, Converter={StaticResource TablePropertyToTablePropertyControlViewModelConverter}}" />
-                        </DataTemplate>
-                        <DataTemplate x:Key="ChartProperty">
-                            <local:ChartPropertyControl DataContext="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ContentControl}}, Path=Content, Converter={StaticResource ChartPropertyToChartPropertyControlViewModelConverter}}" />
-                        </DataTemplate>
-                        <DataTemplate x:Key="MetricChartProperty">
-                            <local:MetricChartPropertyControl DataContext="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ContentControl}}, Path=Content, Converter={StaticResource MetricChartPropertyToMetricChartPropertyControlViewModelConverter}}" />
-                        </DataTemplate>
-                    </ListView.Resources>
-                    <ListView.ItemTemplate>
-                        <DataTemplate>
-                            <ContentControl Content="{Binding }" Margin="0,0,0,20" Background="Transparent">
-                                <ContentControl.Style>
-                                    <Style TargetType="ContentControl">
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding Type}" Value="Text">
-                                                <Setter Property="ContentTemplate" Value="{StaticResource TextProperty}"/>
-                                            </DataTrigger>
-                                            <DataTrigger Binding="{Binding Type}" Value="LongText">
-                                                <Setter Property="ContentTemplate" Value="{StaticResource LongTextProperty}"/>
-                                            </DataTrigger>
-                                            <DataTrigger Binding="{Binding Type}" Value="KeyValue">
-                                                <Setter Property="ContentTemplate" Value="{StaticResource KeyValueProperty}"/>
-                                            </DataTrigger>
-                                            <DataTrigger Binding="{Binding Type}" Value="Table">
-                                                <Setter Property="ContentTemplate" Value="{StaticResource TableProperty}"/>
-                                            </DataTrigger>
-                                            <DataTrigger Binding="{Binding Type}" Value="Chart">
-                                                <Setter Property="ContentTemplate" Value="{StaticResource ChartProperty}"/>
-                                            </DataTrigger>
-                                            <DataTrigger Binding="{Binding Type}" Value="MetricChart">
-                                                <Setter Property="ContentTemplate" Value="{StaticResource MetricChartProperty}"/>
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </ContentControl.Style>
-                            </ContentControl>
-                        </DataTemplate>
-                    </ListView.ItemTemplate>
-                    <ListView.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <WrapPanel Orientation="Horizontal" Width="600"></WrapPanel>
-                        </ItemsPanelTemplate>
-                    </ListView.ItemsPanel>
-                </ListView>
+                <Grid>
+                    <ProgressBar Margin="0,0,20,0" VerticalAlignment="Center" HorizontalAlignment="Center" Height="50" Width="50"
+                                 Style="{StaticResource MaterialDesignCircularProgressBar}" Value="0" IsIndeterminate="True"
+                                 Visibility="{Binding Path=DisplayablePropertiesTask.IsRunning, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                    <ListView ItemsSource="{Binding DisplayablePropertiesTask.Result}" BorderThickness="0"  Style="{StaticResource AlertPropertiesListViewStyle}"
+                              Background="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Control}}, Path=Background}"
+                              Visibility="{Binding Path=DisplayablePropertiesTask.IsRunning, Converter={StaticResource InverseBooleanToVisibilityConverter}}">
+                        <ListView.Resources>
+                            <DataTemplate x:Key="TextProperty">
+                                <local:TextPropertyControl TextAlertProperty="{Binding }"/>
+                            </DataTemplate>
+                            <DataTemplate x:Key="LongTextProperty">
+                                <local:LongTextPropertyControl LongTextAlertProperty="{Binding }" />
+                            </DataTemplate>
+                            <DataTemplate x:Key="KeyValueProperty">
+                                <local:KeyValuePropertyControl KeyValueAlertProperty="{Binding }" />
+                            </DataTemplate>
+                            <DataTemplate x:Key="TableProperty">
+                                <local:TablePropertyControl DataContext="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ContentControl}}, Path=Content, Converter={StaticResource TablePropertyToTablePropertyControlViewModelConverter}}" />
+                            </DataTemplate>
+                            <DataTemplate x:Key="ChartProperty">
+                                <local:ChartPropertyControl DataContext="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ContentControl}}, Path=Content, Converter={StaticResource ChartPropertyToChartPropertyControlViewModelConverter}}" />
+                            </DataTemplate>
+                            <DataTemplate x:Key="MetricChartProperty">
+                                <local:MetricChartPropertyControl DataContext="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ContentControl}}, Path=Content, Converter={StaticResource MetricChartPropertyToMetricChartPropertyControlViewModelConverter}}" />
+                            </DataTemplate>
+                        </ListView.Resources>
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <ContentControl Content="{Binding }" Margin="0,0,0,20" Background="Transparent">
+                                    <ContentControl.Style>
+                                        <Style TargetType="ContentControl">
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding Type}" Value="Text">
+                                                    <Setter Property="ContentTemplate" Value="{StaticResource TextProperty}"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding Type}" Value="LongText">
+                                                    <Setter Property="ContentTemplate" Value="{StaticResource LongTextProperty}"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding Type}" Value="KeyValue">
+                                                    <Setter Property="ContentTemplate" Value="{StaticResource KeyValueProperty}"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding Type}" Value="Table">
+                                                    <Setter Property="ContentTemplate" Value="{StaticResource TableProperty}"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding Type}" Value="Chart">
+                                                    <Setter Property="ContentTemplate" Value="{StaticResource ChartProperty}"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding Type}" Value="MetricChart">
+                                                    <Setter Property="ContentTemplate" Value="{StaticResource MetricChartProperty}"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </ContentControl.Style>
+                                </ContentControl>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                        <ListView.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <WrapPanel Orientation="Horizontal" Width="600"></WrapPanel>
+                            </ItemsPanelTemplate>
+                        </ListView.ItemsPanel>
+                    </ListView>
+                </Grid>
             </Expander>
         </StackPanel>
     </StackPanel>
