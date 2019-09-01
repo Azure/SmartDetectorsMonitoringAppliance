@@ -6,6 +6,7 @@
 
 namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.ViewModels
 {
+    using Microsoft.Azure.Monitoring.SmartDetectors.Arm;
     using Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.Controls;
     using Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.Models;
     using Unity.Attributes;
@@ -95,7 +96,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.MonitoringApplianceEmulator.
 
                 if (this.selectedAlert != null)
                 {
-                    this.AlertDetailsControlViewModel = new AlertDetailsControlViewModel(this.selectedAlert, this.AlertDetailsControlClosed);
+                    this.AlertDetailsControlViewModel = new AlertDetailsControlViewModel(this.selectedAlert, this.AlertDetailsControlClosed, this.smartDetectorRunner.ArmClient);
                 }
                 else
                 {
