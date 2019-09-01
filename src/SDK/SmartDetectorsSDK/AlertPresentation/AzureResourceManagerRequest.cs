@@ -21,7 +21,10 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.AlertPresentation
         /// Initializes a new instance of the <see cref="AzureResourceManagerRequest"/> class.
         /// </summary>
         /// <param name="requestUri">The request's URI. This must be a relative URI that will be executed against the ARM endpoint.</param>
-        /// <param name="isOptional">blah</param>
+        /// <param name="isOptional">
+        /// The flag indicating whether the property is optional.
+        /// If the property is optional and the request Uri call returns NotFound or non of the inner display properties can be rendered - then the property will not be diplayed
+        /// </param>
         protected AzureResourceManagerRequest(Uri requestUri, bool isOptional = false)
         {
             if (requestUri == null)
@@ -43,7 +46,10 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.AlertPresentation
         /// </summary>
         /// <param name="resource">The resource for which the ARM request should be made</param>
         /// <param name="requestSuffix">An optional suffix for the request, which will appended to the resource's URI</param>
-        /// <param name="isOptional">blah</param>
+        /// <param name="isOptional">
+        /// The flag indicating whether the property is optional.
+        /// If the property is optional and the request Uri call returns NotFound or non of the inner display properties can be rendered - then the property will not be diplayed
+        /// </param>
         protected AzureResourceManagerRequest(ResourceIdentifier resource, string requestSuffix, bool isOptional = false)
         {
             // Make sure that we'll be able to append the request suffix
@@ -70,7 +76,10 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.AlertPresentation
         /// <param name="resource">The resource for which to make the query</param>
         /// <param name="query">The query to run</param>
         /// <param name="queryTimeSpan">Optional time span to use for limiting the query data.</param>
-        /// <param name="isOptional">blah</param>
+        /// <param name="isOptional">
+        /// The flag indicating whether the property is optional.
+        /// If the property is optional and the request Uri call returns NotFound or non of the inner display properties can be rendered - then the property will not be diplayed
+        /// </param>
         protected AzureResourceManagerRequest(ResourceIdentifier resource, string query, TimeSpan? queryTimeSpan, bool isOptional = false)
         {
             if (string.IsNullOrEmpty(query))
@@ -118,8 +127,9 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.AlertPresentation
         public Uri RequestUri { get; }
 
         /// <summary>
-        /// Gets a value indicating whether d
-        /// </summary>
+        /// Gets a value indicating whether the property is optional.
+        /// If the property is optional and the request Uri call returns NotFound or non of the inner display properties can be rendered - then the property will not be diplayed
+        /// <summary>
         public bool IsOptional { get;  }
     }
 }
