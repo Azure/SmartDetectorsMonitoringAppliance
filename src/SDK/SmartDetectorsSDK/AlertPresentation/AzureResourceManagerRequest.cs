@@ -129,7 +129,7 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors.AlertPresentation
         /// <summary>
         /// Gets a value indicating whether the property is optional.
         /// If the property is optional and the request Uri call returns NotFound or non of the inner display properties can be rendered - then the property will not be diplayed
-        /// <summary>
+        /// </summary>
         public bool IsOptional { get;  }
     }
 }
