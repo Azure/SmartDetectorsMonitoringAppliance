@@ -30,6 +30,15 @@ namespace Microsoft.Azure.Monitoring.SmartDetectors
         Task<ILogAnalyticsClient> CreateLogAnalyticsClientAsync(ResourceIdentifier resource, CancellationToken cancellationToken);
 
         /// <summary>
+        /// Creates an instance of <see cref="ILogAnalyticsClient"/>, used for running queries on the specified Application Insights telemetry.
+        /// </summary>
+        /// <param name="applicationId">The application Id of the Application Insights resource to analyze.</param>
+        /// <param name="cancellationToken">The cancellation token</param>
+        /// <exception cref="TelemetryDataClientCreationException">A Log Analytics client could not be created for the specified resource.</exception>
+        /// <returns>The Log Analytics client, that can be used to run queries on the Application Insights telemetry.</returns>
+        Task<ILogAnalyticsClient> CreateLogAnalyticsClientAsync(string applicationId, CancellationToken cancellationToken);
+
+        /// <summary>
         /// Creates an instance of <see cref="IMetricClient"/>, used to fetch resource metrics.
         /// </summary>
         /// <param name="subscriptionId">The subscription Id</param>
