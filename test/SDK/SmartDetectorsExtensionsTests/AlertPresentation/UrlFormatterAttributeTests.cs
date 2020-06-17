@@ -27,14 +27,14 @@ namespace SmartDetectorsExtensionsTests.AlertPresentation
             Assert.AreEqual(AlertPropertyType.LongText, contractsAlert.AlertProperties[propertyIndex].Type);
             Assert.AreEqual("LongUrlDisplayName", ((LongTextAlertProperty)contractsAlert.AlertProperties[propertyIndex]).DisplayName);
             Assert.AreEqual(0, ((LongTextAlertProperty)contractsAlert.AlertProperties[propertyIndex]).Order);
-            Assert.AreEqual("<a href=\"https://www.bing.com/\" target=\"_blank\">LinkText Link text</a>", ((LongTextAlertProperty)contractsAlert.AlertProperties[propertyIndex]).Value);
+            Assert.AreEqual("<a href=\"https://www.bing.com/\">LinkText Link text</a>", ((LongTextAlertProperty)contractsAlert.AlertProperties[propertyIndex]).Value);
 
             propertyIndex++;
             Assert.AreEqual("UrlValue", contractsAlert.AlertProperties[propertyIndex].PropertyName);
             Assert.AreEqual(AlertPropertyType.Text, contractsAlert.AlertProperties[propertyIndex].Type);
             Assert.AreEqual("UrlDisplayName", ((TextAlertProperty)contractsAlert.AlertProperties[propertyIndex]).DisplayName);
             Assert.AreEqual(1, ((TextAlertProperty)contractsAlert.AlertProperties[propertyIndex]).Order);
-            Assert.AreEqual("<a href=\"https://www.microsoft.com/\" target=\"_blank\">LinkText Link text</a>", ((TextAlertProperty)contractsAlert.AlertProperties[propertyIndex]).Value);
+            Assert.AreEqual("<a href=\"https://www.microsoft.com/\">LinkText Link text</a>", ((TextAlertProperty)contractsAlert.AlertProperties[propertyIndex]).Value);
         }
 
         [ExpectedException(typeof(ArgumentException))]

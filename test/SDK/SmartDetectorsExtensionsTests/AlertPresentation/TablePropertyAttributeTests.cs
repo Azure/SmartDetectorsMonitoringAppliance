@@ -54,13 +54,13 @@ namespace SmartDetectorsExtensionsTests.AlertPresentation
             Assert.AreEqual("p11", multiColumnTableAlertProperty.Values[0]["Prop1"]);
             Assert.AreEqual("The value of Prop2 is p21", multiColumnTableAlertProperty.Values[0]["Prop2"]);
             Assert.AreEqual("p31", multiColumnTableAlertProperty.Values[0]["Prop3"]);
-            Assert.AreEqual("<a href=\"http://microsoft.com/\" target=\"_blank\">Link for NDP1</a>", multiColumnTableAlertProperty.Values[0]["UriProp"]);
+            Assert.AreEqual("<a href=\"http://microsoft.com/\">Link for NDP1</a>", multiColumnTableAlertProperty.Values[0]["UriProp"]);
 
             Assert.AreEqual(4, multiColumnTableAlertProperty.Values[1].Count);
             Assert.AreEqual("p12", multiColumnTableAlertProperty.Values[1]["Prop1"]);
             Assert.AreEqual("The value of Prop2 is p22", multiColumnTableAlertProperty.Values[1]["Prop2"]);
             Assert.AreEqual("p32", multiColumnTableAlertProperty.Values[1]["Prop3"]);
-            Assert.AreEqual("<a href=\"http://contoso.com/\" target=\"_blank\">Link for NDP2</a>", multiColumnTableAlertProperty.Values[1]["UriProp"]);
+            Assert.AreEqual("<a href=\"http://contoso.com/\">Link for NDP2</a>", multiColumnTableAlertProperty.Values[1]["UriProp"]);
 
             Assert.AreEqual(4, multiColumnTableAlertProperty.Columns.Count);
             Assert.AreEqual("Prop1", multiColumnTableAlertProperty.Columns[0].PropertyName);
