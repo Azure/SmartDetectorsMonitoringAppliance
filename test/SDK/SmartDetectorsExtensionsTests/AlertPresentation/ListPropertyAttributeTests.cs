@@ -26,15 +26,15 @@ namespace SmartDetectorsExtensionsTests.AlertPresentation
             int propertyIndex = 0;
             this.VerifyRawAlertProperty(contractsAlert.AlertProperties[propertyIndex++], "AdditionalData_0_RawProperty", "raw");
             this.VerifyTextAlertProperty(contractsAlert.AlertProperties[propertyIndex++], "AdditionalData_0_Name1", "First name title", 0, "First name");
-            this.VerifyTextAlertProperty(contractsAlert.AlertProperties[propertyIndex++], "AdditionalData_0_Uri1", "First link", 1, "<a href=\"https://xkcd.com/\" target=\"_blank\">Link to data 1</a>");
+            this.VerifyTextAlertProperty(contractsAlert.AlertProperties[propertyIndex++], "AdditionalData_0_Uri1", "First link", 1, "<a href=\"https://xkcd.com/\">Link to data 1</a>");
             this.VerifyTextAlertProperty(contractsAlert.AlertProperties[propertyIndex++], "AdditionalData_1_Name2", "Second name title", 2, "Second name");
-            this.VerifyTextAlertProperty(contractsAlert.AlertProperties[propertyIndex++], "AdditionalData_1_Uri2", "Second link", 3, "<a href=\"https://darwinawards.com/\" target=\"_blank\">Link to data 2</a>");
+            this.VerifyTextAlertProperty(contractsAlert.AlertProperties[propertyIndex++], "AdditionalData_1_Uri2", "Second link", 3, "<a href=\"https://darwinawards.com/\">Link to data 2</a>");
             this.VerifyRawAlertProperty(contractsAlert.AlertProperties[propertyIndex++], "AdditionalData_1_MoreData_0_RawProperty", "raw");
             this.VerifyTextAlertProperty(contractsAlert.AlertProperties[propertyIndex++], "AdditionalData_1_MoreData_0_Name1", "First name title", 4, "First name");
-            this.VerifyTextAlertProperty(contractsAlert.AlertProperties[propertyIndex++], "AdditionalData_1_MoreData_0_Uri1", "First link", 5, "<a href=\"https://xkcd.com/\" target=\"_blank\">Link to data 1</a>");
+            this.VerifyTextAlertProperty(contractsAlert.AlertProperties[propertyIndex++], "AdditionalData_1_MoreData_0_Uri1", "First link", 5, "<a href=\"https://xkcd.com/\">Link to data 1</a>");
             this.VerifyRawAlertProperty(contractsAlert.AlertProperties[propertyIndex++], "AdditionalData_1_MoreData_1_RawProperty", "raw");
             this.VerifyTextAlertProperty(contractsAlert.AlertProperties[propertyIndex++], "AdditionalData_1_MoreData_1_Name1", "First name title", 6, "First name");
-            this.VerifyTextAlertProperty(contractsAlert.AlertProperties[propertyIndex++], "AdditionalData_1_MoreData_1_Uri1", "First link", 7, "<a href=\"https://xkcd.com/\" target=\"_blank\">Link to data 1</a>");
+            this.VerifyTextAlertProperty(contractsAlert.AlertProperties[propertyIndex++], "AdditionalData_1_MoreData_1_Uri1", "First link", 7, "<a href=\"https://xkcd.com/\">Link to data 1</a>");
         }
 
         [ExpectedException(typeof(ArgumentException))]
