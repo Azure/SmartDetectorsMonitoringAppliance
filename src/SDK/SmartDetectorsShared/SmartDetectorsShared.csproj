@@ -29,7 +29,7 @@
     <PackageReference Include="NuProj.Common" Version="0.11.30" />
     <PackageReference Include="Polly" Version="5.7.0" />
     <PackageReference Include="StyleCop.Analyzers" Version="1.0.2" />
-    <PackageReference Include="System.Net.Http" Version="4.3.3" />
+    <PackageReference Include="System.Net.Http" Version="4.3.4" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\SmartDetectors.Extensions\SmartDetectors.Extensions.csproj" />
