@@ -16,7 +16,7 @@
     <PackageReference Include="Microsoft.Azure.WebJobs.Core" Version="2.1.0-beta4" />
     <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.6.2" />
     <PackageReference Include="Microsoft.Data.Services.Client" Version="5.8.4" />
-    <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="Polly" Version="5.7.0" />
     <PackageReference Include="StyleCop.Analyzers" Version="1.0.2" />
     <PackageReference Include="System.ComponentModel.EventBasedAsync" Version="4.3.0" />

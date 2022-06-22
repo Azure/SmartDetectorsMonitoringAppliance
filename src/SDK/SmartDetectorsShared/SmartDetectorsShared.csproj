@@ -25,7 +25,7 @@
     <PackageReference Include="Microsoft.Azure.Monitoring.SmartDetectors.RuntimeEnvironment.Contracts" Version="1.0.19" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Scripting" Version="2.8.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.6.2" />
-    <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="NuProj.Common" Version="0.11.30" />
     <PackageReference Include="Polly" Version="5.7.0" />
     <PackageReference Include="StyleCop.Analyzers" Version="1.0.2" />
